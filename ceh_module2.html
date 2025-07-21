@@ -229,6 +229,7 @@
             border-radius: 12px;
             font-family: 'Courier New', monospace;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .dork-card:hover {
@@ -264,6 +265,8 @@
             align-items: center;
             margin: 40px 0;
             position: relative;
+            min-height: 350px;
+            padding: 20px;
         }
 
         .wheel-center {
@@ -291,6 +294,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-size: 0.9em;
+            white-space: nowrap;
         }
 
         .wheel-item:hover {
@@ -298,11 +303,11 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
 
-        .wheel-item:nth-child(2) { top: -20px; left: 50%; transform: translateX(-50%); }
-        .wheel-item:nth-child(3) { top: 50px; right: -100px; }
-        .wheel-item:nth-child(4) { bottom: -20px; right: -50px; }
-        .wheel-item:nth-child(5) { bottom: -20px; left: -50px; }
-        .wheel-item:nth-child(6) { top: 50px; left: -100px; }
+        .wheel-item:nth-child(2) { top: 20px; left: 50%; transform: translateX(-50%); }
+        .wheel-item:nth-child(3) { top: 80px; right: 20px; }
+        .wheel-item:nth-child(4) { bottom: 20px; right: 80px; }
+        .wheel-item:nth-child(5) { bottom: 20px; left: 80px; }
+        .wheel-item:nth-child(6) { top: 80px; left: 20px; }
 
         .dns-flow {
             display: flex;
@@ -598,6 +603,7 @@
             border-radius: 15px;
             text-align: center;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .intel-card:hover {
@@ -2326,11 +2332,11 @@
             document.getElementById(sectionId).classList.add('active');
             
             // Update navigation - only if called from button click (event exists)
-            if (event && event.target) {
+            if (window.event && window.event.target) {
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
-                event.target.classList.add('active');
+                window.event.target.classList.add('active');
             } else {
                 // For keyboard navigation, find the correct button
                 document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -2477,6 +2483,36 @@
                         'site:example.com inurl:admin'
                     ],
                     risks: ['Hidden pages', 'Forgotten subdomains', 'Development environments']
+                },
+                'inurl': {
+                    operator: 'inurl:',
+                    description: 'Searches for URLs containing specific terms',
+                    examples: [
+                        'inurl:admin',
+                        'inurl:config',
+                        'inurl:backup'
+                    ],
+                    risks: ['Administrative panels', 'Configuration files', 'Backup directories']
+                },
+                'cache': {
+                    operator: 'cache:',
+                    description: 'Shows Google\'s cached version of a page',
+                    examples: [
+                        'cache:example.com',
+                        'cache:example.com/admin',
+                        'cache:example.com/private'
+                    ],
+                    risks: ['Deleted content', 'Modified information', 'Historical data']
+                },
+                'ext': {
+                    operator: 'ext:',
+                    description: 'Searches for specific file extensions',
+                    examples: [
+                        'ext:sql database',
+                        'ext:txt passwords',
+                        'ext:log errors'
+                    ],
+                    risks: ['Database dumps', 'Log files', 'Configuration files']
                 }
             };
             
@@ -2530,6 +2566,16 @@
                     ],
                     tools: ['LinkedIn', 'Twitter/X', 'Facebook', 'Instagram', 'TikTok']
                 },
+                'domains': {
+                    title: 'Domain/DNS Intelligence',
+                    techniques: [
+                        'DNS record enumeration',
+                        'Subdomain discovery',
+                        'Historical domain data',
+                        'Certificate transparency logs'
+                    ],
+                    tools: ['DNSRecon', 'Sublist3r', 'Amass', 'Certificate Search']
+                },
                 'people': {
                     title: 'People Search',
                     techniques: [
@@ -2539,6 +2585,16 @@
                         'Educational background verification'
                     ],
                     tools: ['Pipl', 'TruePeopleSearch', 'WhitePages', 'Spokeo']
+                },
+                'business': {
+                    title: 'Business Intelligence',
+                    techniques: [
+                        'Corporate structure analysis',
+                        'Financial information gathering',
+                        'Regulatory filing research',
+                        'Partnership and vendor analysis'
+                    ],
+                    tools: ['SEC EDGAR', 'OpenCorporates', 'Company registries', 'Trade databases']
                 }
             };
             
@@ -2592,6 +2648,54 @@
                         'Collaborative investigation'
                     ],
                     usage: 'Create entities and run transforms to discover relationships and gather intelligence visually.'
+                },
+                'theharvester': {
+                    name: 'theHarvester',
+                    description: 'Information gathering tool for email addresses, subdomains, and hosts',
+                    features: [
+                        'Email address enumeration',
+                        'Subdomain discovery',
+                        'Host identification',
+                        'Multiple search engine support',
+                        'Shodan integration'
+                    ],
+                    usage: 'theharvester -d domain.com -b google,bing,linkedin'
+                },
+                'recon-ng': {
+                    name: 'Recon-ng',
+                    description: 'Full-featured reconnaissance framework with modular approach',
+                    features: [
+                        'Modular framework structure',
+                        'Database integration',
+                        'Multiple API integrations',
+                        'Automated data correlation',
+                        'Reporting capabilities'
+                    ],
+                    usage: 'Load modules, configure settings, and run automated reconnaissance campaigns.'
+                },
+                'sherlock': {
+                    name: 'Sherlock',
+                    description: 'Social media username investigation tool',
+                    features: [
+                        'Multi-platform username search',
+                        'Social media account discovery',
+                        'Profile existence verification',
+                        'Batch processing support',
+                        'JSON output format'
+                    ],
+                    usage: 'sherlock username --timeout 10 --output results.txt'
+                },
+                'osrframework': {
+                    name: 'OSRFramework',
+                    description: 'Open Source Research Framework for OSINT investigations',
+                    features: [
+                        'Username enumeration across platforms',
+                        'Email pattern generation',
+                        'Phone number analysis',
+                        'Domain information gathering',
+                        'Data visualization tools'
+                    ],
+                    usage: 'usufy.py -n username -p twitter facebook linkedin'
                 }
             };
             
@@ -2607,7 +2711,7 @@
                 </ul>
                 
                 <h3>Usage:</h3>
-                <p>${toolData.usage}</p>
+                <p><code>${toolData.usage}</code></p>
                 
                 <h3>Ethical Considerations:</h3>
                 <ul>
@@ -2646,6 +2750,42 @@
                         'Follower network analysis'
                     ],
                     data_points: ['Location data', 'Interests', 'Political views', 'Daily routines', 'Social connections']
+                },
+                'facebook': {
+                    name: 'Facebook',
+                    intelligence_value: 'Personal relationships, family connections, interests',
+                    techniques: [
+                        'Friend network analysis',
+                        'Check-in location tracking',
+                        'Interest and page analysis',
+                        'Photo metadata extraction',
+                        'Event attendance tracking'
+                    ],
+                    data_points: ['Family relationships', 'Personal interests', 'Location history', 'Social events', 'Photos']
+                },
+                'instagram': {
+                    name: 'Instagram',
+                    intelligence_value: 'Visual lifestyle data, location information, daily activities',
+                    techniques: [
+                        'Photo EXIF data analysis',
+                        'Story and highlight review',
+                        'Hashtag pattern analysis',
+                        'Location tagging review',
+                        'Follower interaction analysis'
+                    ],
+                    data_points: ['Daily routines', 'Travel patterns', 'Lifestyle choices', 'Social circles', 'Interests']
+                },
+                'github': {
+                    name: 'GitHub',
+                    intelligence_value: 'Technical skills, code repositories, development practices',
+                    techniques: [
+                        'Repository analysis',
+                        'Commit history review',
+                        'Collaboration pattern analysis',
+                        'Technology stack identification',
+                        'Project timeline mapping'
+                    ],
+                    data_points: ['Programming languages', 'Project involvement', 'Code quality', 'Collaboration style', 'Technical interests']
                 }
             };
             
@@ -2702,6 +2842,42 @@
                         'TXT records (text information, SPF, DKIM)'
                     ],
                     tools: ['dig', 'nslookup', 'host', 'DNSRecon', 'Fierce']
+                },
+                'subdomain': {
+                    title: 'Subdomain Discovery',
+                    description: 'Finding hidden subdomains and services',
+                    information: [
+                        'Development and staging environments',
+                        'Administrative interfaces',
+                        'API endpoints',
+                        'Content delivery networks',
+                        'Third-party integrations'
+                    ],
+                    tools: ['Sublist3r', 'Amass', 'Subfinder', 'Gobuster', 'Fierce']
+                },
+                'reverse-dns': {
+                    title: 'Reverse DNS Lookup',
+                    description: 'Mapping IP addresses back to hostnames',
+                    information: [
+                        'Server naming conventions',
+                        'Network infrastructure mapping',
+                        'Hosted services identification',
+                        'ISP and hosting provider details',
+                        'Geographic location information'
+                    ],
+                    tools: ['dig -x', 'nslookup', 'host', 'DNSRecon', 'Fierce']
+                },
+                'zone-transfer': {
+                    title: 'Zone Transfer Attempts',
+                    description: 'Attempting to extract complete DNS zone files',
+                    information: [
+                        'Complete subdomain listing',
+                        'Internal naming conventions',
+                        'Network topology mapping',
+                        'Service enumeration',
+                        'Infrastructure documentation'
+                    ],
+                    tools: ['dig AXFR', 'DNSRecon', 'Fierce', 'host -l', 'nslookup']
                 }
             };
             
@@ -2727,6 +2903,340 @@
                     <li>Subdomain discovery leading to expanded attack surface</li>
                     <li>Infrastructure mapping and technology identification</li>
                     <li>Potential for DNS zone transfer vulnerabilities</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Network tool details
+        function showNetworkToolDetails(tool) {
+            const tools = {
+                'whatweb': {
+                    name: 'WhatWeb',
+                    description: 'Website fingerprinting tool that identifies web technologies',
+                    features: [
+                        'Web server identification',
+                        'CMS and framework detection',
+                        'JavaScript library enumeration',
+                        'Plugin and component discovery',
+                        'Version information extraction'
+                    ],
+                    usage: 'whatweb example.com -v'
+                },
+                'wappalyzer': {
+                    name: 'Wappalyzer',
+                    description: 'Technology profiler that identifies software on websites',
+                    features: [
+                        'Technology stack identification',
+                        'Analytics and tracking tools',
+                        'Advertising networks detection',
+                        'E-commerce platforms',
+                        'Content management systems'
+                    ],
+                    usage: 'Browser extension or command-line tool'
+                },
+                'builtwith': {
+                    name: 'BuiltWith',
+                    description: 'Website technology profiler and lead generation tool',
+                    features: [
+                        'Comprehensive technology reports',
+                        'Historical technology data',
+                        'Market share analysis',
+                        'Technology adoption trends',
+                        'Competitive intelligence'
+                    ],
+                    usage: 'Web interface or API access'
+                },
+                'netcraft': {
+                    name: 'Netcraft',
+                    description: 'Internet data mining and security service',
+                    features: [
+                        'Hosting history analysis',
+                        'Technology trend reports',
+                        'SSL certificate monitoring',
+                        'Phishing detection',
+                        'Uptime monitoring'
+                    ],
+                    usage: 'Web interface for site reports'
+                },
+                'shodan': {
+                    name: 'Shodan',
+                    description: 'Search engine for Internet-connected devices and services',
+                    features: [
+                        'Global device discovery',
+                        'Service and banner enumeration',
+                        'Vulnerability identification',
+                        'Geographic mapping',
+                        'Historical data analysis'
+                    ],
+                    usage: 'Web interface or API for automated queries'
+                },
+                'censys': {
+                    name: 'Censys',
+                    description: 'Internet-wide scanning and certificate analysis platform',
+                    features: [
+                        'Certificate transparency monitoring',
+                        'Internet-wide scanning data',
+                        'Attack surface management',
+                        'Threat hunting capabilities',
+                        'Historical scan data'
+                    ],
+                    usage: 'Web interface or API integration'
+                }
+            };
+            
+            const toolData = tools[tool] || tools['whatweb'];
+            const content = `
+                <h2>${toolData.name}</h2>
+                <h3>Description:</h3>
+                <p>${toolData.description}</p>
+                
+                <h3>Key Features:</h3>
+                <ul>
+                    ${toolData.features.map(feature => `<li>${feature}</li>`).join('')}
+                </ul>
+                
+                <h3>Usage:</h3>
+                <p><code>${toolData.usage}</code></p>
+                
+                <h3>Best Practices:</h3>
+                <ul>
+                    <li>Use responsibly and within legal boundaries</li>
+                    <li>Respect rate limits and terms of service</li>
+                    <li>Combine with other tools for comprehensive analysis</li>
+                    <li>Verify findings through multiple sources</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // DNS tool details
+        function showDNSToolDetails(tool) {
+            const tools = {
+                'nslookup': {
+                    name: 'nslookup',
+                    description: 'Built-in DNS lookup utility for querying DNS records',
+                    commands: [
+                        'nslookup example.com',
+                        'nslookup -type=MX example.com',
+                        'nslookup -type=NS example.com'
+                    ],
+                    advantages: ['Available on all systems', 'Simple to use', 'Interactive mode']
+                },
+                'dig': {
+                    name: 'dig',
+                    description: 'Advanced DNS lookup tool with flexible query options',
+                    commands: [
+                        'dig example.com',
+                        'dig @8.8.8.8 example.com MX',
+                        'dig example.com ANY +trace'
+                    ],
+                    advantages: ['Detailed output', 'Scriptable', 'Trace capability']
+                },
+                'dnsrecon': {
+                    name: 'DNSRecon',
+                    description: 'Comprehensive DNS enumeration and reconnaissance tool',
+                    commands: [
+                        'dnsrecon -d example.com',
+                        'dnsrecon -d example.com -t axfr',
+                        'dnsrecon -d example.com -D subdomain-list.txt'
+                    ],
+                    advantages: ['Multiple enumeration techniques', 'Zone transfer attempts', 'Subdomain brute forcing']
+                },
+                'fierce': {
+                    name: 'Fierce',
+                    description: 'Domain scanner for locating non-contiguous IP space',
+                    commands: [
+                        'fierce -dns example.com',
+                        'fierce -dns example.com -wordlist custom.txt',
+                        'fierce -range 192.168.1.0/24'
+                    ],
+                    advantages: ['Non-contiguous IP discovery', 'Subdomain enumeration', 'Network range scanning']
+                },
+                'sublist3r': {
+                    name: 'Sublist3r',
+                    description: 'Fast subdomains enumeration tool for penetration testers',
+                    commands: [
+                        'sublist3r -d example.com',
+                        'sublist3r -d example.com -v -t 100',
+                        'sublist3r -d example.com -e google,bing'
+                    ],
+                    advantages: ['Fast enumeration', 'Multiple search engines', 'Brute force capability']
+                },
+                'amass': {
+                    name: 'Amass',
+                    description: 'In-depth DNS enumeration and network mapping tool',
+                    commands: [
+                        'amass enum -d example.com',
+                        'amass enum -d example.com -active',
+                        'amass track -d example.com'
+                    ],
+                    advantages: ['Comprehensive enumeration', 'Active and passive modes', 'Data correlation']
+                }
+            };
+            
+            const toolData = tools[tool] || tools['dig'];
+            const content = `
+                <h2>${toolData.name}</h2>
+                <h3>Description:</h3>
+                <p>${toolData.description}</p>
+                
+                <h3>Common Commands:</h3>
+                <ul>
+                    ${toolData.commands.map(cmd => `<li><code>${cmd}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Advantages:</h3>
+                <ul>
+                    ${toolData.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
+                </ul>
+                
+                <h3>Security Considerations:</h3>
+                <ul>
+                    <li>May reveal internal network structure</li>
+                    <li>Can expose subdomain information</li>
+                    <li>Shows technology and hosting details</li>
+                    <li>Helps map attack surface</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Intelligence details functions
+        function showIntelDetails(category) {
+            const categories = {
+                'business': {
+                    title: 'Business Intelligence',
+                    description: 'Gathering information about organizational structure, finances, and strategic direction',
+                    sources: [
+                        'SEC filings and annual reports',
+                        'Press releases and news articles',
+                        'Executive interviews and presentations',
+                        'Industry analyst reports',
+                        'Company websites and investor relations'
+                    ],
+                    techniques: [
+                        'Financial statement analysis',
+                        'Market positioning assessment',
+                        'Strategic partnership mapping',
+                        'Competitive product comparison',
+                        'Leadership team profiling'
+                    ]
+                },
+                'technical': {
+                    title: 'Technical Intelligence',
+                    description: 'Understanding technology infrastructure, security tools, and development practices',
+                    sources: [
+                        'Job postings and requirements',
+                        'Technology blog posts and articles',
+                        'Conference presentations',
+                        'Open source code repositories',
+                        'Patent applications and filings'
+                    ],
+                    techniques: [
+                        'Technology stack fingerprinting',
+                        'Security tool identification',
+                        'Infrastructure analysis',
+                        'Development methodology assessment',
+                        'Innovation trend tracking'
+                    ]
+                },
+                'personnel': {
+                    title: 'Personnel Intelligence',
+                    description: 'Analyzing human resources, organizational structure, and key personnel',
+                    sources: [
+                        'LinkedIn professional profiles',
+                        'Company organizational charts',
+                        'Conference speaker lists',
+                        'Professional certification databases',
+                        'Industry publication bylines'
+                    ],
+                    techniques: [
+                        'Key personnel identification',
+                        'Organizational structure mapping',
+                        'Skills and expertise analysis',
+                        'Career progression tracking',
+                        'Professional network analysis'
+                    ]
+                },
+                'security': {
+                    title: 'Security Intelligence',
+                    description: 'Understanding security posture, incidents, and defensive capabilities',
+                    sources: [
+                        'Security incident reports',
+                        'Compliance certification databases',
+                        'Vulnerability disclosure programs',
+                        'Security vendor partnerships',
+                        'Industry security assessments'
+                    ],
+                    techniques: [
+                        'Incident history analysis',
+                        'Compliance framework assessment',
+                        'Security tool identification',
+                        'Vulnerability management review',
+                        'Incident response capability evaluation'
+                    ]
+                },
+                'digital': {
+                    title: 'Digital Footprint Analysis',
+                    description: 'Mapping online presence, digital assets, and web-based exposure',
+                    sources: [
+                        'Website and subdomain enumeration',
+                        'Social media presence analysis',
+                        'Digital marketing campaigns',
+                        'Search engine optimization data',
+                        'Online reputation management'
+                    ],
+                    techniques: [
+                        'Web presence mapping',
+                        'Social media monitoring',
+                        'SEO and marketing analysis',
+                        'Brand mention tracking',
+                        'Digital asset inventory'
+                    ]
+                },
+                'threat': {
+                    title: 'Threat Intelligence',
+                    description: 'Understanding threat landscape, attack patterns, and security risks',
+                    sources: [
+                        'Threat intelligence platforms',
+                        'Security vendor reports',
+                        'Industry threat sharing groups',
+                        'Dark web monitoring',
+                        'Vulnerability databases'
+                    ],
+                    techniques: [
+                        'Threat actor profiling',
+                        'Attack pattern analysis',
+                        'Vulnerability assessment',
+                        'Risk scoring and prioritization',
+                        'Threat landscape mapping'
+                    ]
+                }
+            };
+            
+            const categoryData = categories[category] || categories['business'];
+            const content = `
+                <h2>${categoryData.title}</h2>
+                <h3>Description:</h3>
+                <p>${categoryData.description}</p>
+                
+                <h3>Primary Sources:</h3>
+                <ul>
+                    ${categoryData.sources.map(source => `<li>${source}</li>`).join('')}
+                </ul>
+                
+                <h3>Analysis Techniques:</h3>
+                <ul>
+                    ${categoryData.techniques.map(technique => `<li>${technique}</li>`).join('')}
+                </ul>
+                
+                <h3>Ethical Guidelines:</h3>
+                <ul>
+                    <li>Use only publicly available information</li>
+                    <li>Respect intellectual property rights</li>
+                    <li>Follow industry research standards</li>
+                    <li>Maintain professional confidentiality</li>
                 </ul>
             `;
             showModal(content);
@@ -3253,180 +3763,6 @@
             lines.forEach((line, index) => {
                 line.style.animationDelay = `${index * 0.1}s`;
             });
-        }
-
-        // Intelligence details functions
-        function showIntelDetails(category) {
-            const categories = {
-                'business': {
-                    title: 'Business Intelligence',
-                    description: 'Gathering information about organizational structure, finances, and strategic direction',
-                    sources: [
-                        'SEC filings and annual reports',
-                        'Press releases and news articles',
-                        'Executive interviews and presentations',
-                        'Industry analyst reports',
-                        'Company websites and investor relations'
-                    ],
-                    techniques: [
-                        'Financial statement analysis',
-                        'Market positioning assessment',
-                        'Strategic partnership mapping',
-                        'Competitive product comparison',
-                        'Leadership team profiling'
-                    ]
-                },
-                'technical': {
-                    title: 'Technical Intelligence',
-                    description: 'Understanding technology infrastructure, security tools, and development practices',
-                    sources: [
-                        'Job postings and requirements',
-                        'Technology blog posts and articles',
-                        'Conference presentations',
-                        'Open source code repositories',
-                        'Patent applications and filings'
-                    ],
-                    techniques: [
-                        'Technology stack fingerprinting',
-                        'Security tool identification',
-                        'Infrastructure analysis',
-                        'Development methodology assessment',
-                        'Innovation trend tracking'
-                    ]
-                }
-            };
-            
-            const categoryData = categories[category] || categories['business'];
-            const content = `
-                <h2>${categoryData.title}</h2>
-                <h3>Description:</h3>
-                <p>${categoryData.description}</p>
-                
-                <h3>Primary Sources:</h3>
-                <ul>
-                    ${categoryData.sources.map(source => `<li>${source}</li>`).join('')}
-                </ul>
-                
-                <h3>Analysis Techniques:</h3>
-                <ul>
-                    ${categoryData.techniques.map(technique => `<li>${technique}</li>`).join('')}
-                </ul>
-                
-                <h3>Ethical Guidelines:</h3>
-                <ul>
-                    <li>Use only publicly available information</li>
-                    <li>Respect intellectual property rights</li>
-                    <li>Follow industry research standards</li>
-                    <li>Maintain professional confidentiality</li>
-                </ul>
-            `;
-            showModal(content);
-        }
-
-        // Network tool details
-        function showNetworkToolDetails(tool) {
-            const tools = {
-                'whatweb': {
-                    name: 'WhatWeb',
-                    description: 'Website fingerprinting tool that identifies web technologies',
-                    features: [
-                        'Web server identification',
-                        'CMS and framework detection',
-                        'JavaScript library enumeration',
-                        'Plugin and component discovery',
-                        'Version information extraction'
-                    ],
-                    usage: 'whatweb example.com -v'
-                },
-                'shodan': {
-                    name: 'Shodan',
-                    description: 'Search engine for Internet-connected devices and services',
-                    features: [
-                        'Global device discovery',
-                        'Service and banner enumeration',
-                        'Vulnerability identification',
-                        'Geographic mapping',
-                        'Historical data analysis'
-                    ],
-                    usage: 'Web interface or API for automated queries'
-                }
-            };
-            
-            const toolData = tools[tool] || tools['whatweb'];
-            const content = `
-                <h2>${toolData.name}</h2>
-                <h3>Description:</h3>
-                <p>${toolData.description}</p>
-                
-                <h3>Key Features:</h3>
-                <ul>
-                    ${toolData.features.map(feature => `<li>${feature}</li>`).join('')}
-                </ul>
-                
-                <h3>Usage:</h3>
-                <p><code>${toolData.usage}</code></p>
-                
-                <h3>Best Practices:</h3>
-                <ul>
-                    <li>Use responsibly and within legal boundaries</li>
-                    <li>Respect rate limits and terms of service</li>
-                    <li>Combine with other tools for comprehensive analysis</li>
-                    <li>Verify findings through multiple sources</li>
-                </ul>
-            `;
-            showModal(content);
-        }
-
-        // DNS tool details
-        function showDNSToolDetails(tool) {
-            const tools = {
-                'nslookup': {
-                    name: 'nslookup',
-                    description: 'Built-in DNS lookup utility for querying DNS records',
-                    commands: [
-                        'nslookup example.com',
-                        'nslookup -type=MX example.com',
-                        'nslookup -type=NS example.com'
-                    ],
-                    advantages: ['Available on all systems', 'Simple to use', 'Interactive mode']
-                },
-                'dig': {
-                    name: 'dig',
-                    description: 'Advanced DNS lookup tool with flexible query options',
-                    commands: [
-                        'dig example.com',
-                        'dig @8.8.8.8 example.com MX',
-                        'dig example.com ANY +trace'
-                    ],
-                    advantages: ['Detailed output', 'Scriptable', 'Trace capability']
-                }
-            };
-            
-            const toolData = tools[tool] || tools['dig'];
-            const content = `
-                <h2>${toolData.name}</h2>
-                <h3>Description:</h3>
-                <p>${toolData.description}</p>
-                
-                <h3>Common Commands:</h3>
-                <ul>
-                    ${toolData.commands.map(cmd => `<li><code>${cmd}</code></li>`).join('')}
-                </ul>
-                
-                <h3>Advantages:</h3>
-                <ul>
-                    ${toolData.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
-                </ul>
-                
-                <h3>Security Considerations:</h3>
-                <ul>
-                    <li>May reveal internal network structure</li>
-                    <li>Can expose subdomain information</li>
-                    <li>Shows technology and hosting details</li>
-                    <li>Helps map attack surface</li>
-                </ul>
-            `;
-            showModal(content);
         }
 
         // Close modal when clicking outside
