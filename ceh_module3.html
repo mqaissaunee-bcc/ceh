@@ -2166,4 +2166,1504 @@
                     <div style="margin: 20px 0;">
                         <button class="btn" onclick="runLabExercise('host-discovery')">🖥️ Exercise 1: Host Discovery</button>
                         <button class="btn" onclick="runLabExercise('port-scanning')">🔍 Exercise 2: Port Scanning</button>
-                        <button class="btn
+                        <button class="btn" onclick="runLabExercise('service-detection')">⚙️ Exercise 3: Service Detection</button>
+                        <button class="btn" onclick="runLabExercise('firewall-evasion')">🛡️ Exercise 4: Firewall Evasion</button>
+                        <button class="btn" onclick="runLabExercise('vuln-scanning')">🚨 Exercise 5: Vulnerability Scanning</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Lab Completion Checklist</h3>
+                    <div id="labScanChecklist">
+                        <label><input type="checkbox" id="host-disc"> ✅ Host discovery completed</label><br>
+                        <label><input type="checkbox" id="port-scan"> 🔍 Port scanning performed</label><br>
+                        <label><input type="checkbox" id="service-det"> ⚙️ Service detection executed</label><br>
+                        <label><input type="checkbox" id="firewall-eva"> 🛡️ Firewall evasion demonstrated</label><br>
+                        <label><input type="checkbox" id="vuln-scan"> 🚨 Vulnerability scanning completed</label><br>
+                        <label><input type="checkbox" id="report-scan"> 📝 Scanning report generated</label><br>
+                    </div>
+                    <button class="btn btn-success" onclick="generateScanReport()" id="scanReportBtn" style="margin-top: 20px;">📄 Generate Scanning Report</button>
+                </div>
+
+                <div class="card">
+                    <h3>🎉 Congratulations!</h3>
+                    <p>You have successfully completed CEH v13 Module 3: Scanning Networks!</p>
+                    
+                    <h4>📈 Your Learning Journey:</h4>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li>✅ Mastered network scanning fundamentals and methodologies</li>
+                        <li>✅ Learned advanced port scanning techniques (TCP, UDP, SYN, stealth)</li>
+                        <li>✅ Practiced host discovery and network mapping</li>
+                        <li>✅ Performed service detection and OS fingerprinting</li>
+                        <li>✅ Applied firewall identification and evasion techniques</li>
+                        <li>✅ Executed IDS/IPS evasion and stealth scanning</li>
+                        <li>✅ Completed vulnerability scanning and assessment</li>
+                    </ul>
+                    
+                    <h4>🚀 Next Steps:</h4>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li>Continue to Module 4: Enumeration</li>
+                        <li>Practice with real-world scanning scenarios</li>
+                        <li>Build your network scanning toolkit</li>
+                        <li>Prepare for the comprehensive CEH v13 certification exam</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed information -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let completedSections = [];
+        let assessmentAnswers = {};
+        let sectionOrder = ['overview', 'fundamentals', 'port-scanning', 'host-discovery', 'service-detection', 'firewall-evasion', 'stealth-scanning', 'vulnerability-scanning', 'tools', 'resources', 'assessment', 'lab'];
+        let assessmentQuestions = [
+            {
+                question: "Which Nmap scan type completes the full TCP three-way handshake?",
+                options: ["SYN scan (-sS)", "TCP Connect scan (-sT)", "FIN scan (-sF)", "NULL scan (-sN)"],
+                correct: 1,
+                explanation: "TCP Connect scan (-sT) completes the full TCP handshake, making it more detectable but more accurate."
+            },
+            {
+                question: "What does a 'filtered' port state typically indicate?",
+                options: ["Port is open and accepting connections", "Port is closed", "Firewall is blocking the port", "Service is not responding"],
+                correct: 2,
+                explanation: "A filtered port state indicates that a firewall, packet filter, or other network obstacle is blocking access to the port."
+            },
+            {
+                question: "Which Nmap timing template is the most aggressive?",
+                options: ["-T0 (Paranoid)", "-T3 (Normal)", "-T4 (Aggressive)", "-T5 (Insane)"],
+                correct: 3,
+                explanation: "-T5 (Insane) is the most aggressive timing template, sending packets as fast as possible."
+            },
+            {
+                question: "What is the primary advantage of SYN stealth scanning?",
+                options: ["Faster than TCP connect", "Doesn't complete connections", "Works without root privileges", "More accurate results"],
+                correct: 1,
+                explanation: "SYN stealth scanning doesn't complete the TCP connection, making it stealthier and less likely to be logged."
+            },
+            {
+                question: "Which tool is best suited for Internet-scale port scanning?",
+                options: ["Nmap", "Masscan", "Hping3", "Unicornscan"],
+                correct: 1,
+                explanation: "Masscan is designed for Internet-scale scanning and can scan the entire Internet in under 5 minutes."
+            },
+            {
+                question: "What does OS fingerprinting primarily analyze?",
+                options: ["Open ports", "Service banners", "TCP/IP stack behavior", "Network topology"],
+                correct: 2,
+                explanation: "OS fingerprinting analyzes TCP/IP stack behavior, including sequence numbers, window sizes, and response patterns."
+            },
+            {
+                question: "Which Nmap option enables service version detection?",
+                options: ["-sV", "-O", "-sC", "-A"],
+                correct: 0,
+                explanation: "-sV enables service version detection, which probes open ports to determine service and version information."
+            },
+            {
+                question: "What is the purpose of decoy scanning?",
+                options: ["Increase scan speed", "Hide the real source IP", "Bypass firewalls", "Improve accuracy"],
+                correct: 1,
+                explanation: "Decoy scanning uses multiple fake source IPs to hide the real source address and confuse security monitoring."
+            },
+            {
+                question: "Which scan type is most effective against simple packet filtering firewalls?",
+                options: ["TCP Connect", "SYN scan", "FIN scan", "UDP scan"],
+                correct: 2,
+                explanation: "FIN scans can bypass simple packet filtering firewalls that only block SYN packets but allow other TCP flags."
+            },
+            {
+                question: "What does the --source-port option in Nmap accomplish?",
+                options: ["Specifies target port", "Sets source port number", "Enables port randomization", "Increases scan speed"],
+                correct: 1,
+                explanation: "The --source-port option sets the source port number, often to trusted ports like 53 (DNS) to bypass filtering."
+            },
+            {
+                question: "Which vulnerability scanner is open source?",
+                options: ["Nessus", "Qualys", "OpenVAS", "Rapid7"],
+                correct: 2,
+                explanation: "OpenVAS is a comprehensive open-source vulnerability assessment and management solution."
+            },
+            {
+                question: "What is NEW in CEH v13 Module 3?",
+                options: ["Basic port scanning", "AI-enhanced scanning", "TCP three-way handshake", "Firewall detection"],
+                correct: 1,
+                explanation: "AI-enhanced scanning with machine learning optimization and automated evasion is new in CEH v13."
+            }
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            generateAssessment();
+            animateTerminal();
+            setupKeyboardNavigation();
+        });
+
+        // Keyboard navigation setup
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', function(event) {
+                // Handle Escape key to close modal
+                if (event.key === 'Escape') {
+                    closeModal();
+                    return;
+                }
+                
+                // Handle Left and Right arrow keys for section navigation
+                if (event.key === 'ArrowLeft') {
+                    navigateSection('previous');
+                    event.preventDefault();
+                } else if (event.key === 'ArrowRight') {
+                    navigateSection('next');
+                    event.preventDefault();
+                }
+            });
+        }
+
+        // Navigate between sections using keyboard
+        function navigateSection(direction) {
+            const currentIndex = sectionOrder.indexOf(currentSection);
+            let newIndex;
+            
+            if (direction === 'next') {
+                newIndex = currentIndex + 1;
+                if (newIndex >= sectionOrder.length) newIndex = 0; // Wrap to beginning
+            } else if (direction === 'previous') {
+                newIndex = currentIndex - 1;
+                if (newIndex < 0) newIndex = sectionOrder.length - 1; // Wrap to end
+            }
+            
+            const newSection = sectionOrder[newIndex];
+            showSection(newSection);
+            
+            // Update the navigation button appearance
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Find and activate the corresponding navigation button
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons[newIndex].classList.add('active');
+            
+            // Show navigation hint
+            showNavigationHint(direction, newSection);
+        }
+
+        // Show navigation hint
+        function showNavigationHint(direction, sectionName) {
+            const hint = document.createElement('div');
+            hint.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(45deg, var(--scan-primary), var(--scan-secondary));
+                color: white;
+                padding: 15px 25px;
+                border-radius: 25px;
+                font-weight: bold;
+                z-index: 9999;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            const arrow = direction === 'next' ? '→' : '←';
+            const sectionDisplay = sectionName.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            hint.innerHTML = `${arrow} ${sectionDisplay}`;
+            
+            document.body.appendChild(hint);
+            
+            setTimeout(() => {
+                hint.style.animation = 'slideOut 0.3s ease-in forwards';
+                setTimeout(() => document.body.removeChild(hint), 300);
+            }, 2000);
+        }
+
+        // Section navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.module-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation - only if called from button click (event exists)
+            if (event && event.target) {
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+            } else {
+                // For keyboard navigation, find the correct button
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                const sectionIndex = sectionOrder.indexOf(sectionId);
+                const navButtons = document.querySelectorAll('.nav-btn');
+                if (navButtons[sectionIndex]) {
+                    navButtons[sectionIndex].classList.add('active');
+                }
+            }
+            
+            // Mark section as visited
+            if (!completedSections.includes(sectionId)) {
+                completedSections.push(sectionId);
+                updateProgress();
+            }
+            
+            currentSection = sectionId;
+        }
+
+        // Progress tracking
+        function updateProgress() {
+            const totalSections = 12; // Total number of sections
+            const progressPercent = (completedSections.length / totalSections) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+            document.getElementById('progressText').textContent = `Progress: ${Math.round(progressPercent)}% Complete`;
+        }
+
+        // Methodology details
+        function showMethodologyDetails(phase) {
+            const phases = {
+                'host-discovery': {
+                    title: 'Host Discovery',
+                    description: 'Identifying live systems on the target network',
+                    techniques: [
+                        'ICMP ping sweeps',
+                        'TCP SYN/ACK pings',
+                        'UDP ping probes',
+                        'ARP requests (local networks)',
+                        'DNS reverse lookups'
+                    ],
+                    tools: ['Nmap -sn', 'Masscan', 'Fping', 'Netdiscover', 'Hping3']
+                },
+                'port-scanning': {
+                    title: 'Port Scanning',
+                    description: 'Enumerating open, closed, and filtered ports',
+                    techniques: [
+                        'TCP Connect scans',
+                        'SYN stealth scans',
+                        'UDP scans',
+                        'Advanced stealth scans',
+                        'Timing optimization'
+                    ],
+                    tools: ['Nmap', 'Masscan', 'Unicornscan', 'Hping3', 'Zmap']
+                }
+            };
+            
+            const phaseData = phases[phase] || phases['host-discovery'];
+            const content = `
+                <h2>${phaseData.title}</h2>
+                <h3>Description:</h3>
+                <p>${phaseData.description}</p>
+                
+                <h3>Key Techniques:</h3>
+                <ul>
+                    ${phaseData.techniques.map(technique => `<li>${technique}</li>`).join('')}
+                </ul>
+                
+                <h3>Common Tools:</h3>
+                <ul>
+                    ${phaseData.tools.map(tool => `<li>${tool}</li>`).join('')}
+                </ul>
+                
+                <h3>Best Practices:</h3>
+                <ul>
+                    <li>Start with passive techniques when possible</li>
+                    <li>Use timing controls to avoid detection</li>
+                    <li>Validate results with multiple methods</li>
+                    <li>Document all findings thoroughly</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Port state details
+        function showPortStateDetails(state) {
+            const states = {
+                'open': {
+                    title: 'Open Port',
+                    description: 'A service is actively listening and accepting connections',
+                    characteristics: [
+                        'Service responds to connection attempts',
+                        'TCP handshake completes successfully',
+                        'Application layer protocols accessible',
+                        'Potential entry point for attackers'
+                    ],
+                    examples: ['Web server on port 80/443', 'SSH on port 22', 'Email on port 25/110/143']
+                },
+                'closed': {
+                    title: 'Closed Port',
+                    description: 'No service is listening, but the port is accessible',
+                    characteristics: [
+                        'Target system receives probe',
+                        'Responds with RST packet',
+                        'No firewall blocking access',
+                        'System is reachable but service inactive'
+                    ],
+                    examples: ['Unused service ports', 'Disabled services', 'Non-standard port assignments']
+                },
+                'filtered': {
+                    title: 'Filtered Port',
+                    description: 'Firewall or packet filter is blocking access',
+                    characteristics: [
+                        'No response to connection attempts',
+                        'Packets dropped silently',
+                        'May indicate security controls',
+                        'Requires evasion techniques'
+                    ],
+                    examples: ['Firewall-protected services', 'ACL-blocked ports', 'IPS-filtered traffic']
+                }
+            };
+            
+            const stateData = states[state] || states['open'];
+            const content = `
+                <h2>${stateData.title}</h2>
+                <h3>Description:</h3>
+                <p>${stateData.description}</p>
+                
+                <h3>Characteristics:</h3>
+                <ul>
+                    ${stateData.characteristics.map(char => `<li>${char}</li>`).join('')}
+                </ul>
+                
+                <h3>Common Examples:</h3>
+                <ul>
+                    ${stateData.examples.map(example => `<li>${example}</li>`).join('')}
+                </ul>
+                
+                <h3>Scanning Implications:</h3>
+                <ul>
+                    <li>Affects scan timing and technique selection</li>
+                    <li>Influences result interpretation</li>
+                    <li>Guides further enumeration efforts</li>
+                    <li>Indicates security posture</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Scan details
+        function showScanDetails(scanType) {
+            const scans = {
+                'tcp': {
+                    title: 'TCP Connect Scan (-sT)',
+                    description: 'Completes the full TCP three-way handshake',
+                    advantages: [
+                        'Works without root privileges',
+                        'Highly accurate results',
+                        'Compatible with all TCP services',
+                        'Standard compliant connection'
+                    ],
+                    disadvantages: [
+                        'Easily detected and logged',
+                        'Slower than stealth scans',
+                        'Consumes system resources',
+                        'May trigger intrusion detection'
+                    ],
+                    usage: 'nmap -sT target'
+                },
+                'syn': {
+                    title: 'SYN Stealth Scan (-sS)',
+                    description: 'Half-open scan that doesn\'t complete connections',
+                    advantages: [
+                        'Stealthier than TCP connect',
+                        'Faster scanning speed',
+                        'Less likely to be logged',
+                        'Default Nmap scan type'
+                    ],
+                    disadvantages: [
+                        'Requires root privileges',
+                        'May not work through all firewalls',
+                        'Some applications detect half-open connections',
+                        'Raw socket dependency'
+                    ],
+                    usage: 'nmap -sS target'
+                },
+                'udp': {
+                    title: 'UDP Scan (-sU)',
+                    description: 'Discovers UDP services and applications',
+                    advantages: [
+                        'Finds UDP-only services',
+                        'Important for complete assessment',
+                        'Often overlooked by defenders',
+                        'Reveals network services like DNS, DHCP'
+                    ],
+                    disadvantages: [
+                        'Slower than TCP scans',
+                        'Less reliable responses',
+                        'Rate limiting by target systems',
+                        'Requires careful interpretation'
+                    ],
+                    usage: 'nmap -sU target'
+                }
+            };
+            
+            const scanData = scans[scanType] || scans['syn'];
+            const content = `
+                <h2>${scanData.title}</h2>
+                <h3>Description:</h3>
+                <p>${scanData.description}</p>
+                
+                <h3>Advantages:</h3>
+                <ul>
+                    ${scanData.advantages.map(adv => `<li>${adv}</li>`).join('')}
+                </ul>
+                
+                <h3>Disadvantages:</h3>
+                <ul>
+                    ${scanData.disadvantages.map(dis => `<li>${dis}</li>`).join('')}
+                </ul>
+                
+                <h3>Usage:</h3>
+                <p><code>${scanData.usage}</code></p>
+                
+                <h3>Best Practices:</h3>
+                <ul>
+                    <li>Combine with appropriate timing controls</li>
+                    <li>Use in conjunction with other scan types</li>
+                    <li>Consider target environment and constraints</li>
+                    <li>Validate results with alternative methods</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Command details
+        function showCommandDetails(command) {
+            const commands = {
+                'basic-scan': {
+                    title: 'Basic Port Scan',
+                    command: 'nmap target',
+                    description: 'Scans the top 1000 most common TCP ports',
+                    options: [
+                        'Uses SYN scan by default (with root)',
+                        'TCP connect scan without root',
+                        'Fast and efficient',
+                        'Good starting point for reconnaissance'
+                    ],
+                    examples: [
+                        'nmap 192.168.1.100',
+                        'nmap scanme.nmap.org',
+                        'nmap 192.168.1.0/24'
+                    ]
+                },
+                'aggressive-scan': {
+                    title: 'Aggressive Scan',
+                    command: 'nmap -A target',
+                    description: 'Comprehensive scan with multiple detection techniques',
+                    options: [
+                        'Enables OS detection (-O)',
+                        'Version detection (-sV)',
+                        'Script scanning (-sC)',
+                        'Traceroute (--traceroute)'
+                    ],
+                    examples: [
+                        'nmap -A 192.168.1.100',
+                        'nmap -A -T4 target.com',
+                        'nmap -A --script vuln target'
+                    ]
+                }
+            };
+            
+            const cmdData = commands[command] || commands['basic-scan'];
+            const content = `
+                <h2>${cmdData.title}</h2>
+                <h3>Command:</h3>
+                <p><code>${cmdData.command}</code></p>
+                
+                <h3>Description:</h3>
+                <p>${cmdData.description}</p>
+                
+                <h3>Options Included:</h3>
+                <ul>
+                    ${cmdData.options.map(option => `<li>${option}</li>`).join('')}
+                </ul>
+                
+                <h3>Example Usage:</h3>
+                <ul>
+                    ${cmdData.examples.map(example => `<li><code>${example}</code></li>`).join('')}
+                </ul>
+                
+                <h3>When to Use:</h3>
+                <ul>
+                    <li>Initial network reconnaissance</li>
+                    <li>Comprehensive target assessment</li>
+                    <li>Vulnerability discovery</li>
+                    <li>Security baseline establishment</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Discovery tool details
+        function showDiscoveryToolDetails(tool) {
+            const tools = {
+                'netdiscover': {
+                    name: 'Netdiscover',
+                    description: 'ARP reconnaissance tool for discovering live hosts on local networks',
+                    features: [
+                        'Layer 2 network discovery',
+                        'Passive and active modes',
+                        'MAC address identification',
+                        'Vendor identification from OUI'
+                    ],
+                    usage: 'netdiscover -r 192.168.1.0/24'
+                },
+                'masscan': {
+                    name: 'Masscan',
+                    description: 'Internet-scale port scanner for high-speed discovery',
+                    features: [
+                        'Extremely fast scanning rates',
+                        'Stateless operation',
+                        'Custom packet transmission rates',
+                        'Large network range support'
+                    ],
+                    usage: 'masscan -p1-65535 192.168.1.0/24 --rate=1000'
+                }
+            };
+            
+            const toolData = tools[tool] || tools['netdiscover'];
+            const content = `
+                <h2>${toolData.name}</h2>
+                <h3>Description:</h3>
+                <p>${toolData.description}</p>
+                
+                <h3>Key Features:</h3>
+                <ul>
+                    ${toolData.features.map(feature => `<li>${feature}</li>`).join('')}
+                </ul>
+                
+                <h3>Basic Usage:</h3>
+                <p><code>${toolData.usage}</code></p>
+                
+                <h3>Best Practices:</h3>
+                <ul>
+                    <li>Use appropriate timing for network conditions</li>
+                    <li>Respect network policies and authorization</li>
+                    <li>Combine with other discovery methods</li>
+                    <li>Validate results through multiple techniques</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Firewall details
+        function showFirewallDetails(type) {
+            const firewalls = {
+                'packet-filtering': {
+                    title: 'Packet Filtering Firewalls',
+                    description: 'Basic rule-based packet filtering',
+                    characteristics: [
+                        'Stateless operation',
+                        'Simple rule-based filtering',
+                        'Fast packet processing',
+                        'Limited connection awareness'
+                    ],
+                    evasion: [
+                        'ACK scanning can bypass',
+                        'Source port manipulation',
+                        'Fragmentation techniques',
+                        'Protocol-specific bypasses'
+                    ]
+                },
+                'stateful': {
+                    title: 'Stateful Firewalls',
+                    description: 'Track connection states and context',
+                    characteristics: [
+                        'Connection state tracking',
+                        'Bidirectional flow monitoring',
+                        'More intelligent filtering',
+                        'Better security than packet filtering'
+                    ],
+                    evasion: [
+                        'Timing manipulation',
+                        'Advanced fragmentation',
+                        'Protocol anomalies',
+                        'State table exhaustion'
+                    ]
+                }
+            };
+            
+            const firewallData = firewalls[type] || firewalls['packet-filtering'];
+            const content = `
+                <h2>${firewallData.title}</h2>
+                <h3>Description:</h3>
+                <p>${firewallData.description}</p>
+                
+                <h3>Characteristics:</h3>
+                <ul>
+                    ${firewallData.characteristics.map(char => `<li>${char}</li>`).join('')}
+                </ul>
+                
+                <h3>Evasion Techniques:</h3>
+                <ul>
+                    ${firewallData.evasion.map(tech => `<li>${tech}</li>`).join('')}
+                </ul>
+                
+                <h3>Detection Methods:</h3>
+                <ul>
+                    <li>Port scan response analysis</li>
+                    <li>TTL and timing analysis</li>
+                    <li>ICMP response patterns</li>
+                    <li>Service banner analysis</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Evasion details
+        function showEvasionDetails(technique) {
+            const techniques = {
+                'fragmentation': {
+                    title: 'Packet Fragmentation',
+                    command: 'nmap -f target',
+                    description: 'Splits packets into smaller fragments to evade detection',
+                    advantages: [
+                        'Bypasses simple packet filters',
+                        'Confuses signature-based detection',
+                        'May cause reassembly issues',
+                        'Effective against basic firewalls'
+                    ],
+                    limitations: [
+                        'Modern firewalls handle fragmentation',
+                        'May cause network instability',
+                        'Can be detected by advanced IDS',
+                        'Reassembly timeouts possible'
+                    ]
+                },
+                'decoys': {
+                    title: 'Decoy Scanning',
+                    command: 'nmap -D RND:10 target',
+                    description: 'Uses multiple fake source IPs to hide the real scanner',
+                    advantages: [
+                        'Obscures real source address',
+                        'Overwhelms log analysis',
+                        'Confuses attribution',
+                        'Distributes scanning load'
+                    ],
+                    limitations: [
+                        'Requires spoofable network position',
+                        'May impact network performance',
+                        'Advanced correlation can detect',
+                        'Increased scan complexity'
+                    ]
+                }
+            };
+            
+            const techData = techniques[technique] || techniques['fragmentation'];
+            const content = `
+                <h2>${techData.title}</h2>
+                <h3>Command:</h3>
+                <p><code>${techData.command}</code></p>
+                
+                <h3>Description:</h3>
+                <p>${techData.description}</p>
+                
+                <h3>Advantages:</h3>
+                <ul>
+                    ${techData.advantages.map(adv => `<li>${adv}</li>`).join('')}
+                </ul>
+                
+                <h3>Limitations:</h3>
+                <ul>
+                    ${techData.limitations.map(lim => `<li>${lim}</li>`).join('')}
+                </ul>
+                
+                <h3>Best Practices:</h3>
+                <ul>
+                    <li>Test effectiveness before relying on technique</li>
+                    <li>Combine with other evasion methods</li>
+                    <li>Monitor for detection signatures</li>
+                    <li>Adjust based on target responses</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Vulnerability scanner details
+        function showVulnScannerDetails(scanner) {
+            const scanners = {
+                'openvas': {
+                    name: 'OpenVAS',
+                    description: 'Comprehensive open-source vulnerability assessment framework',
+                    features: [
+                        '50,000+ Network Vulnerability Tests (NVTs)',
+                        'Web-based management interface',
+                        'Detailed reporting capabilities',
+                        'Regular security feed updates'
+                    ],
+                    strengths: [
+                        'No licensing costs',
+                        'Highly customizable',
+                        'Strong community support',
+                        'Enterprise-grade features'
+                    ],
+                    use_cases: [
+                        'Internal vulnerability assessments',
+                        'Compliance scanning',
+                        'Continuous monitoring',
+                        'Security research'
+                    ]
+                },
+                'nessus': {
+                    name: 'Nessus',
+                    description: 'Professional vulnerability scanner with industry-leading accuracy',
+                    features: [
+                        'High accuracy with low false positives',
+                        'Cloud and on-premise deployment',
+                        'Compliance framework support',
+                        'Advanced vulnerability correlation'
+                    ],
+                    strengths: [
+                        'Excellent detection accuracy',
+                        'Comprehensive vulnerability database',
+                        'Strong vendor support',
+                        'Regular plugin updates'
+                    ],
+                    use_cases: [
+                        'Professional penetration testing',
+                        'Enterprise vulnerability management',
+                        'Compliance assessments',
+                        'Risk management programs'
+                    ]
+                }
+            };
+            
+            const scannerData = scanners[scanner] || scanners['openvas'];
+            const content = `
+                <h2>${scannerData.name}</h2>
+                <h3>Description:</h3>
+                <p>${scannerData.description}</p>
+                
+                <h3>Key Features:</h3>
+                <ul>
+                    ${scannerData.features.map(feature => `<li>${feature}</li>`).join('')}
+                </ul>
+                
+                <h3>Strengths:</h3>
+                <ul>
+                    ${scannerData.strengths.map(strength => `<li>${strength}</li>`).join('')}
+                </ul>
+                
+                <h3>Common Use Cases:</h3>
+                <ul>
+                    ${scannerData.use_cases.map(usecase => `<li>${usecase}</li>`).join('')}
+                </ul>
+                
+                <h3>Best Practices:</h3>
+                <ul>
+                    <li>Keep vulnerability databases updated</li>
+                    <li>Validate findings with manual testing</li>
+                    <li>Prioritize based on risk assessment</li>
+                    <li>Integrate with vulnerability management workflow</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Scanning tool details
+        function showScanToolDetails(tool) {
+            const tools = {
+                'nmap': {
+                    name: 'Nmap (Network Mapper)',
+                    description: 'The ultimate network discovery and security auditing tool',
+                    features: [
+                        'Comprehensive port scanning options',
+                        'OS and service detection',
+                        'NSE scripting engine with 600+ scripts',
+                        'Timing and stealth options'
+                    ],
+                    advanced_features: [
+                        'Custom packet crafting',
+                        'Firewall evasion techniques',
+                        'IPv6 support',
+                        'Zenmap GUI interface'
+                    ],
+                    usage_examples: [
+                        'nmap -sS -sV -O target',
+                        'nmap --script vuln target',
+                        'nmap -T4 -A target/24'
+                    ]
+                },
+                'masscan': {
+                    name: 'Masscan',
+                    description: 'Internet-scale asynchronous port scanner',
+                    features: [
+                        'Extremely high scanning speeds',
+                        'Stateless scanning architecture',
+                        'Custom transmission rates',
+                        'Minimal resource consumption'
+                    ],
+                    advanced_features: [
+                        'Banner grabbing capabilities',
+                        'Output format compatibility',
+                        'Rate limiting controls',
+                        'Exclude list support'
+                    ],
+                    usage_examples: [
+                        'masscan -p1-65535 10.0.0.0/8 --rate=1000',
+                        'masscan -p80,443 0.0.0.0/0 --rate=10000',
+                        'masscan --banners -p1-1000 target/24'
+                    ]
+                }
+            };
+            
+            const toolData = tools[tool] || tools['nmap'];
+            const content = `
+                <h2>${toolData.name}</h2>
+                <h3>Description:</h3>
+                <p>${toolData.description}</p>
+                
+                <h3>Core Features:</h3>
+                <ul>
+                    ${toolData.features.map(feature => `<li>${feature}</li>`).join('')}
+                </ul>
+                
+                <h3>Advanced Features:</h3>
+                <ul>
+                    ${toolData.advanced_features.map(feature => `<li>${feature}</li>`).join('')}
+                </ul>
+                
+                <h3>Usage Examples:</h3>
+                <ul>
+                    ${toolData.usage_examples.map(example => `<li><code>${example}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Best Practices:</h3>
+                <ul>
+                    <li>Always obtain proper authorization before scanning</li>
+                    <li>Use appropriate timing to avoid detection</li>
+                    <li>Combine with other tools for comprehensive assessment</li>
+                    <li>Validate results through multiple methods</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Assessment functions
+        function generateAssessment() {
+            const assessmentContainer = document.getElementById('comprehensiveAssessment');
+            assessmentContainer.innerHTML = assessmentQuestions.map((q, index) => `
+                <div class="question">
+                    <h4>Question ${index + 1}: ${q.question}</h4>
+                    <div class="options">
+                        ${q.options.map((option, optIndex) => `
+                            <div class="option" onclick="selectAssessmentOption(${index}, ${optIndex}, this)">
+                                ${String.fromCharCode(65 + optIndex)}) ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectOption(element, isCorrect) {
+            // Remove previous selections in this question
+            element.parentNode.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            // Mark current selection
+            element.classList.add('selected');
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+        }
+
+        function selectAssessmentOption(questionIndex, optionIndex, element) {
+            // Store answer
+            assessmentAnswers[questionIndex] = optionIndex;
+            
+            // Visual feedback
+            element.parentNode.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        function submitAssessment() {
+            let score = 0;
+            let totalQuestions = assessmentQuestions.length;
+            
+            // Calculate score
+            for (let i = 0; i < totalQuestions; i++) {
+                if (assessmentAnswers[i] === assessmentQuestions[i].correct) {
+                    score++;
+                }
+            }
+            
+            const percentage = Math.round((score / totalQuestions) * 100);
+            
+            // Show results
+            const scoreDisplay = document.getElementById('assessmentScore');
+            scoreDisplay.style.display = 'block';
+            scoreDisplay.innerHTML = `
+                <h3>Assessment Results</h3>
+                <p>Score: ${score}/${totalQuestions} (${percentage}%)</p>
+                <p>${getScoreMessage(percentage)}</p>
+            `;
+            
+            // Show detailed feedback
+            showAssessmentFeedback();
+            
+            // Update buttons
+            document.getElementById('submitAssessmentBtn').style.display = 'none';
+            document.getElementById('resetAssessmentBtn').style.display = 'inline-block';
+            if (percentage >= 70) {
+                document.getElementById('labAccessBtn').style.display = 'inline-block';
+            }
+        }
+
+        function getScoreMessage(percentage) {
+            if (percentage >= 90) return "🎉 Excellent! You have mastered network scanning techniques!";
+            if (percentage >= 80) return "👍 Great job! You have a strong understanding of scanning methodologies!";
+            if (percentage >= 70) return "✅ Good work! You meet the minimum passing requirement!";
+            return "📚 Keep studying! Review the scanning material and try again.";
+        }
+
+        function showAssessmentFeedback() {
+            const assessmentContainer = document.getElementById('comprehensiveAssessment');
+            const questions = assessmentContainer.querySelectorAll('.question');
+            
+            questions.forEach((question, index) => {
+                const options = question.querySelectorAll('.option');
+                const userAnswer = assessmentAnswers[index];
+                const correctAnswer = assessmentQuestions[index].correct;
+                
+                options.forEach((option, optIndex) => {
+                    option.onclick = null; // Disable clicking
+                    if (optIndex === correctAnswer) {
+                        option.classList.add('correct');
+                    } else if (optIndex === userAnswer && optIndex !== correctAnswer) {
+                        option.classList.add('incorrect');
+                    }
+                });
+                
+                // Add explanation
+                const explanation = document.createElement('div');
+                explanation.style.cssText = 'margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid var(--scan-primary);';
+                explanation.innerHTML = `<strong>Explanation:</strong> ${assessmentQuestions[index].explanation}`;
+                question.appendChild(explanation);
+            });
+        }
+
+        function resetAssessment() {
+            assessmentAnswers = {};
+            generateAssessment();
+            document.getElementById('assessmentScore').style.display = 'none';
+            document.getElementById('submitAssessmentBtn').style.display = 'inline-block';
+            document.getElementById('resetAssessmentBtn').style.display = 'none';
+            document.getElementById('labAccessBtn').style.display = 'none';
+        }
+
+        // Lab functions
+        function runLabExercise(type) {
+            const terminal = document.getElementById('labScanTerminal');
+            terminal.innerHTML = ''; // Clear terminal
+            
+            const exercises = {
+                'host-discovery': [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sn 192.168.1.0/24' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for router.local (192.168.1.1)' },
+                    { type: 'output', text: 'Host is up (0.0010s latency).' },
+                    { type: 'output', text: 'MAC Address: 00:1A:2B:3C:4D:5E (Cisco Systems)' },
+                    { type: 'output', text: 'Nmap scan report for workstation.local (192.168.1.100)' },
+                    { type: 'output', text: 'Host is up (0.0023s latency).' },
+                    { type: 'output', text: 'MAC Address: 08:00:27:A1:B2:C3 (Oracle VirtualBox)' },
+                    { type: 'output', text: 'Nmap scan report for server.local (192.168.1.200)' },
+                    { type: 'output', text: 'Host is up (0.0015s latency).' },
+                    { type: 'output', text: 'MAC Address: 52:54:00:12:34:56 (QEMU/KVM)' },
+                    { type: 'info', text: 'Nmap done: 256 IP addresses (3 hosts up) scanned in 2.84 seconds' },
+                    { type: 'output', text: '✅ Host discovery exercise completed successfully' }
+                ],
+                'port-scanning': [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sS -p 1-1000 192.168.1.100' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for workstation.local (192.168.1.100)' },
+                    { type: 'output', text: 'Host is up (0.00050s latency).' },
+                    { type: 'output', text: 'PORT     STATE    SERVICE' },
+                    { type: 'output', text: '22/tcp   open     ssh' },
+                    { type: 'output', text: '80/tcp   open     http' },
+                    { type: 'output', text: '443/tcp  open     https' },
+                    { type: 'output', text: '3306/tcp filtered mysql' },
+                    { type: 'output', text: 'MAC Address: 08:00:27:A1:B2:C3 (Oracle VirtualBox)' },
+                    { type: 'info', text: 'Nmap done: 1 IP address (1 host up) scanned in 4.32 seconds' },
+                    { type: 'output', text: '✅ Port scanning exercise completed successfully' }
+                ],
+                'service-detection': [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sV -O 192.168.1.100' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for workstation.local (192.168.1.100)' },
+                    { type: 'output', text: 'Host is up (0.00050s latency).' },
+                    { type: 'output', text: 'PORT     STATE SERVICE    VERSION' },
+                    { type: 'output', text: '22/tcp   open  ssh        OpenSSH 8.9p1 Ubuntu 3ubuntu0.1' },
+                    { type: 'output', text: '80/tcp   open  http       Apache httpd 2.4.52' },
+                    { type: 'output', text: '443/tcp  open  ssl/http   Apache httpd 2.4.52' },
+                    { type: 'output', text: 'MAC Address: 08:00:27:A1:B2:C3 (Oracle VirtualBox)' },
+                    { type: 'info', text: 'Device type: general purpose' },
+                    { type: 'info', text: 'Running: Linux 5.X' },
+                    { type: 'info', text: 'OS details: Linux 5.0 - 5.4' },
+                    { type: 'output', text: 'Nmap done: 1 IP address (1 host up) scanned in 12.45 seconds' },
+                    { type: 'output', text: '✅ Service detection exercise completed successfully' }
+                ],
+                'firewall-evasion': [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sS 192.168.1.100' },
+                    { type: 'warning', text: 'Note: Host seems down. Possible firewall blocking.' },
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sS -Pn -f --source-port 53 192.168.1.100' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for firewall-protected.local (192.168.1.100)' },
+                    { type: 'output', text: 'Host is up (0.045s latency).' },
+                    { type: 'output', text: 'PORT     STATE    SERVICE' },
+                    { type: 'output', text: '22/tcp   filtered ssh' },
+                    { type: 'output', text: '80/tcp   open     http' },
+                    { type: 'output', text: '443/tcp  open     https' },
+                    { type: 'info', text: 'Firewall evasion successful! Using fragmentation and source port 53.' },
+                    { type: 'output', text: '✅ Firewall evasion exercise completed successfully' }
+                ],
+                'vuln-scanning': [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap --script vuln 192.168.1.100' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for target.local (192.168.1.100)' },
+                    { type: 'output', text: 'Host is up (0.0012s latency).' },
+                    { type: 'output', text: 'PORT     STATE SERVICE' },
+                    { type: 'output', text: '22/tcp   open  ssh' },
+                    { type: 'output', text: '| ssh-vuln-cve2018-15473:' },
+                    { type: 'output', text: '|   VULNERABLE:' },
+                    { type: 'output', text: '|   Username enumeration via malformed packet' },
+                    { type: 'output', text: '80/tcp   open  http' },
+                    { type: 'output', text: '| http-enum:' },
+                    { type: 'output', text: '|   /admin/: Possible admin folder' },
+                    { type: 'warning', text: '|   /backup/: Backup directory' },
+                    { type: 'error', text: '| http-vuln-cve2014-6271:' },
+                    { type: 'error', text: '|   VULNERABLE: CVE-2014-6271 Bash Bug (Shellshock)' },
+                    { type: 'output', text: 'Nmap done: 1 IP address (1 host up) scanned in 45.67 seconds' },
+                    { type: 'output', text: '✅ Vulnerability scanning exercise completed successfully' }
+                ]
+            };
+            
+            const lines = exercises[type] || exercises['host-discovery'];
+            lines.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                    
+                    // Update checklist
+                    if (index === lines.length - 1) {
+                        setTimeout(() => {
+                            const checkboxId = type.replace('-', '');
+                            const checkbox = document.getElementById(checkboxId);
+                            if (checkbox) checkbox.checked = true;
+                        }, 500);
+                    }
+                }, index * 800);
+            });
+        }
+
+        function generateScanReport() {
+            const checkedItems = document.querySelectorAll('#labScanChecklist input:checked').length;
+            const totalItems = document.querySelectorAll('#labScanChecklist input').length;
+            
+            if (checkedItems === totalItems) {
+                const report = `
+                    <h2>🎉 Network Scanning Report Generated Successfully!</h2>
+                    <h3>Executive Summary:</h3>
+                    <p>Comprehensive network scanning assessment completed with advanced techniques and methodologies demonstrated across all key areas.</p>
+                    
+                    <h3>Scanning Performance Assessment:</h3>
+                    <ul>
+                        <li>✅ Host discovery techniques mastered</li>
+                        <li>✅ Port scanning methodologies applied</li>
+                        <li>✅ Service detection and fingerprinting completed</li>
+                        <li>✅ Firewall evasion techniques demonstrated</li>
+                        <li>✅ Vulnerability scanning and assessment performed</li>
+                    </ul>
+                    
+                    <h3>🏆 Achievement Unlocked:</h3>
+                    <p style="background: linear-gradient(45deg, var(--scan-primary), var(--scan-secondary)); color: white; padding: 15px; border-radius: 10px; text-align: center; font-size: 1.2em;">
+                        <strong>CEH v13 Module 3 Master</strong><br>
+                        Network Scanning & Enumeration Specialist
+                    </p>
+                    
+                    <h3>📊 Technical Competencies:</h3>
+                    <ul>
+                        <li>Network discovery proficiency: Expert</li>
+                        <li>Port scanning techniques: Advanced</li>
+                        <li>Evasion methodologies: Proficient</li>
+                        <li>Tool utilization: Comprehensive</li>
+                        <li>Result analysis: Excellent</li>
+                    </ul>
+                    
+                    <h3>🎯 Recommendations:</h3>
+                    <ul>
+                        <li>Continue practicing with diverse network environments</li>
+                        <li>Develop custom scanning scripts and automation</li>
+                        <li>Stay updated with latest evasion techniques</li>
+                        <li>Practice responsible disclosure methodologies</li>
+                    </ul>
+                    
+                    <p><strong>Instructor Assessment:</strong> Student demonstrates exceptional mastery of network scanning techniques and is fully prepared for advanced enumeration and exploitation modules.</p>
+                `;
+                showModal(report);
+                document.getElementById('report-scan').checked = true;
+            } else {
+                alert('Please complete all scanning exercises before generating the report.');
+            }
+        }
+
+        // Interactive demonstration functions
+        function runBasicScanDemo() {
+            const terminal = document.getElementById('basicScanTerminal');
+            terminal.innerHTML = '';
+            
+            const scenarios = [
+                [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sn 10.0.0.0/24' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for gateway (10.0.0.1)' },
+                    { type: 'output', text: 'Host is up (0.0008s latency).' },
+                    { type: 'output', text: 'Nmap scan report for fileserver (10.0.0.50)' },
+                    { type: 'output', text: 'Host is up (0.0034s latency).' },
+                    { type: 'output', text: 'Nmap scan report for workstation (10.0.0.100)' },
+                    { type: 'output', text: 'Host is up (0.0021s latency).' },
+                    { type: 'output', text: 'Nmap done: 256 IP addresses (3 hosts up) scanned in 3.12 seconds' }
+                ],
+                [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sL 192.168.100.0/24' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for 192.168.100.1' },
+                    { type: 'output', text: 'Nmap scan report for 192.168.100.2' },
+                    { type: 'output', text: 'Nmap scan report for hr-workstation.company.local (192.168.100.45)' },
+                    { type: 'output', text: 'Nmap scan report for finance-server.company.local (192.168.100.78)' },
+                    { type: 'output', text: 'Nmap done: 256 IP addresses (0 hosts up) scanned in 0.15 seconds' }
+                ]
+            ];
+            
+            const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 800);
+            });
+        }
+
+        function runPortScanDemo() {
+            const terminal = document.getElementById('portScanTerminal');
+            terminal.innerHTML = '';
+            
+            const scenarios = [
+                [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sU -p 53,161,123 192.168.1.100' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for dns-server.local (192.168.1.100)' },
+                    { type: 'output', text: 'Host is up (0.00050s latency).' },
+                    { type: 'output', text: 'PORT    STATE         SERVICE' },
+                    { type: 'output', text: '53/udp  open          domain' },
+                    { type: 'output', text: '123/udp open|filtered ntp' },
+                    { type: 'output', text: '161/udp open|filtered snmp' },
+                    { type: 'output', text: 'Nmap done: 1 IP address (1 host up) scanned in 3.15 seconds' }
+                ],
+                [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sF -p 1-100 192.168.1.100' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for stealth-target.local (192.168.1.100)' },
+                    { type: 'output', text: 'Host is up (0.00050s latency).' },
+                    { type: 'output', text: 'PORT   STATE         SERVICE' },
+                    { type: 'output', text: '22/tcp open|filtered ssh' },
+                    { type: 'output', text: '80/tcp open|filtered http' },
+                    { type: 'info', text: 'FIN scan completed - results may vary by OS' },
+                    { type: 'output', text: 'Nmap done: 1 IP address (1 host up) scanned in 6.42 seconds' }
+                ]
+            ];
+            
+            const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 1000);
+            });
+        }
+
+        function runHostDiscoveryDemo() {
+            const terminal = document.getElementById('hostDiscoveryTerminal');
+            terminal.innerHTML = '';
+            
+            const scenarios = [
+                [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -PS22,80,443 -PA21,23,80,443 192.168.2.0/24' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for edge-firewall.local (192.168.2.1)' },
+                    { type: 'output', text: 'Host is up (0.0008s latency).' },
+                    { type: 'output', text: 'MAC Address: 00:50:56:C0:00:01 (VMware)' },
+                    { type: 'output', text: 'Nmap scan report for web-cluster-01.local (192.168.2.10)' },
+                    { type: 'output', text: 'Host is up (0.0018s latency).' },
+                    { type: 'output', text: 'MAC Address: 00:0C:29:4B:2A:F8 (VMware)' },
+                    { type: 'output', text: 'Nmap scan report for database-primary.local (192.168.2.20)' },
+                    { type: 'output', text: 'Host is up (0.0025s latency).' },
+                    { type: 'output', text: 'MAC Address: 52:54:00:5E:4C:91 (QEMU/KVM)' },
+                    { type: 'info', text: 'Advanced TCP ping scan completed successfully' }
+                ]
+            ];
+            
+            const scenario = scenarios[0];
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 800);
+            });
+        }
+
+        function runServiceDetectionDemo() {
+            const terminal = document.getElementById('serviceDetectionTerminal');
+            terminal.innerHTML = '';
+            
+            const scenarios = [
+                [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sV --version-intensity 9 192.168.1.100' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for enterprise-server.local (192.168.1.100)' },
+                    { type: 'output', text: 'Host is up (0.00050s latency).' },
+                    { type: 'output', text: 'PORT     STATE SERVICE    VERSION' },
+                    { type: 'output', text: '21/tcp   open  ftp        vsftpd 3.0.3' },
+                    { type: 'output', text: '22/tcp   open  ssh        OpenSSH 8.9p1 Ubuntu 3ubuntu0.1' },
+                    { type: 'output', text: '25/tcp   open  smtp       Postfix smtpd' },
+                    { type: 'output', text: '53/tcp   open  domain     ISC BIND 9.16.1-Ubuntu' },
+                    { type: 'output', text: '80/tcp   open  http       Apache httpd 2.4.52 ((Ubuntu))' },
+                    { type: 'output', text: '443/tcp  open  ssl/http   Apache httpd 2.4.52' },
+                    { type: 'output', text: '993/tcp  open  ssl/imap   Dovecot imapd 2.3.16' },
+                    { type: 'output', text: '995/tcp  open  ssl/pop3   Dovecot pop3d' },
+                    { type: 'info', text: 'Intensive version detection completed' }
+                ]
+            ];
+            
+            const scenario = scenarios[0];
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 1000);
+            });
+        }
+
+        function runFirewallEvasionDemo() {
+            const terminal = document.getElementById('firewallEvasionTerminal');
+            terminal.innerHTML = '';
+            
+            const scenarios = [
+                [
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sA 192.168.1.100' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for firewall-test.local (192.168.1.100)' },
+                    { type: 'output', text: 'Host is up (0.045s latency).' },
+                    { type: 'output', text: 'All 1000 scanned ports on 192.168.1.100 are filtered' },
+                    { type: 'prompt', text: 'scanner@kali:~$ nmap -sA -f -T1 --source-port 53 192.168.1.100' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for firewall-test.local (192.168.1.100)' },
+                    { type: 'output', text: 'HOST is up (0.12s latency).' },
+                    { type: 'output', text: 'PORT     STATE      SERVICE' },
+                    { type: 'output', text: '22/tcp   unfiltered ssh' },
+                    { type: 'output', text: '80/tcp   unfiltered http' },
+                    { type: 'output', text: '443/tcp  unfiltered https' },
+                    { type: 'info', text: 'Firewall fingerprint: Likely stateful firewall detected' },
+                    { type: 'output', text: 'Advanced evasion successful!' }
+                ]
+            ];
+            
+            const scenario = scenarios[0];
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 1000);
+            });
+        }
+
+        function runStealthScanDemo() {
+            const terminal = document.getElementById('stealthScanTerminal');
+            terminal.innerHTML = '';
+            
+            const scenarios = [
+                [
+                    { type: 'prompt', text: 'stealth@kali:~$ nmap -sS -T0 -f -D RND:3 --data-length 25 192.168.1.100' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'info', text: 'Ultra-stealth mode: Paranoid timing, fragmentation, decoys' },
+                    { type: 'output', text: 'Nmap scan report for secure-target.local (192.168.1.100)' },
+                    { type: 'output', text: 'Host is up (0.25s latency).' },
+                    { type: 'output', text: 'PORT     STATE    SERVICE' },
+                    { type: 'output', text: '22/tcp   open     ssh' },
+                    { type: 'output', text: '80/tcp   open     http' },
+                    { type: 'output', text: '443/tcp  open     https' },
+                    { type: 'info', text: 'Stealth scan completed - zero IDS alerts generated' },
+                    { type: 'prompt', text: 'stealth@kali:~$ ./ai_adaptive_scanner.py --stealth-mode 192.168.1.100' },
+                    { type: 'output', text: 'AI-Enhanced Stealth Scanner v3.0 - CEH v13' },
+                    { type: 'output', text: 'Analyzing defensive posture and adapting techniques...' },
+                    { type: 'info', text: '[AI] IDS patterns learned, evasion optimized' },
+                    { type: 'info', text: '[AI] Firewall behavior analyzed, bypass strategy selected' },
+                    { type: 'output', text: 'Adaptive stealth scan complete - perfect stealth maintained' }
+                ]
+            ];
+            
+            const scenario = scenarios[0];
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 1200);
+            });
+        }
+
+        function runVulnScanDemo() {
+            const terminal = document.getElementById('vulnScanTerminal');
+            terminal.innerHTML = '';
+            
+            const scenarios = [
+                [
+                    { type: 'prompt', text: 'vuln@kali:~$ nmap --script "vuln and safe" 192.168.1.100' },
+                    { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+                    { type: 'output', text: 'Nmap scan report for vulnerable-server.local (192.168.1.100)' },
+                    { type: 'output', text: 'Host is up (0.0012s latency).' },
+                    { type: 'output', text: 'PORT     STATE SERVICE' },
+                    { type: 'output', text: '21/tcp   open  ftp' },
+                    { type: 'output', text: '| ftp-vuln-cve2010-4221:' },
+                    { type: 'error', text: '|   VULNERABLE:' },
+                    { type: 'error', text: '|   ProFTPD 1.3.3c backdoor (CVE-2010-4221)' },
+                    { type: 'output', text: '22/tcp   open  ssh' },
+                    { type: 'output', text: '| ssh-vuln-cve2018-15473:' },
+                    { type: 'warning', text: '|   VULNERABLE:' },
+                    { type: 'warning', text: '|   SSH username enumeration vulnerability' },
+                    { type: 'output', text: '80/tcp   open  http' },
+                    { type: 'output', text: '| http-vuln-cve2017-5638:' },
+                    { type: 'error', text: '|   VULNERABLE:' },
+                    { type: 'error', text: '|   Apache Struts2 S2-045 RCE vulnerability' },
+                    { type: 'output', text: '443/tcp  open  https' },
+                    { type: 'output', text: '| ssl-poodle:' },
+                    { type: 'warning', text: '|   VULNERABLE:' },
+                    { type: 'warning', text: '|   SSL POODLE information leak vulnerability' },
+                    { type: 'info', text: 'Vulnerability scan complete: 4 critical issues found' }
+                ]
+            ];
+            
+            const scenario = scenarios[0];
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 1000);
+            });
+        }
+
+        function runAdvancedToolsDemo() {
+            const terminal = document.getElementById('advancedToolsTerminal');
+            terminal.innerHTML = '';
+            
+            const scenarios = [
+                [
+                    { type: 'prompt', text: 'tools@kali:~$ zmap -p 80 -o results.csv 10.0.0.0/8' },
+                    { type: 'output', text: 'zmap 2.1.1 ( https://zmap.io )' },
+                    { type: 'output', text: 'Scanning 16777216 addresses on port 80' },
+                    { type: 'output', text: 'Est. completion time: 00:04:23' },
+                    { type: 'output', text: '13% (2176000/16777216) complete. 5:21 remaining.' },
+                    { type: 'output', text: '45% (7549440/16777216) complete. 2:45 remaining.' },
+                    { type: 'output', text: '78% (13083648/16777216) complete. 1:12 remaining.' },
+                    { type: 'output', text: '100% complete. 45,892 hosts found.' },
+                    { type: 'prompt', text: 'tools@kali:~$ unicornscan -mT 192.168.1.0/24:1-1000' },
+                    { type: 'output', text: 'Main Thread: Scanning 256 hosts, 1000 ports per host.' },
+                    { type: 'output', text: 'TCP open 192.168.1.1:53 from 192.168.1.1 ttl 64' },
+                    { type: 'output', text: 'TCP open 192.168.1.100:22 from 192.168.1.100 ttl 64' },
+                    { type: 'output', text: 'TCP open 192.168.1.100:80 from 192.168.1.100 ttl 64' },
+                    { type: 'info', text: 'Advanced scanning tools demonstration complete' }
+                ]
+            ];
+            
+            const scenario = scenarios[0];
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 1000);
+            });
+        }
+
+        // Modal functions
+        function showModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            const modal = document.getElementById('detailModal');
+            modal.style.display = 'block';
+            
+            // Add fade-in animation
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('detailModal');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        function animateTerminal() {
+            const lines = document.querySelectorAll('.terminal-line');
+            lines.forEach((line, index) => {
+                line.style.animationDelay = `${index * 0.1}s`;
+            });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize progress tracking
+        updateProgress();
+    </script>
+</body>
+</html>
