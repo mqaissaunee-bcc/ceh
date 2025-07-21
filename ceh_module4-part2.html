@@ -1,1 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 4: Enumeration - Part 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --dark-bg: #1a1a1a;
+            --light-bg: #f8f9fa;
+            --text-dark: #2c3e50;
+            --text-light: #ecf0f1;
+            --border-color: #bdc3c7;
+            --enum-primary: #9b59b6;
+            --enum-secondary: #8e44ad;
+            --enum-accent: #e67e22;
+            --stealth-color: #34495e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8e44ad 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--enum-primary), var(--enum-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .part-indicator {
+            background: linear-gradient(45deg, #16a085, #1abc9c);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin: 15px 0;
+            display: inline-block;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 25px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: linear-gradient(90deg, #16a085, #1abc9c);
+            border-radius: 15px;
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .navigation {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: linear-gradient(45deg, #16a085, #1abc9c);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(45deg, var(--accent-color), #c0392b);
+        }
+
+        .prev-part-btn {
+            background: linear-gradient(45deg, var(--enum-primary), var(--enum-secondary));
+        }
+
+        .next-part-btn {
+            background: linear-gradient(45deg, var(--success-color), #27ae60);
+            font-size: 1.1em;
+            padding: 18px 35px;
+        }
+
+        .content-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+        }
+
+        .module-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .module-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 2em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #16a085;
+            padding-bottom: 10px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #16a085;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .interactive-demo {
+            background: rgba(26, 26, 26, 0.95);
+            color: var(--text-light);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .terminal {
+            background: #000;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .terminal-line {
+            margin: 5px 0;
+            opacity: 0;
+            animation: typeWriter 0.5s ease-in-out forwards;
+        }
+
+        @keyframes typeWriter {
+            to { opacity: 1; }
+        }
+
+        .prompt {
+            color: var(--success-color);
+        }
+
+        .output {
+            color: var(--text-light);
+        }
+
+        .error {
+            color: var(--accent-color);
+        }
+
+        .warning {
+            color: var(--warning-color);
+        }
+
+        .info {
+            color: var(--secondary-color);
+        }
+
+        .service-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .service-card {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .service-card h4 {
+            color: #1abc9c;
+            margin-bottom: 10px;
+        }
+
+        .attack-vectors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .attack-card {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .attack-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .ldap-techniques {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .ldap-card {
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: white;
+        }
+
+        .ldap-anonymous {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .ldap-users {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .ldap-groups {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .ldap-computers {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .ldap-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .dns-techniques {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .dns-card {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dns-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #16a085, #1abc9c);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, var(--success-color), #27ae60);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, var(--warning-color), #e67e22);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, var(--accent-color), #c0392b);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .navigation {
+                flex-direction: column;
+            }
+            
+            .ldap-techniques {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 CEH v13 Module 4</h1>
+            <p>Enumeration</p>
+            <div class="part-indicator">Part 2 of 4: Directory Services</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="progressText">Progress: 0% Complete</p>
+            <div style="margin-top: 15px; font-size: 0.9em; color: #7f8c8d;">
+                <span style="background: rgba(22,160,133,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    ← → Navigate Sections
+                </span>
+                <span style="background: rgba(231,76,60,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    Esc Close Modal
+                </span>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="prev-part-btn" onclick="goToPreviousPart()">← Back to Part 1</button>
+            <button class="nav-btn active" onclick="showSection('overview')">📋 Overview</button>
+            <button class="nav-btn" onclick="showSection('ldap-dns')">🏗️ LDAP & DNS</button>
+            <button class="nav-btn" onclick="showSection('rpc-nullsession')">🔌 RPC & Null Sessions</button>
+            <button class="nav-btn" onclick="showSection('advanced-techniques')">🎯 Advanced Techniques</button>
+            <button class="next-part-btn" onclick="goToNextPart()">Continue to Part 3 →</button>
+        </div>
+
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">🎯 Part 2: Directory Services Overview</h2>
+                
+                <div class="card">
+                    <h3>Welcome Back to Module 4!</h3>
+                    <p>In Part 1, you mastered the fundamentals of enumeration including NetBIOS, SMB, and SNMP techniques. Now in Part 2, we'll dive deep into directory services and advanced Windows enumeration attacks.</p>
+                    
+                    <h4>🎯 Part 2 Learning Objectives:</h4>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li>Master LDAP directory service enumeration and analysis</li>
+                        <li>Execute comprehensive DNS enumeration attacks</li>
+                        <li>Perform RPC enumeration and exploitation techniques</li>
+                        <li>Exploit null session vulnerabilities in Windows systems</li>
+                        <li>Apply advanced enumeration techniques and evasion methods</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>📚 Series Progress Tracker</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: linear-gradient(135deg, var(--success-color), #27ae60); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>✅ Part 1: Core Fundamentals</h4>
+                            <p><strong>Completed</strong></p>
+                            <ul style="margin: 10px 0; line-height: 1.6;">
+                                <li>Enumeration fundamentals</li>
+                                <li>NetBIOS & SMB enumeration</li>
+                                <li>SNMP enumeration</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #16a085, #1abc9c); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>📍 Part 2: Directory Services</h4>
+                            <p><strong>Current Module</strong></p>
+                            <ul style="margin: 10px 0; line-height: 1.6;">
+                                <li>LDAP & DNS enumeration</li>
+                                <li>RPC & null session attacks</li>
+                                <li>Advanced Windows techniques</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #95a5a6, #7f8c8d); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>⏳ Part 3: Modern Targets</h4>
+                            <ul style="margin: 10px 0; line-height: 1.6;">
+                                <li>Cloud enumeration (AWS, Azure, GCP)</li>
+                                <li>Database service enumeration</li>
+                                <li>Web application enumeration</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #95a5a6, #7f8c8d); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>⏳ Part 4: Assessment & Labs</h4>
+                            <ul style="margin: 10px 0; line-height: 1.6;">
+                                <li>Tool mastery and techniques</li>
+                                <li>Comprehensive assessment</li>
+                                <li>Hands-on enumeration labs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🆕 Advanced Directory Attack Vectors</h3>
+                    <p style="background: linear-gradient(45deg, #16a085, #1abc9c); color: white; padding: 15px; border-radius: 10px; margin: 15px 0;">
+                        <strong>Directory Services Focus:</strong> Part 2 introduces sophisticated directory enumeration and attack techniques targeting enterprise environments!
+                    </p>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li><strong>LDAP Injection Attacks:</strong> Exploiting directory service queries</li>
+                        <li><strong>DNS Zone Transfer Exploitation:</strong> Comprehensive network mapping</li>
+                        <li><strong>RPC Endpoint Enumeration:</strong> Windows service discovery</li>
+                        <li><strong>Null Session Exploitation:</strong> Anonymous information gathering</li>
+                        <li><strong>Active Directory Enumeration:</strong> Domain controller analysis</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('ldap-dns')">Begin Directory Enumeration! 🚀</button>
+            </div>
+
+            <!-- LDAP & DNS Enumeration Section -->
+            <div id="ldap-dns" class="module-section">
+                <h2 class="section-title">🏗️ LDAP & DNS Enumeration</h2>
+                
+                <div class="card">
+                    <h3>🔍 LDAP Directory Service Enumeration</h3>
+                    <p>Lightweight Directory Access Protocol (LDAP) is used for directory services like Active Directory. LDAP enumeration can reveal organizational structure, user accounts, groups, and system configuration information crucial for understanding enterprise environments.</p>
+                </div>
+
+                <div class="ldap-techniques">
+                    <div class="ldap-card ldap-anonymous" onclick="showLDAPDetails('anonymous')">
+                        <h3>🔓 Anonymous LDAP Queries</h3>
+                        <p><code>ldapsearch -x -h target -s base</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Domain naming context discovery</li>
+                            <li>Schema information extraction</li>
+                            <li>Server configuration details</li>
+                            <li>Supported authentication methods</li>
+                        </ul>
+                    </div>
+
+                    <div class="ldap-card ldap-users" onclick="showLDAPDetails('users')">
+                        <h3>👥 User Account Enumeration</h3>
+                        <p><code>ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=user)"</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>User account attributes and properties</li>
+                            <li>Email addresses and contact information</li>
+                            <li>Department and organizational data</li>
+                            <li>Password policy and account restrictions</li>
+                        </ul>
+                    </div>
+
+                    <div class="ldap-card ldap-groups" onclick="showLDAPDetails('groups')">
+                        <h3>🏢 Group Structure Analysis</h3>
+                        <p><code>ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=group)"</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Security and distribution groups</li>
+                            <li>Group membership relationships</li>
+                            <li>Nested group hierarchies</li>
+                            <li>Administrative privilege groups</li>
+                        </ul>
+                    </div>
+
+                    <div class="ldap-card ldap-computers" onclick="showLDAPDetails('computers')">
+                        <h3>🖥️ Computer Object Discovery</h3>
+                        <p><code>ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=computer)"</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Domain-joined computer inventory</li>
+                            <li>Server and workstation classification</li>
+                            <li>Operating system information</li>
+                            <li>Service principal names (SPNs)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🎮 LDAP Enumeration Demo</h3>
+                    <div class="terminal" id="ldapEnumTerminal">
+                        <div class="terminal-line prompt">enum@kali:~$ ldapsearch -x -h 192.168.1.100 -s base namingcontexts</div>
+                        <div class="terminal-line output"># extended LDIF</div>
+                        <div class="terminal-line output">#</div>
+                        <div class="terminal-line output"># LDAPv3</div>
+                        <div class="terminal-line output"># base &lt;&gt; (default) with scope baseObject</div>
+                        <div class="terminal-line output"># filter: (objectclass=*)</div>
+                        <div class="terminal-line output"># requesting: namingcontexts</div>
+                        <div class="terminal-line output">#</div>
+                        <div class="terminal-line output">dn:</div>
+                        <div class="terminal-line warning">namingcontexts: DC=corp,DC=company,DC=com</div>
+                        <div class="terminal-line warning">namingcontexts: CN=Configuration,DC=corp,DC=company,DC=com</div>
+                        <div class="terminal-line warning">namingcontexts: CN=Schema,CN=Configuration,DC=corp,DC=company,DC=com</div>
+                        <div class="terminal-line output"># search result</div>
+                        <div class="terminal-line output">search: 2</div>
+                        <div class="terminal-line output">result: 0 Success</div>
+                        <div class="terminal-line info"># numResponses: 2</div>
+                        <div class="terminal-line info"># numEntries: 1</div>
+                    </div>
+                    <button class="btn" onclick="runLDAPDemo()">🔄 Enumerate Users and Groups</button>
+                </div>
+
+                <div class="card">
+                    <h3>📊 DNS Enumeration Techniques</h3>
+                    <p>Domain Name System (DNS) enumeration reveals network infrastructure, subdomains, mail servers, and other critical network information. DNS attacks can provide comprehensive network mapping and identify additional attack vectors.</p>
+                </div>
+
+                <div class="dns-techniques">
+                    <div class="dns-card" onclick="showDNSDetails('zone-transfer')">
+                        <h4>🔄 DNS Zone Transfer</h4>
+                        <p><code>dig @nameserver domain.com AXFR</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Complete DNS zone information</li>
+                            <li>All DNS records for the domain</li>
+                            <li>Internal subdomain discovery</li>
+                            <li>Network topology mapping</li>
+                        </ul>
+                    </div>
+
+                    <div class="dns-card" onclick="showDNSDetails('record-types')">
+                        <h4>📝 DNS Record Enumeration</h4>
+                        <p><code>dig domain.com ANY</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>A, AAAA, MX, NS record discovery</li>
+                            <li>TXT and SPF record analysis</li>
+                            <li>CNAME and PTR record mapping</li>
+                            <li>SRV service record enumeration</li>
+                        </ul>
+                    </div>
+
+                    <div class="dns-card" onclick="showDNSDetails('subdomain-enum')">
+                        <h4>🔍 Subdomain Discovery</h4>
+                        <p><code>dnsrecon -d domain.com -t brt</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Brute force subdomain detection</li>
+                            <li>Dictionary-based enumeration</li>
+                            <li>Wildcard subdomain identification</li>
+                            <li>Certificate transparency searches</li>
+                        </ul>
+                    </div>
+
+                    <div class="dns-card" onclick="showDNSDetails('reverse-lookup')">
+                        <h4>🔄 Reverse DNS Lookup</h4>
+                        <p><code>dnsrecon -r 192.168.1.0/24</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>IP to hostname resolution</li>
+                            <li>Network range enumeration</li>
+                            <li>PTR record discovery</li>
+                            <li>Internal naming convention analysis</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🎮 DNS Enumeration Demo</h3>
+                    <div class="terminal" id="dnsEnumTerminal">
+                        <div class="terminal-line prompt">enum@kali:~$ dnsrecon -d company.com -t axfr</div>
+                        <div class="terminal-line output">[*] Testing NS Servers for Zone Transfer</div>
+                        <div class="terminal-line output">[*] Checking for Zone Transfer for company.com name servers</div>
+                        <div class="terminal-line output">[*] Resolving SOA Record</div>
+                        <div class="terminal-line output">[+]      SOA ns1.company.com 192.168.1.10</div>
+                        <div class="terminal-line warning">[+] Zone Transfer was successful!!</div>
+                        <div class="terminal-line output">[+]      NS ns1.company.com 192.168.1.10</div>
+                        <div class="terminal-line output">[+]      NS ns2.company.com 192.168.1.11</div>
+                        <div class="terminal-line output">[+]      A company.com 192.168.1.100</div>
+                        <div class="terminal-line output">[+]      A www.company.com 192.168.1.100</div>
+                        <div class="terminal-line output">[+]      A mail.company.com 192.168.1.50</div>
+                        <div class="terminal-line output">[+]      A ftp.company.com 192.168.1.60</div>
+                        <div class="terminal-line error">[+]      A intranet.company.com 192.168.1.200</div>
+                        <div class="terminal-line error">[+]      A admin.company.com 192.168.1.25</div>
+                        <div class="terminal-line output">[+]      MX company.com mail.company.com</div>
+                        <div class="terminal-line info">Zone transfer completed - 15 records discovered</div>
+                    </div>
+                    <button class="btn" onclick="runDNSDemo()">🔄 Perform Subdomain Brute Force</button>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('rpc-nullsession')">Next: RPC & Null Sessions →</button>
+            </div>
+
+            <!-- RPC & Null Session Section -->
+            <div id="rpc-nullsession" class="module-section">
+                <h2 class="section-title">🔌 RPC & Null Session Attacks</h2>
+                
+                <div class="card">
+                    <h3>🔍 Understanding RPC (Remote Procedure Call)</h3>
+                    <p>RPC allows programs to execute procedures on remote computers as if they were local calls. Windows uses RPC extensively for system administration, making it a valuable target for enumeration and exploitation. RPC services provide detailed system information when properly enumerated.</p>
+                </div>
+
+                <div class="service-cards">
+                    <div class="service-card" onclick="showRPCDetails('endpoint-discovery')">
+                        <h4>🔍 RPC Endpoint Discovery</h4>
+                        <p><code>rpcinfo -p target</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Available RPC services enumeration</li>
+                            <li>Port and protocol information</li>
+                            <li>Service version details</li>
+                            <li>Program numbers and versions</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card" onclick="showRPCDetails('msrpc-enum')">
+                        <h4>🔌 MSRPC Enumeration</h4>
+                        <p><code>rpcclient -U "" target</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Windows RPC service interaction</li>
+                            <li>User and group enumeration</li>
+                            <li>Domain information extraction</li>
+                            <li>Password policy discovery</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card" onclick="showRPCDetails('dce-rpc')">
+                        <h4>📊 DCE/RPC Analysis</h4>
+                        <p><code>impacket-rpcmap target</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Distributed Computing Environment</li>
+                            <li>Interface identification and mapping</li>
+                            <li>Endpoint mapper queries</li>
+                            <li>Service authentication requirements</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card" onclick="showRPCDetails('null-session')">
+                        <h4>🔓 Null Session Exploitation</h4>
+                        <p><code>net use \\target\ipc$ "" /user:""</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Anonymous connection establishment</li>
+                            <li>Information extraction without credentials</li>
+                            <li>Legacy Windows vulnerability exploitation</li>
+                            <li>Administrative share access testing</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🎮 RPC Enumeration Demo</h3>
+                    <div class="terminal" id="rpcEnumTerminal">
+                        <div class="terminal-line prompt">enum@kali:~$ rpcclient -U "" -N 192.168.1.100</div>
+                        <div class="terminal-line output">rpcclient $&gt; enumdomusers</div>
+                        <div class="terminal-line output">user:[Administrator] rid:[0x1f4]</div>
+                        <div class="terminal-line output">user:[Guest] rid:[0x1f5]</div>
+                        <div class="terminal-line output">user:[krbtgt] rid:[0x1f6]</div>
+                        <div class="terminal-line warning">user:[john.smith] rid:[0x44f]</div>
+                        <div class="terminal-line warning">user:[jane.doe] rid:[0x450]</div>
+                        <div class="terminal-line error">user:[service_account] rid:[0x451]</div>
+                        <div class="terminal-line output">rpcclient $&gt; enumdomgroups</div>
+                        <div class="terminal-line output">group:[Domain Admins] rid:[0x200]</div>
+                        <div class="terminal-line output">group:[Domain Users] rid:[0x201]</div>
+                        <div class="terminal-line error">group:[Enterprise Admins] rid:[0x206]</div>
+                        <div class="terminal-line output">rpcclient $&gt; getdompwinfo</div>
+                        <div class="terminal-line warning">min_password_length: 7</div>
+                        <div class="terminal-line warning">password_properties: 0x00000001</div>
+                        <div class="terminal-line output">rpcclient $&gt; quit</div>
+                    </div>
+                    <button class="btn" onclick="runRPCDemo()">🔄 Enumerate Shared Resources</button>
+                </div>
+
+                <div class="attack-vectors">
+                    <div class="attack-card" onclick="showNullSessionDetails('establishment')">
+                        <h4>🔓 Null Session Establishment</h4>
+                        <p>Creating anonymous SMB connections</p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>IPC$ share connection techniques</li>
+                            <li>Anonymous SMB session creation</li>
+                            <li>Registry and service access methods</li>
+                            <li>Credential-free information gathering</li>
+                        </ul>
+                    </div>
+
+                    <div class="attack-card" onclick="showNullSessionDetails('enumeration')">
+                        <h4>📊 Information Extraction</h4>
+                        <p>Systematic data collection via null sessions</p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Comprehensive user and group enumeration</li>
+                            <li>Network share and resource discovery</li>
+                            <li>System configuration extraction</li>
+                            <li>Security policy information gathering</li>
+                        </ul>
+                    </div>
+
+                    <div class="attack-card" onclick="showNullSessionDetails('exploitation')">
+                        <h4>🎯 Advanced Exploitation</h4>
+                        <p>Leveraging null session access for attacks</p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Registry key manipulation and access</li>
+                            <li>Service enumeration and control</li>
+                            <li>File system access through shares</li>
+                            <li>Privilege escalation preparation</li>
+                        </ul>
+                    </div>
+
+                    <div class="attack-card" onclick="showNullSessionDetails('countermeasures')">
+                        <h4>🛡️ Security Countermeasures</h4>
+                        <p>Protecting against null session attacks</p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>RestrictAnonymous registry configuration</li>
+                            <li>SMB signing and encryption enforcement</li>
+                            <li>Access control and authentication hardening</li>
+                            <li>Network segmentation and monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔧 RPC Enumeration Tool Arsenal</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: #2c3e50; color: white; padding: 15px; border-radius: 8px;">
+                            <h4>🔍 rpcclient</h4>
+                            <p>Windows RPC client and enumeration tool</p>
+                            <p><code>rpcclient -U "" -N target</code></p>
+                        </div>
+                        
+                        <div style="background: #8e44ad; color: white; padding: 15px; border-radius: 8px;">
+                            <h4>📊 rpcinfo</h4>
+                            <p>RPC service information gathering</p>
+                            <p><code>rpcinfo -p target</code></p>
+                        </div>
+                        
+                        <div style="background: #16a085; color: white; padding: 15px; border-radius: 8px;">
+                            <h4>🎯 impacket</h4>
+                            <p>Python-based RPC exploitation suite</p>
+                            <p><code>impacket-rpcmap target</code></p>
+                        </div>
+                        
+                        <div style="background: #d35400; color: white; padding: 15px; border-radius: 8px;">
+                            <h4>🔧 nullinux</h4>
+                            <p>Automated null session enumeration</p>
+                            <p><code>nullinux.py target</code></p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('advanced-techniques')">Next: Advanced Techniques →</button>
+            </div>
+
+            <!-- Advanced Techniques Section -->
+            <div id="advanced-techniques" class="module-section">
+                <h2 class="section-title">🎯 Advanced Enumeration Techniques</h2>
+                
+                <div class="card">
+                    <h3>🚀 Enterprise-Grade Enumeration</h3>
+                    <p>Advanced enumeration techniques combine multiple attack vectors and sophisticated methods to extract comprehensive information from enterprise environments. These techniques are essential for thorough security assessments and penetration testing engagements.</p>
+                </div>
+
+                <div class="service-cards">
+                    <div class="service-card" onclick="showAdvancedDetails('active-directory')">
+                        <h4>🏢 Active Directory Enumeration</h4>
+                        <p><code>windapsearch.py -d domain.com --dc-ip 192.168.1.100</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Domain controller discovery and analysis</li>
+                            <li>Trust relationship enumeration</li>
+                            <li>Group Policy Object (GPO) analysis</li>
+                            <li>Service Principal Name (SPN) discovery</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card" onclick="showAdvancedDetails('bloodhound')">
+                        <h4>🩸 BloodHound Analysis</h4>
+                        <p><code>bloodhound-python -d domain.com -ns 192.168.1.100</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Attack path identification and mapping</li>
+                            <li>Privilege escalation route discovery</li>
+                            <li>Domain administrative access paths</li>
+                            <li>Kerberoasting target identification</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card" onclick="showAdvancedDetails('stealth-enum')">
+                        <h4>🥷 Stealth Enumeration</h4>
+                        <p><code>enum4linux -a -v target 2&gt;/dev/null</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Low-noise enumeration techniques</li>
+                            <li>IDS/IPS evasion methods</li>
+                            <li>Timing-based detection avoidance</li>
+                            <li>Log signature minimization</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card" onclick="showAdvancedDetails('powershell-enum')">
+                        <h4>💻 PowerShell Enumeration</h4>
+                        <p><code>powershell -c "Get-ADUser -Filter * -Properties *"</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Native Windows enumeration capabilities</li>
+                            <li>Active Directory PowerShell module usage</li>
+                            <li>WMI and CIM-based information gathering</li>
+                            <li>Event log and security audit analysis</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🎮 Advanced Enumeration Demo</h3>
+                    <div class="terminal" id="advancedEnumTerminal">
+                        <div class="terminal-line prompt">advanced@kali:~$ bloodhound-python -d corp.company.com -ns 192.168.1.100 -u guest -p ""</div>
+                        <div class="terminal-line output">INFO: Found AD domain: corp.company.com</div>
+                        <div class="terminal-line output">INFO: Connecting to LDAP server: dc01.corp.company.com</div>
+                        <div class="terminal-line output">INFO: Found 1 domains</div>
+                        <div class="terminal-line output">INFO: Found 1 domains in the forest</div>
+                        <div class="terminal-line output">INFO: Found 23 computers</div>
+                        <div class="terminal-line warning">INFO: Found 156 users</div>
+                        <div class="terminal-line warning">INFO: Found 45 groups</div>
+                        <div class="terminal-line output">INFO: Found 0 trusts</div>
+                        <div class="terminal-line output">INFO: Starting computer enumeration with 10 workers</div>
+                        <div class="terminal-line info">INFO: Querying computer: DC01.corp.company.com</div>
+                        <div class="terminal-line info">INFO: Querying computer: FILESERVER.corp.company.com</div>
+                        <div class="terminal-line error">INFO: Found high-value targets: 3 Domain Admins</div>
+                        <div class="terminal-line warning">INFO: Found potential attack paths: 12</div>
+                        <div class="terminal-line output">INFO: Done in 00M 45S</div>
+                    </div>
+                    <button class="btn" onclick="runAdvancedDemo()">🔄 Run Stealth Enumeration</button>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Enumeration Automation & Scripting</h3>
+                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 15px; margin: 20px 0;">
+                        <h4>🤖 Automated Enumeration Workflow:</h4>
+                        <ol style="margin: 15px 0; line-height: 2; padding-left: 20px;">
+                            <li><strong>Initial Discovery:</strong> Automated host and service discovery</li>
+                            <li><strong>Service Enumeration:</strong> Protocol-specific information gathering</li>
+                            <li><strong>Credential Testing:</strong> Automated null session and default credential testing</li>
+                            <li><strong>Privilege Analysis:</strong> Permission and access control enumeration</li>
+                            <li><strong>Attack Path Discovery:</strong> Automated privilege escalation route identification</li>
+                            <li><strong>Report Generation:</strong> Comprehensive findings documentation</li>
+                            <li><strong>Continuous Monitoring:</strong> Ongoing enumeration for environment changes</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🏁 Part 2 Complete!</h3>
+                    <p>Outstanding work! You've mastered advanced directory services enumeration. You've learned:</p>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li>✅ LDAP directory service enumeration and exploitation</li>
+                        <li>✅ Comprehensive DNS enumeration techniques</li>
+                        <li>✅ RPC service discovery and interaction</li>
+                        <li>✅ Null session attack vectors and countermeasures</li>
+                        <li>✅ Advanced Active Directory enumeration methods</li>
+                        <li>✅ Enterprise-grade attack path discovery</li>
+                    </ul>
+                    <p><strong>Ready for the next challenge?</strong> Part 3 covers cutting-edge cloud enumeration, database attacks, and modern web application techniques!</p>
+                </div>
+
+                <button class="btn btn-success next-part-btn" onclick="goToNextPart()">Continue to Part 3: Modern Targets →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed information -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let completedSections = [];
+        let sectionOrder = ['overview', 'ldap-dns', 'rpc-nullsession', 'advanced-techniques'];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            setupKeyboardNavigation();
+        });
+
+        // Keyboard navigation setup
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeModal();
+                    return;
+                }
+                
+                if (event.key === 'ArrowLeft') {
+                    navigateSection('previous');
+                    event.preventDefault();
+                } else if (event.key === 'ArrowRight') {
+                    navigateSection('next');
+                    event.preventDefault();
+                }
+            });
+        }
+
+        // Navigate between sections using keyboard
+        function navigateSection(direction) {
+            const currentIndex = sectionOrder.indexOf(currentSection);
+            let newIndex;
+            
+            if (direction === 'next') {
+                newIndex = currentIndex + 1;
+                if (newIndex >= sectionOrder.length) newIndex = 0;
+            } else if (direction === 'previous') {
+                newIndex = currentIndex - 1;
+                if (newIndex < 0) newIndex = sectionOrder.length - 1;
+            }
+            
+            const newSection = sectionOrder[newIndex];
+            showSection(newSection);
+        }
+
+        // Section navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.module-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn:not(.prev-part-btn):not(.next-part-btn)').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const sectionIndex = sectionOrder.indexOf(sectionId);
+            const navButtons = document.querySelectorAll('.nav-btn:not(.prev-part-btn):not(.next-part-btn)');
+            if (navButtons[sectionIndex]) {
+                navButtons[sectionIndex].classList.add('active');
+            }
+            
+            if (!completedSections.includes(sectionId)) {
+                completedSections.push(sectionId);
+                updateProgress();
+            }
+            
+            currentSection = sectionId;
+        }
+
+        // Progress tracking
+        function updateProgress() {
+            const totalSections = 4;
+            const progressPercent = (completedSections.length / totalSections) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+            document.getElementById('progressText').textContent = `Part 2 Progress: ${Math.round(progressPercent)}% Complete`;
+        }
+
+        // Navigation functions
+        function goToPreviousPart() {
+            alert('Navigate back to Part 1: Core Fundamentals to review NetBIOS, SMB, and SNMP enumeration techniques.');
+        }
+
+        function goToNextPart() {
+            alert('Part 3: Modern Targets will cover cloud enumeration (AWS, Azure, GCP), database services, and web application enumeration.\n\nCreate the next artifact to continue your CEH v13 Module 4 journey!');
+        }
+
+        // Show LDAP details
+        function showLDAPDetails(technique) {
+            const techniques = {
+                'anonymous': {
+                    title: 'Anonymous LDAP Queries',
+                    description: 'Gathering directory information without authentication',
+                    commands: [
+                        'ldapsearch -x -h target -s base',
+                        'ldapsearch -x -h target -s base namingcontexts',
+                        'ldapsearch -x -h target -s base supportedSASLMechanisms',
+                        'ldapsearch -x -h target -s base defaultNamingContext'
+                    ],
+                    information: [
+                        'Domain naming context and forest structure',
+                        'Schema information and object classes',
+                        'Server configuration and capabilities',
+                        'Supported authentication mechanisms and security'
+                    ]
+                },
+                'users': {
+                    title: 'LDAP User Account Enumeration',
+                    description: 'Extracting comprehensive user account information',
+                    commands: [
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=user)"',
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=person)" mail',
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=user)" sAMAccountName',
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(&(objectclass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"'
+                    ],
+                    information: [
+                        'User account names, display names, and descriptions',
+                        'Email addresses, phone numbers, and contact details',
+                        'Department, title, and organizational structure',
+                        'Account status, password policies, and security settings'
+                    ]
+                },
+                'groups': {
+                    title: 'LDAP Group Structure Analysis',
+                    description: 'Mapping organizational hierarchy and group relationships',
+                    commands: [
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=group)"',
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=group)" member',
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=organizationalUnit)"',
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(&(objectclass=group)(adminCount=1))"'
+                    ],
+                    information: [
+                        'Security groups and distribution lists',
+                        'Group membership and nested relationships',
+                        'Administrative and privileged group identification',
+                        'Organizational units and structural hierarchy'
+                    ]
+                },
+                'computers': {
+                    title: 'LDAP Computer Object Discovery',
+                    description: 'Inventorying domain-joined systems and services',
+                    commands: [
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=computer)"',
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=computer)" servicePrincipalName',
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(objectclass=computer)" operatingSystem',
+                        'ldapsearch -x -h target -b "DC=domain,DC=com" "(&(objectclass=computer)(primaryGroupID=515))"'
+                    ],
+                    information: [
+                        'Domain-joined computer inventory and status',
+                        'Server roles, workstation types, and classifications',
+                        'Operating system versions and patch levels',
+                        'Service Principal Names (SPNs) and Kerberos services'
+                    ]
+                }
+            };
+            
+            const tech = techniques[technique] || techniques['anonymous'];
+            const content = `
+                <h2>${tech.title}</h2>
+                <h3>Description:</h3>
+                <p>${tech.description}</p>
+                
+                <h3>Common Commands:</h3>
+                <ul>
+                    ${tech.commands.map(cmd => `<li><code>${cmd}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Information Gathered:</h3>
+                <ul>
+                    ${tech.information.map(info => `<li>${info}</li>`).join('')}
+                </ul>
+                
+                <h3>Security Implications:</h3>
+                <ul>
+                    <li>Organizational structure and hierarchy revelation</li>
+                    <li>User account enumeration for targeted attacks</li>
+                    <li>Service account and privilege discovery</li>
+                    <li>Attack surface expansion through system inventory</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Show DNS details
+        function showDNSDetails(technique) {
+            const techniques = {
+                'zone-transfer': {
+                    title: 'DNS Zone Transfer Attack',
+                    description: 'Attempting complete DNS zone replication',
+                    commands: [
+                        'dig @nameserver domain.com AXFR',
+                        'dnsrecon -d domain.com -t axfr',
+                        'host -l domain.com nameserver',
+                        'nslookup > set type=axfr > domain.com'
+                    ],
+                    information: [
+                        'Complete DNS zone database contents',
+                        'All DNS records including hidden subdomains',
+                        'Internal network topology and infrastructure',
+                        'Mail servers, name servers, and service locations'
+                    ]
+                },
+                'record-types': {
+                    title: 'DNS Record Type Enumeration',
+                    description: 'Comprehensive DNS record discovery and analysis',
+                    commands: [
+                        'dig domain.com ANY',
+                        'nslookup -type=ANY domain.com',
+                        'host -a domain.com',
+                        'dnsrecon -d domain.com -t std'
+                    ],
+                    information: [
+                        'A and AAAA records for IPv4/IPv6 addresses',
+                        'MX records revealing mail server infrastructure',
+                        'NS records showing authoritative name servers',
+                        'TXT records containing SPF, DKIM, and policy information'
+                    ]
+                },
+                'subdomain-enum': {
+                    title: 'Subdomain Discovery Techniques',
+                    description: 'Comprehensive subdomain enumeration and mapping',
+                    commands: [
+                        'dnsrecon -d domain.com -t brt',
+                        'sublist3r -d domain.com',
+                        'amass enum -d domain.com',
+                        'gobuster dns -d domain.com -w wordlist'
+                    ],
+                    information: [
+                        'Active subdomain discovery and validation',
+                        'Development, staging, and testing environments',
+                        'Administrative interfaces and management portals',
+                        'Content delivery networks and cloud services'
+                    ]
+                },
+                'reverse-lookup': {
+                    title: 'Reverse DNS Resolution',
+                    description: 'IP address to hostname mapping and analysis',
+                    commands: [
+                        'dnsrecon -r 192.168.1.0/24',
+                        'nmap -sL 192.168.1.0/24',
+                        'host 192.168.1.100',
+                        'dig -x 192.168.1.100'
+                    ],
+                    information: [
+                        'IP address to hostname resolution mapping',
+                        'Internal naming conventions and standards',
+                        'Network range enumeration and documentation',
+                        'PTR record discovery and validation'
+                    ]
+                }
+            };
+            
+            const tech = techniques[technique] || techniques['zone-transfer'];
+            const content = `
+                <h2>${tech.title}</h2>
+                <h3>Description:</h3>
+                <p>${tech.description}</p>
+                
+                <h3>Common Commands:</h3>
+                <ul>
+                    ${tech.commands.map(cmd => `<li><code>${cmd}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Information Gathered:</h3>
+                <ul>
+                    ${tech.information.map(info => `<li>${info}</li>`).join('')}
+                </ul>
+                
+                <h3>Mitigation Strategies:</h3>
+                <ul>
+                    <li>Restrict zone transfers to authorized DNS servers only</li>
+                    <li>Implement DNS security extensions (DNSSEC)</li>
+                    <li>Configure rate limiting and query monitoring</li>
+                    <li>Regular DNS security audits and configuration reviews</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Show RPC details
+        function showRPCDetails(technique) {
+            const techniques = {
+                'endpoint-discovery': {
+                    title: 'RPC Endpoint Discovery',
+                    description: 'Mapping RPC services and interface discovery',
+                    commands: [
+                        'rpcinfo -p target',
+                        'rpcinfo -T tcp target',
+                        'showmount -e target',
+                        'impacket-rpcmap target'
+                    ],
+                    information: [
+                        'Available RPC services and program numbers',
+                        'Port mappings and protocol information',
+                        'Service versions and implementation details',
+                        'RPC endpoint authentication requirements'
+                    ]
+                },
+                'msrpc-enum': {
+                    title: 'Microsoft RPC Enumeration',
+                    description: 'Windows-specific RPC service interaction',
+                    commands: [
+                        'rpcclient -U "" target',
+                        'rpcclient -U "" -N target',
+                        'smbclient //target/ipc$ -U ""',
+                        'enum4linux -r target'
+                    ],
+                    information: [
+                        'Windows RPC interface enumeration',
+                        'Domain user and group information',
+                        'System security policies and configurations',
+                        'Network resource and share enumeration'
+                    ]
+                },
+                'dce-rpc': {
+                    title: 'DCE/RPC Analysis',
+                    description: 'Distributed Computing Environment RPC assessment',
+                    commands: [
+                        'impacket-rpcmap target',
+                        'impacket-rpcdump target',
+                        'rpclient -c "enumprivs" target',
+                        'msrpc-enum target'
+                    ],
+                    information: [
+                        'DCE/RPC interface identification and mapping',
+                        'Endpoint mapper database enumeration',
+                        'RPC authentication mechanism discovery',
+                        'Service privilege and permission analysis'
+                    ]
+                },
+                'null-session': {
+                    title: 'Null Session Exploitation',
+                    description: 'Anonymous connection establishment and exploitation',
+                    commands: [
+                        'net use \\\\target\\ipc$ "" /user:""',
+                        'smbclient //target/ipc$ -U ""',
+                        'rpcclient -U "" -N target',
+                        'enum4linux -a target'
+                    ],
+                    information: [
+                        'Anonymous SMB connection establishment',
+                        'Credential-free system information gathering',
+                        'User account and group enumeration without authentication',
+                        'Network share and resource discovery'
+                    ]
+                }
+            };
+            
+            const tech = techniques[technique] || techniques['endpoint-discovery'];
+            const content = `
+                <h2>${tech.title}</h2>
+                <h3>Description:</h3>
+                <p>${tech.description}</p>
+                
+                <h3>Common Commands:</h3>
+                <ul>
+                    ${tech.commands.map(cmd => `<li><code>${cmd}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Information Gathered:</h3>
+                <ul>
+                    ${tech.information.map(info => `<li>${info}</li>`).join('')}
+                </ul>
+                
+                <h3>Attack Applications:</h3>
+                <ul>
+                    <li>Service enumeration and vulnerability identification</li>
+                    <li>Authentication bypass and privilege escalation</li>
+                    <li>Network resource mapping and access testing</li>
+                    <li>Lateral movement and persistence establishment</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Show null session details
+        function showNullSessionDetails(attack) {
+            const attacks = {
+                'establishment': {
+                    title: 'Null Session Connection Establishment',
+                    description: 'Creating anonymous SMB connections for information gathering',
+                    techniques: [
+                        'IPC$ administrative share connection with null credentials',
+                        'Anonymous SMB session negotiation and establishment',
+                        'Registry remote access through null authentication',
+                        'Service Control Manager access via anonymous connections'
+                    ],
+                    commands: [
+                        'net use \\\\target\\ipc$ "" /user:""',
+                        'smbclient //target/ipc$ -U ""',
+                        'rpcclient -U "" -N target',
+                        'enum4linux -a target'
+                    ]
+                },
+                'enumeration': {
+                    title: 'Null Session Information Enumeration',
+                    description: 'Extracting comprehensive system information via anonymous access',
+                    techniques: [
+                        'Domain user and group enumeration through RPC calls',
+                        'Network share discovery and permission analysis',
+                        'System configuration and security policy extraction',
+                        'Registry key enumeration and value retrieval'
+                    ],
+                    commands: [
+                        'net user /domain',
+                        'net group /domain',
+                        'net view \\\\target',
+                        'reg query \\\\target\\HKLM\\SAM'
+                    ]
+                },
+                'exploitation': {
+                    title: 'Null Session Attack Exploitation',
+                    description: 'Advanced exploitation techniques using null session access',
+                    techniques: [
+                        'Registry key modification and malicious value injection',
+                        'Remote service control and manipulation',
+                        'Administrative share access and file system enumeration',
+                        'Password policy bypass and account lockout evasion'
+                    ],
+                    commands: [
+                        'sc \\\\target query',
+                        'reg add \\\\target\\HKLM\\key',
+                        'at \\\\target time command',
+                        'copy malicious_file \\\\target\\share\\'
+                    ]
+                },
+                'countermeasures': {
+                    title: 'Null Session Security Countermeasures',
+                    description: 'Comprehensive protection against null session vulnerabilities',
+                    techniques: [
+                        'RestrictAnonymous registry key configuration',
+                        'SMB message signing and session encryption',
+                        'Network access control and authentication enforcement',
+                        'Security monitoring and intrusion detection'
+                    ],
+                    commands: [
+                        'reg add HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa /v RestrictAnonymous /t REG_DWORD /d 2',
+                        'net share admin$ /delete',
+                        'netsh advfirewall set rule group="file and printer sharing" new enable=no',
+                        'auditpol /set /category:"Logon/Logoff" /success:enable'
+                    ]
+                }
+            };
+            
+            const att = attacks[attack] || attacks['establishment'];
+            const content = `
+                <h2>${att.title}</h2>
+                <h3>Description:</h3>
+                <p>${att.description}</p>
+                
+                <h3>Techniques:</h3>
+                <ul>
+                    ${att.techniques.map(tech => `<li>${tech}</li>`).join('')}
+                </ul>
+                
+                <h3>Commands/Configuration:</h3>
+                <ul>
+                    ${att.commands.map(cmd => `<li><code>${cmd}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Security Notes:</h3>
+                <ul>
+                    <li>Null sessions are legacy Windows vulnerabilities</li>
+                    <li>Most effective against Windows NT/2000/XP systems</li>
+                    <li>Modern systems have improved default security configurations</li>
+                    <li>Always ensure proper authorization before testing</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Show advanced technique details
+        function showAdvancedDetails(technique) {
+            const techniques = {
+                'active-directory': {
+                    title: 'Active Directory Advanced Enumeration',
+                    description: 'Comprehensive AD environment analysis and mapping',
+                    features: [
+                        'Domain controller discovery and role analysis',
+                        'Forest and domain trust relationship mapping',
+                        'Group Policy Object (GPO) enumeration and analysis',
+                        'Service Principal Name (SPN) discovery for Kerberoasting'
+                    ],
+                    tools: ['windapsearch', 'ADExplorer', 'PowerView', 'SharpHound'],
+                    applications: [
+                        'Privilege escalation path identification',
+                        'Kerberoasting and ASREPRoasting target discovery',
+                        'Golden Ticket and Silver Ticket attack preparation',
+                        'Domain dominance and persistence establishment'
+                    ]
+                },
+                'bloodhound': {
+                    title: 'BloodHound Attack Path Analysis',
+                    description: 'Graph-based Active Directory attack path discovery',
+                    features: [
+                        'Automated attack path identification and visualization',
+                        'Privilege escalation route mapping and analysis',
+                        'Domain administrative access path discovery',
+                        'High-value target identification and prioritization'
+                    ],
+                    tools: ['BloodHound', 'SharpHound', 'bloodhound-python', 'Neo4j'],
+                    applications: [
+                        'Red team attack planning and strategy',
+                        'Blue team defense gap identification',
+                        'Security architecture review and improvement',
+                        'Incident response and forensic analysis'
+                    ]
+                },
+                'stealth-enum': {
+                    title: 'Stealth Enumeration Techniques',
+                    description: 'Low-detection profile information gathering methods',
+                    features: [
+                        'IDS/IPS signature evasion and bypass techniques',
+                        'Timing-based detection avoidance strategies',
+                        'Log entry minimization and cleanup procedures',
+                        'Traffic pattern obfuscation and blending'
+                    ],
+                    tools: ['Custom scripts', 'Traffic generators', 'Proxy chains', 'VPN tunneling'],
+                    applications: [
+                        'Covert reconnaissance and intelligence gathering',
+                        'Advanced persistent threat (APT) simulation',
+                        'Security control testing and validation',
+                        'Penetration testing in monitored environments'
+                    ]
+                },
+                'powershell-enum': {
+                    title: 'PowerShell-Based Enumeration',
+                    description: 'Native Windows enumeration using PowerShell capabilities',
+                    features: [
+                        'Active Directory PowerShell module utilization',
+                        'WMI and CIM-based system information gathering',
+                        'Event log analysis and security audit review',
+                        'Registry and file system enumeration techniques'
+                    ],
+                    tools: ['PowerShell', 'ActiveDirectory module', 'WMI', 'Get-WinEvent'],
+                    applications: [
+                        'Living-off-the-land attack techniques',
+                        'Post-exploitation information gathering',
+                        'System administration and security auditing',
+                        'Incident response and forensic investigation'
+                    ]
+                }
+            };
+            
+            const tech = techniques[technique] || techniques['active-directory'];
+            const content = `
+                <h2>${tech.title}</h2>
+                <h3>Description:</h3>
+                <p>${tech.description}</p>
+                
+                <h3>Key Features:</h3>
+                <ul>
+                    ${tech.features.map(feature => `<li>${feature}</li>`).join('')}
+                </ul>
+                
+                <h3>Tools and Technologies:</h3>
+                <ul>
+                    ${tech.tools.map(tool => `<li><code>${tool}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Applications:</h3>
+                <ul>
+                    ${tech.applications.map(app => `<li>${app}</li>`).join('')}
+                </ul>
+                
+                <h3>Best Practices:</h3>
+                <ul>
+                    <li>Maintain operational security throughout enumeration</li>
+                    <li>Document all findings for comprehensive reporting</li>
+                    <li>Coordinate with blue team for defense validation</li>
+                    <li>Follow responsible disclosure for discovered vulnerabilities</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Demo functions
+        function runLDAPDemo() {
+            const terminal = document.getElementById('ldapEnumTerminal');
+            terminal.innerHTML = '';
+            
+            const scenario = [
+                { type: 'prompt', text: 'enum@kali:~$ ldapsearch -x -h 192.168.1.100 -b "DC=corp,DC=company,DC=com" "(objectclass=user)" sAMAccountName' },
+                { type: 'output', text: '# extended LDIF' },
+                { type: 'output', text: '# LDAPv3' },
+                { type: 'output', text: '# base <DC=corp,DC=company,DC=com> with scope subtree' },
+                { type: 'output', text: '# filter: (objectclass=user)' },
+                { type: 'output', text: '# requesting: sAMAccountName' },
+                { type: 'output', text: '#' },
+                { type: 'warning', text: '# Administrator, Users, corp.company.com' },
+                { type: 'output', text: 'dn: CN=Administrator,CN=Users,DC=corp,DC=company,DC=com' },
+                { type: 'output', text: 'sAMAccountName: Administrator' },
+                { type: 'output', text: '' },
+                { type: 'warning', text: '# john.smith, Users, corp.company.com' },
+                { type: 'output', text: 'dn: CN=John Smith,CN=Users,DC=corp,DC=company,DC=com' },
+                { type: 'output', text: 'sAMAccountName: john.smith' },
+                { type: 'output', text: '' },
+                { type: 'warning', text: '# jane.doe, Users, corp.company.com' },
+                { type: 'output', text: 'dn: CN=Jane Doe,CN=Users,DC=corp,DC=company,DC=com' },
+                { type: 'output', text: 'sAMAccountName: jane.doe' },
+                { type: 'output', text: '' },
+                { type: 'error', text: '# service_account, Users, corp.company.com' },
+                { type: 'output', text: 'dn: CN=Service Account,CN=Users,DC=corp,DC=company,DC=com' },
+                { type: 'output', text: 'sAMAccountName: service_account' },
+                { type: 'output', text: '' },
+                { type: 'output', text: '# search result' },
+                { type: 'output', text: 'search: 2' },
+                { type: 'output', text: 'result: 0 Success' },
+                { type: 'info', text: '# numResponses: 25' },
+                { type: 'info', text: '# numEntries: 24' }
+            ];
+            
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 500);
+            });
+        }
+
+        function runDNSDemo() {
+            const terminal = document.getElementById('dnsEnumTerminal');
+            terminal.innerHTML = '';
+            
+            const scenario = [
+                { type: 'prompt', text: 'enum@kali:~$ dnsrecon -d company.com -t brt -D subdomains.txt' },
+                { type: 'output', text: '[*] Performing host and subdomain brute force against company.com' },
+                { type: 'output', text: '[*] A company.com 192.168.1.100' },
+                { type: 'warning', text: '[+] A www.company.com 192.168.1.100' },
+                { type: 'warning', text: '[+] A mail.company.com 192.168.1.50' },
+                { type: 'warning', text: '[+] A ftp.company.com 192.168.1.60' },
+                { type: 'error', text: '[+] A admin.company.com 192.168.1.25' },
+                { type: 'warning', text: '[+] A api.company.com 192.168.1.120' },
+                { type: 'warning', text: '[+] A test.company.com 192.168.1.150' },
+                { type: 'error', text: '[+] A dev.company.com 192.168.1.175' },
+                { type: 'warning', text: '[+] A blog.company.com 192.168.1.80' },
+                { type: 'warning', text: '[+] A support.company.com 192.168.1.90' },
+                { type: 'error', text: '[+] A staging.company.com 192.168.1.190' },
+                { type: 'warning', text: '[+] A vpn.company.com 192.168.1.5' },
+                { type: 'error', text: '[+] A backup.company.com 192.168.1.210' },
+                { type: 'warning', text: '[+] MX company.com mail.company.com 10' },
+                { type: 'output', text: '[+] TXT company.com "v=spf1 include:_spf.google.com ~all"' },
+                { type: 'info', text: '[*] Brute forcing completed. 14 subdomains found' }
+            ];
+            
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 600);
+            });
+        }
+
+        function runRPCDemo() {
+            const terminal = document.getElementById('rpcEnumTerminal');
+            terminal.innerHTML = '';
+            
+            const scenario = [
+                { type: 'prompt', text: 'enum@kali:~$ rpcclient -U "" -N 192.168.1.100' },
+                { type: 'output', text: 'rpcclient $> netshareenumall' },
+                { type: 'output', text: 'netname: ADMIN$' },
+                { type: 'output', text: '\tremark: Remote Admin' },
+                { type: 'output', text: '\tpath:   C:\\Windows' },
+                { type: 'output', text: 'netname: C$' },
+                { type: 'output', text: '\tremark: Default share' },
+                { type: 'output', text: '\tpath:   C:\\' },
+                { type: 'warning', text: 'netname: Users' },
+                { type: 'warning', text: '\tremark: User home directories' },
+                { type: 'warning', text: '\tpath:   C:\\Users' },
+                { type: 'error', text: 'netname: Backup' },
+                { type: 'error', text: '\tremark: Company backup files' },
+                { type: 'error', text: '\tpath:   D:\\Backup' },
+                { type: 'warning', text: 'netname: Projects' },
+                { type: 'warning', text: '\tremark: Development projects' },
+                { type: 'warning', text: '\tpath:   E:\\Projects' },
+                { type: 'output', text: 'rpcclient $> enumprinters' },
+                { type: 'output', text: '\tprintername:[\\\\192.168.1.100\\HP_LaserJet_P3015]' },
+                { type: 'output', text: '\tdescription:[\\\\192.168.1.100\\HP_LaserJet_P3015,HP LaserJet P3015,Central Printer]' },
+                { type: 'output', text: 'rpcclient $> quit' }
+            ];
+            
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 800);
+            });
+        }
+
+        function runAdvancedDemo() {
+            const terminal = document.getElementById('advancedEnumTerminal');
+            terminal.innerHTML = '';
+            
+            const scenario = [
+                { type: 'prompt', text: 'advanced@kali:~$ enum4linux -a -v 192.168.1.100 2>/dev/null | grep -E "(Domain|User|Group|Share)"' },
+                { type: 'output', text: 'Domain Name: CORP' },
+                { type: 'output', text: 'Domain Sid: S-1-5-21-1234567890-987654321-1122334455' },
+                { type: 'warning', text: 'Users: Administrator, Guest, krbtgt, john.smith, jane.doe, service_account' },
+                { type: 'warning', text: 'Groups: Domain Admins, Domain Users, Enterprise Admins, Schema Admins' },
+                { type: 'error', text: 'Shares: ADMIN$, C$, IPC$, NETLOGON, SYSVOL, Users, Backup, Projects' },
+                { type: 'prompt', text: 'advanced@kali:~$ ./stealth_enum.sh 192.168.1.100' },
+                { type: 'output', text: 'Starting stealth enumeration with randomized timing...' },
+                { type: 'info', text: '[STEALTH] Using random delays between 2-10 seconds' },
+                { type: 'info', text: '[STEALTH] Fragmenting packets and using decoys' },
+                { type: 'info', text: '[STEALTH] Rotating source ports and user agents' },
+                { type: 'output', text: 'Stealth enumeration completed successfully' },
+                { type: 'info', text: 'No IDS alerts triggered during enumeration' },
+                { type: 'output', text: 'Results written to stealth_enum_results.txt' }
+            ];
+            
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 800);
+            });
+        }
+
+        // Modal functions
+        function showModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            const modal = document.getElementById('detailModal');
+            modal.style.display = 'block';
+            
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('detailModal');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
