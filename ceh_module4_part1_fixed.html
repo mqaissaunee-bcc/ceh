@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 4 - Part 1: Core Fundamentals</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #ecf0f1;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #3498db, #9b59b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .part-indicator {
+            background: linear-gradient(45deg, #e74c3c, #f39c12);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 5px;
+            margin: 20px auto;
+            max-width: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn, .next-part-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:hover, .next-part-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .next-part-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            font-size: 1.1em;
+            padding: 15px 30px;
+        }
+
+        .content-area {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .module-section {
+            display: none;
+        }
+
+        .module-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-align: center;
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+            backdrop-filter: blur(5px);
+        }
+
+        .card h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .enum-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .enum-card {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1));
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .enum-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .enum-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .close {
+            color: #ecf0f1;
+            float: right;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        .close:hover {
+            color: #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .navigation {
+                flex-direction: column;
+            }
+            
+            .enum-types {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 CEH v13 Module 4</h1>
+            <p>Enumeration</p>
+            <div class="part-indicator">Part 1 of 4: Core Fundamentals</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="progressText">Progress: 0% Complete</p>
+            <div style="margin-top: 15px; font-size: 0.9em; color: #7f8c8d;">
+                <span style="background: rgba(155,89,182,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    ← → Navigate Sections
+                </span>
+                <span style="background: rgba(231,76,60,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    Esc Close Modal
+                </span>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('overview')">📋 Overview</button>
+            <button class="nav-btn" onclick="showSection('fundamentals')">🔧 Fundamentals</button>
+            <button class="nav-btn" onclick="showSection('netbios-smb')">🌐 NetBIOS & SMB</button>
+            <button class="nav-btn" onclick="showSection('snmp')">📊 SNMP</button>
+            <button class="next-part-btn" onclick="goToNextPart()">Continue to Part 2 →</button>
+        </div>
+
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">🎯 Learning Objectives</h2>
+                <div class="card">
+                    <h3>Module 4 Overview - Part 1</h3>
+                    <p>Welcome to CEH v13 Module 4! This comprehensive module focuses on enumeration - the critical third phase of ethical hacking. In Part 1, you'll master the core fundamentals that form the foundation of all enumeration activities.</p>
+                </div>
+
+                <div class="enum-types">
+                    <div class="enum-card">
+                        <div class="enum-icon">🔧</div>
+                        <h3>Enumeration Fundamentals</h3>
+                        <p>Master the core concepts, methodologies, and tools that underpin all enumeration activities in ethical hacking.</p>
+                    </div>
+                    <div class="enum-card">
+                        <div class="enum-icon">🌐</div>
+                        <h3>NetBIOS & SMB</h3>
+                        <p>Deep dive into Windows networking protocols, shares enumeration, and session manipulation techniques.</p>
+                    </div>
+                    <div class="enum-card">
+                        <div class="enum-icon">📊</div>
+                        <h3>SNMP Enumeration</h3>
+                        <p>Explore Simple Network Management Protocol vulnerabilities, community string attacks, and MIB traversal.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fundamentals Section -->
+            <div id="fundamentals" class="module-section">
+                <h2 class="section-title">🔧 Enumeration Fundamentals</h2>
+                <div class="card">
+                    <h3>What is Enumeration?</h3>
+                    <p>Enumeration is the third phase of ethical hacking, following reconnaissance and scanning. It involves extracting detailed information about identified services, users, shares, and network resources.</p>
+                    
+                    <h4>Key Objectives:</h4>
+                    <ul>
+                        <li>Extract usernames, machine names, network resources</li>
+                        <li>Collect information about network shares</li>
+                        <li>Identify system vulnerabilities and misconfigurations</li>
+                        <li>Gather application and service banners</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Enumeration vs Scanning</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: rgba(52, 152, 219, 0.2);">
+                                <th style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Scanning</th>
+                                <th style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Enumeration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Identifies live hosts and open ports</td>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Extracts detailed information from services</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Non-intrusive, passive approach</td>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">More intrusive, active information gathering</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Broader network mapping</td>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Deep dive into specific services</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- NetBIOS & SMB Section -->
+            <div id="netbios-smb" class="module-section">
+                <h2 class="section-title">🌐 NetBIOS & SMB Enumeration</h2>
+                <div class="card">
+                    <h3>NetBIOS (Network Basic Input/Output System)</h3>
+                    <p>NetBIOS operates on ports 137-139 and provides name resolution and session services for Windows networks.</p>
+                    
+                    <h4>Key NetBIOS Commands:</h4>
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <code>
+                        nbtstat -A &lt;IP&gt;          # Remote machine name table<br>
+                        nbtstat -a &lt;hostname&gt;    # Name table by hostname<br>
+                        net view \\&lt;IP&gt;          # Available shares<br>
+                        net use \\&lt;IP&gt;\IPC$ "" /u:""  # Null session connection
+                        </code>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>SMB (Server Message Block) Enumeration</h3>
+                    <p>SMB runs on port 445 and is used for file/printer sharing in Windows environments.</p>
+                    
+                    <h4>SMB Enumeration Tools:</h4>
+                    <ul>
+                        <li><strong>enum4linux:</strong> Comprehensive SMB enumeration script</li>
+                        <li><strong>smbclient:</strong> Connect to SMB shares</li>
+                        <li><strong>rpcclient:</strong> Execute RPC commands</li>
+                        <li><strong>smbmap:</strong> SMB share enumeration and interaction</li>
+                    </ul>
+
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <code>
+                        enum4linux -a &lt;IP&gt;<br>
+                        smbclient -L //&lt;IP&gt; -N<br>
+                        smbmap -H &lt;IP&gt; -u anonymous
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SNMP Section -->
+            <div id="snmp" class="module-section">
+                <h2 class="section-title">📊 SNMP Enumeration</h2>
+                <div class="card">
+                    <h3>Simple Network Management Protocol (SNMP)</h3>
+                    <p>SNMP operates on UDP port 161 and is used for network device management. It's often misconfigured with default community strings.</p>
+                    
+                    <h4>Common Community Strings:</h4>
+                    <ul>
+                        <li>public (read-only - default)</li>
+                        <li>private (read-write)</li>
+                        <li>manager</li>
+                        <li>admin</li>
+                        <li>cisco</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>SNMP Enumeration Techniques</h3>
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <code>
+                        snmpwalk -v1 -c public &lt;IP&gt; 1.3.6.1.4.1<br>
+                        snmpget -v1 -c public &lt;IP&gt; 1.3.6.1.2.1.1.1.0<br>
+                        onesixtyone -c community.txt &lt;IP&gt;<br>
+                        nmap --script snmp-* &lt;IP&gt;
+                        </code>
+                    </div>
+
+                    <h4>Valuable SNMP OIDs:</h4>
+                    <ul>
+                        <li><strong>1.3.6.1.2.1.1.1.0:</strong> System description</li>
+                        <li><strong>1.3.6.1.2.1.1.5.0:</strong> Hostname</li>
+                        <li><strong>1.3.6.1.2.1.4.20.1.1:</strong> IP addresses</li>
+                        <li><strong>1.3.6.1.2.1.25.1.6.0:</strong> System processes</li>
+                        <li><strong>1.3.6.1.2.1.25.4.2.1.2:</strong> Running programs</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Part 1 Complete!</h3>
+                    <p>🎉 Congratulations! You've completed the core fundamentals of CEH v13 Module 4 Enumeration. You've learned:</p>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li>✅ Enumeration fundamentals and methodologies</li>
+                        <li>✅ NetBIOS and SMB enumeration techniques</li>
+                        <li>✅ SNMP community string attacks and MIB traversal</li>
+                        <li>✅ Practical enumeration tools and commands</li>
+                    </ul>
+                    <p><strong>Ready to continue?</strong> Part 2 covers LDAP & DNS enumeration, RPC attacks, and null session techniques!</p>
+                </div>
+
+                <button class="btn btn-success next-part-btn" onclick="goToNextPart()">Continue to Part 2: Directory Services →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed information -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let completedSections = [];
+        let sectionOrder = ['overview', 'fundamentals', 'netbios-smb', 'snmp'];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            setupKeyboardNavigation();
+        });
+
+        // Keyboard navigation setup
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeModal();
+                    return;
+                }
+                
+                if (event.key === 'ArrowLeft') {
+                    navigateSection('previous');
+                    event.preventDefault();
+                } else if (event.key === 'ArrowRight') {
+                    navigateSection('next');
+                    event.preventDefault();
+                }
+            });
+        }
+
+        // Navigate between sections using keyboard
+        function navigateSection(direction) {
+            const currentIndex = sectionOrder.indexOf(currentSection);
+            let newIndex;
+            
+            if (direction === 'next') {
+                newIndex = currentIndex + 1;
+                if (newIndex >= sectionOrder.length) newIndex = 0;
+            } else if (direction === 'previous') {
+                newIndex = currentIndex - 1;
+                if (newIndex < 0) newIndex = sectionOrder.length - 1;
+            }
+            
+            const newSection = sectionOrder[newIndex];
+            showSection(newSection);
+        }
+
+        // Section navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.module-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const sectionIndex = sectionOrder.indexOf(sectionId);
+            const navButtons = document.querySelectorAll('.nav-btn');
+            if (navButtons[sectionIndex]) {
+                navButtons[sectionIndex].classList.add('active');
+            }
+            
+            if (!completedSections.includes(sectionId)) {
+                completedSections.push(sectionId);
+                updateProgress();
+            }
+            
+            currentSection = sectionId;
+        }
+
+        // Progress tracking
+        function updateProgress() {
+            const totalSections = sectionOrder.length;
+            const progressPercent = (completedSections.length / totalSections) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+            document.getElementById('progressText').textContent = `Progress: ${Math.round(progressPercent)}% Complete`;
+        }
+
+        // Navigation functions - FIXED
+        function goToNextPart() {
+            window.location.href = 'ceh_module4_part2.html';
+        }
+
+        // Modal functions
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
