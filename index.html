@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEH v13 Course Index - Complete Modules 1-4</title>
+    <title>CEH v13 Course Index - Complete Modules 1-9</title>
     <style>
         * {
             margin: 0;
@@ -69,78 +69,113 @@
         .title {
             font-size: 3.5rem;
             font-weight: bold;
+            background: linear-gradient(45deg, #00ff00, #00cccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 20px;
-            text-shadow: 0 0 20px #00ff00;
-            letter-spacing: 3px;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 0 0 20px #00ff00; }
-            to { text-shadow: 0 0 30px #00ff00, 0 0 40px #00ff00; }
+            text-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
         }
 
         .subtitle {
-            font-size: 1.2rem;
-            color: #00cccc;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
+            font-size: 1.3rem;
+            color: #ccc;
+            margin-bottom: 30px;
         }
 
-        .tagline {
-            font-size: 1rem;
-            color: #888;
-            font-style: italic;
-        }
-
-        .course-description {
-            background: rgba(0, 0, 0, 0.7);
+        .course-intro {
+            background: rgba(0, 20, 0, 0.6);
             border: 1px solid #00ff00;
-            border-radius: 10px;
+            border-radius: 15px;
             padding: 30px;
             margin: 40px 0;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(5px);
         }
 
-        .course-description h2 {
-            color: #00cccc;
+        .course-intro h2 {
+            color: #00ff00;
             margin-bottom: 20px;
-            font-size: 1.5rem;
-            text-align: center;
+            font-size: 1.8rem;
         }
 
-        .course-description p {
-            line-height: 1.8;
+        .course-intro p {
             color: #ccc;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .course-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #ccc;
+            font-size: 1.1rem;
+        }
+
+        .security-notice {
+            background: rgba(255, 69, 0, 0.1);
+            border: 2px solid #ff4500;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            color: #ff6b35;
             text-align: center;
             font-size: 1.1rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .modules-section {
+            margin-top: 50px;
         }
 
         .modules-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 30px;
-            margin: 50px 0;
+            margin-top: 30px;
         }
 
         .module-card {
             background: rgba(0, 0, 0, 0.8);
             border: 2px solid #333;
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 30px;
             text-decoration: none;
             color: inherit;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
         }
 
         .module-card:hover {
             border-color: #00ff00;
-            box-shadow: 0 0 50px rgba(0, 255, 0, 0.3);
             transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 255, 0, 0.1);
         }
 
         .module-card::before {
@@ -190,9 +225,14 @@
             margin-top: 10px;
         }
 
-        .part-item:hover {
-            background: rgba(0, 255, 0, 0.3);
-            transform: scale(1.05);
+        .part-item {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            text-align: center;
+            color: #00ff00;
         }
 
         .module-status {
@@ -231,49 +271,18 @@
 
         .footer p {
             color: #666;
-            font-size: 0.9rem;
+            margin-bottom: 10px;
         }
 
-        .security-notice {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid #ff6b6b;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 30px 0;
-            color: #ff6b6b;
-            text-align: center;
-        }
-
-        .security-notice strong {
-            color: #fff;
-        }
-
-        .course-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 40px 0;
-        }
-
-        .stat-card {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #00ff00;
+        .version-info {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #333;
             border-radius: 10px;
             padding: 20px;
-            text-align: center;
+            margin: 20px 0;
         }
 
-        .stat-number {
-            font-size: 2rem;
-            color: #00ff00;
-            font-weight: bold;
-        }
-
-        .stat-label {
-            color: #ccc;
-            margin-top: 5px;
-        }
-
+        /* Responsive design */
         @media (max-width: 768px) {
             .title {
                 font-size: 2.5rem;
@@ -283,18 +292,25 @@
                 grid-template-columns: 1fr;
             }
             
-            .module-card {
-                padding: 20px;
+            .course-stats {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
-        .terminal-cursor {
-            animation: blink 1s infinite;
+        /* Matrix rain effect */
+        .matrix-char {
+            position: fixed;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            opacity: 0.1;
+            animation: matrix-rain 6s linear infinite;
+            z-index: -1;
         }
 
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
+        @keyframes matrix-rain {
+            0% { transform: translateY(-100vh); opacity: 0.1; }
+            50% { opacity: 0.3; }
+            100% { transform: translateY(100vh); opacity: 0.1; }
         }
     </style>
 </head>
@@ -303,43 +319,42 @@
     
     <div class="container">
         <header class="header">
-            <h1 class="title">CEH<span class="terminal-cursor">_</span></h1>
-            <p class="subtitle">CERTIFIED ETHICAL HACKING v13</p>
-            <p class="tagline">Master the Art of Ethical Penetration Testing</p>
+            <h1 class="title">CEH v13 Ethical Hacker</h1>
+            <p class="subtitle">Advanced Cybersecurity Training Program</p>
+            
+            <section class="course-intro">
+                <h2>🔒 Master the Art of Ethical Hacking</h2>
+                <p>
+                    This comprehensive course covers the latest cybersecurity threats, attack vectors, and defensive strategies. 
+                    This course is designed to teach you the skills and techniques used by malicious hackers, but from a defensive perspective. 
+                    Learn to think like an attacker to better defend your organization's critical assets.
+                </p>
+            </section>
+
+            <div class="course-stats">
+                <div class="stat-card">
+                    <div class="stat-number">9</div>
+                    <div class="stat-label">Complete Modules</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">200+</div>
+                    <div class="stat-label">Learning Hours</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-label">Hands-on Labs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Assessment Questions</div>
+                </div>
+            </div>
+
+            <div class="security-notice">
+                <strong>⚠️ IMPORTANT:</strong> All techniques taught in this course are for educational and defensive purposes only. 
+                Use these skills responsibly and only on systems you own or have explicit permission to test.
+            </div>
         </header>
-
-        <section class="course-description">
-            <h2>Course Overview</h2>
-            <p>
-                Welcome to the Certified Ethical Hacking v13 course - your comprehensive journey into the world of cybersecurity and ethical penetration testing. 
-                This course is designed to teach you the skills and techniques used by malicious hackers, but from a defensive perspective. 
-                Learn to think like an attacker to better defend your organization's critical assets.
-            </p>
-        </section>
-
-        <div class="course-stats">
-            <div class="stat-card">
-                <div class="stat-number">4</div>
-                <div class="stat-label">Complete Modules</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">100+</div>
-                <div class="stat-label">Learning Hours</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">50+</div>
-                <div class="stat-label">Hands-on Labs</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">200+</div>
-                <div class="stat-label">Assessment Questions</div>
-            </div>
-        </div>
-
-        <div class="security-notice">
-            <strong>⚠️ IMPORTANT:</strong> All techniques taught in this course are for educational and defensive purposes only. 
-            Use these skills responsibly and only on systems you own or have explicit permission to test.
-        </div>
 
         <section class="modules-section">
             <div class="modules-grid">
@@ -352,14 +367,11 @@
                         Master the CIA Triad, Cyber Kill Chain, MITRE ATT&CK framework, and AI-driven ethical hacking.
                     </p>
                     <div class="module-parts">
-                        <strong>Key Topics:</strong>
                         <div class="part-list">
-                            <div class="part-item">CIA Triad</div>
-                            <div class="part-item">Hacker Types</div>
-                            <div class="part-item">Kill Chain</div>
-                            <div class="part-item">MITRE ATT&CK</div>
-                            <div class="part-item">AI-Driven Hacking</div>
-                            <div class="part-item">Legal Frameworks</div>
+                            <div class="part-item">Fundamentals</div>
+                            <div class="part-item">Methodologies</div>
+                            <div class="part-item">Legal Framework</div>
+                            <div class="part-item">AI Integration</div>
                         </div>
                     </div>
                     <div class="module-status">
@@ -372,19 +384,16 @@
                     <div class="module-number">MODULE 02</div>
                     <h3 class="module-title">Footprinting and Reconnaissance</h3>
                     <p class="module-description">
-                        Information gathering techniques, passive and active reconnaissance, 
-                        social engineering, and OSINT (Open Source Intelligence) methodologies.
-                        Master advanced reconnaissance tools and techniques for comprehensive target analysis.
+                        Advanced information gathering techniques and reconnaissance methodologies. 
+                        Master passive and active footprinting, OSINT collection, social engineering, 
+                        and modern AI-enhanced reconnaissance tools for comprehensive target analysis.
                     </p>
                     <div class="module-parts">
-                        <strong>Key Topics:</strong>
                         <div class="part-list">
-                            <div class="part-item">OSINT Techniques</div>
+                            <div class="part-item">OSINT Collection</div>
+                            <div class="part-item">Passive Recon</div>
+                            <div class="part-item">Active Scanning</div>
                             <div class="part-item">Social Engineering</div>
-                            <div class="part-item">DNS Enumeration</div>
-                            <div class="part-item">Website Analysis</div>
-                            <div class="part-item">Email Harvesting</div>
-                            <div class="part-item">Metadata Extraction</div>
                         </div>
                     </div>
                     <div class="module-status">
@@ -397,19 +406,16 @@
                     <div class="module-number">MODULE 03</div>
                     <h3 class="module-title">Scanning Networks</h3>
                     <p class="module-description">
-                        Network discovery, port scanning, vulnerability scanning, and network mapping. 
-                        Master tools like Nmap, Wireshark, and various vulnerability scanners.
-                        Learn stealth techniques, firewall evasion, and IDS/IPS bypass methods.
+                        Network discovery, port scanning, and service enumeration techniques. 
+                        Learn advanced Nmap techniques, stealth scanning, IDS evasion, 
+                        and comprehensive network mapping for security assessments.
                     </p>
                     <div class="module-parts">
-                        <strong>Key Topics:</strong>
                         <div class="part-list">
+                            <div class="part-item">Network Discovery</div>
                             <div class="part-item">Port Scanning</div>
-                            <div class="part-item">Host Discovery</div>
                             <div class="part-item">Service Detection</div>
-                            <div class="part-item">Firewall Evasion</div>
-                            <div class="part-item">Stealth Scanning</div>
-                            <div class="part-item">Vulnerability Scanning</div>
+                            <div class="part-item">IDS Evasion</div>
                         </div>
                     </div>
                     <div class="module-status">
@@ -418,76 +424,195 @@
                     </div>
                 </a>
 
-                <div class="module-card" style="border: 2px solid #00ff00; background: rgba(0, 255, 0, 0.05);">
+                <a href="ceh_module4.html" class="module-card">
                     <div class="module-number">MODULE 04</div>
-                    <h3 class="module-title">Enumeration - 4-Part Series</h3>
+                    <h3 class="module-title">Enumeration</h3>
                     <p class="module-description">
-                        Comprehensive enumeration techniques across traditional and modern infrastructure.
-                        Master NetBIOS, SMB, SNMP, LDAP, DNS, RPC, null sessions, cloud services, databases, 
-                        and web applications. Complete with advanced tool mastery and hands-on laboratories.
+                        Deep-dive into system enumeration and information extraction. 
+                        Master SMB, SNMP, LDAP, NFS enumeration, database discovery, 
+                        and advanced techniques for extracting critical system information.
                     </p>
                     <div class="module-parts">
-                        <strong>Individual Parts Available:</strong>
                         <div class="part-list">
-                            <a href="ceh_module4_part1.html" class="part-item" style="cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit;">Part 1: Core Fundamentals</a>
-                            <a href="ceh_module4_part2.html" class="part-item" style="cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit;">Part 2: Directory Services</a>
-                            <a href="ceh_module4_part3.html" class="part-item" style="cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit;">Part 3: Modern Targets</a>
-                            <a href="ceh_module4_part4.html" class="part-item" style="cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit;">Part 4: Assessment & Labs</a>
+                            <div class="part-item">Service Enumeration</div>
+                            <div class="part-item">Database Discovery</div>
+                            <div class="part-item">User Account Analysis</div>
+                            <div class="part-item">System Information</div>
                         </div>
                     </div>
                     <div class="module-status">
                         <div class="status-indicator"></div>
-                        <span>COMPLETE - ALL PARTS AVAILABLE</span>
+                        <span>COMPLETE</span>
                     </div>
-                </div>
+                </a>
+
+                <a href="ceh_module5.html" class="module-card">
+                    <div class="module-number">MODULE 05</div>
+                    <h3 class="module-title">Vulnerability Analysis</h3>
+                    <p class="module-description">
+                        Comprehensive vulnerability assessment and analysis techniques. 
+                        Learn CVSS scoring, automated vulnerability scanning, manual testing methodologies, 
+                        and AI-powered vulnerability discovery for modern security assessments.
+                    </p>
+                    <div class="module-parts">
+                        <div class="part-list">
+                            <div class="part-item">CVSS Scoring</div>
+                            <div class="part-item">Automated Scanning</div>
+                            <div class="part-item">Manual Testing</div>
+                            <div class="part-item">AI-Powered Analysis</div>
+                        </div>
+                    </div>
+                    <div class="module-status">
+                        <div class="status-indicator"></div>
+                        <span>COMPLETE</span>
+                    </div>
+                </a>
+
+                <a href="ceh_module6_system_hacking.html" class="module-card">
+                    <div class="module-number">MODULE 06</div>
+                    <h3 class="module-title">System Hacking</h3>
+                    <p class="module-description">
+                        Advanced system exploitation and post-exploitation techniques. 
+                        Master password attacks, privilege escalation, maintaining access, 
+                        covering tracks, and modern system compromise methodologies.
+                    </p>
+                    <div class="module-parts">
+                        <div class="part-list">
+                            <div class="part-item">Password Attacks</div>
+                            <div class="part-item">Privilege Escalation</div>
+                            <div class="part-item">Maintaining Access</div>
+                            <div class="part-item">Covering Tracks</div>
+                        </div>
+                    </div>
+                    <div class="module-status">
+                        <div class="status-indicator"></div>
+                        <span>COMPLETE</span>
+                    </div>
+                </a>
+
+                <a href="ceh_module7_malware_threats.html" class="module-card">
+                    <div class="module-number">MODULE 07</div>
+                    <h3 class="module-title">Malware Threats</h3>
+                    <p class="module-description">
+                        Comprehensive malware analysis, detection, and mitigation strategies. 
+                        Learn about trojans, viruses, ransomware, APT techniques, 
+                        and advanced malware analysis for cybersecurity defense.
+                    </p>
+                    <div class="module-parts">
+                        <div class="part-list">
+                            <div class="part-item">Malware Types</div>
+                            <div class="part-item">Analysis Techniques</div>
+                            <div class="part-item">Detection Methods</div>
+                            <div class="part-item">APT Tactics</div>
+                        </div>
+                    </div>
+                    <div class="module-status">
+                        <div class="status-indicator"></div>
+                        <span>COMPLETE</span>
+                    </div>
+                </a>
+
+                <a href="ceh_module8_sniffing.html" class="module-card">
+                    <div class="module-number">MODULE 08</div>
+                    <h3 class="module-title">Sniffing</h3>
+                    <p class="module-description">
+                        Network traffic analysis and packet capture techniques. 
+                        Master Wireshark, network protocol analysis, ARP poisoning, 
+                        and advanced sniffing methodologies for network security assessment.
+                    </p>
+                    <div class="module-parts">
+                        <div class="part-list">
+                            <div class="part-item">Packet Capture</div>
+                            <div class="part-item">Protocol Analysis</div>
+                            <div class="part-item">ARP Attacks</div>
+                            <div class="part-item">Wireless Sniffing</div>
+                        </div>
+                    </div>
+                    <div class="module-status">
+                        <div class="status-indicator"></div>
+                        <span>COMPLETE</span>
+                    </div>
+                </a>
+
+                <a href="ceh_module9.html" class="module-card">
+                    <div class="module-number">MODULE 09</div>
+                    <h3 class="module-title">Social Engineering</h3>
+                    <p class="module-description">
+                        Human-based attack vectors and psychological manipulation techniques. 
+                        Learn phishing, pretexting, physical security bypass, 
+                        and modern social engineering tactics used in cybersecurity assessments.
+                    </p>
+                    <div class="module-parts">
+                        <div class="part-list">
+                            <div class="part-item">Phishing Attacks</div>
+                            <div class="part-item">Pretexting</div>
+                            <div class="part-item">Physical Security</div>
+                            <div class="part-item">OSINT for SE</div>
+                        </div>
+                    </div>
+                    <div class="module-status">
+                        <div class="status-indicator"></div>
+                        <span>COMPLETE</span>
+                    </div>
+                </a>
             </div>
         </section>
 
         <footer class="footer">
-            <p>&copy; 2025 Certified Ethical Hacking Course. All rights reserved.</p>
-            <p style="margin-top: 10px; color: #666;">Complete CEH v13 curriculum covering Modules 1-4 with comprehensive enumeration mastery.</p>
+            <div class="version-info">
+                <p><strong>CEH v13 Course Version:</strong> 2025.1</p>
+                <p><strong>Last Updated:</strong> August 2025</p>
+                <p><strong>Modules Completed:</strong> 9/20</p>
+            </div>
+            <p>&copy; 2025 Ethical Hacking Training Program. All rights reserved.</p>
+            <p>This course content is for educational purposes only.</p>
         </footer>
     </div>
 
     <script>
-        // Matrix effect animation
+        // Matrix rain effect
         function createMatrixRain() {
-            const matrixChars = "01アカサタナハマヤラワ";
-            for (let i = 0; i < 50; i++) {
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            
+            for (let i = 0; i < 20; i++) {
                 setTimeout(() => {
-                    const span = document.createElement('span');
-                    span.className = 'matrix-line';
-                    span.style.left = Math.random() * 100 + '%';
-                    span.style.animationDelay = Math.random() * 8 + 's';
-                    span.style.animationDuration = (8 + Math.random() * 4) + 's';
-                    span.textContent = matrixChars[Math.floor(Math.random() * matrixChars.length)];
-                    document.body.appendChild(span);
+                    const char = document.createElement('div');
+                    char.className = 'matrix-char';
+                    char.textContent = chars[Math.floor(Math.random() * chars.length)];
+                    char.style.left = Math.random() * 100 + 'vw';
+                    char.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                    char.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                    
+                    document.body.appendChild(char);
                     
                     setTimeout(() => {
-                        span.remove();
-                    }, 12000);
-                }, i * 200);
+                        if (char.parentNode) {
+                            char.parentNode.removeChild(char);
+                        }
+                    }, 7000);
+                }, i * 300);
             }
         }
 
         // Initialize matrix effect
-        createMatrixRain();
-        setInterval(createMatrixRain, 10000);
-
-        // Module card hover effects
-        document.querySelectorAll('.module-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.borderColor = '#00ff00';
-                this.style.boxShadow = '0 0 50px rgba(0, 255, 0, 0.3)';
-            });
+        setInterval(createMatrixRain, 2000);
+        
+        // Add hover effects to module cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const moduleCards = document.querySelectorAll('.module-card');
             
-            card.addEventListener('mouseleave', function() {
-                this.style.borderColor = '#333';
-                this.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
+            moduleCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
             });
         });
 
-        // Smooth scrolling for internal links
+        // Smooth scroll for better UX
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
