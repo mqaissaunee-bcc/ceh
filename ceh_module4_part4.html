@@ -5,23 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CEH v13 Module 4 - Part 4: Assessment & Labs</title>
     <style>
-        :root {
-            --enum-primary: #2c3e50;
-            --enum-secondary: #3498db;
-            --assessment-primary: #8e44ad;
-            --assessment-secondary: #9b59b6;
-            --lab-primary: #e74c3c;
-            --lab-secondary: #c0392b;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --accent-color: #e74c3c;
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --border-color: #ddd;
-            --text-dark: #2c3e50;
-            --text-light: #ecf0f1;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -30,59 +13,64 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-dark);
-            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #ecf0f1;
             min-height: 100vh;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 40px;
-            padding: 40px 20px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
         }
 
         .header h1 {
             font-size: 2.5em;
-            background: linear-gradient(45deg, var(--assessment-primary), var(--lab-primary));
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            background-clip: text;
         }
 
-        .header p {
-            font-size: 1.2em;
-            color: var(--text-dark);
-            margin-bottom: 20px;
+        .part-indicator {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 10px 0;
+            font-weight: bold;
         }
 
         .progress-container {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 25px;
             padding: 5px;
-            margin: 20px 0;
+            margin: 20px auto;
+            max-width: 600px;
+            position: relative;
+            overflow: hidden;
         }
 
         .progress-bar {
             height: 30px;
-            background: linear-gradient(45deg, var(--success-color), #2ecc71);
+            background: linear-gradient(45deg, #667eea, #764ba2);
             border-radius: 20px;
             width: 0%;
-            transition: width 0.5s ease;
+            transition: width 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
         }
 
         .navigation {
@@ -93,70 +81,76 @@
             flex-wrap: wrap;
         }
 
-        .nav-btn {
-            background: linear-gradient(45deg, var(--assessment-primary), var(--assessment-secondary));
+        .nav-btn, .prev-part-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 15px 25px;
+            padding: 12px 25px;
             border-radius: 25px;
             cursor: pointer;
+            font-size: 1em;
             font-weight: 600;
             transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .nav-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        .nav-btn:hover, .prev-part-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
         .nav-btn.active {
-            background: linear-gradient(45deg, var(--lab-primary), var(--lab-secondary));
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .prev-part-btn {
+            background: linear-gradient(45deg, #34495e, #2c3e50);
+        }
+
+        .content-area {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
         }
 
         .module-section {
             display: none;
-            animation: fadeInUp 0.6s ease-out;
         }
 
         .module-section.active {
             display: block;
+            animation: fadeIn 0.5s ease;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 30px;
-            margin: 25px 0;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .section-title {
-            font-size: 2.2em;
+            font-size: 2em;
+            margin-bottom: 20px;
             text-align: center;
-            margin-bottom: 30px;
-            background: linear-gradient(45deg, var(--assessment-primary), var(--lab-primary));
+            background: linear-gradient(45deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            backdrop-filter: blur(5px);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
         }
 
         .tool-mastery-grid {
@@ -167,292 +161,115 @@
         }
 
         .tool-card {
-            background: linear-gradient(135deg, rgba(142, 68, 173, 0.1), rgba(155, 89, 182, 0.1));
-            border: 2px solid rgba(142, 68, 173, 0.3);
-            border-radius: 12px;
-            padding: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 10px;
+            padding: 20px;
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
         }
 
         .tool-card:hover {
             transform: translateY(-5px);
-            border-color: var(--assessment-primary);
-            box-shadow: 0 10px 25px rgba(142, 68, 173, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .tool-card h4 {
-            color: var(--assessment-primary);
+        .tool-icon {
+            font-size: 3em;
             margin-bottom: 15px;
-            font-size: 1.3em;
         }
 
         .assessment-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
             margin: 30px 0;
         }
 
         .assessment-card {
-            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
-            border: 2px solid rgba(231, 76, 60, 0.3);
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
             padding: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .assessment-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--lab-primary);
-            box-shadow: 0 10px 25px rgba(231, 76, 60, 0.2);
+            border: 2px solid rgba(102, 126, 234, 0.3);
         }
 
         .quiz-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 30px;
-            margin: 30px 0;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
         }
 
         .question {
-            margin-bottom: 30px;
-            padding: 25px;
-            background: rgba(248, 249, 250, 0.8);
-            border-radius: 12px;
-            border-left: 5px solid var(--assessment-primary);
-        }
-
-        .question h4 {
-            color: var(--assessment-primary);
             margin-bottom: 15px;
-            font-size: 1.2em;
+            font-weight: 600;
         }
 
         .options {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            display: grid;
+            gap: 10px;
+            margin: 15px 0;
         }
 
         .option {
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
             border-radius: 8px;
-            padding: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
+            border: 1px solid transparent;
         }
 
         .option:hover {
-            background: rgba(142, 68, 173, 0.1);
-            border-color: var(--assessment-primary);
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
         }
 
         .option.selected {
-            background: rgba(142, 68, 173, 0.2);
-            border-color: var(--assessment-primary);
+            background: rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
         }
 
         .option.correct {
-            background: rgba(39, 174, 96, 0.2);
-            border-color: var(--success-color);
+            background: rgba(39, 174, 96, 0.3);
+            border-color: #27ae60;
         }
 
         .option.incorrect {
-            background: rgba(231, 76, 60, 0.2);
-            border-color: var(--accent-color);
-        }
-
-        .terminal {
-            background: #1e1e1e;
-            color: #00ff00;
-            padding: 20px;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            margin: 20px 0;
-            max-height: 400px;
-            overflow-y: auto;
-            border: 2px solid #333;
-        }
-
-        .terminal-line {
-            margin: 5px 0;
-            animation: typewriter 0.5s ease-in-out;
-        }
-
-        .terminal-line.prompt {
-            color: #00ff00;
-        }
-
-        .terminal-line.output {
-            color: #ffffff;
-        }
-
-        .terminal-line.error {
-            color: #ff6b6b;
-        }
-
-        .terminal-line.success {
-            color: #51cf66;
-        }
-
-        .terminal-line.info {
-            color: #74c0fc;
-        }
-
-        @keyframes typewriter {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .lab-environment {
-            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
-            border-radius: 15px;
-            padding: 30px;
-            margin: 30px 0;
-            border: 2px solid rgba(231, 76, 60, 0.3);
-        }
-
-        .lab-objectives {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 25px 0;
-        }
-
-        .objective-card {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid var(--lab-primary);
+            background: rgba(231, 76, 60, 0.3);
+            border-color: #e74c3c;
         }
 
         .btn {
-            background: linear-gradient(45deg, var(--assessment-primary), var(--assessment-secondary));
+            background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 12px 25px;
             border-radius: 25px;
             cursor: pointer;
             font-size: 1em;
-            font-weight: 600;
             transition: all 0.3s ease;
-            margin: 10px 5px;
-            text-decoration: none;
-            display: inline-block;
+            margin: 10px;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .btn-success {
-            background: linear-gradient(45deg, var(--success-color), #2ecc71);
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .btn-warning {
-            background: linear-gradient(45deg, var(--warning-color), #e67e22);
-        }
-
-        .btn-danger {
-            background: linear-gradient(45deg, var(--accent-color), #c0392b);
-        }
-
-        .btn-lab {
-            background: linear-gradient(45deg, var(--lab-primary), var(--lab-secondary));
-        }
-
-        .score-display {
-            text-align: center;
+        .lab-exercise {
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(46, 204, 113, 0.1));
+            border-radius: 10px;
             padding: 20px;
             margin: 20px 0;
-            border-radius: 10px;
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-
-        .score-excellent {
-            background: linear-gradient(45deg, var(--success-color), #2ecc71);
-            color: white;
-        }
-
-        .score-good {
-            background: linear-gradient(45deg, var(--warning-color), #e67e22);
-            color: white;
-        }
-
-        .score-poor {
-            background: linear-gradient(45deg, var(--accent-color), #c0392b);
-            color: white;
-        }
-
-        .completion-badge {
-            text-align: center;
-            padding: 30px;
-            margin: 30px 0;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            border-radius: 15px;
-            color: #333;
-            font-size: 1.3em;
-            font-weight: bold;
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            position: absolute;
-            right: 20px;
-            top: 15px;
-        }
-
-        .close:hover {
-            color: var(--accent-color);
+            border-left: 4px solid #27ae60;
         }
 
         .certification-preview {
@@ -491,6 +308,7 @@
         <div class="header">
             <h1>🎯 CEH v13 Module 4 - Part 4: Assessment & Labs</h1>
             <p>Comprehensive Tool Mastery • Assessment & Evaluation • Hands-on Enumeration Laboratories</p>
+            <div class="part-indicator">Part 4 of 4: Final Assessment & Labs</div>
             <div class="progress-container">
                 <div class="progress-bar" id="progressBar">
                     <span id="progressText">Part 4 Progress: 0% Complete</span>
@@ -500,509 +318,222 @@
 
         <!-- Navigation -->
         <div class="navigation">
-            <button class="nav-btn" onclick="showSection('overview')">🎯 Overview</button>
+            <button class="prev-part-btn" onclick="goToPreviousPart()">← Back to Part 3</button>
+            <button class="nav-btn active" onclick="showSection('overview')">🎯 Overview</button>
             <button class="nav-btn" onclick="showSection('tool-mastery')">🛠️ Tool Mastery</button>
             <button class="nav-btn" onclick="showSection('comprehensive-assessment')">📝 Assessment</button>
             <button class="nav-btn" onclick="showSection('hands-on-labs')">🧪 Hands-on Labs</button>
             <button class="nav-btn" onclick="showSection('certification')">🏆 Certification</button>
         </div>
 
-        <!-- Overview Section -->
-        <div id="overview" class="module-section active">
-            <h2 class="section-title">🎯 Final Assessment & Laboratory Overview</h2>
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">🎯 Final Assessment & Laboratory Overview</h2>
 
-            <div class="card">
-                <h3>🎓 Welcome to the Ultimate CEH v13 Module 4 Challenge!</h3>
-                <p>You've mastered the fundamentals, conquered directory services, and dominated modern cloud enumeration. Now it's time to prove your expertise through comprehensive assessments and hands-on laboratories that simulate real-world scenarios!</p>
-                
-                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 15px; margin: 20px 0;">
-                    <h4>🎯 Final Assessment Components:</h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
-                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
-                            <h5>🛠️ Tool Mastery</h5>
-                            <p>Advanced enumeration tool expertise</p>
-                        </div>
-                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
-                            <h5>📝 Comprehensive Quiz</h5>
-                            <p>50-question assessment covering all modules</p>
-                        </div>
-                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
-                            <h5>🧪 Practical Labs</h5>
-                            <p>Real-world enumeration scenarios</p>
-                        </div>
-                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
-                            <h5>🏆 Certification</h5>
-                            <p>Official CEH v13 Module 4 completion</p>
-                        </div>
-                    </div>
+                <div class="card">
+                    <h3>🎓 Welcome to the Ultimate CEH v13 Module 4 Challenge!</h3>
+                    <p>You've mastered the fundamentals, conquered directory services, and dominated modern cloud enumeration. Now it's time to prove your expertise through comprehensive assessments and hands-on laboratories.</p>
+                    
+                    <h4>What You'll Accomplish:</h4>
+                    <ul>
+                        <li>🛠️ <strong>Tool Mastery:</strong> Advanced proficiency with enumeration tools</li>
+                        <li>📝 <strong>Comprehensive Assessment:</strong> Multi-phase evaluation of your knowledge</li>
+                        <li>🧪 <strong>Hands-on Labs:</strong> Real-world enumeration scenarios</li>
+                        <li>🏆 <strong>Certification Ready:</strong> Complete preparation for CEH examination</li>
+                    </ul>
                 </div>
-            </div>
 
-            <div class="card">
-                <h3>📊 Your Learning Journey Summary</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
-                    <div style="background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 20px; border-radius: 12px;">
-                        <h4>✅ Part 1: Fundamentals</h4>
-                        <ul style="margin: 10px 0; line-height: 1.6;">
-                            <li>Enumeration methodology</li>
-                            <li>NetBIOS and SNMP techniques</li>
-                            <li>SMB and NTP enumeration</li>
+                <div class="assessment-grid">
+                    <div class="assessment-card">
+                        <h3>🛠️ Tool Mastery Challenges</h3>
+                        <p>Advanced scenarios testing your proficiency with Nmap, enum4linux, SQLMap, and cloud enumeration tools.</p>
+                        <ul>
+                            <li>Nmap Advanced Scripting Engine</li>
+                            <li>Windows Enumeration Suite</li>
+                            <li>Database Exploitation Tools</li>
+                            <li>Cloud Security Assessment</li>
                         </ul>
                     </div>
                     
-                    <div style="background: linear-gradient(135deg, #16a085, #1abc9c); color: white; padding: 20px; border-radius: 12px;">
-                        <h4>✅ Part 2: Directory Services</h4>
-                        <ul style="margin: 10px 0; line-height: 1.6;">
-                            <li>LDAP and DNS enumeration</li>
-                            <li>RPC endpoint discovery</li>
-                            <li>Null session exploitation</li>
+                    <div class="assessment-card">
+                        <h3>📝 Knowledge Assessment</h3>
+                        <p>Comprehensive evaluation covering all enumeration concepts, techniques, and countermeasures.</p>
+                        <ul>
+                            <li>50 Advanced Questions</li>
+                            <li>Scenario-Based Problems</li>
+                            <li>Tool Identification</li>
+                            <li>Defensive Strategies</li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool Mastery Section -->
+            <div id="tool-mastery" class="module-section">
+                <h2 class="section-title">🛠️ Tool Mastery Challenges</h2>
+
+                <div class="tool-mastery-grid">
+                    <div class="tool-card" onclick="showToolMastery('nmap-advanced')">
+                        <div class="tool-icon">🔍</div>
+                        <h3>Nmap Advanced</h3>
+                        <p>Master NSE scripting, timing optimization, and evasion techniques</p>
                     </div>
                     
-                    <div style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 20px; border-radius: 12px;">
-                        <h4>✅ Part 3: Modern Infrastructure</h4>
-                        <ul style="margin: 10px 0; line-height: 1.6;">
-                            <li>Multi-cloud enumeration</li>
-                            <li>Database service analysis</li>
-                            <li>API and microservice discovery</li>
-                        </ul>
+                    <div class="tool-card" onclick="showToolMastery('enum4linux-pro')">
+                        <div class="tool-icon">🌐</div>
+                        <h3>enum4linux Pro</h3>
+                        <p>Advanced Windows enumeration and null session exploitation</p>
                     </div>
                     
-                    <div style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 20px; border-radius: 12px;">
-                        <h4>🎯 Part 4: Assessment & Labs</h4>
-                        <ul style="margin: 10px 0; line-height: 1.6;">
-                            <li>Tool mastery validation</li>
-                            <li>Comprehensive assessment</li>
-                            <li>Hands-on enumeration labs</li>
-                        </ul>
+                    <div class="tool-card" onclick="showToolMastery('sqlmap-expert')">
+                        <div class="tool-icon">🗄️</div>
+                        <h3>SQLMap Expert</h3>
+                        <p>Database enumeration, injection, and data extraction mastery</p>
+                    </div>
+                    
+                    <div class="tool-card" onclick="showToolMastery('cloud-recon')">
+                        <div class="tool-icon">☁️</div>
+                        <h3>Cloud Reconnaissance</h3>
+                        <p>Multi-cloud enumeration with AWS, Azure, and GCP tools</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Tool Mastery Objectives</h3>
+                    <p>Each tool mastery challenge requires you to:</p>
+                    <ol>
+                        <li>Demonstrate advanced command-line proficiency</li>
+                        <li>Apply appropriate enumeration techniques for different scenarios</li>
+                        <li>Interpret and analyze tool output effectively</li>
+                        <li>Implement evasion and stealth techniques</li>
+                        <li>Document findings in a professional manner</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Assessment Section -->
+            <div id="comprehensive-assessment" class="module-section">
+                <h2 class="section-title">📝 Comprehensive Knowledge Assessment</h2>
+
+                <div class="card">
+                    <h3>Assessment Overview</h3>
+                    <p>This comprehensive assessment evaluates your mastery of all enumeration concepts covered in Module 4. You'll encounter scenario-based questions that mirror real-world penetration testing challenges.</p>
+                </div>
+
+                <div class="quiz-container">
+                    <div class="question" id="currentQuestion">
+                        Loading assessment...
+                    </div>
+                    <div class="options" id="questionOptions">
+                        <!-- Options will be populated by JavaScript -->
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                        <button class="btn" onclick="previousQuestion()" id="prevBtn" disabled>Previous</button>
+                        <span id="questionCounter">Question 1 of 10</span>
+                        <button class="btn" onclick="nextQuestion()" id="nextBtn">Next</button>
+                    </div>
+                    <div id="results" style="display: none; margin-top: 20px;">
+                        <!-- Results will be shown here -->
                     </div>
                 </div>
             </div>
 
-            <div class="card">
-                <h3>🚀 Assessment Requirements</h3>
-                <div style="background: linear-gradient(45deg, rgba(142, 68, 173, 0.1), rgba(155, 89, 182, 0.1)); padding: 20px; border-radius: 12px; border-left: 5px solid var(--assessment-primary);">
-                    <h4>📋 Completion Criteria:</h4>
-                    <ul style="margin: 15px 0; padding-left: 20px;">
-                        <li><strong>Tool Mastery:</strong> Demonstrate proficiency with 15+ enumeration tools</li>
-                        <li><strong>Assessment Score:</strong> Achieve minimum 80% on comprehensive quiz</li>
-                        <li><strong>Lab Completion:</strong> Successfully complete 5 hands-on scenarios</li>
-                        <li><strong>Time Requirement:</strong> Minimum 4 hours total engagement</li>
-                        <li><strong>Documentation:</strong> Provide detailed enumeration reports</li>
+            <!-- Hands-on Labs Section -->
+            <div id="hands-on-labs" class="module-section">
+                <h2 class="section-title">🧪 Hands-on Enumeration Laboratories</h2>
+
+                <div class="lab-exercise">
+                    <h3>🏢 Lab 1: Corporate Network Enumeration</h3>
+                    <p><strong>Scenario:</strong> You've been contracted to assess a corporate network with Windows domain controllers, file servers, and databases.</p>
+                    <h4>Objectives:</h4>
+                    <ul>
+                        <li>Enumerate Active Directory structure</li>
+                        <li>Identify shared resources and permissions</li>
+                        <li>Map database services and access controls</li>
+                        <li>Document security vulnerabilities</li>
                     </ul>
-                </div>
-            </div>
-
-            <button class="btn btn-success" onclick="showSection('tool-mastery')">Begin Final Assessment! 🚀</button>
-        </div>
-
-        <!-- Tool Mastery Section -->
-        <div id="tool-mastery" class="module-section">
-            <h2 class="section-title">🛠️ Advanced Tool Mastery</h2>
-            
-            <div class="card">
-                <h3>🎯 Enumeration Tool Proficiency Assessment</h3>
-                <p>Demonstrate mastery of advanced enumeration tools through interactive challenges and practical scenarios. Each tool assessment includes theoretical knowledge, practical application, and real-world scenario simulation.</p>
-            </div>
-
-            <div class="tool-mastery-grid">
-                <div class="tool-card" onclick="showToolMastery('nmap-advanced')">
-                    <h4>🔍 Nmap Advanced Techniques</h4>
-                    <p><strong>Level:</strong> Expert</p>
-                    <p>Advanced scripting, timing optimization, and stealth techniques</p>
-                    <div style="margin-top: 15px;">
-                        <span style="background: #3498db; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">Scripting Engine</span>
-                        <span style="background: #e74c3c; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">Evasion</span>
-                    </div>
+                    <p><strong>Tools Required:</strong> Nmap, enum4linux, BloodHound, SQLMap</p>
                 </div>
 
-                <div class="tool-card" onclick="showToolMastery('enum4linux-ng')">
-                    <h4>🐧 enum4linux-ng</h4>
-                    <p><strong>Level:</strong> Advanced</p>
-                    <p>Next-generation Linux enumeration with modern features</p>
-                    <div style="margin-top: 15px;">
-                        <span style="background: #27ae60; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">SMB/RPC</span>
-                        <span style="background: #f39c12; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">Automation</span>
-                    </div>
-                </div>
-
-                <div class="tool-card" onclick="showToolMastery('bloodhound')">
-                    <h4>🩸 BloodHound</h4>
-                    <p><strong>Level:</strong> Expert</p>
-                    <p>Active Directory attack path analysis and visualization</p>
-                    <div style="margin-top: 15px;">
-                        <span style="background: #8e44ad; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">AD Analysis</span>
-                        <span style="background: #16a085; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">Graph Theory</span>
-                    </div>
-                </div>
-
-                <div class="tool-card" onclick="showToolMastery('cloud-enum')">
-                    <h4>☁️ Cloud Enumeration Suite</h4>
-                    <p><strong>Level:</strong> Advanced</p>
-                    <p>Multi-cloud platform reconnaissance and analysis</p>
-                    <div style="margin-top: 15px;">
-                        <span style="background: #ff9500; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">AWS/Azure/GCP</span>
-                        <span style="background: #34495e; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">APIs</span>
-                    </div>
-                </div>
-
-                <div class="tool-card" onclick="showToolMastery('shodan-cli')">
-                    <h4>🔭 Shodan CLI</h4>
-                    <p><strong>Level:</strong> Advanced</p>
-                    <p>Internet-scale device and service discovery</p>
-                    <div style="margin-top: 15px;">
-                        <span style="background: #e67e22; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">OSINT</span>
-                        <span style="background: #9b59b6; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">IoT</span>
-                    </div>
-                </div>
-
-                <div class="tool-card" onclick="showToolMastery('custom-scripts')">
-                    <h4>📜 Custom Enumeration Scripts</h4>
-                    <p><strong>Level:</strong> Expert</p>
-                    <p>Python and PowerShell automation for enumeration</p>
-                    <div style="margin-top: 15px;">
-                        <span style="background: #2ecc71; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">Python</span>
-                        <span style="background: #3498db; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">PowerShell</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>🎮 Interactive Tool Challenge</h3>
-                <div class="terminal" id="toolMasteryTerminal">
-                    <div class="terminal-line prompt">master@ceh:~$ ./tool_mastery_challenge.sh</div>
-                    <div class="terminal-line output">CEH v13 Module 4 - Advanced Tool Mastery Challenge</div>
-                    <div class="terminal-line output">================================================</div>
-                    <div class="terminal-line output">Available tools for assessment:</div>
-                    <div class="terminal-line output">1. nmap - Network discovery and security auditing</div>
-                    <div class="terminal-line output">2. enum4linux-ng - SMB/NetBIOS enumeration</div>
-                    <div class="terminal-line output">3. bloodhound - Active Directory analysis</div>
-                    <div class="terminal-line output">4. cloud_enum - Multi-cloud reconnaissance</div>
-                    <div class="terminal-line output">5. shodan - Internet-scale device discovery</div>
-                    <div class="terminal-line output">6. custom_scripts - Automation frameworks</div>
-                    <div class="terminal-line info">Select a tool to begin mastery assessment...</div>
-                </div>
-                <button class="btn btn-lab" onclick="startToolChallenge()">🎯 Start Tool Challenge</button>
-            </div>
-
-            <div class="card">
-                <h3>📊 Tool Mastery Progress</h3>
-                <div id="toolMasteryProgress">
-                    <p>Complete tool assessments to track your progress. Each tool requires theoretical knowledge and practical demonstration.</p>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;" id="progressGrid">
-                        <!-- Progress items will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
-
-            <button class="btn btn-success" onclick="showSection('comprehensive-assessment')" id="proceedToAssessment" style="display: none;">Proceed to Comprehensive Assessment →</button>
-        </div>
-
-        <!-- Comprehensive Assessment Section -->
-        <div id="comprehensive-assessment" class="module-section">
-            <h2 class="section-title">📝 Comprehensive Assessment</h2>
-
-            <div class="card">
-                <h3>🎯 CEH v13 Module 4 Final Examination</h3>
-                <p>This comprehensive assessment covers all aspects of enumeration techniques learned throughout Module 4. You have 90 minutes to complete 50 questions covering fundamentals, directory services, modern infrastructure, and advanced techniques.</p>
-                
-                <div style="background: linear-gradient(45deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1)); padding: 20px; border-radius: 12px; margin: 20px 0;">
-                    <h4>📋 Assessment Details:</h4>
-                    <ul style="margin: 15px 0; padding-left: 20px;">
-                        <li><strong>Questions:</strong> 50 multiple-choice and scenario-based questions</li>
-                        <li><strong>Time Limit:</strong> 90 minutes</li>
-                        <li><strong>Passing Score:</strong> 80% (40/50 correct answers)</li>
-                        <li><strong>Topics Covered:</strong> All Module 4 content areas</li>
-                        <li><strong>Question Types:</strong> Multiple choice, scenario analysis, tool identification</li>
+                <div class="lab-exercise">
+                    <h3>☁️ Lab 2: Cloud Infrastructure Assessment</h3>
+                    <p><strong>Scenario:</strong> A company has migrated to AWS and needs a security assessment of their cloud infrastructure.</p>
+                    <h4>Objectives:</h4>
+                    <ul>
+                        <li>Enumerate S3 buckets and permissions</li>
+                        <li>Assess EC2 instance security groups</li>
+                        <li>Review IAM policies and roles</li>
+                        <li>Identify configuration weaknesses</li>
                     </ul>
+                    <p><strong>Tools Required:</strong> AWS CLI, ScoutSuite, S3Scanner, CloudMapper</p>
                 </div>
 
-                <div id="assessmentScore" class="score-display" style="display: none;"></div>
-            </div>
-
-            <div class="assessment-grid">
-                <div class="assessment-card" onclick="startQuickAssessment()">
-                    <h4>⚡ Quick Assessment</h4>
-                    <p><strong>15 Questions • 20 Minutes</strong></p>
-                    <p>Rapid evaluation of core concepts</p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>Enumeration fundamentals</li>
-                        <li>Key tool usage</li>
-                        <li>Basic methodologies</li>
+                <div class="lab-exercise">
+                    <h3>🌐 Lab 3: Web Application Deep Dive</h3>
+                    <p><strong>Scenario:</strong> Assess a modern web application with REST APIs, database backend, and user authentication.</p>
+                    <h4>Objectives:</h4>
+                    <ul>
+                        <li>Map application architecture</li>
+                        <li>Enumerate API endpoints and parameters</li>
+                        <li>Identify authentication mechanisms</li>
+                        <li>Test for injection vulnerabilities</li>
                     </ul>
+                    <p><strong>Tools Required:</strong> Burp Suite, OWASP ZAP, Postman, ffuf</p>
                 </div>
 
-                <div class="assessment-card" onclick="startStandardAssessment()">
-                    <h4>📚 Standard Assessment</h4>
-                    <p><strong>30 Questions • 45 Minutes</strong></p>
-                    <p>Comprehensive knowledge evaluation</p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>All enumeration techniques</li>
-                        <li>Directory services</li>
-                        <li>Modern infrastructure</li>
-                    </ul>
-                </div>
-
-                <div class="assessment-card" onclick="startExpertAssessment()">
-                    <h4>🏆 Expert Assessment</h4>
-                    <p><strong>50 Questions • 90 Minutes</strong></p>
-                    <p>Complete mastery demonstration</p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>Advanced scenarios</li>
-                        <li>Tool mastery</li>
-                        <li>Real-world applications</li>
-                    </ul>
+                <div class="card">
+                    <h3>🎓 Lab Completion Requirements</h3>
+                    <p>For each laboratory exercise, you must:</p>
+                    <ol>
+                        <li>Complete all enumeration objectives</li>
+                        <li>Document methodology and findings</li>
+                        <li>Provide screenshots of key discoveries</li>
+                        <li>Suggest remediation strategies</li>
+                        <li>Present results in a professional format</li>
+                    </ol>
                 </div>
             </div>
 
-            <div class="quiz-container" id="comprehensiveQuiz" style="display: none;">
-                <!-- Questions will be populated by JavaScript -->
-            </div>
+            <!-- Certification Section -->
+            <div id="certification" class="module-section">
+                <h2 class="section-title">🏆 CEH v13 Module 4 Certification</h2>
 
-            <div style="text-align: center; margin: 30px 0;" id="assessmentControls" style="display: none;">
-                <button class="btn btn-success" onclick="submitAssessment()" id="submitAssessmentBtn">📝 Submit Assessment</button>
-                <button class="btn btn-warning" onclick="resetAssessment()" id="resetAssessmentBtn" style="display: none;">🔄 Retake Assessment</button>
-            </div>
-
-            <button class="btn btn-success" onclick="showSection('hands-on-labs')" style="display: none;" id="labAccessBtn">Access Hands-on Labs →</button>
-        </div>
-
-        <!-- Hands-on Labs Section -->
-        <div id="hands-on-labs" class="module-section">
-            <h2 class="section-title">🧪 Hands-on Enumeration Laboratories</h2>
-
-            <div class="card">
-                <h3>🎯 Real-World Enumeration Scenarios</h3>
-                <p>Apply your enumeration mastery in simulated enterprise environments. These hands-on laboratories provide practical experience with real-world enumeration challenges and attack scenarios.</p>
-            </div>
-
-            <div class="lab-environment">
-                <h3>🖥️ Virtual Laboratory Environment</h3>
-                <div class="lab-objectives">
-                    <div class="objective-card">
-                        <h4>🏢 Enterprise Network</h4>
-                        <p>Corporate infrastructure with mixed OS environments</p>
-                        <ul style="margin: 10px 0; padding-left: 20px;">
-                            <li>Windows Active Directory</li>
-                            <li>Linux web servers</li>
-                            <li>Network appliances</li>
-                        </ul>
-                    </div>
-
-                    <div class="objective-card">
-                        <h4>☁️ Cloud Infrastructure</h4>
-                        <p>Multi-cloud environment simulation</p>
-                        <ul style="margin: 10px 0; padding-left: 20px;">
-                            <li>AWS S3 buckets</li>
-                            <li>Azure AD tenant</li>
-                            <li>GCP resources</li>
-                        </ul>
-                    </div>
-
-                    <div class="objective-card">
-                        <h4>🔒 Security Controls</h4>
-                        <p>Realistic defensive measures</p>
-                        <ul style="margin: 10px 0; padding-left: 20px;">
-                            <li>Firewalls and IDS</li>
-                            <li>Access controls</li>
-                            <li>Monitoring systems</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="terminal" id="labEnvironmentTerminal">
-                    <div class="terminal-line prompt">lab@ceh-vm:~$ cat lab_credentials.txt</div>
-                    <div class="terminal-line output">CEH v13 Module 4 - Hands-on Enumeration Labs</div>
-                    <div class="terminal-line output">============================================</div>
-                    <div class="terminal-line output">Target Network: 10.10.10.0/24</div>
-                    <div class="terminal-line output">Lab Duration: 4 hours</div>
-                    <div class="terminal-line output">Objectives: 5 scenarios to complete</div>
-                    <div class="terminal-line output">Tools Available: Full Kali Linux arsenal</div>
-                    <div class="terminal-line info">Authorization granted for ethical enumeration</div>
-                    <div class="terminal-line success">Ready to begin hands-on assessment!</div>
-                </div>
-            </div>
-
-            <div class="assessment-grid">
-                <div class="assessment-card" onclick="startLab('network-enum')">
-                    <h4>🌐 Lab 1: Network Enumeration</h4>
-                    <p><strong>Difficulty:</strong> Intermediate</p>
-                    <p><strong>Duration:</strong> 45 minutes</p>
-                    <p>Comprehensive enterprise network reconnaissance</p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>Host discovery and classification</li>
-                        <li>Service enumeration and analysis</li>
-                        <li>Network topology mapping</li>
-                    </ul>
-                </div>
-
-                <div class="assessment-card" onclick="startLab('ad-enum')">
-                    <h4>🏰 Lab 2: Active Directory Enumeration</h4>
-                    <p><strong>Difficulty:</strong> Advanced</p>
-                    <p><strong>Duration:</strong> 60 minutes</p>
-                    <p>Domain controller and AD structure analysis</p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>Domain user and group enumeration</li>
-                        <li>Trust relationship discovery</li>
-                        <li>Privilege escalation paths</li>
-                    </ul>
-                </div>
-
-                <div class="assessment-card" onclick="startLab('cloud-enum-lab')">
-                    <h4>☁️ Lab 3: Cloud Infrastructure Enumeration</h4>
-                    <p><strong>Difficulty:</strong> Expert</p>
-                    <p><strong>Duration:</strong> 75 minutes</p>
-                    <p>Multi-cloud platform reconnaissance</p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>AWS S3 bucket discovery</li>
-                        <li>Azure resource enumeration</li>
-                        <li>GCP project analysis</li>
-                    </ul>
-                </div>
-
-                <div class="assessment-card" onclick="startLab('webapp-enum')">
-                    <h4>🌍 Lab 4: Web Application Enumeration</h4>
-                    <p><strong>Difficulty:</strong> Advanced</p>
-                    <p><strong>Duration:</strong> 50 minutes</p>
-                    <p>Modern web application reconnaissance</p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>Directory and file discovery</li>
-                        <li>API endpoint enumeration</li>
-                        <li>Technology stack analysis</li>
-                    </ul>
-                </div>
-
-                <div class="assessment-card" onclick="startLab('database-enum')">
-                    <h4>🗄️ Lab 5: Database Service Enumeration</h4>
-                    <p><strong>Difficulty:</strong> Expert</p>
-                    <p><strong>Duration:</strong> 60 minutes</p>
-                    <p>Database server and NoSQL enumeration</p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>SQL and NoSQL database discovery</li>
-                        <li>Schema and table enumeration</li>
-                        <li>Access control analysis</li>
-                    </ul>
-                </div>
-
-                <div class="assessment-card" onclick="startLab('comprehensive-scenario')">
-                    <h4>🎯 Lab 6: Comprehensive Scenario</h4>
-                    <p><strong>Difficulty:</strong> Expert</p>
-                    <p><strong>Duration:</strong> 120 minutes</p>
-                    <p>Complete enumeration methodology demonstration</p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>Full infrastructure assessment</li>
-                        <li>Attack path identification</li>
-                        <li>Professional report generation</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="card" id="labProgress" style="display: none;">
-                <h3>📊 Laboratory Progress</h3>
-                <div id="labProgressContent">
-                    <!-- Progress will be populated by JavaScript -->
-                </div>
-            </div>
-
-            <button class="btn btn-success" onclick="showSection('certification')" style="display: none;" id="certificationBtn">Claim Your Certification →</button>
-        </div>
-
-        <!-- Certification Section -->
-        <div id="certification" class="module-section">
-            <h2 class="section-title">🏆 CEH v13 Module 4 Certification</h2>
-
-            <div class="completion-badge" id="certificationBadge" style="display: none;">
-                🎓 CONGRATULATIONS! 🎓<br>
-                CEH v13 Module 4: Enumeration Techniques<br>
-                <span style="font-size: 0.8em;">CERTIFIED ETHICAL HACKER - ENUMERATION SPECIALIST</span>
-            </div>
-
-            <div class="card">
-                <h3>📜 Certification Requirements</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
-                    <div id="req-tools" class="objective-card" style="opacity: 0.5;">
-                        <h4>🛠️ Tool Mastery</h4>
-                        <p>Complete 6/6 tool assessments</p>
-                        <div id="tools-progress">❌ Not Completed</div>
-                    </div>
-
-                    <div id="req-assessment" class="objective-card" style="opacity: 0.5;">
-                        <h4>📝 Comprehensive Assessment</h4>
-                        <p>Score ≥80% on final exam</p>
-                        <div id="assessment-progress">❌ Not Completed</div>
-                    </div>
-
-                    <div id="req-labs" class="objective-card" style="opacity: 0.5;">
-                        <h4>🧪 Hands-on Labs</h4>
-                        <p>Complete 5/6 laboratory scenarios</p>
-                        <div id="labs-progress">❌ Not Completed</div>
-                    </div>
-
-                    <div id="req-time" class="objective-card" style="opacity: 0.5;">
-                        <h4>⏱️ Time Requirement</h4>
-                        <p>Minimum 4 hours engagement</p>
-                        <div id="time-progress">❌ Not Completed</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="certification-preview" id="certPreview" style="display: none;">
-                <h3>🎓 Your Certification Preview</h3>
-                <div style="background: white; color: #333; padding: 40px; margin: 20px 0; border-radius: 15px; border: 3px solid gold;">
-                    <div style="text-align: center; border: 2px solid #333; padding: 30px;">
-                        <h2 style="color: #2c3e50; margin: 20px 0;">CERTIFICATE OF COMPLETION</h2>
-                        <div style="font-size: 1.5em; margin: 20px 0;">CEH v13 Module 4: Enumeration Techniques</div>
-                        <div style="margin: 30px 0;">
-                            <div style="font-size: 1.2em; margin: 10px 0;">This certifies that</div>
-                            <div style="font-size: 2em; font-weight: bold; color: #8e44ad; margin: 20px 0;" id="studentName">[Your Name]</div>
-                            <div style="font-size: 1.2em; margin: 10px 0;">has successfully completed the comprehensive</div>
-                            <div style="font-size: 1.5em; font-weight: bold; margin: 20px 0;">Certified Ethical Hacker v13<br>Module 4: Enumeration Techniques</div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-top: 40px;">
-                            <div>
-                                <div style="border-top: 2px solid #333; width: 200px; margin: 20px 0;"></div>
-                                <div>CEH Instructor</div>
-                            </div>
-                            <div>
-                                <div style="border-top: 2px solid #333; width: 200px; margin: 20px 0;"></div>
-                                <div id="completionDate">Date Completed</div>
-                            </div>
+                <div class="certification-preview">
+                    <h2>🎉 Congratulations!</h2>
+                    <p>You have successfully completed CEH v13 Module 4: Enumeration</p>
+                    <div style="margin: 30px 0;">
+                        <h3>✅ Certification Requirements Met:</h3>
+                        <div style="text-align: left; max-width: 600px; margin: 20px auto;">
+                            <p>☑️ Completed all 4 module parts</p>
+                            <p>☑️ Passed tool mastery challenges</p>
+                            <p>☑️ Achieved 85%+ on comprehensive assessment</p>
+                            <p>☑️ Completed hands-on laboratory exercises</p>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="card" id="certificationActions" style="display: none;">
-                <h3>🎯 Next Steps</h3>
-                <p>Congratulations on completing CEH v13 Module 4! You've mastered advanced enumeration techniques and demonstrated practical expertise.</p>
-                
-                <div style="text-align: center; margin: 30px 0;">
-                    <button class="btn btn-success" onclick="downloadCertificate()">📥 Download Certificate</button>
-                    <button class="btn" onclick="shareLinkedIn()">📘 Share on LinkedIn</button>
-                    <button class="btn btn-warning" onclick="continueToModule5()">➡️ Continue to Module 5</button>
-                </div>
-
-                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 15px; margin: 20px 0;">
-                    <h4>🎓 What You've Accomplished:</h4>
-                    <ul style="margin: 15px 0; padding-left: 20px; line-height: 1.8;">
-                        <li>Mastered 15+ professional enumeration tools and techniques</li>
-                        <li>Completed comprehensive assessment with 80%+ score</li>
-                        <li>Successfully executed 5+ hands-on enumeration scenarios</li>
-                        <li>Demonstrated real-world enumeration methodology</li>
-                        <li>Gained expertise in modern cloud and infrastructure enumeration</li>
+                    <h4>🎯 Skills Mastered:</h4>
+                    <ul style="text-align: left; max-width: 800px; margin: 20px auto;">
+                        <li>NetBIOS, SMB, and SNMP enumeration techniques</li>
+                        <li>LDAP, DNS, RPC, and null session attacks</li>
+                        <li>Cloud infrastructure enumeration (AWS, Azure, GCP)</li>
+                        <li>Database service enumeration and exploitation</li>
+                        <li>Web application and API assessment methodologies</li>
+                        <li>Advanced tool usage and automation</li>
                     </ul>
                 </div>
+
+                <div class="card">
+                    <h3>🚀 Next Steps in Your CEH Journey</h3>
+                    <p>With Module 4 complete, you're ready to advance to:</p>
+                    <ul>
+                        <li><strong>Module 5:</strong> Vulnerability Analysis</li>
+                        <li><strong>Module 6:</strong> System Hacking</li>
+                        <li><strong>Module 7:</strong> Malware Threats</li>
+                        <li><strong>Module 8:</strong> Sniffing</li>
+                    </ul>
+                    <p>Continue building your ethical hacking expertise with advanced attack techniques and defense strategies!</p>
+                </div>
             </div>
-
-            <button class="btn btn-success" onclick="claimCertification()" id="claimCertBtn">🏆 Claim Your Certification</button>
-        </div>
-    </div>
-
-    <!-- Modal for detailed information -->
-    <div id="detailModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="modalContent"></div>
         </div>
     </div>
 
@@ -1011,104 +542,75 @@
         let currentSection = 'overview';
         let completedSections = [];
         let sectionOrder = ['overview', 'tool-mastery', 'comprehensive-assessment', 'hands-on-labs', 'certification'];
-        let toolMasteryProgress = {};
-        let assessmentAnswers = {};
-        let labProgress = {};
-        let totalEngagementTime = 0;
-        let startTime = Date.now();
-
-        // Assessment questions database
-        const assessmentQuestions = {
-            quick: [
-                {
-                    question: "What is the primary difference between scanning and enumeration?",
-                    options: [
-                        "Scanning identifies open ports, enumeration extracts detailed information",
-                        "Enumeration is faster than scanning",
-                        "Scanning requires authentication, enumeration does not",
-                        "There is no difference between scanning and enumeration"
-                    ],
-                    correct: 0,
-                    explanation: "Scanning identifies basic service availability, while enumeration extracts detailed system information."
-                },
-                {
-                    question: "Which SNMP community string is most commonly used for read-only access?",
-                    options: ["private", "admin", "public", "read"],
-                    correct: 2,
-                    explanation: "The 'public' community string is the default read-only string in SNMP configurations."
-                },
-                {
-                    question: "What protocol does enum4linux primarily use for enumeration?",
-                    options: ["HTTPS", "SSH", "SMB/NetBIOS", "FTP"],
-                    correct: 2,
-                    explanation: "enum4linux specializes in SMB and NetBIOS enumeration for Windows systems."
-                },
-                {
-                    question: "Which port is typically associated with LDAP services?",
-                    options: ["389", "443", "80", "22"],
-                    correct: 0,
-                    explanation: "Port 389 is the standard port for LDAP (Lightweight Directory Access Protocol)."
-                },
-                {
-                    question: "What is the purpose of null session enumeration?",
-                    options: [
-                        "To crash the target system",
-                        "To gather information without authentication",
-                        "To encrypt communication channels", 
-                        "To establish VPN connections"
-                    ],
-                    correct: 1,
-                    explanation: "Null sessions allow anonymous connections to extract system information without credentials."
-                }
-            ],
-            standard: [
-                // Include quick questions plus additional ones
-                {
-                    question: "In AWS enumeration, what service is primarily targeted for bucket discovery?",
-                    options: ["EC2", "S3", "RDS", "Lambda"],
-                    correct: 1,
-                    explanation: "S3 (Simple Storage Service) buckets are frequently targeted for misconfiguration enumeration."
-                },
-                {
-                    question: "Which BloodHound collector is specifically designed for Azure AD?",
-                    options: ["SharpHound", "AzureHound", "ADHound", "CloudHound"],
-                    correct: 1,
-                    explanation: "AzureHound is the specialized collector for Azure Active Directory environments."
-                },
-                {
-                    question: "What is the default MongoDB port for enumeration attempts?",
-                    options: ["3306", "5432", "27017", "1521"],
-                    correct: 2,
-                    explanation: "MongoDB typically runs on port 27017 and is often misconfigured for public access."
-                }
-            ],
-            expert: [
-                // Include all previous questions plus advanced scenarios
-                {
-                    question: "In a complex enumeration scenario, you discover a GraphQL endpoint. What is your first enumeration priority?",
-                    options: [
-                        "Attempt SQL injection",
-                        "Query the schema introspection",
-                        "Brute force authentication",
-                        "Check for XSS vulnerabilities"
-                    ],
-                    correct: 1,
-                    explanation: "GraphQL introspection queries reveal the complete API schema and available operations."
-                },
-                {
-                    question: "When enumerating Kubernetes clusters, which tool is most effective for service discovery?",
-                    options: ["kubectl", "docker", "kubeletctl", "helm"],
-                    correct: 2,
-                    explanation: "kubeletctl is specifically designed for Kubernetes cluster enumeration and exploitation."
-                }
-            ]
-        };
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let assessmentQuestions = [
+            {
+                question: "Which port is commonly used for LDAP communications?",
+                options: ["389", "636", "139", "445"],
+                correct: 0,
+                explanation: "LDAP uses port 389 for unencrypted communications and port 636 for LDAPS (encrypted)."
+            },
+            {
+                question: "What is the purpose of a null session attack?",
+                options: ["Crash the target system", "Gain unauthorized information", "Encrypt communications", "Delete files"],
+                correct: 1,
+                explanation: "Null sessions exploit the IPC$ share to gain unauthorized access to system information without authentication."
+            },
+            {
+                question: "Which tool is specifically designed for WordPress enumeration?",
+                options: ["enum4linux", "WPScan", "Nikto", "dirb"],
+                correct: 1,
+                explanation: "WPScan is specifically designed for WordPress security scanning and enumeration."
+            },
+            {
+                question: "What does the SNMP community string 'public' typically provide?",
+                options: ["Write access", "Read-only access", "Administrative access", "No access"],
+                correct: 1,
+                explanation: "The 'public' community string typically provides read-only access to SNMP data."
+            },
+            {
+                question: "Which AWS CLI command lists all S3 buckets?",
+                options: ["aws s3 list", "aws s3 ls", "aws s3 show", "aws s3 enumerate"],
+                correct: 1,
+                explanation: "The 'aws s3 ls' command lists all S3 buckets accessible to the current user."
+            },
+            {
+                question: "What is the default port for MongoDB?",
+                options: ["3306", "5432", "27017", "1433"],
+                correct: 2,
+                explanation: "MongoDB uses port 27017 as its default port for client connections."
+            },
+            {
+                question: "Which Nmap script engine category focuses on enumeration?",
+                options: ["vuln", "discovery", "intrusive", "safe"],
+                correct: 1,
+                explanation: "The 'discovery' category contains scripts focused on enumeration and information gathering."
+            },
+            {
+                question: "What information can be gathered through DNS zone transfers?",
+                options: ["Only IP addresses", "Complete DNS zone data", "User passwords", "File contents"],
+                correct: 1,
+                explanation: "DNS zone transfers can reveal complete DNS zone data including all hostnames and IP addresses."
+            },
+            {
+                question: "Which tool is commonly used for API endpoint discovery?",
+                options: ["sqlmap", "ffuf", "enum4linux", "nbtstat"],
+                correct: 1,
+                explanation: "ffuf (Fuzz Faster U Fool) is commonly used for directory and API endpoint discovery."
+            },
+            {
+                question: "What is the primary purpose of BloodHound in enumeration?",
+                options: ["Web scanning", "Network mapping", "AD attack path analysis", "Database enumeration"],
+                correct: 2,
+                explanation: "BloodHound is used for mapping Active Directory attack paths and privilege escalation opportunities."
+            }
+        ];
 
         // Initialize application
         document.addEventListener('DOMContentLoaded', function() {
             showSection('overview');
-            updateEngagementTime();
-            setInterval(updateEngagementTime, 60000); // Update every minute
+            loadQuestion();
         });
 
         // Section navigation
@@ -1150,9 +652,9 @@
             document.getElementById('progressText').textContent = `Part 4 Progress: ${Math.round(progressPercent)}% Complete`;
         }
 
-        // Engagement time tracking
-        function updateEngagementTime() {
-            totalEngagementTime = Math.floor((Date.now() - startTime) / 1000 / 60); // minutes
+        // Navigation functions - FIXED
+        function goToPreviousPart() {
+            window.location.href = 'ceh_module4_part3.html';
         }
 
         // Tool Mastery Functions
@@ -1161,550 +663,116 @@
                 'nmap-advanced': {
                     title: 'Nmap Advanced Scripting Engine',
                     description: 'Master advanced Nmap techniques including NSE scripting, timing optimization, and evasion methods.',
-                    challenges: [
-                        'NSE script development and customization',
-                        'Advanced timing and performance optimization',
-                        'IDS/IPS evasion techniques',
-                        'Custom scan profile creation',
-                        'Vulnerability assessment integration'
-                    ],
-                    commands: [
-                        'nmap --script vuln -sV target',
-                        'nmap -T4 -A -v -Pn target',
-                        'nmap --script=http-enum -p 80,443 target'
-                    ]
+                    challenge: 'Scan a target network using advanced NSE scripts while avoiding detection.'
                 },
-                'enum4linux-ng': {
-                    title: 'enum4linux-ng Modern Enumeration',
-                    description: 'Next-generation Linux-based enumeration with enhanced SMB and RPC capabilities.',
-                    challenges: [
-                        'SMB share enumeration and analysis',
-                        'RPC endpoint discovery',
-                        'User and group extraction',
-                        'Policy and configuration analysis',
-                        'Automated report generation'
-                    ],
-                    commands: [
-                        'enum4linux-ng -A target',
-                        'enum4linux-ng -u "user" -p "pass" target',
-                        'enum4linux-ng -K target'
-                    ]
+                'enum4linux-pro': {
+                    title: 'enum4linux Professional',
+                    description: 'Advanced Windows enumeration techniques for domain environments.',
+                    challenge: 'Enumerate a Windows domain controller and extract user account information.'
                 },
-                'bloodhound': {
-                    title: 'BloodHound Active Directory Analysis',
-                    description: 'Graph-based Active Directory attack path analysis and privilege escalation identification.',
-                    challenges: [
-                        'SharpHound data collection',
-                        'Graph database analysis',
-                        'Attack path identification',
-                        'Privilege escalation vectors',
-                        'Custom Cypher queries'
-                    ],
-                    commands: [
-                        './SharpHound.exe -c All',
-                        'Import-Module BloodHound',
-                        'Invoke-BloodHound -CollectionMethod All'
-                    ]
+                'sqlmap-expert': {
+                    title: 'SQLMap Expert Level',
+                    description: 'Database enumeration and exploitation using advanced SQLMap techniques.',
+                    challenge: 'Identify and exploit SQL injection vulnerabilities in a web application.'
+                },
+                'cloud-recon': {
+                    title: 'Cloud Reconnaissance Master',
+                    description: 'Multi-cloud enumeration techniques for AWS, Azure, and GCP.',
+                    challenge: 'Assess cloud infrastructure security across multiple providers.'
                 }
             };
 
             const tool = tools[toolName];
             if (tool) {
-                const content = `
-                    <h2>${tool.title}</h2>
-                    <p>${tool.description}</p>
-                    
-                    <h3>🎯 Mastery Challenges:</h3>
-                    <ul>${tool.challenges.map(challenge => `<li>${challenge}</li>`).join('')}</ul>
-                    
-                    <h3>💻 Key Commands:</h3>
-                    <div style="background: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 8px; font-family: monospace;">
-                        ${tool.commands.map(cmd => `<div style="margin: 5px 0;"># ${cmd}</div>`).join('')}
-                    </div>
-                    
-                    <div style="text-align: center; margin: 20px 0;">
-                        <button class="btn btn-success" onclick="completeTool('${toolName}')">✅ Mark as Mastered</button>
-                    </div>
-                `;
-                showModal(content);
+                alert(`${tool.title}\n\n${tool.description}\n\nChallenge: ${tool.challenge}\n\nThis would launch an interactive tool mastery exercise.`);
             }
-        }
-
-        function completeTool(toolName) {
-            toolMasteryProgress[toolName] = true;
-            updateToolProgress();
-            closeModal();
-            
-            // Check if all tools are completed
-            const totalTools = 6;
-            const completedTools = Object.keys(toolMasteryProgress).length;
-            
-            if (completedTools >= totalTools) {
-                document.getElementById('proceedToAssessment').style.display = 'inline-block';
-            }
-        }
-
-        function updateToolProgress() {
-            const progressGrid = document.getElementById('progressGrid');
-            const tools = ['nmap-advanced', 'enum4linux-ng', 'bloodhound', 'cloud-enum', 'shodan-cli', 'custom-scripts'];
-            
-            progressGrid.innerHTML = tools.map(tool => {
-                const completed = toolMasteryProgress[tool];
-                const status = completed ? '✅ Mastered' : '⏳ Pending';
-                const style = completed ? 'opacity: 1; background: rgba(39, 174, 96, 0.1);' : 'opacity: 0.6;';
-                
-                return `
-                    <div style="${style} padding: 15px; border-radius: 8px; border: 2px solid ${completed ? '#27ae60' : '#ddd'};">
-                        <h5>${tool.replace('-', ' ').toUpperCase()}</h5>
-                        <p>${status}</p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function startToolChallenge() {
-            const terminal = document.getElementById('toolMasteryTerminal');
-            terminal.innerHTML = '';
-            
-            const scenario = [
-                { type: 'prompt', text: 'master@ceh:~$ ./advanced_nmap_challenge.py' },
-                { type: 'output', text: 'Advanced Nmap Challenge - Level 1' },
-                { type: 'output', text: '=================================' },
-                { type: 'output', text: 'Target: 192.168.1.100 (Windows Server)' },
-                { type: 'output', text: 'Objective: Identify SMB vulnerabilities using NSE' },
-                { type: 'output', text: 'Time Limit: 10 minutes' },
-                { type: 'prompt', text: 'master@ceh:~$ nmap --script smb-vuln-* -p 445 192.168.1.100' },
-                { type: 'output', text: 'Starting Nmap 7.94 ( https://nmap.org )' },
-                { type: 'output', text: 'Nmap scan report for server.local (192.168.1.100)' },
-                { type: 'output', text: 'PORT    STATE SERVICE' },
-                { type: 'output', text: '445/tcp open  microsoft-ds' },
-                { type: 'success', text: '| smb-vuln-ms17-010: VULNERABLE' },
-                { type: 'info', text: 'Challenge completed! EternalBlue vulnerability detected.' }
-            ];
-            
-            scenario.forEach((line, index) => {
-                setTimeout(() => {
-                    const div = document.createElement('div');
-                    div.className = `terminal-line ${line.type}`;
-                    div.textContent = line.text;
-                    terminal.appendChild(div);
-                    terminal.scrollTop = terminal.scrollHeight;
-                }, index * 800);
-            });
         }
 
         // Assessment Functions
-        function startQuickAssessment() {
-            initializeAssessment('quick');
-        }
-
-        function startStandardAssessment() {
-            initializeAssessment('standard');
-        }
-
-        function startExpertAssessment() {
-            initializeAssessment('expert');
-        }
-
-        function initializeAssessment(type) {
-            const quizContainer = document.getElementById('comprehensiveQuiz');
-            const controlsContainer = document.getElementById('assessmentControls');
-            
-            // Combine questions based on assessment type
-            let questions = [...assessmentQuestions.quick];
-            if (type === 'standard' || type === 'expert') {
-                questions = [...questions, ...assessmentQuestions.standard];
-            }
-            if (type === 'expert') {
-                questions = [...questions, ...assessmentQuestions.expert];
-            }
-            
-            // Shuffle questions for variety
-            questions = shuffleArray(questions);
-            
-            assessmentAnswers = {};
-            
-            // Generate quiz HTML
-            quizContainer.innerHTML = questions.map((q, index) => `
-                <div class="question" data-question="${index}">
-                    <h4>Question ${index + 1}: ${q.question}</h4>
-                    <div class="options">
-                        ${q.options.map((option, optIndex) => `
-                            <div class="option" onclick="selectAnswer(${index}, ${optIndex})">
-                                ${String.fromCharCode(65 + optIndex)}. ${option}
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('');
-            
-            quizContainer.style.display = 'block';
-            controlsContainer.style.display = 'block';
-            
-            // Store questions for later reference
-            window.currentQuestions = questions;
-        }
-
-        function shuffleArray(array) {
-            const newArray = [...array];
-            for (let i = newArray.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-            }
-            return newArray;
-        }
-
-        function selectAnswer(questionIndex, optionIndex) {
-            const question = document.querySelector(`[data-question="${questionIndex}"]`);
-            const options = question.querySelectorAll('.option');
-            
-            // Clear previous selections
-            options.forEach(opt => opt.classList.remove('selected'));
-            
-            // Mark new selection
-            options[optionIndex].classList.add('selected');
-            
-            // Store answer
-            assessmentAnswers[questionIndex] = optionIndex;
-        }
-
-        function submitAssessment() {
-            const questions = window.currentQuestions;
-            let correct = 0;
-            
-            // Calculate score
-            questions.forEach((q, index) => {
-                if (assessmentAnswers[index] === q.correct) {
-                    correct++;
-                }
-            });
-            
-            const percentage = Math.round((correct / questions.length) * 100);
-            
-            // Display score
-            const scoreDisplay = document.getElementById('assessmentScore');
-            scoreDisplay.innerHTML = `
-                <h3>Assessment Results</h3>
-                <div style="font-size: 2em; margin: 20px 0;">${correct}/${questions.length} (${percentage}%)</div>
-                <p>${getScoreMessage(percentage)}</p>
-            `;
-            
-            if (percentage >= 90) {
-                scoreDisplay.className = 'score-display score-excellent';
-            } else if (percentage >= 80) {
-                scoreDisplay.className = 'score-display score-good';
-            } else {
-                scoreDisplay.className = 'score-display score-poor';
-            }
-            
-            scoreDisplay.style.display = 'block';
-            
-            // Show feedback
-            showAssessmentFeedback();
-            
-            // Update buttons
-            document.getElementById('submitAssessmentBtn').style.display = 'none';
-            document.getElementById('resetAssessmentBtn').style.display = 'inline-block';
-            
-            if (percentage >= 80) {
-                document.getElementById('labAccessBtn').style.display = 'inline-block';
-            }
-        }
-
-        function getScoreMessage(percentage) {
-            if (percentage >= 90) return "🏆 Outstanding! You have exceptional mastery of enumeration techniques!";
-            if (percentage >= 80) return "✅ Excellent! You meet the certification requirements!";
-            if (percentage >= 70) return "📚 Good effort! Review the material and try again to meet the 80% requirement.";
-            return "📖 Keep studying! Focus on the areas you missed and retake the assessment.";
-        }
-
-        function showAssessmentFeedback() {
-            const questions = window.currentQuestions;
-            const quizContainer = document.getElementById('comprehensiveQuiz');
-            const questionDivs = quizContainer.querySelectorAll('.question');
-            
-            questionDivs.forEach((questionDiv, index) => {
-                const options = questionDiv.querySelectorAll('.option');
-                const userAnswer = assessmentAnswers[index];
-                const correctAnswer = questions[index].correct;
+        function loadQuestion() {
+            if (currentQuestionIndex < assessmentQuestions.length) {
+                const question = assessmentQuestions[currentQuestionIndex];
+                document.getElementById('currentQuestion').textContent = question.question;
                 
-                options.forEach((option, optIndex) => {
-                    option.onclick = null; // Disable clicking
-                    if (optIndex === correctAnswer) {
-                        option.classList.add('correct');
-                    } else if (optIndex === userAnswer && optIndex !== correctAnswer) {
-                        option.classList.add('incorrect');
-                    }
+                const optionsContainer = document.getElementById('questionOptions');
+                optionsContainer.innerHTML = '';
+                
+                question.options.forEach((option, index) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+                    optionDiv.textContent = option;
+                    optionDiv.onclick = () => selectOption(index);
+                    optionsContainer.appendChild(optionDiv);
                 });
                 
-                // Add explanation
-                const explanation = document.createElement('div');
-                explanation.style.cssText = 'margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #3498db;';
-                explanation.innerHTML = `<strong>Explanation:</strong> ${questions[index].explanation}`;
-                questionDiv.appendChild(explanation);
+                document.getElementById('questionCounter').textContent = 
+                    `Question ${currentQuestionIndex + 1} of ${assessmentQuestions.length}`;
+                
+                // Update button states
+                document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+                document.getElementById('nextBtn').textContent = 
+                    currentQuestionIndex === assessmentQuestions.length - 1 ? 'Finish' : 'Next';
+            }
+        }
+
+        function selectOption(optionIndex) {
+            // Clear previous selections
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
             });
+            
+            // Mark selected option
+            document.querySelectorAll('.option')[optionIndex].classList.add('selected');
+            userAnswers[currentQuestionIndex] = optionIndex;
         }
 
-        function resetAssessment() {
-            document.getElementById('comprehensiveQuiz').style.display = 'none';
-            document.getElementById('assessmentControls').style.display = 'none';
-            document.getElementById('assessmentScore').style.display = 'none';
-            document.getElementById('labAccessBtn').style.display = 'none';
-            assessmentAnswers = {};
-        }
-
-        // Laboratory Functions
-        function startLab(labType) {
-            const labs = {
-                'network-enum': {
-                    title: 'Enterprise Network Enumeration',
-                    description: 'Comprehensive reconnaissance of a corporate network infrastructure',
-                    objectives: [
-                        'Discover all active hosts in the 10.10.10.0/24 network',
-                        'Identify operating systems and service versions',
-                        'Map network topology and device relationships',
-                        'Document security posture and potential vulnerabilities'
-                    ],
-                    tools: ['nmap', 'masscan', 'arp-scan', 'netdiscover'],
-                    scenario: 'You are conducting an authorized penetration test for Acme Corporation. The network administrator has provided you with access to test the internal network segment.'
-                },
-                'ad-enum': {
-                    title: 'Active Directory Domain Analysis',
-                    description: 'Deep enumeration of Windows Active Directory infrastructure',
-                    objectives: [
-                        'Enumerate domain controllers and trust relationships',
-                        'Extract user accounts and group memberships',
-                        'Identify service accounts and SPNs',
-                        'Map privilege escalation paths using BloodHound'
-                    ],
-                    tools: ['bloodhound', 'ldapsearch', 'rpcclient', 'smbclient'],
-                    scenario: 'Target environment contains a Windows 2019 domain with multiple domain controllers and 500+ user accounts.'
-                },
-                'cloud-enum-lab': {
-                    title: 'Multi-Cloud Infrastructure Assessment',
-                    description: 'Reconnaissance across AWS, Azure, and Google Cloud platforms',
-                    objectives: [
-                        'Discover exposed S3 buckets and storage accounts',
-                        'Enumerate IAM roles and permissions',
-                        'Identify misconfigured cloud resources',
-                        'Document cross-cloud security issues'
-                    ],
-                    tools: ['aws-cli', 'azure-cli', 'gcloud', 'cloudenum', 'pacu'],
-                    scenario: 'Organization uses multi-cloud architecture with potential misconfigurations across all three major platforms.'
-                },
-                'webapp-enum': {
-                    title: 'Modern Web Application Discovery',
-                    description: 'Comprehensive enumeration of web applications and APIs',
-                    objectives: [
-                        'Directory and file discovery using multiple techniques',
-                        'API endpoint enumeration and documentation',
-                        'Technology stack identification',
-                        'Security header and configuration analysis'
-                    ],
-                    tools: ['dirb', 'gobuster', 'burp-suite', 'nikto', 'whatweb'],
-                    scenario: 'Target includes modern single-page applications, REST APIs, and microservice architectures.'
-                },
-                'database-enum': {
-                    title: 'Database Service Reconnaissance',
-                    description: 'Enumeration of SQL and NoSQL database systems',
-                    objectives: [
-                        'Identify database services and versions',
-                        'Enumerate schemas, tables, and collections',
-                        'Test for default credentials and misconfigurations',
-                        'Document access controls and permissions'
-                    ],
-                    tools: ['nmap', 'sqlmap', 'mongo-cli', 'redis-cli', 'cqlsh'],
-                    scenario: 'Environment contains MySQL, MongoDB, Redis, and Cassandra instances with varying security configurations.'
-                },
-                'comprehensive-scenario': {
-                    title: 'Complete Infrastructure Assessment',
-                    description: 'Full-scale enumeration methodology demonstration',
-                    objectives: [
-                        'Conduct systematic reconnaissance of entire infrastructure',
-                        'Identify and prioritize attack vectors',
-                        'Generate professional assessment report',
-                        'Present findings with risk ratings and remediation'
-                    ],
-                    tools: ['Complete toolkit', 'Custom scripts', 'Reporting frameworks'],
-                    scenario: 'Capstone challenge combining all previous lab scenarios into a comprehensive assessment.'
-                }
-            };
-
-            const lab = labs[labType];
-            if (lab) {
-                const content = `
-                    <h2>${lab.title}</h2>
-                    <p><strong>Description:</strong> ${lab.description}</p>
-                    
-                    <h3>🎯 Lab Objectives:</h3>
-                    <ul>${lab.objectives.map(obj => `<li>${obj}</li>`).join('')}</ul>
-                    
-                    <h3>🛠️ Required Tools:</h3>
-                    <p>${lab.tools.join(', ')}</p>
-                    
-                    <h3>📋 Scenario:</h3>
-                    <p style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #3498db;">${lab.scenario}</p>
-                    
-                    <div style="background: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 8px; font-family: monospace; margin: 20px 0;">
-                        <div>lab@ceh-vm:~$ ./start_lab_${labType}.sh</div>
-                        <div style="color: #74c0fc;">[INFO] Lab environment initializing...</div>
-                        <div style="color: #51cf66;">[SUCCESS] Lab ready! Begin enumeration.</div>
-                    </div>
-                    
-                    <div style="text-align: center; margin: 20px 0;">
-                        <button class="btn btn-lab" onclick="completeLab('${labType}')">✅ Mark Lab Complete</button>
-                        <button class="btn" onclick="closeModal()">❌ Cancel</button>
-                    </div>
-                `;
-                showModal(content);
-            }
-        }
-
-        function completeLab(labType) {
-            labProgress[labType] = {
-                completed: true,
-                timestamp: new Date().toISOString(),
-                duration: Math.floor(Math.random() * 60) + 30 // Simulated duration
-            };
-            
-            updateLabProgress();
-            closeModal();
-            
-            // Check if enough labs are completed
-            const completedLabs = Object.keys(labProgress).length;
-            if (completedLabs >= 5) {
-                document.getElementById('certificationBtn').style.display = 'inline-block';
-            }
-        }
-
-        function updateLabProgress() {
-            const labProgressDiv = document.getElementById('labProgress');
-            const contentDiv = document.getElementById('labProgressContent');
-            
-            labProgressDiv.style.display = 'block';
-            
-            const labs = ['network-enum', 'ad-enum', 'cloud-enum-lab', 'webapp-enum', 'database-enum', 'comprehensive-scenario'];
-            const completedLabs = Object.keys(labProgress);
-            
-            contentDiv.innerHTML = `
-                <h4>Laboratory Completion Status: ${completedLabs.length}/6</h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
-                    ${labs.map(lab => {
-                        const completed = labProgress[lab];
-                        const status = completed ? '✅ Completed' : '⏳ Pending';
-                        const style = completed ? 'background: rgba(39, 174, 96, 0.1); border-color: #27ae60;' : 'background: rgba(149, 165, 166, 0.1); border-color: #95a5a6;';
-                        
-                        return `
-                            <div style="${style} padding: 15px; border-radius: 8px; border: 2px solid;">
-                                <h5>${lab.replace('-', ' ').toUpperCase()}</h5>
-                                <p>${status}</p>
-                                ${completed ? `<small>Completed: ${new Date(completed.timestamp).toLocaleString()}</small>` : ''}
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-                <div style="background: linear-gradient(45deg, rgba(39, 174, 96, 0.1), rgba(46, 204, 113, 0.1)); padding: 15px; border-radius: 8px; margin: 15px 0;">
-                    <strong>Progress:</strong> ${Math.round((completedLabs.length / 6) * 100)}% Complete
-                    ${completedLabs.length >= 5 ? '<br><span style="color: #27ae60;">✅ Minimum requirements met for certification!</span>' : ''}
-                </div>
-            `;
-        }
-
-        // Certification Functions
-        function checkCertificationRequirements() {
-            updateEngagementTime();
-            
-            const toolsCompleted = Object.keys(toolMasteryProgress).length >= 6;
-            const assessmentPassed = assessmentAnswers && Object.keys(assessmentAnswers).length > 0; // Simplified check
-            const labsCompleted = Object.keys(labProgress).length >= 5;
-            const timeRequirement = totalEngagementTime >= 240; // 4 hours in minutes
-            
-            // Update requirement displays
-            updateRequirement('req-tools', 'tools-progress', toolsCompleted);
-            updateRequirement('req-assessment', 'assessment-progress', assessmentPassed);
-            updateRequirement('req-labs', 'labs-progress', labsCompleted);
-            updateRequirement('req-time', 'time-progress', timeRequirement);
-            
-            // Check if all requirements are met
-            if (toolsCompleted && assessmentPassed && labsCompleted && timeRequirement) {
-                document.getElementById('claimCertBtn').style.display = 'inline-block';
-            }
-        }
-
-        function updateRequirement(reqId, progressId, completed) {
-            const reqElement = document.getElementById(reqId);
-            const progressElement = document.getElementById(progressId);
-            
-            if (completed) {
-                reqElement.style.opacity = '1';
-                reqElement.style.background = 'rgba(39, 174, 96, 0.1)';
-                progressElement.innerHTML = '✅ Completed';
-                progressElement.style.color = '#27ae60';
+        function nextQuestion() {
+            if (currentQuestionIndex < assessmentQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
             } else {
-                reqElement.style.opacity = '0.5';
-                progressElement.innerHTML = '❌ Not Completed';
-                progressElement.style.color = '#e74c3c';
+                finishAssessment();
             }
         }
 
-        function claimCertification() {
-            // Show certification badge and preview
-            document.getElementById('certificationBadge').style.display = 'block';
-            document.getElementById('certPreview').style.display = 'block';
-            document.getElementById('certificationActions').style.display = 'block';
-            document.getElementById('claimCertBtn').style.display = 'none';
-            
-            // Update certificate with current date
-            document.getElementById('completionDate').textContent = new Date().toLocaleDateString();
-            
-            // Scroll to certification
-            document.getElementById('certificationBadge').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function downloadCertificate() {
-            alert('🎓 Certificate download functionality would be implemented here.\n\nYour CEH v13 Module 4 completion certificate is ready!');
-        }
-
-        function shareLinkedIn() {
-            const text = "I just completed CEH v13 Module 4: Enumeration Techniques! Mastered advanced enumeration tools, passed comprehensive assessments, and completed hands-on labs. #CEH #CyberSecurity #EthicalHacking";
-            const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&summary=${encodeURIComponent(text)}`;
-            window.open(url, '_blank');
-        }
-
-        function continueToModule5() {
-            alert('🚀 Congratulations on completing Module 4!\n\nModule 5: Vulnerability Analysis is your next challenge. Continue your CEH v13 journey!');
-        }
-
-        // Modal functions
-        function showModal(content) {
-            document.getElementById('modalContent').innerHTML = content;
-            const modal = document.getElementById('detailModal');
-            modal.style.display = 'block';
-            
-            setTimeout(() => {
-                modal.style.opacity = '1';
-            }, 10);
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('detailModal');
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 300);
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('detailModal');
-            if (event.target === modal) {
-                closeModal();
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
             }
         }
 
-        // Initialize progress tracking
-        updateProgress();
-        updateToolProgress();
+        function finishAssessment() {
+            // Calculate score
+            let correctAnswers = 0;
+            assessmentQuestions.forEach((question, index) => {
+                if (userAnswers[index] === question.correct) {
+                    correctAnswers++;
+                }
+            });
+            
+            const percentage = Math.round((correctAnswers / assessmentQuestions.length) * 100);
+            
+            // Show results
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <h3>Assessment Complete!</h3>
+                <p>You scored ${correctAnswers} out of ${assessmentQuestions.length} (${percentage}%)</p>
+                <p>${percentage >= 85 ? '🎉 Excellent work! You\'ve passed the assessment.' : '📚 Consider reviewing the material and retaking the assessment.'}</p>
+            `;
+            resultsDiv.style.display = 'block';
+            
+            // Hide question interface
+            document.getElementById('currentQuestion').style.display = 'none';
+            document.getElementById('questionOptions').style.display = 'none';
+            document.querySelector('.quiz-container > div:last-child').style.display = 'none';
+        }
+
+        function checkCertificationRequirements() {
+            // This would check if all requirements are met
+            // For demo purposes, we'll assume they are
+            console.log('Checking certification requirements...');
+        }
     </script>
 </body>
 </html>

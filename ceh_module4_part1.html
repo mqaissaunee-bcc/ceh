@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEH v13 Module 4: Enumeration - Part 1</title>
+    <title>CEH v13 Module 4 - Part 1: Core Fundamentals</title>
     <style>
         * {
             margin: 0;
@@ -11,160 +11,118 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --dark-bg: #1a1a1a;
-            --light-bg: #f8f9fa;
-            --text-dark: #2c3e50;
-            --text-light: #ecf0f1;
-            --border-color: #bdc3c7;
-            --enum-primary: #9b59b6;
-            --enum-secondary: #8e44ad;
-            --enum-accent: #e67e22;
-            --stealth-color: #34495e;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--text-dark);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8e44ad 100%);
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #ecf0f1;
             min-height: 100vh;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
         .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
         }
 
         .header h1 {
-            color: var(--primary-color);
             font-size: 2.5em;
             margin-bottom: 10px;
-            background: linear-gradient(45deg, var(--enum-primary), var(--enum-secondary));
+            background: linear-gradient(45deg, #3498db, #9b59b6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-
-        .header p {
-            font-size: 1.2em;
-            color: var(--text-dark);
-            margin-bottom: 20px;
+            background-clip: text;
         }
 
         .part-indicator {
-            background: linear-gradient(45deg, var(--enum-primary), var(--enum-secondary));
+            background: linear-gradient(45deg, #e74c3c, #f39c12);
             color: white;
-            padding: 10px 20px;
+            padding: 8px 20px;
             border-radius: 25px;
-            font-weight: 600;
-            margin: 15px 0;
             display: inline-block;
+            margin: 10px 0;
+            font-weight: bold;
         }
 
         .progress-container {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 25px;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-
-        .progress-bar {
-            height: 20px;
-            background: linear-gradient(90deg, var(--enum-primary), var(--enum-secondary));
-            border-radius: 15px;
-            width: 0%;
-            transition: width 0.3s ease;
+            padding: 5px;
+            margin: 20px auto;
+            max-width: 600px;
             position: relative;
             overflow: hidden;
         }
 
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .navigation {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
+        .progress-bar {
+            height: 30px;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.3s ease;
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
+            align-items: center;
             justify-content: center;
         }
 
-        .nav-btn {
-            background: linear-gradient(45deg, var(--enum-primary), var(--enum-secondary));
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn, .next-part-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 12px 25px;
             border-radius: 25px;
             cursor: pointer;
             font-size: 1em;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .nav-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        .nav-btn:hover, .next-part-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
         .nav-btn.active {
-            background: linear-gradient(45deg, var(--accent-color), #c0392b);
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
         }
 
         .next-part-btn {
-            background: linear-gradient(45deg, var(--success-color), #27ae60);
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
             font-size: 1.1em;
-            padding: 18px 35px;
+            padding: 15px 30px;
         }
 
         .content-area {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 15px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            min-height: 600px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
         }
 
         .module-section {
             display: none;
-            animation: fadeIn 0.5s ease-in-out;
         }
 
         .module-section.active {
             display: block;
+            animation: fadeIn 0.5s ease;
         }
 
         @keyframes fadeIn {
@@ -173,30 +131,26 @@
         }
 
         .section-title {
-            color: var(--primary-color);
             font-size: 2em;
-            margin-bottom: 30px;
-            border-bottom: 3px solid var(--enum-primary);
-            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
             padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid var(--enum-primary);
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+            backdrop-filter: blur(5px);
         }
 
         .card h3 {
-            color: var(--primary-color);
+            color: #3498db;
             margin-bottom: 15px;
             font-size: 1.3em;
         }
@@ -204,182 +158,44 @@
         .enum-types {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin: 30px 0;
-        }
-
-        .enum-card {
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            color: white;
-        }
-
-        .netbios-enum {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-        }
-
-        .smb-enum {
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
-        }
-
-        .snmp-enum {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-        }
-
-        .ldap-enum {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-        }
-
-        .enum-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .methodology-steps {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin: 30px 0;
-        }
-
-        .methodology-step {
-            background: linear-gradient(90deg, var(--enum-primary), var(--enum-secondary));
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .methodology-step:hover {
-            transform: translateX(10px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .methodology-step::after {
-            content: '→';
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.5em;
-        }
-
-        .methodology-step:last-child::after {
-            content: '✓';
-            color: var(--success-color);
-        }
-
-        .interactive-demo {
-            background: rgba(26, 26, 26, 0.95);
-            color: var(--text-light);
-            border-radius: 15px;
-            padding: 30px;
-            margin: 30px 0;
-            font-family: 'Courier New', monospace;
-        }
-
-        .terminal {
-            background: #000;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            min-height: 200px;
-            overflow-y: auto;
-            max-height: 400px;
-        }
-
-        .terminal-line {
-            margin: 5px 0;
-            opacity: 0;
-            animation: typeWriter 0.5s ease-in-out forwards;
-        }
-
-        @keyframes typeWriter {
-            to { opacity: 1; }
-        }
-
-        .prompt {
-            color: var(--success-color);
-        }
-
-        .output {
-            color: var(--text-light);
-        }
-
-        .error {
-            color: var(--accent-color);
-        }
-
-        .warning {
-            color: var(--warning-color);
-        }
-
-        .info {
-            color: var(--secondary-color);
-        }
-
-        .service-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             margin: 30px 0;
         }
 
-        .service-card {
-            background: linear-gradient(135deg, #34495e, #2c3e50);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
+        .enum-card {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1));
+            border-radius: 10px;
+            padding: 20px;
             text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
         }
 
-        .service-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        .enum-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .service-card h4 {
-            color: var(--enum-secondary);
-            margin-bottom: 10px;
+        .enum-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
         }
 
         .btn {
-            background: linear-gradient(45deg, var(--enum-primary), var(--enum-secondary));
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 12px 25px;
             border-radius: 25px;
             cursor: pointer;
             font-size: 1em;
-            font-weight: 600;
             transition: all 0.3s ease;
-            margin: 10px 5px;
+            margin: 10px;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-success {
-            background: linear-gradient(45deg, var(--success-color), #27ae60);
-        }
-
-        .btn-warning {
-            background: linear-gradient(45deg, var(--warning-color), #e67e22);
-        }
-
-        .btn-danger {
-            background: linear-gradient(45deg, var(--accent-color), #c0392b);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         .modal {
@@ -390,35 +206,34 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(5px);
-            opacity: 0;
-            transition: opacity 0.3s ease;
         }
 
         .modal-content {
-            background: white;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
             margin: 5% auto;
-            padding: 40px;
-            border-radius: 20px;
-            width: 80%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
         .close {
-            color: #aaa;
+            color: #ecf0f1;
             float: right;
-            font-size: 28px;
+            font-size: 35px;
             font-weight: bold;
             cursor: pointer;
-            line-height: 1;
+            position: absolute;
+            right: 20px;
+            top: 15px;
         }
 
         .close:hover {
-            color: var(--accent-color);
+            color: #3498db;
         }
 
         @media (max-width: 768px) {
@@ -474,468 +289,152 @@
                 <h2 class="section-title">🎯 Learning Objectives</h2>
                 <div class="card">
                     <h3>Module 4 Overview - Part 1</h3>
-                    <p>Welcome to CEH v13 Module 4! This comprehensive module focuses on enumeration - the critical third phase of ethical hacking. In this first part, you'll learn fundamental enumeration concepts and master NetBIOS, SMB, and SNMP techniques.</p>
-                    
-                    <h4>🎯 Part 1 Learning Objectives:</h4>
-                    <ul style="margin: 15px 0; padding-left: 20px;">
-                        <li>Understand enumeration fundamentals and methodologies</li>
-                        <li>Master NetBIOS and SMB share enumeration techniques</li>
-                        <li>Execute SNMP community string attacks and information extraction</li>
-                        <li>Practice with realistic enumeration scenarios and tools</li>
-                    </ul>
-                </div>
-
-                <div class="card">
-                    <h3>🗂️ Complete Module 4 Series</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
-                        <div style="background: linear-gradient(135deg, var(--enum-primary), var(--enum-secondary)); color: white; padding: 20px; border-radius: 12px;">
-                            <h4>📚 Part 1: Core Fundamentals</h4>
-                            <p><strong>Current Module</strong></p>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>Enumeration fundamentals</li>
-                                <li>NetBIOS & SMB enumeration</li>
-                                <li>SNMP enumeration</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="background: linear-gradient(135deg, #16a085, #1abc9c); color: white; padding: 20px; border-radius: 12px;">
-                            <h4>🏗️ Part 2: Directory Services</h4>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>LDAP & DNS enumeration</li>
-                                <li>RPC & null session attacks</li>
-                                <li>Advanced Windows techniques</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 20px; border-radius: 12px;">
-                            <h4>☁️ Part 3: Modern Targets</h4>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>Cloud enumeration (AWS, Azure, GCP)</li>
-                                <li>Database service enumeration</li>
-                                <li>Web application enumeration</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 20px; border-radius: 12px;">
-                            <h4>🎯 Part 4: Assessment & Labs</h4>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>Tool mastery and techniques</li>
-                                <li>Comprehensive assessment</li>
-                                <li>Hands-on enumeration labs</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>🆕 What's New in CEH v13 Module 4</h3>
-                    <p style="background: linear-gradient(45deg, var(--enum-primary), var(--enum-secondary)); color: white; padding: 15px; border-radius: 10px; margin: 15px 0;">
-                        <strong>Cloud-Native Enumeration:</strong> CEH v13 introduces comprehensive cloud service enumeration and modern attack vectors!
-                    </p>
-                    <ul style="margin: 15px 0; padding-left: 20px;">
-                        <li><strong>AWS S3 Bucket Enumeration:</strong> Advanced techniques for discovering misconfigured storage</li>
-                        <li><strong>Azure AD Enumeration:</strong> Extracting user and organization information</li>
-                        <li><strong>Container Enumeration:</strong> Docker and Kubernetes service discovery</li>
-                        <li><strong>API Endpoint Discovery:</strong> Modern application enumeration techniques</li>
-                    </ul>
-                </div>
-
-                <button class="btn btn-success" onclick="showSection('fundamentals')">Start Learning! 🚀</button>
-            </div>
-
-            <!-- Enumeration Fundamentals Section -->
-            <div id="fundamentals" class="module-section">
-                <h2 class="section-title">🔧 Enumeration Fundamentals</h2>
-                
-                <div class="card">
-                    <h3>What is Enumeration?</h3>
-                    <p>Enumeration is the process of extracting detailed information about network resources, users, groups, shares, services, and system configurations from target systems. It builds upon the information gathered during scanning to create a comprehensive picture of the target environment.</p>
-                </div>
-
-                <div class="methodology-steps">
-                    <div class="methodology-step" onclick="showMethodologyDetails('target-identification')">
-                        <strong>1. Target Identification</strong>
-                        <p>Identify live systems and accessible services from previous scanning phases</p>
-                    </div>
-                    <div class="methodology-step" onclick="showMethodologyDetails('service-enumeration')">
-                        <strong>2. Service Enumeration</strong>
-                        <p>Extract detailed information from discovered services and applications</p>
-                    </div>
-                    <div class="methodology-step" onclick="showMethodologyDetails('user-group-enum')">
-                        <strong>3. User & Group Enumeration</strong>
-                        <p>Discover user accounts, groups, and organizational structure</p>
-                    </div>
-                    <div class="methodology-step" onclick="showMethodologyDetails('share-resource-enum')">
-                        <strong>4. Share & Resource Enumeration</strong>
-                        <p>Identify network shares, databases, and accessible resources</p>
-                    </div>
-                    <div class="methodology-step" onclick="showMethodologyDetails('information-compilation')">
-                        <strong>5. Information Compilation</strong>
-                        <p>Organize and analyze gathered information for attack planning</p>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>🔍 Enumeration vs. Scanning</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
-                        <div style="background: #3498db; color: white; padding: 20px; border-radius: 10px;">
-                            <h4>🔍 Scanning</h4>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>Identifies live systems and open ports</li>
-                                <li>Basic service detection</li>
-                                <li>Network topology discovery</li>
-                                <li>Less intrusive and noisy</li>
-                                <li>Broader scope, less detail</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="background: var(--enum-primary); color: white; padding: 20px; border-radius: 10px;">
-                            <h4>📋 Enumeration</h4>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>Extracts detailed system information</li>
-                                <li>User accounts and groups</li>
-                                <li>Network shares and resources</li>
-                                <li>More intrusive and detectable</li>
-                                <li>Narrower scope, deep detail</li>
-                            </ul>
-                        </div>
-                    </div>
+                    <p>Welcome to CEH v13 Module 4! This comprehensive module focuses on enumeration - the critical third phase of ethical hacking. In Part 1, you'll master the core fundamentals that form the foundation of all enumeration activities.</p>
                 </div>
 
                 <div class="enum-types">
-                    <div class="enum-card netbios-enum" onclick="showEnumDetails('netbios')">
-                        <h3>🌐 NetBIOS Enumeration</h3>
-                        <p>Windows network service discovery</p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>Computer names and domains</li>
-                            <li>User and group information</li>
-                            <li>Network shares discovery</li>
-                            <li>Session information</li>
-                        </ul>
+                    <div class="enum-card">
+                        <div class="enum-icon">🔧</div>
+                        <h3>Enumeration Fundamentals</h3>
+                        <p>Master the core concepts, methodologies, and tools that underpin all enumeration activities in ethical hacking.</p>
                     </div>
-
-                    <div class="enum-card smb-enum" onclick="showEnumDetails('smb')">
-                        <h3>📁 SMB Enumeration</h3>
-                        <p>Server Message Block service analysis</p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>Share permissions and access</li>
-                            <li>File and directory listings</li>
-                            <li>User session information</li>
-                            <li>Administrative shares</li>
-                        </ul>
+                    <div class="enum-card">
+                        <div class="enum-icon">🌐</div>
+                        <h3>NetBIOS & SMB</h3>
+                        <p>Deep dive into Windows networking protocols, shares enumeration, and session manipulation techniques.</p>
                     </div>
-
-                    <div class="enum-card snmp-enum" onclick="showEnumDetails('snmp')">
-                        <h3>📊 SNMP Enumeration</h3>
-                        <p>Simple Network Management Protocol data extraction</p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>System configuration details</li>
-                            <li>Network interface information</li>
-                            <li>Running processes and services</li>
-                            <li>User account information</li>
-                        </ul>
-                    </div>
-
-                    <div class="enum-card ldap-enum" onclick="showEnumDetails('ldap')">
-                        <h3>🏗️ LDAP Enumeration</h3>
-                        <p>Directory service information extraction</p>
-                        <p style="margin: 10px 0; font-style: italic;">Covered in Part 2</p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>Organizational structure</li>
-                            <li>User and group attributes</li>
-                            <li>Domain configuration</li>
-                            <li>Access control information</li>
-                        </ul>
+                    <div class="enum-card">
+                        <div class="enum-icon">📊</div>
+                        <h3>SNMP Enumeration</h3>
+                        <p>Explore Simple Network Management Protocol vulnerabilities, community string attacks, and MIB traversal.</p>
                     </div>
                 </div>
-
-                <button class="btn btn-success" onclick="showSection('netbios-smb')">Next: NetBIOS & SMB Enumeration →</button>
             </div>
 
-            <!-- NetBIOS & SMB Enumeration Section -->
+            <!-- Fundamentals Section -->
+            <div id="fundamentals" class="module-section">
+                <h2 class="section-title">🔧 Enumeration Fundamentals</h2>
+                <div class="card">
+                    <h3>What is Enumeration?</h3>
+                    <p>Enumeration is the third phase of ethical hacking, following reconnaissance and scanning. It involves extracting detailed information about identified services, users, shares, and network resources.</p>
+                    
+                    <h4>Key Objectives:</h4>
+                    <ul>
+                        <li>Extract usernames, machine names, network resources</li>
+                        <li>Collect information about network shares</li>
+                        <li>Identify system vulnerabilities and misconfigurations</li>
+                        <li>Gather application and service banners</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Enumeration vs Scanning</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: rgba(52, 152, 219, 0.2);">
+                                <th style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Scanning</th>
+                                <th style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Enumeration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Identifies live hosts and open ports</td>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Extracts detailed information from services</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Non-intrusive, passive approach</td>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">More intrusive, active information gathering</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Broader network mapping</td>
+                                <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Deep dive into specific services</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- NetBIOS & SMB Section -->
             <div id="netbios-smb" class="module-section">
                 <h2 class="section-title">🌐 NetBIOS & SMB Enumeration</h2>
-                
                 <div class="card">
-                    <h3>🔍 Understanding NetBIOS and SMB</h3>
-                    <p>NetBIOS (Network Basic Input/Output System) and SMB (Server Message Block) are fundamental Windows networking protocols that provide rich information about systems, users, and network resources. These protocols are goldmines for enumeration activities.</p>
-                </div>
-
-                <div class="card">
-                    <h3>🎯 NetBIOS Enumeration Techniques</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
-                        <div style="background: #3498db; color: white; padding: 20px; border-radius: 10px;">
-                            <h4>📋 NetBIOS Name Table</h4>
-                            <p><code>nbtstat -A target_ip</code></p>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>Computer name and domain</li>
-                                <li>Workgroup information</li>
-                                <li>User currently logged on</li>
-                                <li>MAC address discovery</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="background: #9b59b6; color: white; padding: 20px; border-radius: 10px;">
-                            <h4>🔍 NBTScan Discovery</h4>
-                            <p><code>nbtscan -r 192.168.1.0/24</code></p>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>Network-wide NetBIOS scanning</li>
-                                <li>Bulk system identification</li>
-                                <li>User enumeration across network</li>
-                                <li>Share discovery automation</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="interactive-demo">
-                    <h3>🎮 NetBIOS Enumeration Demo</h3>
-                    <div class="terminal" id="netbiosEnumTerminal">
-                        <div class="terminal-line prompt">enum@kali:~$ nbtscan -r 192.168.1.0/24</div>
-                        <div class="terminal-line output">Doing NBT name scan for addresses from 192.168.1.0/24</div>
-                        <div class="terminal-line output">192.168.1.100  WORKSTATION-01  &lt;00&gt; UNIQUE</div>
-                        <div class="terminal-line output">192.168.1.100  DOMAIN          &lt;00&gt; GROUP</div>
-                        <div class="terminal-line output">192.168.1.100  WORKSTATION-01  &lt;20&gt; UNIQUE</div>
-                        <div class="terminal-line output">192.168.1.101  SERVER-DC       &lt;00&gt; UNIQUE</div>
-                        <div class="terminal-line output">192.168.1.101  DOMAIN          &lt;00&gt; GROUP</div>
-                        <div class="terminal-line output">192.168.1.101  SERVER-DC       &lt;20&gt; UNIQUE</div>
-                        <div class="terminal-line output">192.168.1.102  FILESERVER      &lt;00&gt; UNIQUE</div>
-                        <div class="terminal-line info">NetBIOS scan completed - 3 systems discovered</div>
-                    </div>
-                    <button class="btn" onclick="runNetBIOSDemo()">🔄 Run Advanced NBT Scan</button>
-                </div>
-
-                <div class="card">
-                    <h3>📁 SMB Enumeration with enum4linux</h3>
-                    <p>enum4linux is a comprehensive tool for enumerating information from Windows and Samba systems through SMB. It automates the process of gathering users, shares, groups, and system information.</p>
-                </div>
-
-                <div class="service-cards">
-                    <div class="service-card" onclick="showSMBEnumDetails('shares')">
-                        <h4>🗂️ Share Enumeration</h4>
-                        <p><code>enum4linux -S target</code></p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>Available network shares</li>
-                            <li>Share permissions and access</li>
-                            <li>Hidden and administrative shares</li>
-                            <li>Share contents discovery</li>
-                        </ul>
-                    </div>
-
-                    <div class="service-card" onclick="showSMBEnumDetails('users')">
-                        <h4>👥 User Enumeration</h4>
-                        <p><code>enum4linux -U target</code></p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>Domain and local users</li>
-                            <li>User account details</li>
-                            <li>Password policy information</li>
-                            <li>User group memberships</li>
-                        </ul>
-                    </div>
-
-                    <div class="service-card" onclick="showSMBEnumDetails('groups')">
-                        <h4>👥 Group Enumeration</h4>
-                        <p><code>enum4linux -G target</code></p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>Domain and local groups</li>
-                            <li>Group membership information</li>
-                            <li>Administrative groups</li>
-                            <li>Group permissions and rights</li>
-                        </ul>
-                    </div>
-
-                    <div class="service-card" onclick="showSMBEnumDetails('policies')">
-                        <h4>🔒 Policy Information</h4>
-                        <p><code>enum4linux -P target</code></p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>Password policy settings</li>
-                            <li>Account lockout policies</li>
-                            <li>Domain policy information</li>
-                            <li>Security settings</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="interactive-demo">
-                    <h3>🎮 SMB Enumeration Demo</h3>
-                    <div class="terminal" id="smbEnumTerminal">
-                        <div class="terminal-line prompt">enum@kali:~$ enum4linux -a 192.168.1.100</div>
-                        <div class="terminal-line output">Starting enum4linux v0.9.1 ( http://labs.portcullis.co.uk/application/enum4linux/ )</div>
-                        <div class="terminal-line output"> ========================= </div>
-                        <div class="terminal-line output">|    Target Information    |</div>
-                        <div class="terminal-line output"> ========================= </div>
-                        <div class="terminal-line output">Target ........... 192.168.1.100</div>
-                        <div class="terminal-line output">RID Range ........ 500-550,1000-1050</div>
-                        <div class="terminal-line info"> ======================= </div>
-                        <div class="terminal-line info">|    Share Enumeration  |</div>
-                        <div class="terminal-line info"> ======================= </div>
-                        <div class="terminal-line output">Sharename       Type      Comment</div>
-                        <div class="terminal-line output">---------       ----      -------</div>
-                        <div class="terminal-line output">ADMIN$          Disk      Remote Admin</div>
-                        <div class="terminal-line output">C$              Disk      Default share</div>
-                        <div class="terminal-line output">IPC$            IPC       Remote IPC</div>
-                        <div class="terminal-line warning">SYSVOL          Disk      Logon server share</div>
-                        <div class="terminal-line warning">NETLOGON        Disk      Logon server share</div>
-                        <div class="terminal-line output">Users           Disk      User home directories</div>
-                    </div>
-                    <button class="btn" onclick="runSMBDemo()">🔄 Run Full SMB Enumeration</button>
-                </div>
-
-                <div class="card">
-                    <h3>🛡️ SMB Null Session Attacks</h3>
-                    <p>Null sessions exploit a vulnerability in older Windows systems where anonymous connections can be established to gather information without authentication.</p>
+                    <h3>NetBIOS (Network Basic Input/Output System)</h3>
+                    <p>NetBIOS operates on ports 137-139 and provides name resolution and session services for Windows networks.</p>
                     
-                    <div style="background: #e74c3c; color: white; padding: 15px; border-radius: 10px; margin: 15px 0;">
-                        <h4>⚠️ Null Session Commands:</h4>
-                        <ul style="margin: 10px 0; line-height: 1.8;">
-                            <li><code>net use \\target\ipc$ "" /user:""</code> - Establish null session</li>
-                            <li><code>net view \\target</code> - View available shares</li>
-                            <li><code>net user /domain</code> - Enumerate domain users</li>
-                            <li><code>net group /domain</code> - Enumerate domain groups</li>
-                        </ul>
+                    <h4>Key NetBIOS Commands:</h4>
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <code>
+                        nbtstat -A &lt;IP&gt;          # Remote machine name table<br>
+                        nbtstat -a &lt;hostname&gt;    # Name table by hostname<br>
+                        net view \\&lt;IP&gt;          # Available shares<br>
+                        net use \\&lt;IP&gt;\IPC$ "" /u:""  # Null session connection
+                        </code>
                     </div>
                 </div>
 
-                <button class="btn btn-success" onclick="showSection('snmp')">Next: SNMP Enumeration →</button>
+                <div class="card">
+                    <h3>SMB (Server Message Block) Enumeration</h3>
+                    <p>SMB runs on port 445 and is used for file/printer sharing in Windows environments.</p>
+                    
+                    <h4>SMB Enumeration Tools:</h4>
+                    <ul>
+                        <li><strong>enum4linux:</strong> Comprehensive SMB enumeration script</li>
+                        <li><strong>smbclient:</strong> Connect to SMB shares</li>
+                        <li><strong>rpcclient:</strong> Execute RPC commands</li>
+                        <li><strong>smbmap:</strong> SMB share enumeration and interaction</li>
+                    </ul>
+
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <code>
+                        enum4linux -a &lt;IP&gt;<br>
+                        smbclient -L //&lt;IP&gt; -N<br>
+                        smbmap -H &lt;IP&gt; -u anonymous
+                        </code>
+                    </div>
+                </div>
             </div>
 
-            <!-- SNMP Enumeration Section -->
+            <!-- SNMP Section -->
             <div id="snmp" class="module-section">
                 <h2 class="section-title">📊 SNMP Enumeration</h2>
-                
                 <div class="card">
-                    <h3>🔍 Understanding SNMP</h3>
-                    <p>Simple Network Management Protocol (SNMP) is used for network management and monitoring. SNMP agents on network devices provide a wealth of information through Management Information Base (MIB) objects, making it a prime target for enumeration.</p>
-                </div>
-
-                <div class="card">
-                    <h3>🎯 SNMP Architecture</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
-                        <div style="background: #27ae60; color: white; padding: 20px; border-radius: 10px;">
-                            <h4>🏢 SNMP Manager</h4>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>Queries SNMP agents for information</li>
-                                <li>Receives traps and notifications</li>
-                                <li>Manages network monitoring</li>
-                                <li>Centralized management system</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="background: #3498db; color: white; padding: 20px; border-radius: 10px;">
-                            <h4>🤖 SNMP Agent</h4>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>Runs on managed devices</li>
-                                <li>Responds to manager queries</li>
-                                <li>Sends traps when events occur</li>
-                                <li>Maintains MIB information</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="background: #9b59b6; color: white; padding: 20px; border-radius: 10px;">
-                            <h4>📊 MIB (Management Information Base)</h4>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>Hierarchical database of objects</li>
-                                <li>Object Identifiers (OIDs)</li>
-                                <li>System and device information</li>
-                                <li>Standardized data structure</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="background: #e74c3c; color: white; padding: 20px; border-radius: 10px;">
-                            <h4>🔑 Community Strings</h4>
-                            <ul style="margin: 10px 0; line-height: 1.6;">
-                                <li>Authentication mechanism</li>
-                                <li>Read-only: "public" (default)</li>
-                                <li>Read-write: "private" (default)</li>
-                                <li>Custom community strings</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="interactive-demo">
-                    <h3>🎮 SNMP Community String Discovery</h3>
-                    <div class="terminal" id="snmpDiscoveryTerminal">
-                        <div class="terminal-line prompt">enum@kali:~$ onesixtyone -c community.txt 192.168.1.0/24</div>
-                        <div class="terminal-line output">Scanning 256 hosts, 50 communities</div>
-                        <div class="terminal-line output">192.168.1.1 [public] HP ETHERNET MULTI-ENVIRONMENT,ROM A.25.80</div>
-                        <div class="terminal-line output">192.168.1.50 [public] Cisco IOS Software, Version 15.1</div>
-                        <div class="terminal-line warning">192.168.1.100 [private] Windows Server 2019 Standard</div>
-                        <div class="terminal-line output">192.168.1.200 [public] Linux server 5.4.0-74-generic</div>
-                        <div class="terminal-line info">Community string discovery completed</div>
-                    </div>
-                    <button class="btn" onclick="runSNMPDiscovery()">🔄 Run Advanced SNMP Scan</button>
+                    <h3>Simple Network Management Protocol (SNMP)</h3>
+                    <p>SNMP operates on UDP port 161 and is used for network device management. It's often misconfigured with default community strings.</p>
+                    
+                    <h4>Common Community Strings:</h4>
+                    <ul>
+                        <li>public (read-only - default)</li>
+                        <li>private (read-write)</li>
+                        <li>manager</li>
+                        <li>admin</li>
+                        <li>cisco</li>
+                    </ul>
                 </div>
 
                 <div class="card">
-                    <h3>🔍 SNMPwalk Information Extraction</h3>
-                    <p>SNMPwalk is used to retrieve all available information from a device's SNMP agent by walking through the MIB tree.</p>
-                </div>
-
-                <div class="service-cards">
-                    <div class="service-card" onclick="showSNMPDetails('system')">
-                        <h4>🖥️ System Information</h4>
-                        <p><code>snmpwalk -v2c -c public target 1.3.6.1.2.1.1</code></p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>System description and uptime</li>
-                            <li>Hardware and software information</li>
-                            <li>Contact and location details</li>
-                            <li>Device capabilities</li>
-                        </ul>
+                    <h3>SNMP Enumeration Techniques</h3>
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <code>
+                        snmpwalk -v1 -c public &lt;IP&gt; 1.3.6.1.4.1<br>
+                        snmpget -v1 -c public &lt;IP&gt; 1.3.6.1.2.1.1.1.0<br>
+                        onesixtyone -c community.txt &lt;IP&gt;<br>
+                        nmap --script snmp-* &lt;IP&gt;
+                        </code>
                     </div>
 
-                    <div class="service-card" onclick="showSNMPDetails('interfaces')">
-                        <h4>🔌 Network Interfaces</h4>
-                        <p><code>snmpwalk -v2c -c public target 1.3.6.1.2.1.2</code></p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>Interface names and descriptions</li>
-                            <li>IP addresses and configurations</li>
-                            <li>Traffic statistics</li>
-                            <li>Interface status and speed</li>
-                        </ul>
-                    </div>
-
-                    <div class="service-card" onclick="showSNMPDetails('processes')">
-                        <h4>⚙️ Running Processes</h4>
-                        <p><code>snmpwalk -v2c -c public target 1.3.6.1.2.1.25.4</code></p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>Process names and IDs</li>
-                            <li>Running applications</li>
-                            <li>Process parameters</li>
-                            <li>Resource utilization</li>
-                        </ul>
-                    </div>
-
-                    <div class="service-card" onclick="showSNMPDetails('users')">
-                        <h4>👤 User Accounts</h4>
-                        <p><code>snmpwalk -v2c -c public target 1.3.6.1.4.1.77.1.2.25</code></p>
-                        <ul style="text-align: left; margin: 10px 0;">
-                            <li>Local user accounts</li>
-                            <li>User session information</li>
-                            <li>Login statistics</li>
-                            <li>Account properties</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="interactive-demo">
-                    <h3>🎮 SNMP Enumeration Demo</h3>
-                    <div class="terminal" id="snmpEnumTerminal">
-                        <div class="terminal-line prompt">enum@kali:~$ snmpwalk -v2c -c public 192.168.1.100 1.3.6.1.2.1.1</div>
-                        <div class="terminal-line output">iso.3.6.1.2.1.1.1.0 = STRING: "Hardware: Intel64 Family 6 Model 142 - Software: Windows Version 10.0"</div>
-                        <div class="terminal-line output">iso.3.6.1.2.1.1.2.0 = OID: iso.3.6.1.4.1.311.1.1.3.1.1</div>
-                        <div class="terminal-line output">iso.3.6.1.2.1.1.3.0 = Timeticks: (12345678) 1 day, 10:17:36.78</div>
-                        <div class="terminal-line output">iso.3.6.1.2.1.1.4.0 = STRING: "System Administrator"</div>
-                        <div class="terminal-line output">iso.3.6.1.2.1.1.5.0 = STRING: "WORKSTATION-01"</div>
-                        <div class="terminal-line output">iso.3.6.1.2.1.1.6.0 = STRING: "Corporate Office, Building A"</div>
-                        <div class="terminal-line info">System information extracted successfully</div>
-                    </div>
-                    <button class="btn" onclick="runSNMPEnum()">🔄 Extract Process Information</button>
+                    <h4>Valuable SNMP OIDs:</h4>
+                    <ul>
+                        <li><strong>1.3.6.1.2.1.1.1.0:</strong> System description</li>
+                        <li><strong>1.3.6.1.2.1.1.5.0:</strong> Hostname</li>
+                        <li><strong>1.3.6.1.2.1.4.20.1.1:</strong> IP addresses</li>
+                        <li><strong>1.3.6.1.2.1.25.1.6.0:</strong> System processes</li>
+                        <li><strong>1.3.6.1.2.1.25.4.2.1.2:</strong> Running programs</li>
+                    </ul>
                 </div>
 
                 <div class="card">
-                    <h3>📚 Part 1 Complete!</h3>
-                    <p>Congratulations! You've completed the core fundamentals of CEH v13 Module 4 Enumeration. You've learned:</p>
+                    <h3>Part 1 Complete!</h3>
+                    <p>🎉 Congratulations! You've completed the core fundamentals of CEH v13 Module 4 Enumeration. You've learned:</p>
                     <ul style="margin: 15px 0; padding-left: 20px;">
                         <li>✅ Enumeration fundamentals and methodologies</li>
                         <li>✅ NetBIOS and SMB enumeration techniques</li>
@@ -1013,12 +512,12 @@
             
             document.getElementById(sectionId).classList.add('active');
             
-            document.querySelectorAll('.nav-btn:not(.next-part-btn)').forEach(btn => {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
             const sectionIndex = sectionOrder.indexOf(sectionId);
-            const navButtons = document.querySelectorAll('.nav-btn:not(.next-part-btn)');
+            const navButtons = document.querySelectorAll('.nav-btn');
             if (navButtons[sectionIndex]) {
                 navButtons[sectionIndex].classList.add('active');
             }
@@ -1033,518 +532,20 @@
 
         // Progress tracking
         function updateProgress() {
-            const totalSections = 4;
+            const totalSections = sectionOrder.length;
             const progressPercent = (completedSections.length / totalSections) * 100;
             document.getElementById('progressBar').style.width = progressPercent + '%';
-            document.getElementById('progressText').textContent = `Part 1 Progress: ${Math.round(progressPercent)}% Complete`;
+            document.getElementById('progressText').textContent = `Progress: ${Math.round(progressPercent)}% Complete`;
         }
 
-        // Go to next part
+        // Navigation functions - FIXED
         function goToNextPart() {
-            alert('Part 2: Directory Services will cover LDAP & DNS enumeration, RPC attacks, and null session techniques.\n\nCreate the next artifact to continue your CEH v13 Module 4 journey!');
-        }
-
-        // Show methodology details
-        function showMethodologyDetails(phase) {
-            const phases = {
-                'target-identification': {
-                    title: 'Target Identification',
-                    description: 'Identify live systems and accessible services from previous scanning phases',
-                    techniques: [
-                        'Review scanning results and prioritize targets',
-                        'Identify high-value systems and services',
-                        'Map network topology and relationships',
-                        'Analyze service versions for vulnerabilities'
-                    ],
-                    tools: ['Nmap results', 'Service detection output', 'Network diagrams', 'Asset inventories']
-                },
-                'service-enumeration': {
-                    title: 'Service Enumeration',
-                    description: 'Extract detailed information from discovered services and applications',
-                    techniques: [
-                        'Banner grabbing and version detection',
-                        'Service-specific enumeration techniques',
-                        'Configuration file discovery',
-                        'Default credential testing'
-                    ],
-                    tools: ['Service-specific clients', 'Custom scripts', 'Protocol analyzers', 'Configuration scanners']
-                },
-                'user-group-enum': {
-                    title: 'User & Group Enumeration',
-                    description: 'Discover user accounts, groups, and organizational structure',
-                    techniques: [
-                        'Directory service enumeration',
-                        'User account discovery and analysis',
-                        'Group membership and hierarchy mapping',
-                        'Privilege and permission assessment'
-                    ],
-                    tools: ['LDAP tools', 'Active Directory utilities', 'RPC clients', 'SMB enumeration tools']
-                },
-                'share-resource-enum': {
-                    title: 'Share & Resource Enumeration',
-                    description: 'Identify network shares, databases, and accessible resources',
-                    techniques: [
-                        'Network share discovery and access testing',
-                        'Database service enumeration',
-                        'Web application analysis and mapping',
-                        'Cloud resource identification'
-                    ],
-                    tools: ['SMB clients', 'Database tools', 'Web scanners', 'Cloud enumeration scripts']
-                },
-                'information-compilation': {
-                    title: 'Information Compilation',
-                    description: 'Organize and analyze gathered information for attack planning',
-                    techniques: [
-                        'Data correlation and cross-referencing',
-                        'Attack vector identification',
-                        'Risk assessment and target prioritization',
-                        'Comprehensive report generation'
-                    ],
-                    tools: ['Analysis frameworks', 'Reporting tools', 'Mind mapping software', 'Database systems']
-                }
-            };
-            
-            const phaseData = phases[phase] || phases['target-identification'];
-            const content = `
-                <h2>${phaseData.title}</h2>
-                <h3>Description:</h3>
-                <p>${phaseData.description}</p>
-                
-                <h3>Key Techniques:</h3>
-                <ul>
-                    ${phaseData.techniques.map(technique => `<li>${technique}</li>`).join('')}
-                </ul>
-                
-                <h3>Common Tools:</h3>
-                <ul>
-                    ${phaseData.tools.map(tool => `<li>${tool}</li>`).join('')}
-                </ul>
-                
-                <h3>Best Practices:</h3>
-                <ul>
-                    <li>Document all findings systematically</li>
-                    <li>Use multiple enumeration methods for verification</li>
-                    <li>Maintain detailed logs of enumeration activities</li>
-                    <li>Correlate information across different services</li>
-                </ul>
-            `;
-            showModal(content);
-        }
-
-        // Show enumeration details
-        function showEnumDetails(enumType) {
-            const types = {
-                'netbios': {
-                    title: 'NetBIOS Enumeration',
-                    description: 'Windows network service discovery and information extraction',
-                    techniques: [
-                        'NetBIOS name table queries and analysis',
-                        'Workgroup and domain identification',
-                        'Active user session discovery',
-                        'MAC address and hardware information extraction'
-                    ],
-                    tools: ['nbtstat', 'nbtscan', 'nmblookup', 'smbclient'],
-                    ports: ['137/udp (NetBIOS Name Service)', '138/udp (NetBIOS Datagram)', '139/tcp (NetBIOS Session)']
-                },
-                'smb': {
-                    title: 'SMB Enumeration',
-                    description: 'Server Message Block service analysis and resource discovery',
-                    techniques: [
-                        'Share enumeration and permission analysis',
-                        'File and directory listing and access testing',
-                        'User and group information extraction',
-                        'Administrative share access and exploitation'
-                    ],
-                    tools: ['enum4linux', 'smbclient', 'smbmap', 'crackmapexec'],
-                    ports: ['445/tcp (Microsoft-DS)', '139/tcp (NetBIOS Session)']
-                },
-                'snmp': {
-                    title: 'SNMP Enumeration',
-                    description: 'Simple Network Management Protocol data extraction and analysis',
-                    techniques: [
-                        'Community string discovery and brute forcing',
-                        'MIB tree traversal and data extraction',
-                        'System information gathering and analysis',
-                        'Network topology mapping and device identification'
-                    ],
-                    tools: ['snmpwalk', 'snmpget', 'onesixtyone', 'snmp-check'],
-                    ports: ['161/udp (SNMP)', '162/udp (SNMP Trap)']
-                },
-                'ldap': {
-                    title: 'LDAP Enumeration',
-                    description: 'Directory service information extraction (Covered in Part 2)',
-                    techniques: [
-                        'Anonymous bind attempts and authentication testing',
-                        'Directory tree traversal and schema discovery',
-                        'User and group attribute extraction',
-                        'Domain configuration and policy analysis'
-                    ],
-                    tools: ['ldapsearch', 'ldapenum', 'ADExplorer', 'windapsearch'],
-                    ports: ['389/tcp (LDAP)', '636/tcp (LDAPS)', '3268/tcp (Global Catalog)']
-                }
-            };
-            
-            const typeData = types[enumType] || types['netbios'];
-            const content = `
-                <h2>${typeData.title}</h2>
-                <h3>Description:</h3>
-                <p>${typeData.description}</p>
-                
-                <h3>Key Techniques:</h3>
-                <ul>
-                    ${typeData.techniques.map(technique => `<li>${technique}</li>`).join('')}
-                </ul>
-                
-                <h3>Common Tools:</h3>
-                <ul>
-                    ${typeData.tools.map(tool => `<li><code>${tool}</code></li>`).join('')}
-                </ul>
-                
-                <h3>Target Ports:</h3>
-                <ul>
-                    ${typeData.ports.map(port => `<li>${port}</li>`).join('')}
-                </ul>
-                
-                <h3>Security Implications:</h3>
-                <ul>
-                    <li>Information disclosure vulnerabilities</li>
-                    <li>Unauthorized access to network resources</li>
-                    <li>Credential and configuration exposure</li>
-                    <li>Network topology and infrastructure revelation</li>
-                </ul>
-            `;
-            showModal(content);
-        }
-
-        // Show SMB enumeration details
-        function showSMBEnumDetails(type) {
-            const details = {
-                'shares': {
-                    title: 'SMB Share Enumeration',
-                    description: 'Discovering and analyzing network shares for security weaknesses',
-                    commands: [
-                        'enum4linux -S target',
-                        'smbclient -L target -U ""',
-                        'smbmap -H target',
-                        'crackmapexec smb target --shares'
-                    ],
-                    information: [
-                        'Available network shares and their purposes',
-                        'Share permissions and access control lists',
-                        'Hidden and administrative shares discovery',
-                        'Share contents enumeration and file listings'
-                    ]
-                },
-                'users': {
-                    title: 'SMB User Enumeration',
-                    description: 'Extracting comprehensive user account information',
-                    commands: [
-                        'enum4linux -U target',
-                        'rpcclient -U "" -N target',
-                        'crackmapexec smb target --users',
-                        'smbmap -H target -u null -p null'
-                    ],
-                    information: [
-                        'Domain and local user account discovery',
-                        'User account details and security attributes',
-                        'Account status, properties, and configurations',
-                        'User group memberships and organizational structure'
-                    ]
-                },
-                'groups': {
-                    title: 'SMB Group Enumeration',
-                    description: 'Discovering group structure and membership relationships',
-                    commands: [
-                        'enum4linux -G target',
-                        'rpcclient> enumdomgroups',
-                        'net group /domain',
-                        'crackmapexec smb target --groups'
-                    ],
-                    information: [
-                        'Domain and local group discovery',
-                        'Group membership information and hierarchies',
-                        'Administrative and privileged group identification',
-                        'Group permissions, rights, and policy assignments'
-                    ]
-                },
-                'policies': {
-                    title: 'SMB Policy Information',
-                    description: 'Extracting security policy configurations and settings',
-                    commands: [
-                        'enum4linux -P target',
-                        'rpcclient> getdompwinfo',
-                        'crackmapexec smb target --pass-pol',
-                        'polenum target'
-                    ],
-                    information: [
-                        'Password policy settings and complexity requirements',
-                        'Account lockout policies and thresholds',
-                        'Domain security policies and configurations',
-                        'Audit settings and logging configurations'
-                    ]
-                }
-            };
-            
-            const detail = details[type] || details['shares'];
-            const content = `
-                <h2>${detail.title}</h2>
-                <h3>Description:</h3>
-                <p>${detail.description}</p>
-                
-                <h3>Common Commands:</h3>
-                <ul>
-                    ${detail.commands.map(cmd => `<li><code>${cmd}</code></li>`).join('')}
-                </ul>
-                
-                <h3>Information Gathered:</h3>
-                <ul>
-                    ${detail.information.map(info => `<li>${info}</li>`).join('')}
-                </ul>
-                
-                <h3>Security Implications:</h3>
-                <ul>
-                    <li>Unauthorized access to sensitive business data</li>
-                    <li>Credential and configuration information exposure</li>
-                    <li>Privilege escalation attack opportunities</li>
-                    <li>Lateral movement and network traversal possibilities</li>
-                </ul>
-            `;
-            showModal(content);
-        }
-
-        // Show SNMP details
-        function showSNMPDetails(category) {
-            const categories = {
-                'system': {
-                    title: 'System Information via SNMP',
-                    oid: '1.3.6.1.2.1.1',
-                    description: 'Basic system information and configuration details',
-                    data: [
-                        'System description, version, and build information',
-                        'System uptime and operational statistics',
-                        'Administrative contact and location details',
-                        'Supported services and system capabilities'
-                    ]
-                },
-                'interfaces': {
-                    title: 'Network Interface Information',
-                    oid: '1.3.6.1.2.1.2',
-                    description: 'Detailed network interface configuration and statistics',
-                    data: [
-                        'Interface names, descriptions, and types',
-                        'IP addresses, subnet masks, and configurations',
-                        'Interface speeds, duplex settings, and capabilities',
-                        'Traffic statistics, error rates, and performance metrics'
-                    ]
-                },
-                'processes': {
-                    title: 'Running Process Information',
-                    oid: '1.3.6.1.2.1.25.4',
-                    description: 'Currently executing processes and system services',
-                    data: [
-                        'Process names, identifiers, and command lines',
-                        'Process arguments, parameters, and configurations',
-                        'Resource usage, memory consumption, and CPU utilization',
-                        'Process start times, owners, and execution contexts'
-                    ]
-                },
-                'users': {
-                    title: 'User Account Information',
-                    oid: '1.3.6.1.4.1.77.1.2.25',
-                    description: 'Local user account details and session information',
-                    data: [
-                        'User account names and identification',
-                        'Active user sessions and login information',
-                        'Login statistics, history, and patterns',
-                        'Account properties, attributes, and configurations'
-                    ]
-                }
-            };
-            
-            const cat = categories[category] || categories['system'];
-            const content = `
-                <h2>${cat.title}</h2>
-                <h3>OID Path:</h3>
-                <p><code>${cat.oid}</code></p>
-                
-                <h3>Description:</h3>
-                <p>${cat.description}</p>
-                
-                <h3>Information Available:</h3>
-                <ul>
-                    ${cat.data.map(item => `<li>${item}</li>`).join('')}
-                </ul>
-                
-                <h3>Enumeration Commands:</h3>
-                <ul>
-                    <li><code>snmpwalk -v2c -c public target ${cat.oid}</code></li>
-                    <li><code>snmpget -v2c -c public target ${cat.oid}.0</code></li>
-                    <li><code>onesixtyone -c community.txt target</code></li>
-                    <li><code>snmp-check -t target -c public</code></li>
-                </ul>
-                
-                <h3>Security Considerations:</h3>
-                <ul>
-                    <li>Change default community strings from "public/private"</li>
-                    <li>Implement access control lists and IP restrictions</li>
-                    <li>Use SNMPv3 with authentication and encryption</li>
-                    <li>Monitor and log SNMP access attempts</li>
-                </ul>
-            `;
-            showModal(content);
-        }
-
-        // Demo functions
-        function runNetBIOSDemo() {
-            const terminal = document.getElementById('netbiosEnumTerminal');
-            terminal.innerHTML = '';
-            
-            const scenario = [
-                { type: 'prompt', text: 'enum@kali:~$ nbtstat -A 192.168.1.100' },
-                { type: 'output', text: 'Local Area Connection:' },
-                { type: 'output', text: 'Node IpAddress: [192.168.1.100] Scope Id: []' },
-                { type: 'output', text: '' },
-                { type: 'output', text: '           NetBIOS Remote Machine Name Table' },
-                { type: 'output', text: '' },
-                { type: 'output', text: '       Name               Type         Status' },
-                { type: 'output', text: '    ---------------------------------------------' },
-                { type: 'warning', text: '    WORKSTATION-01     <00>  UNIQUE      Registered' },
-                { type: 'output', text: '    DOMAIN             <00>  GROUP       Registered' },
-                { type: 'warning', text: '    WORKSTATION-01     <20>  UNIQUE      Registered' },
-                { type: 'output', text: '    DOMAIN             <1E>  GROUP       Registered' },
-                { type: 'warning', text: '    JOHN               <03>  UNIQUE      Registered' },
-                { type: 'output', text: '    MAC Address = 00-50-56-C0-00-01' }
-            ];
-            
-            scenario.forEach((line, index) => {
-                setTimeout(() => {
-                    const div = document.createElement('div');
-                    div.className = `terminal-line ${line.type}`;
-                    div.textContent = line.text;
-                    terminal.appendChild(div);
-                    terminal.scrollTop = terminal.scrollHeight;
-                }, index * 800);
-            });
-        }
-
-        function runSMBDemo() {
-            const terminal = document.getElementById('smbEnumTerminal');
-            terminal.innerHTML = '';
-            
-            const scenario = [
-                { type: 'prompt', text: 'enum@kali:~$ smbclient -L 192.168.1.100 -U ""' },
-                { type: 'output', text: 'Enter password:' },
-                { type: 'output', text: 'Anonymous login successful' },
-                { type: 'output', text: '' },
-                { type: 'output', text: '        Sharename       Type      Comment' },
-                { type: 'output', text: '        ---------       ----      -------' },
-                { type: 'output', text: '        ADMIN$          Disk      Remote Admin' },
-                { type: 'output', text: '        C$              Disk      Default share' },
-                { type: 'output', text: '        IPC$            IPC       Remote IPC' },
-                { type: 'warning', text: '        Users           Disk      User home directories' },
-                { type: 'warning', text: '        Public          Disk      Public shared folder' },
-                { type: 'error', text: '        Backup          Disk      Company backup files' },
-                { type: 'output', text: 'Reconnecting with SMB1 for workgroup listing.' },
-                { type: 'output', text: '' },
-                { type: 'output', text: '        Server               Comment' },
-                { type: 'output', text: '        ---------            -------' },
-                { type: 'output', text: '        WORKSTATION-01       ' },
-                { type: 'output', text: '        FILESERVER           File and Print Server' }
-            ];
-            
-            scenario.forEach((line, index) => {
-                setTimeout(() => {
-                    const div = document.createElement('div');
-                    div.className = `terminal-line ${line.type}`;
-                    div.textContent = line.text;
-                    terminal.appendChild(div);
-                    terminal.scrollTop = terminal.scrollHeight;
-                }, index * 1000);
-            });
-        }
-
-        function runSNMPDiscovery() {
-            const terminal = document.getElementById('snmpDiscoveryTerminal');
-            terminal.innerHTML = '';
-            
-            const scenario = [
-                { type: 'prompt', text: 'enum@kali:~$ snmp-check -t 192.168.1.100 -c public' },
-                { type: 'output', text: 'snmp-check v1.9 - SNMP enumerator' },
-                { type: 'output', text: 'Copyright (c) 2005-2015 by Matteo Cantoni (www.nothink.org)' },
-                { type: 'output', text: '' },
-                { type: 'output', text: '[+] Try to connect to 192.168.1.100:161 using SNMPv1 and community \'public\'' },
-                { type: 'warning', text: '[*] System information:' },
-                { type: 'output', text: '' },
-                { type: 'output', text: '  Host IP address               : 192.168.1.100' },
-                { type: 'output', text: '  Hostname                      : FILESERVER.domain.local' },
-                { type: 'output', text: '  Description                   : Hardware: Intel64 Family - Software: Windows Server 2019' },
-                { type: 'output', text: '  Contact                       : System Administrator' },
-                { type: 'output', text: '  Location                      : Server Room, Building A' },
-                { type: 'output', text: '  Uptime snmp                   : 07:15:30.45' },
-                { type: 'info', text: '[*] Network interfaces discovered: 3' },
-                { type: 'info', text: '[*] Running processes found: 67' },
-                { type: 'info', text: '[*] User accounts discovered: 12' }
-            ];
-            
-            scenario.forEach((line, index) => {
-                setTimeout(() => {
-                    const div = document.createElement('div');
-                    div.className = `terminal-line ${line.type}`;
-                    div.textContent = line.text;
-                    terminal.appendChild(div);
-                    terminal.scrollTop = terminal.scrollHeight;
-                }, index * 600);
-            });
-        }
-
-        function runSNMPEnum() {
-            const terminal = document.getElementById('snmpEnumTerminal');
-            terminal.innerHTML = '';
-            
-            const scenario = [
-                { type: 'prompt', text: 'enum@kali:~$ snmpwalk -v2c -c public 192.168.1.100 1.3.6.1.2.1.25.4.2.1.2' },
-                { type: 'output', text: 'iso.3.6.1.2.1.25.4.2.1.2.1 = STRING: "[System Process]"' },
-                { type: 'output', text: 'iso.3.6.1.2.1.25.4.2.1.2.4 = STRING: "System"' },
-                { type: 'output', text: 'iso.3.6.1.2.1.25.4.2.1.2.88 = STRING: "Registry"' },
-                { type: 'output', text: 'iso.3.6.1.2.1.25.4.2.1.2.316 = STRING: "smss.exe"' },
-                { type: 'output', text: 'iso.3.6.1.2.1.25.4.2.1.2.424 = STRING: "csrss.exe"' },
-                { type: 'output', text: 'iso.3.6.1.2.1.25.4.2.1.2.472 = STRING: "wininit.exe"' },
-                { type: 'output', text: 'iso.3.6.1.2.1.25.4.2.1.2.580 = STRING: "services.exe"' },
-                { type: 'output', text: 'iso.3.6.1.2.1.25.4.2.1.2.588 = STRING: "lsass.exe"' },
-                { type: 'warning', text: 'iso.3.6.1.2.1.25.4.2.1.2.696 = STRING: "svchost.exe"' },
-                { type: 'warning', text: 'iso.3.6.1.2.1.25.4.2.1.2.868 = STRING: "SNMP.exe"' },
-                { type: 'output', text: 'iso.3.6.1.2.1.25.4.2.1.2.1024 = STRING: "explorer.exe"' },
-                { type: 'info', text: 'Process enumeration completed - 45 processes discovered' }
-            ];
-            
-            scenario.forEach((line, index) => {
-                setTimeout(() => {
-                    const div = document.createElement('div');
-                    div.className = `terminal-line ${line.type}`;
-                    div.textContent = line.text;
-                    terminal.appendChild(div);
-                    terminal.scrollTop = terminal.scrollHeight;
-                }, index * 700);
-            });
+            window.location.href = 'ceh_module4_part2.html';
         }
 
         // Modal functions
-        function showModal(content) {
-            document.getElementById('modalContent').innerHTML = content;
-            const modal = document.getElementById('detailModal');
-            modal.style.display = 'block';
-            
-            setTimeout(() => {
-                modal.style.opacity = '1';
-            }, 10);
-        }
-
         function closeModal() {
-            const modal = document.getElementById('detailModal');
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 300);
+            document.getElementById('detailModal').style.display = 'none';
         }
 
         // Close modal when clicking outside
@@ -1554,9 +555,6 @@
                 closeModal();
             }
         }
-
-        // Initialize
-        updateProgress();
     </script>
 </body>
 </html>
