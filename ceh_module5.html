@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 5: Vulnerability Analysis</title>
+    <style>
+        :root {
+            --vuln-primary: #e74c3c;
+            --vuln-secondary: #c0392b;
+            --vuln-accent: #f39c12;
+            --bg-dark: #1a1a1a;
+            --bg-card: #2c3e50;
+            --text-light: #ecf0f1;
+            --text-muted: #95a5a6;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark), #34495e);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 60px 0;
+            background: linear-gradient(135deg, var(--vuln-primary), var(--vuln-secondary));
+            margin-bottom: 40px;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .module-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .navigation {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--vuln-primary), var(--vuln-secondary));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--info), #2980b9);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #229954);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #e67e22);
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            height: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--vuln-primary), var(--vuln-accent));
+            height: 100%;
+            border-radius: 25px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .section-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .section-btn {
+            background: var(--bg-card);
+            border: 2px solid transparent;
+            color: var(--text-light);
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .section-btn:hover {
+            border-color: var(--vuln-primary);
+            transform: translateY(-2px);
+        }
+
+        .section-btn.active {
+            background: linear-gradient(135deg, var(--vuln-primary), var(--vuln-secondary));
+            border-color: var(--vuln-accent);
+        }
+
+        .module-section {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .module-section.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: var(--vuln-primary);
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--vuln-primary);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateX(5px);
+        }
+
+        .card h3 {
+            color: var(--vuln-accent);
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .vulnerability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .vulnerability-card {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vulnerability-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--vuln-primary), var(--vuln-accent));
+        }
+
+        .vulnerability-card:hover {
+            border-color: var(--vuln-primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
+        }
+
+        .cvss-score {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .cvss-critical { background: #8b0000; }
+        .cvss-high { background: #ff4444; }
+        .cvss-medium { background: #ff8800; }
+        .cvss-low { background: #ffcc00; color: #333; }
+        .cvss-none { background: #28a745; }
+
+        .terminal {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: inset 0 0 20px rgba(0,255,0,0.1);
+        }
+
+        .terminal-line {
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+
+        .terminal-line.prompt::before {
+            content: '┌──(ethical-hacker㉿kali)-[~/vuln-assessment]';
+            color: #00aaff;
+        }
+
+        .terminal-line.output {
+            color: #ffffff;
+            margin-left: 10px;
+        }
+
+        .tool-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .tool-card {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .tool-card:hover {
+            border-color: var(--vuln-primary);
+            transform: scale(1.05);
+        }
+
+        .tool-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .quiz-container {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .quiz-question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-option {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: white;
+        }
+
+        .quiz-option.selected {
+            background: var(--vuln-primary);
+            border-color: var(--vuln-accent);
+        }
+
+        .quiz-option.correct {
+            background: var(--success);
+            border-color: #229954;
+        }
+
+        .quiz-option.incorrect {
+            background: var(--danger);
+            border-color: #c0392b;
+        }
+
+        .lab-exercise {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            background: rgba(255,255,255,0.1);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--vuln-primary);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .certification-section {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .resource-card {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid var(--vuln-primary);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            background: var(--bg-card);
+            border-radius: 15px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .section-selector {
+                flex-direction: column;
+            }
+            
+            .vulnerability-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-content">
+                <div class="module-badge">CEH v13 AI-POWERED</div>
+                <h1>🔍 Module 5: Vulnerability Analysis</h1>
+                <p>Master advanced vulnerability assessment techniques and AI-powered security analysis</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <p>⏱️ Estimated Duration: 3 Hours | 🎯 Interactive Content | 🧪 Hands-on Labs</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <div>
+                <strong>📍 Current Section:</strong> <span id="currentSection">Introduction to Vulnerability Analysis</span>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="previousSection()">⬅️ Previous</button>
+                <button class="btn btn-secondary" onclick="nextSection()">Next ➡️</button>
+                <button class="btn btn-warning" onclick="showSection('resources')">📚 Resources</button>
+            </div>
+        </div>
+
+        <!-- Section Selector -->
+        <div class="section-selector">
+            <button class="section-btn active" onclick="showSection('introduction')" data-section="introduction">
+                🎯 Introduction
+            </button>
+            <button class="section-btn" onclick="showSection('fundamentals')" data-section="fundamentals">
+                📊 VA Fundamentals
+            </button>
+            <button class="section-btn" onclick="showSection('cvss')" data-section="cvss">
+                📈 CVSS & Scoring
+            </button>
+            <button class="section-btn" onclick="showSection('tools')" data-section="tools">
+                🛠️ Assessment Tools
+            </button>
+            <button class="section-btn" onclick="showSection('methodologies')" data-section="methodologies">
+                🔬 Methodologies
+            </button>
+            <button class="section-btn" onclick="showSection('ai-powered')" data-section="ai-powered">
+                🤖 AI-Powered VA
+            </button>
+            <button class="section-btn" onclick="showSection('labs')" data-section="labs">
+                🧪 Hands-on Labs
+            </button>
+            <button class="section-btn" onclick="showSection('assessment')" data-section="assessment">
+                📝 Assessment
+            </button>
+        </div>
+
+        <!-- Introduction Section -->
+        <div id="introduction" class="module-section active">
+            <h2 class="section-title">🎯 Introduction to Vulnerability Analysis</h2>
+            
+            <div class="card">
+                <h3>🔍 What is Vulnerability Analysis?</h3>
+                <p><strong>Vulnerability Analysis</strong> is like conducting a comprehensive health check-up for computer systems and networks. It's the systematic process of identifying, quantifying, and prioritizing security weaknesses that could be exploited by malicious actors.</p>
+                <p style="margin-top: 15px;">Just as a doctor examines a patient to find health issues before they become serious problems, vulnerability analysis helps security professionals discover and address security gaps before they can be exploited in real attacks.</p>
+            </div>
+
+            <div class="vulnerability-grid">
+                <div class="vulnerability-card">
+                    <h4>🎯 Primary Objectives</h4>
+                    <ul style="margin-top: 15px; line-height: 1.8;">
+                        <li>Identify security weaknesses in systems and applications</li>
+                        <li>Assess the potential impact of discovered vulnerabilities</li>
+                        <li>Prioritize remediation efforts based on risk levels</li>
+                        <li>Provide actionable recommendations for security improvements</li>
+                        <li>Support compliance with security standards and regulations</li>
+                    </ul>
+                </div>
+                
+                <div class="vulnerability-card">
+                    <h4>🔄 Vulnerability Lifecycle</h4>
+                    <ol style="margin-top: 15px; line-height: 1.8;">
+                        <li><strong>Discovery:</strong> Vulnerability is identified by researchers</li>
+                        <li><strong>Disclosure:</strong> Vulnerability details are shared responsibly</li>
+                        <li><strong>Publication:</strong> CVE assigned and details published</li>
+                        <li><strong>Exploitation:</strong> Potential for malicious exploitation</li>
+                        <li><strong>Patching:</strong> Vendor releases security updates</li>
+                        <li><strong>Remediation:</strong> Organizations apply patches/fixes</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🏠 The House Analogy</h3>
+                <p>Imagine your house with all its doors and windows. A vulnerability in cybersecurity is like:</p>
+                <ul style="margin-top: 15px; line-height: 1.8;">
+                    <li><strong>🚪 An unlocked door:</strong> Easy entry point for intruders</li>
+                    <li><strong>🪟 A broken window latch:</strong> Requires minimal effort to exploit</li>
+                    <li><strong>🔑 A hidden spare key:</strong> Known location that shouldn't be accessible</li>
+                    <li><strong>🚨 A disabled alarm system:</strong> Lack of detection capabilities</li>
+                </ul>
+                <p style="margin-top: 15px;">Just as you'd regularly check your home's security, organizations must continuously assess their digital infrastructure for potential vulnerabilities.</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Interactive Demo: Vulnerability Categories</h3>
+                <div class="terminal" id="vulnDemo">
+                    <div class="terminal-line prompt"></div>
+                    <div class="terminal-line output">└─$ vulnerability-scanner --list-categories</div>
+                    <div class="terminal-line output">📊 Vulnerability Categories Overview:</div>
+                    <div class="terminal-line output">├── 🔐 Authentication Bypass</div>
+                    <div class="terminal-line output">├── 💉 Code Injection (SQL, XSS, Command)</div>
+                    <div class="terminal-line output">├── 📁 Information Disclosure</div>
+                    <div class="terminal-line output">├── ⚡ Buffer Overflow</div>
+                    <div class="terminal-line output">├── 🔑 Privilege Escalation</div>
+                    <div class="terminal-line output">├── 🌐 Network Security Issues</div>
+                    <div class="terminal-line output">├── ⚙️ Misconfigurations</div>
+                    <div class="terminal-line output">└── 🏭 Zero-day Vulnerabilities</div>
+                </div>
+                <button class="btn" onclick="runVulnDemo()">🔄 Generate New Examples</button>
+            </div>
+
+            <div class="card">
+                <h3>⚠️ Why Vulnerability Analysis Matters</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div style="background: rgba(231, 76, 60, 0.1); padding: 20px; border-radius: 10px; border-left: 4px solid #e74c3c;">
+                        <h4>📈 Growing Threat Landscape</h4>
+                        <p>Over 17,000 new vulnerabilities were discovered in 2020 alone - a 3x increase from 2010</p>
+                    </div>
+                    <div style="background: rgba(241, 196, 15, 0.1); padding: 20px; border-radius: 10px; border-left: 4px solid #f1c40f;">
+                        <h4>💰 Financial Impact</h4>
+                        <p>The average cost of a data breach in 2024 exceeds $4.45 million globally</p>
+                    </div>
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 20px; border-radius: 10px; border-left: 4px solid #3498db;">
+                        <h4>📋 Compliance Requirements</h4>
+                        <p>Many regulations (PCI DSS, HIPAA, SOX) mandate regular vulnerability assessments</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-success" onclick="showSection('fundamentals')">Next: VA Fundamentals →</button>
+        </div>
+
+        <!-- Fundamentals Section -->
+        <div id="fundamentals" class="module-section">
+            <h2 class="section-title">📊 Vulnerability Assessment Fundamentals</h2>
+            
+            <div class="card">
+                <h3>🔍 Types of Vulnerability Assessments</h3>
+                <div class="vulnerability-grid">
+                    <div class="vulnerability-card">
+                        <h4>🌐 Network-based Assessment</h4>
+                        <p>Identifies vulnerabilities in network infrastructure, protocols, and services</p>
+                        <ul style="margin-top: 10px; line-height: 1.6;">
+                            <li>Port scanning and service detection</li>
+                            <li>Firewall and router configuration analysis</li>
+                            <li>Network protocol vulnerabilities</li>
+                            <li>Wireless network security issues</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>💻 Host-based Assessment</h4>
+                        <p>Focuses on individual systems and their configurations</p>
+                        <ul style="margin-top: 10px; line-height: 1.6;">
+                            <li>Operating system vulnerabilities</li>
+                            <li>Patch management status</li>
+                            <li>System configuration issues</li>
+                            <li>Local privilege escalation risks</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>🌍 Application Assessment</h4>
+                        <p>Examines web applications and software for security flaws</p>
+                        <ul style="margin-top: 10px; line-height: 1.6;">
+                            <li>SQL injection vulnerabilities</li>
+                            <li>Cross-site scripting (XSS)</li>
+                            <li>Authentication and session flaws</li>
+                            <li>Business logic vulnerabilities</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>🗄️ Database Assessment</h4>
+                        <p>Identifies vulnerabilities in database systems and configurations</p>
+                        <ul style="margin-top: 10px; line-height: 1.6;">
+                            <li>Database access controls</li>
+                            <li>Privilege escalation paths</li>
+                            <li>Data encryption status</li>
+                            <li>Backup and recovery security</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔐 Authenticated vs Unauthenticated Scanning</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; padding: 20px; border-radius: 10px;">
+                        <h4>✅ Authenticated Scanning</h4>
+                        <p><strong>Advantage:</strong> Provides deeper, more accurate vulnerability detection</p>
+                        <ul style="margin-top: 15px; line-height: 1.8;">
+                            <li>Access to internal system information</li>
+                            <li>Can identify patch levels and configurations</li>
+                            <li>Fewer false positives</li>
+                            <li>More comprehensive coverage</li>
+                            <li>Can assess local vulnerabilities</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 20px; border-radius: 10px;">
+                        <h4>🔒 Unauthenticated Scanning</h4>
+                        <p><strong>Advantage:</strong> Simulates external attacker perspective</p>
+                        <ul style="margin-top: 15px; line-height: 1.8;">
+                            <li>Tests external attack surface</li>
+                            <li>No credentials required</li>
+                            <li>Identifies remotely exploitable issues</li>
+                            <li>Faster scanning process</li>
+                            <li>Lower resource requirements</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📋 Vulnerability Assessment Process</h3>
+                <ol class="step-list">
+                    <li><strong>Planning and Preparation</strong>
+                        <p>Define scope, objectives, and gather necessary authorizations</p>
+                    </li>
+                    <li><strong>Information Gathering</strong>
+                        <p>Collect asset inventory and understand the target environment</p>
+                    </li>
+                    <li><strong>Vulnerability Detection</strong>
+                        <p>Execute scans using appropriate tools and methodologies</p>
+                    </li>
+                    <li><strong>Verification and Analysis</strong>
+                        <p>Validate findings and eliminate false positives</p>
+                    </li>
+                    <li><strong>Risk Assessment</strong>
+                        <p>Evaluate impact and likelihood of exploitation</p>
+                    </li>
+                    <li><strong>Reporting and Documentation</strong>
+                        <p>Create comprehensive reports with actionable recommendations</p>
+                    </li>
+                    <li><strong>Remediation Planning</strong>
+                        <p>Prioritize fixes and develop implementation strategies</p>
+                    </li>
+                    <li><strong>Follow-up and Validation</strong>
+                        <p>Verify remediation effectiveness through re-scanning</p>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="quiz-container">
+                <h3>🧠 Knowledge Check</h3>
+                <div class="quiz-question">Which type of vulnerability assessment provides the most comprehensive view of internal system vulnerabilities?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectQuizOption(this, false)">A) Unauthenticated network scanning</div>
+                    <div class="quiz-option" onclick="selectQuizOption(this, true)">B) Authenticated host-based assessment</div>
+                    <div class="quiz-option" onclick="selectQuizOption(this, false)">C) External penetration testing</div>
+                    <div class="quiz-option" onclick="selectQuizOption(this, false)">D) Passive vulnerability monitoring</div>
+                </div>
+                <div id="quizFeedback1" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <button class="btn btn-success" onclick="showSection('cvss')">Next: CVSS & Scoring →</button>
+        </div>
+
+        <!-- CVSS Section -->
+        <div id="cvss" class="module-section">
+            <h2 class="section-title">📈 CVSS & Vulnerability Scoring Systems</h2>
+            
+            <div class="card">
+                <h3>🎯 Common Vulnerability Scoring System (CVSS)</h3>
+                <p>CVSS is the industry-standard method for assessing the severity of computer system security vulnerabilities. It provides a standardized way to capture the principal characteristics of a vulnerability and produce a numerical score reflecting its severity.</p>
+                
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #3498db;">
+                    <h4>📊 CVSS Versions</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><strong>CVSS v2.0:</strong> Legacy version (being phased out by NVD)</li>
+                        <li><strong>CVSS v3.1:</strong> Current widely-used version</li>
+                        <li><strong>CVSS v4.0:</strong> Latest version with enhanced metrics</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔢 CVSS v3.1 Metric Groups</h3>
+                <div class="vulnerability-grid">
+                    <div class="vulnerability-card">
+                        <h4>🎯 Base Metrics</h4>
+                        <p>Intrinsic characteristics of the vulnerability that are constant over time</p>
+                        <ul style="margin-top: 15px; line-height: 1.6;">
+                            <li><strong>Attack Vector (AV):</strong> Network, Adjacent, Local, Physical</li>
+                            <li><strong>Attack Complexity (AC):</strong> Low, High</li>
+                            <li><strong>Privileges Required (PR):</strong> None, Low, High</li>
+                            <li><strong>User Interaction (UI):</strong> None, Required</li>
+                            <li><strong>Scope (S):</strong> Changed, Unchanged</li>
+                            <li><strong>Confidentiality Impact (C):</strong> None, Low, High</li>
+                            <li><strong>Integrity Impact (I):</strong> None, Low, High</li>
+                            <li><strong>Availability Impact (A):</strong> None, Low, High</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>⏰ Temporal Metrics</h4>
+                        <p>Characteristics that change over time</p>
+                        <ul style="margin-top: 15px; line-height: 1.6;">
+                            <li><strong>Exploit Code Maturity:</strong> Not Defined, Unproven, Proof-of-Concept, Functional, High</li>
+                            <li><strong>Remediation Level:</strong> Not Defined, Official Fix, Temporary Fix, Workaround, Unavailable</li>
+                            <li><strong>Report Confidence:</strong> Not Defined, Unknown, Reasonable, Confirmed</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>🏢 Environmental Metrics</h4>
+                        <p>Customized to specific organizational environments</p>
+                        <ul style="margin-top: 15px; line-height: 1.6;">
+                            <li><strong>Security Requirements:</strong> Confidentiality, Integrity, Availability</li>
+                            <li><strong>Modified Base Metrics:</strong> Adjusted for environment</li>
+                            <li><strong>Collateral Damage Potential</li>
+                            <li><strong>Target Distribution</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🎨 CVSS Severity Ratings</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div style="text-align: center;">
+                        <div class="cvss-score cvss-none">0.0 - None</div>
+                        <p style="margin-top: 10px;">No impact to system</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="cvss-score cvss-low">0.1 - 3.9 Low</div>
+                        <p style="margin-top: 10px;">Minimal impact</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="cvss-score cvss-medium">4.0 - 6.9 Medium</div>
+                        <p style="margin-top: 10px;">Moderate impact</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="cvss-score cvss-high">7.0 - 8.9 High</div>
+                        <p style="margin-top: 10px;">Significant impact</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="cvss-score cvss-critical">9.0 - 10.0 Critical</div>
+                        <p style="margin-top: 10px;">Severe impact</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🧮 Interactive CVSS Calculator</h3>
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <h4>📊 Sample Vulnerability Assessment</h4>
+                    <div id="cvssCalculator">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label>Attack Vector:</label>
+                                <select onchange="calculateCVSS()" id="av">
+                                    <option value="N">Network (0.85)</option>
+                                    <option value="A">Adjacent (0.62)</option>
+                                    <option value="L">Local (0.55)</option>
+                                    <option value="P">Physical (0.2)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Attack Complexity:</label>
+                                <select onchange="calculateCVSS()" id="ac">
+                                    <option value="L">Low (0.77)</option>
+                                    <option value="H">High (0.44)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Privileges Required:</label>
+                                <select onchange="calculateCVSS()" id="pr">
+                                    <option value="N">None (0.85)</option>
+                                    <option value="L">Low (0.62/0.68)</option>
+                                    <option value="H">High (0.27/0.5)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>User Interaction:</label>
+                                <select onchange="calculateCVSS()" id="ui">
+                                    <option value="N">None (0.85)</option>
+                                    <option value="R">Required (0.62)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <div id="cvssResult" class="cvss-score cvss-high">CVSS Score: 7.3 (High)</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" onclick="generateRandomCVSS()">🎲 Generate Random Scenario</button>
+            </div>
+
+            <div class="card">
+                <h3>🔍 Other Vulnerability Scoring Systems</h3>
+                <div class="vulnerability-grid">
+                    <div class="vulnerability-card">
+                        <h4>📊 EPSS (Exploit Prediction Scoring System)</h4>
+                        <p>Predicts the likelihood that a vulnerability will be exploited in the wild within 30 days</p>
+                        <ul style="margin-top: 10px; line-height: 1.6;">
+                            <li>Uses machine learning and threat intelligence</li>
+                            <li>Scores from 0 to 1 (probability)</li>
+                            <li>Helps prioritize patching efforts</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>🎯 VPR (Vulnerability Priority Rating)</h4>
+                        <p>Tenable's proprietary scoring system that combines CVSS with threat intelligence</p>
+                        <ul style="margin-top: 10px; line-height: 1.6;">
+                            <li>Scale of 0.0 to 10.0</li>
+                            <li>Incorporates real-world exploit data</li>
+                            <li>Updates based on threat landscape changes</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>🛡️ SSVC (Stakeholder-Specific Vulnerability Categorization)</h4>
+                        <p>CISA's decision framework for vulnerability management</p>
+                        <ul style="margin-top: 10px; line-height: 1.6;">
+                            <li>Focus on decision points rather than scores</li>
+                            <li>Tailored to different stakeholder needs</li>
+                            <li>Actions: Track, Attend, Act, Act Now</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-success" onclick="showSection('tools')">Next: Assessment Tools →</button>
+        </div>
+
+        <!-- Tools Section -->
+        <div id="tools" class="module-section">
+            <h2 class="section-title">🛠️ Vulnerability Assessment Tools</h2>
+            
+            <div class="card">
+                <h3>🏆 Industry-Leading Vulnerability Scanners</h3>
+                <p>Modern vulnerability assessment relies on sophisticated tools that can automatically discover, classify, and prioritize security weaknesses across diverse IT environments.</p>
+            </div>
+
+            <div class="tool-showcase">
+                <div class="tool-card">
+                    <div class="tool-icon">🔍</div>
+                    <h4>Nessus Professional</h4>
+                    <p><strong>Tenable's flagship scanner</strong></p>
+                    <ul style="text-align: left; margin-top: 15px; line-height: 1.6;">
+                        <li>450+ pre-configured templates</li>
+                        <li>Live results with offline assessment</li>
+                        <li>CVSS v4, EPSS, and VPR scoring</li>
+                        <li>Compliance auditing (CIS, PCI DSS)</li>
+                        <li>Advanced reporting capabilities</li>
+                    </ul>
+                    <div class="cvss-score cvss-high" style="margin-top: 15px;">Commercial - $3,000+/year</div>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-icon">🌐</div>
+                    <h4>OpenVAS</h4>
+                    <p><strong>Open-source vulnerability scanner</strong></p>
+                    <ul style="text-align: left; margin-top: 15px; line-height: 1.6;">
+                        <li>Greenbone Community Edition (free)</li>
+                        <li>50,000+ vulnerability tests</li>
+                        <li>Authenticated and unauthenticated scanning</li>
+                        <li>Web-based management interface</li>
+                        <li>Comprehensive reporting</li>
+                    </ul>
+                    <div class="cvss-score cvss-medium" style="margin-top: 15px;">Open Source - Free</div>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-icon">☁️</div>
+                    <h4>Qualys VMDR</h4>
+                    <p><strong>Cloud-based vulnerability management</strong></p>
+                    <ul style="text-align: left; margin-top: 15px; line-height: 1.6;">
+                        <li>Continuous monitoring</li>
+                        <li>Asset discovery and inventory</li>
+                        <li>Threat intelligence integration</li>
+                        <li>Patch management integration</li>
+                        <li>Multi-cloud support</li>
+                    </ul>
+                    <div class="cvss-score cvss-high" style="margin-top: 15px;">Cloud SaaS - $2,000+/year</div>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-icon">🕷️</div>
+                    <h4>Nikto</h4>
+                    <p><strong>Web server vulnerability scanner</strong></p>
+                    <ul style="text-align: left; margin-top: 15px; line-height: 1.6;">
+                        <li>6,700+ potentially dangerous files/programs</li>
+                        <li>Outdated server versions detection</li>
+                        <li>Server configuration issues</li>
+                        <li>SSL/TLS testing capabilities</li>
+                        <li>Plugin-based architecture</li>
+                    </ul>
+                    <div class="cvss-score cvss-low" style="margin-top: 15px;">Open Source - Free</div>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-icon">🛡️</div>
+                    <h4>Rapid7 Nexpose</h4>
+                    <p><strong>Enterprise vulnerability management</strong></p>
+                    <ul style="text-align: left; margin-top: 15px; line-height: 1.6;">
+                        <li>Real-time vulnerability assessment</li>
+                        <li>Adaptive security technology</li>
+                        <li>Risk-based prioritization</li>
+                        <li>Integration with Metasploit</li>
+                        <li>Advanced analytics and reporting</li>
+                    </ul>
+                    <div class="cvss-score cvss-critical" style="margin-top: 15px;">Enterprise - $5,000+/year</div>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-icon">🔒</div>
+                    <h4>GFI LanGuard</h4>
+                    <p><strong>Network security scanner</strong></p>
+                    <ul style="text-align: left; margin-top: 15px; line-height: 1.6;">
+                        <li>Patch management integration</li>
+                        <li>Network and endpoint scanning</li>
+                        <li>Compliance reporting</li>
+                        <li>Asset management features</li>
+                        <li>Automated remediation workflows</li>
+                    </ul>
+                    <div class="cvss-score cvss-medium" style="margin-top: 15px;">Commercial - $500+/year</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⚔️ Specialized Scanning Tools</h3>
+                <div class="vulnerability-grid">
+                    <div class="vulnerability-card">
+                        <h4>🕸️ Web Application Scanners</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>OWASP ZAP:</strong> Free web application security scanner</li>
+                            <li><strong>Burp Suite:</strong> Professional web security testing platform</li>
+                            <li><strong>Acunetix:</strong> Commercial web vulnerability scanner</li>
+                            <li><strong>AppScan:</strong> IBM's web application security testing</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>📱 Mobile Application Scanners</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>MobSF:</strong> Mobile Security Framework (SAST/DAST)</li>
+                            <li><strong>QARK:</strong> Quick Android Review Kit</li>
+                            <li><strong>Veracode:</strong> Commercial mobile app scanning</li>
+                            <li><strong>Checkmarx:</strong> Static application security testing</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>☁️ Cloud Security Scanners</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Scout Suite:</strong> Multi-cloud security auditing</li>
+                            <li><strong>Prowler:</strong> AWS security best practices tool</li>
+                            <li><strong>CloudSploit:</strong> Cloud security configuration scanner</li>
+                            <li><strong>Lacework:</strong> Cloud security platform</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lab-exercise">
+                <h3>🧪 Hands-on Exercise: Nessus vs OpenVAS Comparison</h3>
+                <p>Let's compare the two most popular vulnerability scanners through practical demonstrations.</p>
+                
+                <div class="terminal">
+                    <div class="terminal-line prompt"></div>
+                    <div class="terminal-line output">└─$ nessus-scanner --target 192.168.1.100 --policy "Basic Network Scan"</div>
+                    <div class="terminal-line output">🔍 Nessus Professional v10.8.3</div>
+                    <div class="terminal-line output">📊 Scan Results for 192.168.1.100:</div>
+                    <div class="terminal-line output">├── 🔴 Critical: 3 vulnerabilities found</div>
+                    <div class="terminal-line output">├── 🟠 High: 12 vulnerabilities found</div>
+                    <div class="terminal-line output">├── 🟡 Medium: 28 vulnerabilities found</div>
+                    <div class="terminal-line output">├── 🟢 Low: 45 vulnerabilities found</div>
+                    <div class="terminal-line output">└── ℹ️ Info: 156 items logged</div>
+                    <div class="terminal-line output"></div>
+                    <div class="terminal-line output">└─$ openvas-scanner --target 192.168.1.100 --config "Full and fast"</div>
+                    <div class="terminal-line output">🌐 OpenVAS v22.4</div>
+                    <div class="terminal-line output">📊 Scan Results for 192.168.1.100:</div>
+                    <div class="terminal-line output">├── 🔴 High: 15 vulnerabilities found</div>
+                    <div class="terminal-line output">├── 🟡 Medium: 32 vulnerabilities found</div>
+                    <div class="terminal-line output">├── 🟢 Low: 8 vulnerabilities found</div>
+                    <div class="terminal-line output">└── 📝 Log: 98 items logged</div>
+                </div>
+                
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <h4>🔍 Analysis Insights</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><strong>Coverage Differences:</strong> Nessus detected more vulnerabilities due to larger plugin database</li>
+                        <li><strong>Classification:</strong> Different severity ratings due to scoring methodologies</li>
+                        <li><strong>False Positives:</strong> Manual verification required for accurate assessment</li>
+                        <li><strong>Reporting:</strong> Both provide detailed remediation guidance</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button class="btn btn-success" onclick="showSection('methodologies')">Next: Methodologies →</button>
+        </div>
+
+        <!-- Methodologies Section -->
+        <div id="methodologies" class="module-section">
+            <h2 class="section-title">🔬 Vulnerability Assessment Methodologies</h2>
+            
+            <div class="card">
+                <h3>📋 NIST Vulnerability Management Framework</h3>
+                <p>The National Institute of Standards and Technology provides a comprehensive framework for managing vulnerabilities throughout their lifecycle.</p>
+                
+                <ol class="step-list">
+                    <li><strong>Identify (ID)</strong>
+                        <p>Develop organizational understanding to manage cybersecurity risk to systems, assets, data, and capabilities</p>
+                    </li>
+                    <li><strong>Protect (PR)</strong>
+                        <p>Implement appropriate safeguards to ensure delivery of critical infrastructure services</p>
+                    </li>
+                    <li><strong>Detect (DE)</strong>
+                        <p>Develop and implement appropriate activities to identify occurrence of cybersecurity events</p>
+                    </li>
+                    <li><strong>Respond (RS)</strong>
+                        <p>Develop and implement appropriate activities to take action regarding detected cybersecurity incident</p>
+                    </li>
+                    <li><strong>Recover (RC)</strong>
+                        <p>Develop and implement appropriate activities to maintain resilience and restore capabilities</p>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h3>🎯 OWASP Vulnerability Assessment Methodology</h3>
+                <div class="vulnerability-grid">
+                    <div class="vulnerability-card">
+                        <h4>Phase 1: Pre-Assessment</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Define scope and objectives</li>
+                            <li>Gather system documentation</li>
+                            <li>Obtain necessary approvals</li>
+                            <li>Prepare testing environment</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>Phase 2: Vulnerability Identification</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Automated vulnerability scanning</li>
+                            <li>Manual security testing</li>
+                            <li>Configuration review</li>
+                            <li>Code analysis (if applicable)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>Phase 3: Analysis and Verification</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Validate discovered vulnerabilities</li>
+                            <li>Eliminate false positives</li>
+                            <li>Assess exploitability</li>
+                            <li>Determine business impact</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>Phase 4: Risk Assessment</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Calculate risk scores</li>
+                            <li>Prioritize vulnerabilities</li>
+                            <li>Consider threat landscape</li>
+                            <li>Evaluate compensating controls</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🏭 NIST SP 800-40 Guidelines</h3>
+                <p>Special Publication 800-40 provides guidelines for creating a patch and vulnerability management program.</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div style="background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; padding: 20px; border-radius: 10px;">
+                        <h4>🎯 Key Principles</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Risk-based prioritization</li>
+                            <li>Continuous monitoring</li>
+                            <li>Automated patch deployment</li>
+                            <li>Configuration management</li>
+                            <li>Change control processes</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; padding: 20px; border-radius: 10px;">
+                        <h4>📊 Metrics and Reporting</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Mean time to patch (MTTP)</li>
+                            <li>Vulnerability exposure time</li>
+                            <li>Patch compliance rates</li>
+                            <li>Risk reduction metrics</li>
+                            <li>Trend analysis reports</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔄 Continuous Vulnerability Management</h3>
+                <p>Modern vulnerability management requires a continuous, automated approach rather than periodic assessments.</p>
+                
+                <div class="terminal">
+                    <div class="terminal-line prompt"></div>
+                    <div class="terminal-line output">└─$ vulnerability-lifecycle --show-stages</div>
+                    <div class="terminal-line output">🔄 Continuous Vulnerability Management Lifecycle:</div>
+                    <div class="terminal-line output">├── 🔍 Discovery: Continuous asset scanning</div>
+                    <div class="terminal-line output">├── 📊 Assessment: Automated vulnerability detection</div>
+                    <div class="terminal-line output">├── 🎯 Prioritization: Risk-based ranking</div>
+                    <div class="terminal-line output">├── 🛠️ Remediation: Patch management & mitigation</div>
+                    <div class="terminal-line output">├── ✅ Verification: Re-scanning and validation</div>
+                    <div class="terminal-line output">└── 📈 Reporting: Metrics and trend analysis</div>
+                </div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>🧠 Methodology Assessment</h3>
+                <div class="quiz-question">According to NIST SP 800-40, what is the most critical factor in vulnerability prioritization?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectQuizOption(this, false)">A) CVSS base score</div>
+                    <div class="quiz-option" onclick="selectQuizOption(this, true)">B) Risk-based assessment considering business impact</div>
+                    <div class="quiz-option" onclick="selectQuizOption(this, false)">C) Vendor severity rating</div>
+                    <div class="quiz-option" onclick="selectQuizOption(this, false)">D) Age of the vulnerability</div>
+                </div>
+                <div id="quizFeedback2" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <button class="btn btn-success" onclick="showSection('ai-powered')">Next: AI-Powered VA →</button>
+        </div>
+
+        <!-- AI-Powered Section -->
+        <div id="ai-powered" class="module-section">
+            <h2 class="section-title">🤖 AI-Powered Vulnerability Assessment</h2>
+            
+            <div class="card">
+                <h3>🧠 AI in Vulnerability Management</h3>
+                <p>CEH v13 introduces cutting-edge AI capabilities that revolutionize how we approach vulnerability assessment and management. These technologies enhance traditional methods with intelligent automation, predictive analytics, and advanced threat detection.</p>
+            </div>
+
+            <div class="card">
+                <h3>🎯 AI-Enhanced Capabilities</h3>
+                <div class="vulnerability-grid">
+                    <div class="vulnerability-card">
+                        <h4>🔍 Intelligent Vulnerability Discovery</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Machine learning-powered pattern recognition</li>
+                            <li>Automated zero-day vulnerability detection</li>
+                            <li>Behavioral anomaly identification</li>
+                            <li>Dynamic analysis enhancement</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>📊 Predictive Risk Assessment</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>EPSS integration for exploit prediction</li>
+                            <li>Threat intelligence correlation</li>
+                            <li>Business impact forecasting</li>
+                            <li>Attack path visualization</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>🎯 Smart Prioritization</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Context-aware risk scoring</li>
+                            <li>Asset criticality assessment</li>
+                            <li>Automated remediation planning</li>
+                            <li>Resource optimization algorithms</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>🚀 Automated Response</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Intelligent patch management</li>
+                            <li>Self-healing systems</li>
+                            <li>Automated mitigation deployment</li>
+                            <li>Continuous compliance monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔬 AI-Powered Tools Integration</h3>
+                <div class="terminal">
+                    <div class="terminal-line prompt"></div>
+                    <div class="terminal-line output">└─$ nmap --script vuln --script-args ai-enhanced=true 192.168.1.0/24</div>
+                    <div class="terminal-line output">🤖 AI-Enhanced Nmap Vulnerability Scan</div>
+                    <div class="terminal-line output">├── 🧠 Machine Learning Pattern Detection: ENABLED</div>
+                    <div class="terminal-line output">├── 🎯 Intelligent Service Fingerprinting: ACTIVE</div>
+                    <div class="terminal-line output">├── 📊 Predictive Vulnerability Analysis: RUNNING</div>
+                    <div class="terminal-line output">└── 🔍 Advanced Evasion Detection: MONITORING</div>
+                    <div class="terminal-line output"></div>
+                    <div class="terminal-line output">└─$ python3 ai-vuln-analyzer.py --target webapp.example.com</div>
+                    <div class="terminal-line output">🐍 Python AI Vulnerability Analyzer v3.2</div>
+                    <div class="terminal-line output">├── 🤖 Neural Network Model: Loaded</div>
+                    <div class="terminal-line output">├── 🧬 Deep Learning Analysis: Processing</div>
+                    <div class="terminal-line output">├── 📈 Risk Prediction Score: 8.7/10</div>
+                    <div class="terminal-line output">└── 🎯 Recommended Actions: Generated</div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 AI-Powered Vulnerability Analysis Demo</h3>
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <h4>🤖 ShellGPT Integration for Vulnerability Assessment</h4>
+                    <div class="terminal" id="aiVulnDemo">
+                        <div class="terminal-line prompt"></div>
+                        <div class="terminal-line output">└─$ shellgpt "Analyze this Nessus scan output for critical vulnerabilities"</div>
+                        <div class="terminal-line output">🤖 AI Analysis: Processing scan results...</div>
+                        <div class="terminal-line output">📊 Critical Findings Identified:</div>
+                        <div class="terminal-line output">├── CVE-2024-3094: XZ Utils backdoor (CVSS: 10.0)</div>
+                        <div class="terminal-line output">├── CVE-2024-1086: Linux kernel privilege escalation (CVSS: 9.8)</div>
+                        <div class="terminal-line output">├── CVE-2024-0519: Apache HTTP Server RCE (CVSS: 9.1)</div>
+                        <div class="terminal-line output">└── 🎯 Automated remediation plan generated</div>
+                        <div class="terminal-line output"></div>
+                        <div class="terminal-line output">└─$ chatgpt "Create vulnerability assessment report template"</div>
+                        <div class="terminal-line output">📝 AI-Generated Report Template:</div>
+                        <div class="terminal-line output">├── Executive Summary with risk heatmap</div>
+                        <div class="terminal-line output">├── Technical findings with CVSS scoring</div>
+                        <div class="terminal-line output">├── Prioritized remediation roadmap</div>
+                        <div class="terminal-line output">└── Compliance gap analysis</div>
+                    </div>
+                </div>
+                <button class="btn" onclick="runAIVulnDemo()">🔄 Generate New AI Analysis</button>
+            </div>
+
+            <div class="card">
+                <h3>📈 AI-Driven Skipfish Integration</h3>
+                <p>CEH v13 introduces advanced AI capabilities to the Skipfish web application scanner, enhancing its detection accuracy and reducing false positives.</p>
+                
+                <div class="lab-exercise">
+                    <h4>🧪 Hands-on Lab: AI-Enhanced Skipfish</h4>
+                    <div class="terminal">
+                        <div class="terminal-line prompt"></div>
+                        <div class="terminal-line output">└─$ skipfish -ai-enhanced -W /usr/share/skipfish/dictionaries/complete.wl http://testphp.vulnweb.com</div>
+                        <div class="terminal-line output">🕷️ Skipfish 2.10b with AI Enhancement</div>
+                        <div class="terminal-line output">🤖 AI Model: Web Application Vulnerability Detection v2.1</div>
+                        <div class="terminal-line output">├── 🧠 Neural Network Analysis: ACTIVE</div>
+                        <div class="terminal-line output">├── 📊 Pattern Recognition: ENABLED</div>
+                        <div class="terminal-line output">├── 🎯 Smart Payload Generation: RUNNING</div>
+                        <div class="terminal-line output">└── 🔍 False Positive Reduction: 87% improvement</div>
+                        <div class="terminal-line output"></div>
+                        <div class="terminal-line output">📊 AI-Enhanced Results:</div>
+                        <div class="terminal-line output">├── 🔴 High-confidence SQL injection: 3 instances</div>
+                        <div class="terminal-line output">├── 🟠 XSS vulnerabilities: 7 instances</div>
+                        <div class="terminal-line output">├── 🟡 Information disclosure: 12 instances</div>
+                        <div class="terminal-line output">└── 🤖 AI confidence score: 94.2%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🚀 Future of AI in Vulnerability Assessment</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 20px; border-radius: 10px;">
+                        <h4>🧬 Generative AI for Exploits</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Automated exploit development</li>
+                            <li>Custom payload generation</li>
+                            <li>Zero-day discovery assistance</li>
+                            <li>Proof-of-concept automation</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; padding: 20px; border-radius: 10px;">
+                        <h4>🤖 Autonomous Security</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Self-defending systems</li>
+                            <li>Adaptive security controls</li>
+                            <li>Real-time threat response</li>
+                            <li>Continuous optimization</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 20px; border-radius: 10px;">
+                        <h4>📊 Predictive Analytics</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Attack prediction models</li>
+                            <li>Vulnerability trend forecasting</li>
+                            <li>Risk scenario simulation</li>
+                            <li>Business impact modeling</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-success" onclick="showSection('labs')">Next: Hands-on Labs →</button>
+        </div>
+
+        <!-- Labs Section -->
+        <div id="labs" class="module-section">
+            <h2 class="section-title">🧪 Hands-on Laboratory Exercises</h2>
+            
+            <div class="card">
+                <h3>🎯 Lab Environment Setup</h3>
+                <p>These hands-on exercises are designed to provide practical experience with real vulnerability assessment tools and techniques. Each lab builds upon previous knowledge and introduces new concepts.</p>
+                
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+                    <h4>⚠️ Legal Notice</h4>
+                    <p><strong>IMPORTANT:</strong> Only perform these exercises on systems you own or have explicit written permission to test. Unauthorized vulnerability scanning is illegal and unethical.</p>
+                </div>
+            </div>
+
+            <div class="lab-exercise">
+                <h3>🔬 Lab 1: Nessus Professional Vulnerability Scan</h3>
+                <p><strong>Objective:</strong> Perform a comprehensive vulnerability assessment using Nessus Professional and analyze the results.</p>
+                
+                <ol class="step-list">
+                    <li><strong>Environment Preparation</strong>
+                        <p>Set up a test environment with vulnerable systems (Metasploitable 3 or DVWA)</p>
+                    </li>
+                    <li><strong>Nessus Installation and Configuration</strong>
+                        <p>Install Nessus Professional and configure initial settings</p>
+                    </li>
+                    <li><strong>Target Configuration</strong>
+                        <p>Add target systems and configure scan policies</p>
+                    </li>
+                    <li><strong>Scan Execution</strong>
+                        <p>Execute both authenticated and unauthenticated scans</p>
+                    </li>
+                    <li><strong>Results Analysis</strong>
+                        <p>Analyze scan results, identify false positives, and prioritize findings</p>
+                    </li>
+                    <li><strong>Report Generation</strong>
+                        <p>Generate comprehensive vulnerability assessment reports</p>
+                    </li>
+                </ol>
+                
+                <div class="terminal">
+                    <div class="terminal-line prompt"></div>
+                    <div class="terminal-line output">└─$ nessusd -v</div>
+                    <div class="terminal-line output">Nessus 10.8.3 [build M20240905] for Linux</div>
+                    <div class="terminal-line output">└─$ systemctl start nessusd</div>
+                    <div class="terminal-line output">🟢 Nessus daemon started successfully</div>
+                    <div class="terminal-line output">└─$ firefox https://localhost:8834</div>
+                    <div class="terminal-line output">🌐 Nessus Web Interface: Accessible</div>
+                </div>
+            </div>
+
+            <div class="lab-exercise">
+                <h3>🌐 Lab 2: OpenVAS Community Edition Assessment</h3>
+                <p><strong>Objective:</strong> Compare vulnerability detection capabilities between Nessus and OpenVAS using identical target systems.</p>
+                
+                <ol class="step-list">
+                    <li><strong>OpenVAS Installation</strong>
+                        <p>Install and configure OpenVAS Community Edition</p>
+                    </li>
+                    <li><strong>Feed Updates</strong>
+                        <p>Update vulnerability feeds and NVT (Network Vulnerability Tests)</p>
+                    </li>
+                    <li><strong>Target Configuration</strong>
+                        <p>Configure same targets used in Nessus lab for comparison</p>
+                    </li>
+                    <li><strong>Scan Configuration</strong>
+                        <p>Create scan configurations matching Nessus policies</p>
+                    </li>
+                    <li><strong>Execution and Analysis</strong>
+                        <p>Execute scans and perform comparative analysis</p>
+                    </li>
+                    <li><strong>Documentation</strong>
+                        <p>Document differences in detection capabilities and reporting</p>
+                    </li>
+                </ol>
+                
+                <div class="terminal">
+                    <div class="terminal-line prompt"></div>
+                    <div class="terminal-line output">└─$ gvm-setup</div>
+                    <div class="terminal-line output">🔧 Setting up Greenbone Vulnerability Manager...</div>
+                    <div class="terminal-line output">└─$ gvm-start</div>
+                    <div class="terminal-line output">🟢 OpenVAS services started</div>
+                    <div class="terminal-line output">└─$ gvm-feed-update</div>
+                    <div class="terminal-line output">📡 Updating vulnerability feeds...</div>
+                    <div class="terminal-line output">✅ NVT feed updated: 87,234 tests available</div>
+                </div>
+            </div>
+
+            <div class="lab-exercise">
+                <h3>🕷️ Lab 3: Web Application Vulnerability Assessment with Nikto</h3>
+                <p><strong>Objective:</strong> Perform specialized web server vulnerability scanning using Nikto and integrate findings with general network scans.</p>
+                
+                <ol class="step-list">
+                    <li><strong>Target Identification</strong>
+                        <p>Identify web services from previous network scans</p>
+                    </li>
+                    <li><strong>Nikto Configuration</strong>
+                        <p>Configure Nikto for comprehensive web server testing</p>
+                    </li>
+                    <li><strong>Scan Execution</strong>
+                        <p>Perform detailed web server vulnerability scans</p>
+                    </li>
+                    <li><strong>SSL/TLS Testing</strong>
+                        <p>Test SSL/TLS configurations and certificate validity</p>
+                    </li>
+                    <li><strong>Results Correlation</strong>
+                        <p>Correlate findings with network scanner results</p>
+                    </li>
+                    <li><strong>Remediation Planning</strong>
+                        <p>Develop specific web server hardening recommendations</p>
+                    </li>
+                </ol>
+                
+                <div class="terminal">
+                    <div class="terminal-line prompt"></div>
+                    <div class="terminal-line output">└─$ nikto -h http://testphp.vulnweb.com -ssl -Format htm -output nikto_report.html</div>
+                    <div class="terminal-line output">🕷️ Nikto Web Server Scanner v2.5.0</div>
+                    <div class="terminal-line output">├── 🎯 Target: http://testphp.vulnweb.com:80</div>
+                    <div class="terminal-line output">├── 🔍 Testing 6,743 items against server</div>
+                    <div class="terminal-line output">├── 🟠 OSVDB-3233: /icons/README: Apache default file found</div>
+                    <div class="terminal-line output">├── 🔴 OSVDB-3092: /admin/: Admin directory found</div>
+                    <div class="terminal-line output">└── 📊 Scan completed: 23 vulnerabilities found</div>
+                </div>
+            </div>
+
+            <div class="lab-exercise">
+                <h3>🤖 Lab 4: AI-Enhanced Vulnerability Analysis</h3>
+                <p><strong>Objective:</strong> Utilize AI-powered tools and techniques for advanced vulnerability assessment and analysis.</p>
+                
+                <ol class="step-list">
+                    <li><strong>AI Tool Setup</strong>
+                        <p>Configure ShellGPT and ChatGPT integration for security analysis</p>
+                    </li>
+                    <li><strong>Automated Report Analysis</strong>
+                        <p>Use AI to analyze and summarize vulnerability scan reports</p>
+                    </li>
+                    <li><strong>Threat Intelligence Integration</strong>
+                        <p>Leverage AI for threat intelligence correlation</p>
+                    </li>
+                    <li><strong>Custom Script Development</strong>
+                        <p>Develop AI-assisted vulnerability assessment scripts</p>
+                    </li>
+                    <li><strong>Predictive Analysis</strong>
+                        <p>Use AI models to predict vulnerability exploitation likelihood</p>
+                    </li>
+                    <li><strong>Automated Remediation Planning</strong>
+                        <p>Generate AI-powered remediation strategies</p>
+                    </li>
+                </ol>
+                
+                <div class="terminal">
+                    <div class="terminal-line prompt"></div>
+                    <div class="terminal-line output">└─$ shellgpt "Analyze this vulnerability scan and prioritize critical findings"</div>
+                    <div class="terminal-line output">🤖 AI Analysis in progress...</div>
+                    <div class="terminal-line output">📊 Critical Vulnerability Assessment:</div>
+                    <div class="terminal-line output">├── 🎯 Priority 1: Remote code execution vulnerabilities</div>
+                    <div class="terminal-line output">├── 🎯 Priority 2: Authentication bypass issues</div>
+                    <div class="terminal-line output">├── 🎯 Priority 3: Information disclosure risks</div>
+                    <div class="terminal-line output">└── 📈 Risk score calculated: 8.7/10</div>
+                </div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>🧠 Lab Assessment Quiz</h3>
+                <div class="quiz-question">Which vulnerability scanner typically provides more detailed SSL/TLS security analysis?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectQuizOption(this, false)">A) Nessus (general network scan)</div>
+                    <div class="quiz-option" onclick="selectQuizOption(this, true)">B) Nikto (specialized web server scan)</div>
+                    <div class="quiz-option" onclick="selectQuizOption(this, false)">C) OpenVAS (authenticated scan)</div>
+                    <div class="quiz-option" onclick="selectQuizOption(this, false)">D) Nmap (script scan)</div>
+                </div>
+                <div id="quizFeedback3" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <button class="btn btn-success" onclick="showSection('assessment')">Next: Final Assessment →</button>
+        </div>
+
+        <!-- Assessment Section -->
+        <div id="assessment" class="module-section">
+            <h2 class="section-title">📝 Module 5 Assessment</h2>
+            
+            <div class="card">
+                <h3>🎯 Comprehensive Knowledge Assessment</h3>
+                <p>Test your understanding of vulnerability analysis concepts, tools, and methodologies covered in this module.</p>
+            </div>
+
+            <div class="quiz-container">
+                <h3>📊 Question 1 of 10</h3>
+                <div class="quiz-question">What is the primary purpose of the CVSS Base Score?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 1)">A) To determine when a vulnerability will be exploited</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, true, 1)">B) To provide a standardized severity rating for vulnerabilities</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 1)">C) To calculate the cost of remediation</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 1)">D) To identify the vulnerability discovery date</div>
+                </div>
+                <div id="assessmentFeedback1" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>📊 Question 2 of 10</h3>
+                <div class="quiz-question">Which CVSS v3.1 metric indicates whether successful exploitation affects resources beyond the vulnerable component?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 2)">A) Attack Vector (AV)</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 2)">B) Privileges Required (PR)</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, true, 2)">C) Scope (S)</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 2)">D) User Interaction (UI)</div>
+                </div>
+                <div id="assessmentFeedback2" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>📊 Question 3 of 10</h3>
+                <div class="quiz-question">What is the key advantage of authenticated vulnerability scanning over unauthenticated scanning?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 3)">A) Faster scan completion</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, true, 3)">B) More accurate vulnerability detection with fewer false positives</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 3)">C) No network credentials required</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 3)">D) Better external attack simulation</div>
+                </div>
+                <div id="assessmentFeedback3" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>📊 Question 4 of 10</h3>
+                <div class="quiz-question">According to NIST SP 800-40, what should be the primary factor in vulnerability remediation prioritization?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 4)">A) Vulnerability age</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 4)">B) CVSS score alone</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, true, 4)">C) Risk-based assessment considering business impact</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 4)">D) Vendor patch availability</div>
+                </div>
+                <div id="assessmentFeedback4" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>📊 Question 5 of 10</h3>
+                <div class="quiz-question">What does EPSS (Exploit Prediction Scoring System) primarily predict?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, true, 5)">A) The likelihood of vulnerability exploitation within 30 days</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 5)">B) The severity of a vulnerability's impact</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 5)">C) The cost of vulnerability remediation</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 5)">D) The time required to develop an exploit</div>
+                </div>
+                <div id="assessmentFeedback5" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>📊 Question 6 of 10</h3>
+                <div class="quiz-question">Which tool is specifically designed for web server vulnerability assessment and testing over 6,700 potentially dangerous files?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 6)">A) Nessus</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 6)">B) OpenVAS</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, true, 6)">C) Nikto</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 6)">D) Qualys</div>
+                </div>
+                <div id="assessmentFeedback6" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>📊 Question 7 of 10</h3>
+                <div class="quiz-question">In CEH v13, what new capability does AI-enhanced Skipfish provide?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 7)">A) Faster scanning speeds only</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, true, 7)">B) Improved accuracy with 87% false positive reduction</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 7)">C) Mobile application testing</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 7)">D) Cloud infrastructure scanning</div>
+                </div>
+                <div id="assessmentFeedback7" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>📊 Question 8 of 10</h3>
+                <div class="quiz-question">What is the correct CVSS v3.1 severity range for "High" severity vulnerabilities?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 8)">A) 6.0 - 7.9</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, true, 8)">B) 7.0 - 8.9</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 8)">C) 8.0 - 9.9</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 8)">D) 7.5 - 9.0</div>
+                </div>
+                <div id="assessmentFeedback8" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>📊 Question 9 of 10</h3>
+                <div class="quiz-question">Which phase of the NIST Cybersecurity Framework is most directly related to vulnerability identification?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, true, 9)">A) Detect (DE)</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 9)">B) Protect (PR)</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 9)">C) Respond (RS)</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 9)">D) Recover (RC)</div>
+                </div>
+                <div id="assessmentFeedback9" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>📊 Question 10 of 10</h3>
+                <div class="quiz-question">What is the primary benefit of continuous vulnerability management over periodic assessments?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 10)">A) Lower cost implementation</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 10)">B) Simplified reporting requirements</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, true, 10)">C) Real-time threat detection and faster response times</div>
+                    <div class="quiz-option" onclick="selectAssessmentOption(this, false, 10)">D) Reduced need for skilled personnel</div>
+                </div>
+                <div id="assessmentFeedback10" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <div class="card" id="assessmentResults" style="display: none;">
+                <h3>📊 Assessment Results</h3>
+                <div id="scoreDisplay" style="text-align: center; font-size: 2em; margin: 20px 0;"></div>
+                <div id="resultMessage" style="text-align: center; margin: 20px 0;"></div>
+                <div id="detailedResults" style="margin-top: 20px;"></div>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn btn-success" onclick="calculateAssessment()" id="submitAssessment">📊 Submit Assessment</button>
+                <button class="btn btn-warning" onclick="resetAssessment()" style="margin-left: 15px;">🔄 Reset Assessment</button>
+            </div>
+
+            <div class="certification-section" id="certificationSection" style="display: none;">
+                <h3>🏆 Congratulations!</h3>
+                <p>You have successfully completed CEH v13 Module 5: Vulnerability Analysis</p>
+                <div style="margin: 30px 0;">
+                    <div style="border: 3px solid #f1c40f; padding: 40px; border-radius: 15px; background: rgba(241, 196, 15, 0.1);">
+                        <h2 style="color: #f1c40f; margin: 20px 0;" id="studentName">[Your Name]</h2>
+                        <div style="font-size: 1.2em; margin: 10px 0;">has successfully completed the comprehensive</div>
+                        <div style="font-size: 1.5em; font-weight: bold; margin: 20px 0;">Certified Ethical Hacker v13<br>Module 5: Vulnerability Analysis</div>
+                        <div style="margin: 20px 0;">Score: <span id="finalScore">--</span>%</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+                        <div>
+                            <div style="border-top: 2px solid #333; width: 200px; margin: 20px 0;"></div>
+                            <div>CEH Instructor</div>
+                        </div>
+                        <div>
+                            <div style="border-top: 2px solid #333; width: 200px; margin: 20px 0;"></div>
+                            <div id="completionDate">Date Completed</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="downloadCertificate()">📜 Download Certificate</button>
+            </div>
+
+            <button class="btn btn-secondary" onclick="showSection('resources')">📚 View Resources →</button>
+        </div>
+
+        <!-- Resources Section -->
+        <div id="resources" class="module-section">
+            <h2 class="section-title">📚 Resources & References</h2>
+            
+            <div class="card">
+                <h3>🎯 Essential Study Materials</h3>
+                <p>Comprehensive resources to support your learning journey in vulnerability analysis and ethical hacking.</p>
+            </div>
+
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h4>📖 Official Documentation</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://www.eccouncil.org/train-certify/certified-ethical-hacker-ceh/" target="_blank" style="color: #3498db;">CEH v13 Official Course</a></li>
+                        <li><a href="https://www.first.org/cvss/" target="_blank" style="color: #3498db;">CVSS Specification (FIRST.org)</a></li>
+                        <li><a href="https://nvd.nist.gov/" target="_blank" style="color: #3498db;">National Vulnerability Database</a></li>
+                        <li><a href="https://csrc.nist.gov/publications/detail/sp/800-40/rev-4/final" target="_blank" style="color: #3498db;">NIST SP 800-40 Rev. 4</a></li>
+                    </ul>
+                </div>
+                
+                <div class="resource-card">
+                    <h4>🛠️ Vulnerability Scanners</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://www.tenable.com/products/nessus" target="_blank" style="color: #3498db;">Nessus Professional</a></li>
+                        <li><a href="https://www.openvas.org/" target="_blank" style="color: #3498db;">OpenVAS Community Edition</a></li>
+                        <li><a href="https://cirt.net/Nikto2" target="_blank" style="color: #3498db;">Nikto Web Scanner</a></li>
+                        <li><a href="https://www.qualys.com/apps/vulnerability-management/" target="_blank" style="color: #3498db;">Qualys VMDR</a></li>
+                    </ul>
+                </div>
+                
+                <div class="resource-card">
+                    <h4>🔍 Vulnerability Databases</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://cve.mitre.org/" target="_blank" style="color: #3498db;">MITRE CVE Database</a></li>
+                        <li><a href="https://www.exploit-db.com/" target="_blank" style="color: #3498db;">Exploit Database</a></li>
+                        <li><a href="https://vuldb.com/" target="_blank" style="color: #3498db;">VulDB Vulnerability Database</a></li>
+                        <li><a href="https://www.securityfocus.com/vulnerabilities" target="_blank" style="color: #3498db;">SecurityFocus Vulnerabilities</a></li>
+                    </ul>
+                </div>
+                
+                <div class="resource-card">
+                    <h4>🎓 Training Platforms</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://tryhackme.com/" target="_blank" style="color: #3498db;">TryHackMe</a></li>
+                        <li><a href="https://www.hackthebox.com/" target="_blank" style="color: #3498db;">Hack The Box</a></li>
+                        <li><a href="https://portswigger.net/web-security" target="_blank" style="color: #3498db;">PortSwigger Web Security Academy</a></li>
+                        <li><a href="https://www.vulnhub.com/" target="_blank" style="color: #3498db;">VulnHub</a></li>
+                    </ul>
+                </div>
+                
+                <div class="resource-card">
+                    <h4>🤖 AI Security Tools</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://github.com/TheR1D/shell_gpt" target="_blank" style="color: #3498db;">ShellGPT</a></li>
+                        <li><a href="https://chat.openai.com/" target="_blank" style="color: #3498db;">ChatGPT for Security Analysis</a></li>
+                        <li><a href="https://github.com/microsoft/Security-101" target="_blank" style="color: #3498db;">Microsoft Security-101</a></li>
+                        <li><a href="https://owasp.org/www-project-machine-learning-security-top-10/" target="_blank" style="color: #3498db;">OWASP ML Security Top 10</a></li>
+                    </ul>
+                </div>
+                
+                <div class="resource-card">
+                    <h4>📊 Scoring Systems</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://www.first.org/epss/" target="_blank" style="color: #3498db;">EPSS Calculator</a></li>
+                        <li><a href="https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator" target="_blank" style="color: #3498db;">CVSS v3.1 Calculator</a></li>
+                        <li><a href="https://www.first.org/cvss/v4-0/" target="_blank" style="color: #3498db;">CVSS v4.0 Specification</a></li>
+                        <li><a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" style="color: #3498db;">CISA KEV Catalog</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📚 Recommended Books</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div style="background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; padding: 20px; border-radius: 10px;">
+                        <h4>📖 CEH v13 Study Materials</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>"CEH Certified Ethical Hacker All-in-One Exam Guide" by Matt Walker</li>
+                            <li>"CEH v13 AI Study Guide" by EC-Council</li>
+                            <li>"Certified Ethical Hacker Practice Exams" by Matt Walker</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; padding: 20px; border-radius: 10px;">
+                        <h4>🔍 Vulnerability Assessment</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>"The Web Application Hacker's Handbook" by Dafydd Stuttard</li>
+                            <li>"Nessus Network Auditing" by Russ Rogers</li>
+                            <li>"Open Source Security Tools" by Tony Howlett</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🎮 Practice Environments</h3>
+                <div class="vulnerability-grid">
+                    <div class="vulnerability-card">
+                        <h4>🏠 Home Lab Setup</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>VMware Workstation or VirtualBox</li>
+                            <li>Kali Linux (latest version)</li>
+                            <li>Metasploitable 2 & 3</li>
+                            <li>DVWA (Damn Vulnerable Web Application)</li>
+                            <li>Windows Server 2019/2022</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>☁️ Cloud Practice</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>AWS Security Labs</li>
+                            <li>Azure Security Center</li>
+                            <li>Google Cloud Security Command Center</li>
+                            <li>Terraform vulnerable configurations</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="vulnerability-card">
+                        <h4>🌐 Online Ranges</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>EC-Council iLabs</li>
+                            <li>Cybrary Virtual Labs</li>
+                            <li>INE Security Labs</li>
+                            <li>PentesterLab</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔗 Community & Forums</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 20px; border-radius: 10px; border-left: 4px solid #3498db;">
+                        <h4>💬 Discussion Forums</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Reddit r/ethicalhacking</li>
+                            <li>EC-Council Community</li>
+                            <li>InfoSec-Skills Forums</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: rgba(231, 76, 60, 0.1); padding: 20px; border-radius: 10px; border-left: 4px solid #e74c3c;">
+                        <h4>🐦 Social Media</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>@ECCouncil (Twitter)</li>
+                            <li>@NIST (Twitter)</li>
+                            <li>LinkedIn Security Groups</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: rgba(241, 196, 15, 0.1); padding: 20px; border-radius: 10px; border-left: 4px solid #f1c40f;">
+                        <h4>📰 News & Updates</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Krebs on Security</li>
+                            <li>Dark Reading</li>
+                            <li>The Hacker News</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification -->
+        <div class="notification" id="notification"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <h3>🎯 Module 5 Complete</h3>
+            <p>You've completed CEH v13 Module 5: Vulnerability Analysis</p>
+            <p>Continue your ethical hacking journey with Module 6: System Hacking</p>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="window.open('ceh_module6.html', '_blank')">🚀 Next Module</button>
+                <button class="btn btn-warning" onclick="window.open('index.html', '_blank')">🏠 Course Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSectionIndex = 0;
+        let assessmentAnswers = {};
+        let assessmentCompleted = false;
+        
+        const sections = [
+            'introduction', 'fundamentals', 'cvss', 'tools', 
+            'methodologies', 'ai-powered', 'labs', 'assessment'
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('introduction');
+            updateProgress();
+            setupKeyboardNavigation();
+        });
+
+        // Keyboard navigation
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', function(event) {
+                switch(event.key) {
+                    case 'Escape':
+                        // Close any modal or return to main view
+                        showSection('introduction');
+                        break;
+                    case 'ArrowLeft':
+                        event.preventDefault();
+                        previousSection();
+                        break;
+                    case 'ArrowRight':
+                        event.preventDefault();
+                        nextSection();
+                        break;
+                }
+            });
+        }
+
+        // Section navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            const allSections = document.querySelectorAll('.module-section');
+            allSections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                
+                // Update current section index
+                currentSectionIndex = sections.indexOf(sectionId);
+                
+                // Update navigation
+                updateNavigation(sectionId);
+                updateProgress();
+                
+                // Scroll to top
+                window.scrollTo(0, 0);
+                
+                // Show notification
+                showNotification(`Navigated to: ${getSectionTitle(sectionId)}`);
+            }
+        }
+
+        function nextSection() {
+            if (currentSectionIndex < sections.length - 1) {
+                showSection(sections[currentSectionIndex + 1]);
+            }
+        }
+
+        function previousSection() {
+            if (currentSectionIndex > 0) {
+                showSection(sections[currentSectionIndex - 1]);
+            }
+        }
+
+        function getSectionTitle(sectionId) {
+            const titles = {
+                'introduction': 'Introduction to Vulnerability Analysis',
+                'fundamentals': 'VA Fundamentals',
+                'cvss': 'CVSS & Scoring',
+                'tools': 'Assessment Tools',
+                'methodologies': 'Methodologies',
+                'ai-powered': 'AI-Powered VA',
+                'labs': 'Hands-on Labs',
+                'assessment': 'Assessment',
+                'resources': 'Resources'
+            };
+            return titles[sectionId] || sectionId;
+        }
+
+        function updateNavigation(currentSection) {
+            // Update section buttons
+            const sectionButtons = document.querySelectorAll('.section-btn');
+            sectionButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-section') === currentSection) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update current section display
+            const currentSectionSpan = document.getElementById('currentSection');
+            if (currentSectionSpan) {
+                currentSectionSpan.textContent = getSectionTitle(currentSection);
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentSectionIndex + 1) / sections.length) * 100;
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) {
+                progressBar.style.width = progress + '%';
+            }
+        }
+
+        // Interactive demonstrations
+        function runVulnDemo() {
+            const demo = document.getElementById('vulnDemo');
+            const categories = [
+                '├── 🔐 Authentication & Session Management',
+                '├── 💉 Injection Vulnerabilities (SQL, NoSQL, LDAP)',
+                '├── 📁 Sensitive Data Exposure',
+                '├── ⚡ Memory Corruption (Buffer/Stack Overflow)',
+                '├── 🔑 Broken Access Control',
+                '├── 🌐 Cross-Site Scripting (XSS)',
+                '├── ⚙️ Security Misconfigurations',
+                '└── 🏭 Zero-day & Unknown Vulnerabilities'
+            ];
+            
+            demo.innerHTML = `
+                <div class="terminal-line prompt"></div>
+                <div class="terminal-line output">└─$ vulnerability-scanner --list-categories --detailed</div>
+                <div class="terminal-line output">📊 Advanced Vulnerability Categories:</div>
+                ${categories.map(cat => `<div class="terminal-line output">${cat}</div>`).join('')}
+            `;
+        }
+
+        function calculateCVSS() {
+            // Simplified CVSS calculation for demo purposes
+            const av = parseFloat(document.getElementById('av').value === 'N' ? 0.85 : 
+                                 document.getElementById('av').value === 'A' ? 0.62 : 
+                                 document.getElementById('av').value === 'L' ? 0.55 : 0.2);
+            const ac = parseFloat(document.getElementById('ac').value === 'L' ? 0.77 : 0.44);
+            
+            // Simplified calculation
+            const baseScore = (av + ac) * 5.2; // Simplified formula
+            const score = Math.min(baseScore, 10.0).toFixed(1);
+            
+            const result = document.getElementById('cvssResult');
+            let severity = 'Low';
+            let cssClass = 'cvss-low';
+            
+            if (score >= 9.0) {
+                severity = 'Critical';
+                cssClass = 'cvss-critical';
+            } else if (score >= 7.0) {
+                severity = 'High';
+                cssClass = 'cvss-high';
+            } else if (score >= 4.0) {
+                severity = 'Medium';
+                cssClass = 'cvss-medium';
+            }
+            
+            result.className = `cvss-score ${cssClass}`;
+            result.textContent = `CVSS Score: ${score} (${severity})`;
+        }
+
+        function generateRandomCVSS() {
+            const avOptions = ['N', 'A', 'L', 'P'];
+            const acOptions = ['L', 'H'];
+            const prOptions = ['N', 'L', 'H'];
+            const uiOptions = ['N', 'R'];
+            
+            document.getElementById('av').value = avOptions[Math.floor(Math.random() * avOptions.length)];
+            document.getElementById('ac').value = acOptions[Math.floor(Math.random() * acOptions.length)];
+            document.getElementById('pr').value = prOptions[Math.floor(Math.random() * prOptions.length)];
+            document.getElementById('ui').value = uiOptions[Math.floor(Math.random() * uiOptions.length)];
+            
+            calculateCVSS();
+        }
+
+        function runAIVulnDemo() {
+            const demo = document.getElementById('aiVulnDemo');
+            const scenarios = [
+                {
+                    command: 'shellgpt "Prioritize these 500 vulnerabilities by business risk"',
+                    response: 'AI Analysis: Identified 12 critical business-impacting vulnerabilities requiring immediate attention'
+                },
+                {
+                    command: 'chatgpt "Generate executive summary for vulnerability assessment"',
+                    response: 'Executive Summary: Created comprehensive risk overview with strategic recommendations'
+                },
+                {
+                    command: 'shellgpt "Predict exploit likelihood for CVE-2024-3400"',
+                    response: 'EPSS Score: 0.89 (89% probability of exploitation within 30 days)'
+                }
+            ];
+            
+            const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            
+            demo.innerHTML = `
+                <div class="terminal-line prompt"></div>
+                <div class="terminal-line output">└─$ ${scenario.command}</div>
+                <div class="terminal-line output">🤖 ${scenario.response}</div>
+                <div class="terminal-line output">├── 🧠 Machine Learning: Pattern analysis complete</div>
+                <div class="terminal-line output">├── 📊 Risk Modeling: Business impact calculated</div>
+                <div class="terminal-line output">├── 🎯 Threat Intelligence: IoCs correlated</div>
+                <div class="terminal-line output">└── 📈 Predictive Analytics: Recommendations generated</div>
+            `;
+        }
+
+        // Quiz functionality
+        function selectQuizOption(element, isCorrect) {
+            // Remove previous selections
+            const options = element.parentNode.querySelectorAll('.quiz-option');
+            options.forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            // Mark selected option
+            element.classList.add('selected');
+            
+            // Show feedback after a delay
+            setTimeout(() => {
+                options.forEach(opt => {
+                    if (opt === element) {
+                        opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+                    }
+                });
+                
+                // Show feedback message
+                const feedbackElement = element.parentNode.nextElementSibling;
+                if (feedbackElement) {
+                    feedbackElement.innerHTML = isCorrect ? 
+                        '✅ Correct! Well done.' : 
+                        '❌ Incorrect. Please review the material and try again.';
+                    feedbackElement.style.color = isCorrect ? '#27ae60' : '#e74c3c';
+                }
+            }, 500);
+        }
+
+        // Assessment functionality
+        function selectAssessmentOption(element, isCorrect, questionNumber) {
+            // Remove previous selections for this question
+            const options = element.parentNode.querySelectorAll('.quiz-option');
+            options.forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Mark selected option
+            element.classList.add('selected');
+            
+            // Store answer
+            assessmentAnswers[questionNumber] = isCorrect;
+            
+            // Show immediate feedback
+            const feedbackElement = document.getElementById(`assessmentFeedback${questionNumber}`);
+            if (feedbackElement) {
+                feedbackElement.innerHTML = isCorrect ? 
+                    '✅ Correct!' : 
+                    '❌ Incorrect.';
+                feedbackElement.style.color = isCorrect ? '#27ae60' : '#e74c3c';
+            }
+        }
+
+        function calculateAssessment() {
+            const totalQuestions = 10;
+            const answeredQuestions = Object.keys(assessmentAnswers).length;
+            
+            if (answeredQuestions < totalQuestions) {
+                showNotification(`Please answer all ${totalQuestions} questions before submitting.`);
+                return;
+            }
+            
+            const correctAnswers = Object.values(assessmentAnswers).filter(answer => answer === true).length;
+            const score = Math.round((correctAnswers / totalQuestions) * 100);
+            
+            // Show results
+            showAssessmentResults(score, correctAnswers, totalQuestions);
+            
+            assessmentCompleted = true;
+        }
+
+        function showAssessmentResults(score, correct, total) {
+            const resultsSection = document.getElementById('assessmentResults');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const resultMessage = document.getElementById('resultMessage');
+            const detailedResults = document.getElementById('detailedResults');
+            
+            scoreDisplay.innerHTML = `<div class="cvss-score ${score >= 80 ? 'cvss-critical' : score >= 70 ? 'cvss-high' : score >= 60 ? 'cvss-medium' : 'cvss-low'}">${score}%</div>`;
+            
+            let message = '';
+            if (score >= 90) {
+                message = '🏆 Excellent! You have mastered vulnerability analysis concepts.';
+            } else if (score >= 80) {
+                message = '🎯 Great job! You have a solid understanding of the material.';
+            } else if (score >= 70) {
+                message = '✅ Good work! Consider reviewing some topics for improvement.';
+            } else {
+                message = '📚 Keep studying! Review the material and try again.';
+            }
+            
+            resultMessage.innerHTML = message;
+            detailedResults.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="text-align: center; background: rgba(39, 174, 96, 0.1); padding: 20px; border-radius: 10px;">
+                        <h4 style="color: #27ae60;">Correct Answers</h4>
+                        <div style="font-size: 2em; color: #27ae60;">${correct}</div>
+                    </div>
+                    <div style="text-align: center; background: rgba(231, 76, 60, 0.1); padding: 20px; border-radius: 10px;">
+                        <h4 style="color: #e74c3c;">Incorrect Answers</h4>
+                        <div style="font-size: 2em; color: #e74c3c;">${total - correct}</div>
+                    </div>
+                    <div style="text-align: center; background: rgba(52, 152, 219, 0.1); padding: 20px; border-radius: 10px;">
+                        <h4 style="color: #3498db;">Passing Score</h4>
+                        <div style="font-size: 2em; color: #3498db;">70%</div>
+                    </div>
+                </div>
+            `;
+            
+            resultsSection.style.display = 'block';
+            
+            // Show certification if passed
+            if (score >= 70) {
+                showCertification(score);
+            }
+            
+            // Hide submit button
+            document.getElementById('submitAssessment').style.display = 'none';
+        }
+
+        function showCertification(score) {
+            const certSection = document.getElementById('certificationSection');
+            const finalScore = document.getElementById('finalScore');
+            const completionDate = document.getElementById('completionDate');
+            
+            finalScore.textContent = score;
+            completionDate.textContent = new Date().toLocaleDateString();
+            
+            certSection.style.display = 'block';
+            
+            // Prompt for name
+            const name = prompt('Enter your name for the certificate:') || 'Student';
+            const studentNameElements = document.querySelectorAll('#studentName');
+            studentNameElements.forEach(element => {
+                element.textContent = name;
+            });
+        }
+
+        function resetAssessment() {
+            assessmentAnswers = {};
+            assessmentCompleted = false;
+            
+            // Reset all quiz options
+            const allOptions = document.querySelectorAll('#assessment .quiz-option');
+            allOptions.forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            // Reset feedback
+            for (let i = 1; i <= 10; i++) {
+                const feedback = document.getElementById(`assessmentFeedback${i}`);
+                if (feedback) feedback.innerHTML = '';
+            }
+            
+            // Hide results
+            document.getElementById('assessmentResults').style.display = 'none';
+            document.getElementById('certificationSection').style.display = 'none';
+            document.getElementById('submitAssessment').style.display = 'inline-block';
+            
+            showNotification('Assessment reset successfully!');
+        }
+
+        function downloadCertificate() {
+            // In a real implementation, this would generate a PDF certificate
+            showNotification('Certificate download feature would be implemented in a production environment.');
+        }
+
+        // Utility functions
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Initialize CVSS calculator
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateCVSS();
+        });
+    </script>
+</body>
+</html>
+                
