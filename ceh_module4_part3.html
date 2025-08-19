@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 4: Enumeration - Part 3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --dark-bg: #1a1a1a;
+            --light-bg: #f8f9fa;
+            --text-dark: #2c3e50;
+            --text-light: #ecf0f1;
+            --border-color: #bdc3c7;
+            --cloud-primary: #f39c12;
+            --cloud-secondary: #e67e22;
+            --aws-color: #ff9900;
+            --azure-color: #0078d4;
+            --gcp-color: #4285f4;
+            --database-color: #8e44ad;
+            --webapp-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f39c12 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--cloud-primary), var(--cloud-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .part-indicator {
+            background: linear-gradient(45deg, var(--cloud-primary), var(--cloud-secondary));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin: 15px 0;
+            display: inline-block;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 25px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: linear-gradient(90deg, var(--cloud-primary), var(--cloud-secondary));
+            border-radius: 15px;
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .navigation {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: linear-gradient(45deg, var(--cloud-primary), var(--cloud-secondary));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(45deg, var(--accent-color), #c0392b);
+        }
+
+        .prev-part-btn {
+            background: linear-gradient(45deg, #16a085, #1abc9c);
+        }
+
+        .next-part-btn {
+            background: linear-gradient(45deg, var(--success-color), #27ae60);
+            font-size: 1.1em;
+            padding: 18px 35px;
+        }
+
+        .content-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+        }
+
+        .module-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .module-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 2em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid var(--cloud-primary);
+            padding-bottom: 10px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--cloud-primary);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .cloud-providers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .cloud-card {
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            color: white;
+        }
+
+        .aws-card {
+            background: linear-gradient(135deg, var(--aws-color), #cc7700);
+        }
+
+        .azure-card {
+            background: linear-gradient(135deg, var(--azure-color), #005a9f);
+        }
+
+        .gcp-card {
+            background: linear-gradient(135deg, var(--gcp-color), #1a73e8);
+        }
+
+        .cloud-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .database-services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .database-card {
+            background: linear-gradient(135deg, var(--database-color), #663399);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .database-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .webapp-techniques {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .webapp-card {
+            background: linear-gradient(135deg, var(--webapp-color), #c0392b);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .webapp-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .interactive-demo {
+            background: rgba(26, 26, 26, 0.95);
+            color: var(--text-light);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .terminal {
+            background: #000;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .terminal-line {
+            margin: 5px 0;
+            opacity: 0;
+            animation: typeWriter 0.5s ease-in-out forwards;
+        }
+
+        @keyframes typeWriter {
+            to { opacity: 1; }
+        }
+
+        .prompt {
+            color: var(--success-color);
+        }
+
+        .output {
+            color: var(--text-light);
+        }
+
+        .error {
+            color: var(--accent-color);
+        }
+
+        .warning {
+            color: var(--warning-color);
+        }
+
+        .info {
+            color: var(--secondary-color);
+        }
+
+        .aws-output {
+            color: var(--aws-color);
+        }
+
+        .azure-output {
+            color: var(--azure-color);
+        }
+
+        .gcp-output {
+            color: var(--gcp-color);
+        }
+
+        .tool-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .tool-card {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .tool-card h4 {
+            color: var(--cloud-primary);
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--cloud-primary), var(--cloud-secondary));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, var(--success-color), #27ae60);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, var(--warning-color), #e67e22);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, var(--accent-color), #c0392b);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: var(--accent-color);
+        }
+
+        .attack-scenario {
+            background: linear-gradient(135deg, rgba(231,76,60,0.1), rgba(192,57,43,0.1));
+            border: 2px solid var(--accent-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .scenario-title {
+            color: var(--accent-color);
+            font-weight: 600;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .navigation {
+                flex-direction: column;
+            }
+            
+            .cloud-providers {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>☁️ CEH v13 Module 4</h1>
+            <p>Enumeration</p>
+            <div class="part-indicator">Part 3 of 4: Modern Targets</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="progressText">Progress: 0% Complete</p>
+            <div style="margin-top: 15px; font-size: 0.9em; color: #7f8c8d;">
+                <span style="background: rgba(243,156,18,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    ← → Navigate Sections
+                </span>
+                <span style="background: rgba(231,76,60,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    Esc Close Modal
+                </span>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="prev-part-btn" onclick="goToPreviousPart()">← Back to Part 2</button>
+            <button class="nav-btn active" onclick="showSection('overview')">📋 Overview</button>
+            <button class="nav-btn" onclick="showSection('cloud-enum')">☁️ Cloud Enumeration</button>
+            <button class="nav-btn" onclick="showSection('database-enum')">🗄️ Database Services</button>
+            <button class="nav-btn" onclick="showSection('webapp-enum')">🌐 Web Applications</button>
+            <button class="next-part-btn" onclick="goToNextPart()">Continue to Part 4 →</button>
+        </div>
+
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">🎯 Part 3: Modern Targets Overview</h2>
+                
+                <div class="card">
+                    <h3>Welcome to Modern Enumeration!</h3>
+                    <p>You've mastered traditional enumeration techniques in Parts 1 and 2. Now we enter the modern era of cybersecurity where cloud infrastructure, distributed databases, and sophisticated web applications dominate the attack surface. Part 3 focuses on cutting-edge enumeration techniques for today's digital landscape.</p>
+                    
+                    <h4>🎯 Part 3 Learning Objectives:</h4>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li>Master cloud enumeration across AWS, Azure, and Google Cloud Platform</li>
+                        <li>Execute comprehensive database service enumeration and attacks</li>
+                        <li>Perform advanced web application enumeration and reconnaissance</li>
+                        <li>Apply modern API discovery and microservice enumeration techniques</li>
+                        <li>Understand container and serverless enumeration methodologies</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>📚 Complete Series Progress</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: linear-gradient(135deg, var(--success-color), #27ae60); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>✅ Part 1: Core Fundamentals</h4>
+                            <p><strong>Completed</strong></p>
+                            <ul style="margin: 10px 0; line-height: 1.6;">
+                                <li>Enumeration fundamentals</li>
+                                <li>NetBIOS & SMB enumeration</li>
+                                <li>SNMP enumeration</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, var(--success-color), #27ae60); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>✅ Part 2: Directory Services</h4>
+                            <p><strong>Completed</strong></p>
+                            <ul style="margin: 10px 0; line-height: 1.6;">
+                                <li>LDAP & DNS enumeration</li>
+                                <li>RPC & null session attacks</li>
+                                <li>Advanced Windows techniques</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, var(--cloud-primary), var(--cloud-secondary)); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>📍 Part 3: Modern Targets</h4>
+                            <p><strong>Current Module</strong></p>
+                            <ul style="margin: 10px 0; line-height: 1.6;">
+                                <li>Cloud enumeration (AWS, Azure, GCP)</li>
+                                <li>Database service enumeration</li>
+                                <li>Web application enumeration</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #95a5a6, #7f8c8d); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>⏳ Part 4: Assessment & Labs</h4>
+                            <ul style="margin: 10px 0; line-height: 1.6;">
+                                <li>Tool mastery and techniques</li>
+                                <li>Comprehensive assessment</li>
+                                <li>Hands-on enumeration labs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🚀 Modern Attack Surface Evolution</h3>
+                    <p style="background: linear-gradient(45deg, var(--cloud-primary), var(--cloud-secondary)); color: white; padding: 15px; border-radius: 10px; margin: 15px 0;">
+                        <strong>Cloud-First Security:</strong> Today's organizations operate in hybrid and multi-cloud environments, requiring advanced enumeration techniques for modern infrastructure!
+                    </p>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li><strong>Cloud Infrastructure Enumeration:</strong> AWS, Azure, GCP resource discovery</li>
+                        <li><strong>Serverless and Container Analysis:</strong> Lambda, Azure Functions, Kubernetes</li>
+                        <li><strong>NoSQL and Cloud Database Attacks:</strong> MongoDB, DynamoDB, CosmosDB</li>
+                        <li><strong>API-First Application Enumeration:</strong> REST, GraphQL, microservices</li>
+                        <li><strong>DevOps Pipeline Exploitation:</strong> CI/CD, infrastructure as code</li>
+                    </ul>
+                </div>
+
+                <div class="attack-scenario">
+                    <div class="scenario-title">🎯 Real-World Attack Scenario: Cloud Infrastructure Breach</div>
+                    <p><strong>Scenario:</strong> A multinational corporation uses AWS for their primary infrastructure, Azure for development environments, and Google Cloud for analytics. Your team has been tasked with a comprehensive security assessment.</p>
+                    <p><strong>Challenge:</strong> Enumerate cloud resources across multiple providers, identify misconfigured services, and map the complete digital footprint while avoiding detection.</p>
+                    <p><strong>Impact:</strong> Successful enumeration could reveal exposed databases, unsecured storage buckets, overprivileged IAM roles, and potential lateral movement paths across cloud boundaries.</p>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('cloud-enum')">Begin Cloud Enumeration! ☁️</button>
+            </div>
+
+            <!-- Cloud Enumeration Section -->
+            <div id="cloud-enum" class="module-section">
+                <h2 class="section-title">☁️ Cloud Enumeration Techniques</h2>
+                
+                <div class="card">
+                    <h3>🌩️ Modern Cloud Attack Surface</h3>
+                    <p>Cloud enumeration represents a paradigm shift from traditional network reconnaissance. Instead of scanning IP ranges, attackers now focus on discovering cloud resources, understanding identity and access management (IAM) configurations, and exploiting cloud-specific vulnerabilities across multiple service providers.</p>
+                </div>
+
+                <div class="cloud-providers">
+                    <div class="cloud-card aws-card" onclick="showCloudDetails('aws')">
+                        <h3>🟠 Amazon Web Services (AWS)</h3>
+                        <p><code>aws s3 ls --no-sign-request</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>S3 bucket enumeration and analysis</li>
+                            <li>EC2 instance metadata extraction</li>
+                            <li>IAM role and policy enumeration</li>
+                            <li>Lambda function discovery</li>
+                            <li>CloudFormation stack analysis</li>
+                        </ul>
+                    </div>
+
+                    <div class="cloud-card azure-card" onclick="showCloudDetails('azure')">
+                        <h3>🔵 Microsoft Azure</h3>
+                        <p><code>az storage account list</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Storage account enumeration</li>
+                            <li>Azure AD tenant discovery</li>
+                            <li>Virtual machine reconnaissance</li>
+                            <li>Key Vault secret enumeration</li>
+                            <li>Function App analysis</li>
+                        </ul>
+                    </div>
+
+                    <div class="cloud-card gcp-card" onclick="showCloudDetails('gcp')">
+                        <h3>🔵 Google Cloud Platform</h3>
+                        <p><code>gsutil ls gs://bucket-name</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Cloud Storage bucket discovery</li>
+                            <li>Compute Engine enumeration</li>
+                            <li>IAM policy analysis</li>
+                            <li>Cloud Functions reconnaissance</li>
+                            <li>BigQuery dataset discovery</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🎮 Multi-Cloud Enumeration Demo</h3>
+                    <div class="terminal" id="cloudEnumTerminal">
+                        <div class="terminal-line prompt">cloud@kali:~$ aws s3 ls --no-sign-request</div>
+                        <div class="terminal-line output">2023-08-15 10:30:25 company-backup-prod</div>
+                        <div class="terminal-line output">2023-08-15 10:30:25 company-logs-dev</div>
+                        <div class="terminal-line warning">2023-08-15 10:30:25 company-secrets-staging</div>
+                        <div class="terminal-line error">2023-08-15 10:30:25 company-db-backups</div>
+                        <div class="terminal-line prompt">cloud@kali:~$ az storage account list --query "[].name" -o table</div>
+                        <div class="terminal-line azure-output">Name</div>
+                        <div class="terminal-line azure-output">----</div>
+                        <div class="terminal-line azure-output">companydatastorage</div>
+                        <div class="terminal-line azure-output">companywebstorage</div>
+                        <div class="terminal-line warning">companysecrets</div>
+                        <div class="terminal-line prompt">cloud@kali:~$ gsutil ls</div>
+                        <div class="terminal-line gcp-output">gs://company-analytics-prod/</div>
+                        <div class="terminal-line gcp-output">gs://company-ml-models/</div>
+                        <div class="terminal-line error">gs://company-employee-data/</div>
+                        <div class="terminal-line info">Multi-cloud enumeration completed - 9 storage resources discovered</div>
+                    </div>
+                    <button class="btn" onclick="runCloudDemo()">🔄 Run Advanced Cloud Reconnaissance</button>
+                </div>
+
+                <div class="tool-showcase">
+                    <div class="tool-card" onclick="showToolDetails('cloudenum')">
+                        <h4>☁️ CloudEnum</h4>
+                        <p>Multi-cloud enumeration and discovery</p>
+                        <p><code>python3 cloudenum.py -k company</code></p>
+                    </div>
+
+                    <div class="tool-card" onclick="showToolDetails('pacu')">
+                        <h4>🟠 Pacu (AWS)</h4>
+                        <p>AWS exploitation framework</p>
+                        <p><code>run aws__enum_account</code></p>
+                    </div>
+
+                    <div class="tool-card" onclick="showToolDetails('stormspotter')">
+                        <h4>🔵 StormSpotter (Azure)</h4>
+                        <p>Azure Red Team tool</p>
+                        <p><code>stormspotter --tenant-id xxx</code></p>
+                    </div>
+
+                    <div class="tool-card" onclick="showToolDetails('gcpbucketbrute')">
+                        <h4>🔵 GCPBucketBrute</h4>
+                        <p>GCP storage enumeration</p>
+                        <p><code>python3 gcpbucketbrute.py -k company</code></p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🛡️ Cloud Security Misconfigurations</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: #e74c3c; color: white; padding: 15px; border-radius: 8px;">
+                            <h4>🔓 Open Storage Buckets</h4>
+                            <p>Publicly accessible S3, Blob, or Cloud Storage</p>
+                            <p><strong>Impact:</strong> Data exposure, compliance violations</p>
+                        </div>
+                        
+                        <div style="background: #f39c12; color: white; padding: 15px; border-radius: 8px;">
+                            <h4>🔑 Overprivileged IAM</h4>
+                            <p>Excessive permissions and role assumptions</p>
+                            <p><strong>Impact:</strong> Privilege escalation, lateral movement</p>
+                        </div>
+                        
+                        <div style="background: #9b59b6; color: white; padding: 15px; border-radius: 8px;">
+                            <h4>🌐 Exposed Services</h4>
+                            <p>Unprotected databases and management interfaces</p>
+                            <p><strong>Impact:</strong> Unauthorized access, data manipulation</p>
+                        </div>
+                        
+                        <div style="background: #34495e; color: white; padding: 15px; border-radius: 8px;">
+                            <h4>📊 Metadata Exposure</h4>
+                            <p>Instance metadata and temporary credentials</p>
+                            <p><strong>Impact:</strong> Credential theft, service enumeration</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('database-enum')">Next: Database Enumeration →</button>
+            </div>
+
+            <!-- Database Enumeration Section -->
+            <div id="database-enum" class="module-section">
+                <h2 class="section-title">🗄️ Database Service Enumeration</h2>
+                
+                <div class="card">
+                    <h3>🔍 Modern Database Landscape</h3>
+                    <p>Database enumeration has evolved far beyond traditional SQL servers. Today's applications use diverse database technologies including NoSQL databases, cloud-native solutions, and distributed systems. Each requires specialized enumeration techniques and presents unique attack vectors.</p>
+                </div>
+
+                <div class="database-services">
+                    <div class="database-card" onclick="showDatabaseDetails('sql-traditional')">
+                        <h4>🗃️ Traditional SQL Databases</h4>
+                        <p><code>nmap -sV --script mysql-enum target</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>MySQL, PostgreSQL, MSSQL enumeration</li>
+                            <li>Version detection and vulnerability analysis</li>
+                            <li>User account and privilege enumeration</li>
+                            <li>Database schema and table discovery</li>
+                        </ul>
+                    </div>
+
+                    <div class="database-card" onclick="showDatabaseDetails('nosql')">
+                        <h4>📊 NoSQL Databases</h4>
+                        <p><code>mongo --host target --eval "db.version()"</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>MongoDB, CouchDB, Cassandra</li>
+                            <li>Document and collection enumeration</li>
+                            <li>Authentication bypass techniques</li>
+                            <li>Data extraction and analysis</li>
+                        </ul>
+                    </div>
+
+                    <div class="database-card" onclick="showDatabaseDetails('cloud-databases')">
+                        <h4>☁️ Cloud Database Services</h4>
+                        <p><code>aws rds describe-db-instances</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>AWS RDS, Azure SQL, Cloud SQL</li>
+                            <li>DynamoDB and CosmosDB enumeration</li>
+                            <li>Configuration and access analysis</li>
+                            <li>Backup and snapshot discovery</li>
+                        </ul>
+                    </div>
+
+                    <div class="database-card" onclick="showDatabaseDetails('redis-memcached')">
+                        <h4>⚡ In-Memory Databases</h4>
+                        <p><code>redis-cli -h target info</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Redis and Memcached enumeration</li>
+                            <li>Key-value pair extraction</li>
+                            <li>Configuration and security analysis</li>
+                            <li>Session and cache data discovery</li>
+                        </ul>
+                    </div>
+
+                    <div class="database-card" onclick="showDatabaseDetails('elasticsearch')">
+                        <h4>🔍 Search and Analytics</h4>
+                        <p><code>curl -X GET "target:9200/_cat/indices"</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Elasticsearch and Solr enumeration</li>
+                            <li>Index and document discovery</li>
+                            <li>Query injection techniques</li>
+                            <li>Cluster configuration analysis</li>
+                        </ul>
+                    </div>
+
+                    <div class="database-card" onclick="showDatabaseDetails('graph-databases')">
+                        <h4>🕸️ Graph Databases</h4>
+                        <p><code>cypher-shell -a bolt://target</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Neo4j and ArangoDB enumeration</li>
+                            <li>Relationship and node discovery</li>
+                            <li>Cypher query injection</li>
+                            <li>Graph structure analysis</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🎮 Database Enumeration Demo</h3>
+                    <div class="terminal" id="databaseEnumTerminal">
+                        <div class="terminal-line prompt">db@kali:~$ nmap -sV -p 3306,5432,1433,27017,6379,9200 192.168.1.100</div>
+                        <div class="terminal-line output">Starting Nmap scan...</div>
+                        <div class="terminal-line output">PORT     STATE SERVICE     VERSION</div>
+                        <div class="terminal-line warning">3306/tcp open  mysql       MySQL 8.0.25</div>
+                        <div class="terminal-line warning">5432/tcp open  postgresql  PostgreSQL 13.3</div>
+                        <div class="terminal-line error">27017/tcp open mongodb     MongoDB 4.4.6</div>
+                        <div class="terminal-line warning">6379/tcp open  redis       Redis 6.2.4</div>
+                        <div class="terminal-line error">9200/tcp open  http        Elasticsearch 7.13.2</div>
+                        <div class="terminal-line prompt">db@kali:~$ mongo --host 192.168.1.100 --eval "db.adminCommand('listCollections')"</div>
+                        <div class="terminal-line output">MongoDB shell version v4.4.6</div>
+                        <div class="terminal-line output">connecting to: mongodb://192.168.1.100:27017/test</div>
+                        <div class="terminal-line warning">{</div>
+                        <div class="terminal-line warning">    "collections" : [</div>
+                        <div class="terminal-line error">        { "name" : "users", "type" : "collection" },</div>
+                        <div class="terminal-line error">        { "name" : "orders", "type" : "collection" },</div>
+                        <div class="terminal-line error">        { "name" : "payments", "type" : "collection" }</div>
+                        <div class="terminal-line warning">    ]</div>
+                        <div class="terminal-line warning">}</div>
+                        <div class="terminal-line info">Database enumeration completed - 5 services discovered</div>
+                    </div>
+                    <button class="btn" onclick="runDatabaseDemo()">🔄 Run NoSQL Injection Testing</button>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Database Attack Vectors</h3>
+                    <div style="background: linear-gradient(135deg, rgba(142,68,173,0.1), rgba(102,51,153,0.1)); border: 2px solid var(--database-color); border-radius: 15px; padding: 25px; margin: 25px 0;">
+                        <h4 style="color: var(--database-color); margin-bottom: 15px;">🚨 Common Database Vulnerabilities:</h4>
+                        <ul style="margin: 15px 0; padding-left: 20px; line-height: 1.8;">
+                            <li><strong>Authentication Bypass:</strong> Default credentials, weak authentication mechanisms</li>
+                            <li><strong>Injection Attacks:</strong> SQL injection, NoSQL injection, LDAP injection</li>
+                            <li><strong>Privilege Escalation:</strong> Database function abuse, stored procedure exploitation</li>
+                            <li><strong>Data Exposure:</strong> Unencrypted data, backup file access, log file analysis</li>
+                            <li><strong>Configuration Issues:</strong> Open network access, excessive privileges, weak encryption</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('webapp-enum')">Next: Web Application Enumeration →</button>
+            </div>
+
+            <!-- Web Application Enumeration Section -->
+            <div id="webapp-enum" class="module-section">
+                <h2 class="section-title">🌐 Web Application Enumeration</h2>
+                
+                <div class="card">
+                    <h3>🚀 Modern Web Application Architecture</h3>
+                    <p>Modern web applications are complex ecosystems involving single-page applications (SPAs), microservices, APIs, content delivery networks (CDNs), and serverless functions. Effective enumeration requires understanding these architectures and the unique attack surfaces they present.</p>
+                </div>
+
+                <div class="webapp-techniques">
+                    <div class="webapp-card" onclick="showWebAppDetails('discovery')">
+                        <h4>🔍 Application Discovery</h4>
+                        <p><code>gobuster dir -u target -w wordlist</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Directory and file enumeration</li>
+                            <li>Hidden endpoint discovery</li>
+                            <li>Backup and config file detection</li>
+                            <li>Version control system exposure</li>
+                        </ul>
+                    </div>
+
+                    <div class="webapp-card" onclick="showWebAppDetails('technology-stack')">
+                        <h4>🛠️ Technology Stack Analysis</h4>
+                        <p><code>whatweb target</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Framework and library identification</li>
+                            <li>Server and language detection</li>
+                            <li>Third-party component analysis</li>
+                            <li>CDN and hosting provider discovery</li>
+                        </ul>
+                    </div>
+
+                    <div class="webapp-card" onclick="showWebAppDetails('api-enumeration')">
+                        <h4>🔌 API and Microservice Enumeration</h4>
+                        <p><code>ffuf -w api-wordlist -u target/FUZZ</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>REST API endpoint discovery</li>
+                            <li>GraphQL schema introspection</li>
+                            <li>Microservice architecture mapping</li>
+                            <li>API documentation exposure</li>
+                        </ul>
+                    </div>
+
+                    <div class="webapp-card" onclick="showWebAppDetails('authentication')">
+                        <h4>🔐 Authentication and Authorization</h4>
+                        <p><code>burpsuite --target=target</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Login mechanism analysis</li>
+                            <li>Session management testing</li>
+                            <li>OAuth and SSO enumeration</li>
+                            <li>JWT token analysis</li>
+                        </ul>
+                    </div>
+
+                    <div class="webapp-card" onclick="showWebAppDetails('client-side')">
+                        <h4>💻 Client-Side Analysis</h4>
+                        <p><code>js-beautify app.min.js</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>JavaScript code analysis</li>
+                            <li>API endpoint extraction</li>
+                            <li>Sensitive data in source code</li>
+                            <li>Frontend framework vulnerabilities</li>
+                        </ul>
+                    </div>
+
+                    <div class="webapp-card" onclick="showWebAppDetails('mobile-api')">
+                        <h4>📱 Mobile and IoT Enumeration</h4>
+                        <p><code>mitmproxy -s extract_endpoints.py</code></p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Mobile app API analysis</li>
+                            <li>IoT device communication</li>
+                            <li>Certificate pinning bypass</li>
+                            <li>Backend service discovery</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🎮 Web Application Enumeration Demo</h3>
+                    <div class="terminal" id="webappEnumTerminal">
+                        <div class="terminal-line prompt">webapp@kali:~$ gobuster dir -u https://target.com -w /usr/share/wordlists/dirb/common.txt</div>
+                        <div class="terminal-line output">===============================================================</div>
+                        <div class="terminal-line output">Gobuster v3.1.0</div>
+                        <div class="terminal-line output">by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)</div>
+                        <div class="terminal-line output">===============================================================</div>
+                        <div class="terminal-line output">[+] Url:                     https://target.com</div>
+                        <div class="terminal-line output">[+] Method:                  GET</div>
+                        <div class="terminal-line output">[+] Threads:                 10</div>
+                        <div class="terminal-line output">[+] Wordlist:                /usr/share/wordlists/dirb/common.txt</div>
+                        <div class="terminal-line output">===============================================================</div>
+                        <div class="terminal-line warning">/admin               (Status: 302) [Size: 0] [--> /login]</div>
+                        <div class="terminal-line warning">/api                 (Status: 200) [Size: 1337]</div>
+                        <div class="terminal-line error">/backup              (Status: 200) [Size: 2048]</div>
+                        <div class="terminal-line warning">/config              (Status: 403) [Size: 278]</div>
+                        <div class="terminal-line error">/dashboard           (Status: 302) [Size: 0] [--> /login]</div>
+                        <div class="terminal-line warning">/docs                (Status: 200) [Size: 4096]</div>
+                        <div class="terminal-line error">/graphql             (Status: 200) [Size: 512]</div>
+                        <div class="terminal-line warning">/health              (Status: 200) [Size: 256]</div>
+                        <div class="terminal-line output">/index               (Status: 200) [Size: 10240]</div>
+                        <div class="terminal-line error">/swagger             (Status: 200) [Size: 8192]</div>
+                        <div class="terminal-line output">===============================================================</div>
+                        <div class="terminal-line info">Finished enumeration - 10 directories discovered</div>
+                    </div>
+                    <button class="btn" onclick="runWebAppDemo()">🔄 Run API Endpoint Discovery</button>
+                </div>
+
+                <div class="tool-showcase">
+                    <div class="tool-card" onclick="showWebToolDetails('burpsuite')">
+                        <h4>🕷️ Burp Suite</h4>
+                        <p>Comprehensive web application testing</p>
+                        <p><code>Active scanning and manual testing</code></p>
+                    </div>
+
+                    <div class="tool-card" onclick="showWebToolDetails('ffuf')">
+                        <h4>⚡ FFUF</h4>
+                        <p>Fast web fuzzer for content discovery</p>
+                        <p><code>ffuf -w wordlist -u target/FUZZ</code></p>
+                    </div>
+
+                    <div class="tool-card" onclick="showWebToolDetails('nuclei')">
+                        <h4>🎯 Nuclei</h4>
+                        <p>Template-based vulnerability scanner</p>
+                        <p><code>nuclei -u target -t templates/</code></p>
+                    </div>
+
+                    <div class="tool-card" onclick="showWebToolDetails('amass')">
+                        <h4>🕸️ AMASS</h4>
+                        <p>OSINT-based subdomain enumeration</p>
+                        <p><code>amass enum -d target.com</code></p>
+                    </div>
+
+                    <div class="tool-card" onclick="showWebToolDetails('httpx')">
+                        <h4>🌐 HTTPX</h4>
+                        <p>HTTP toolkit for web reconnaissance</p>
+                        <p><code>httpx -l targets.txt -title -tech</code></p>
+                    </div>
+
+                    <div class="tool-card" onclick="showWebToolDetails('jaeles')">
+                        <h4>🔍 Jaeles</h4>
+                        <p>Signature-based security scanner</p>
+                        <p><code>jaeles scan -u target -s signatures/</code></p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🏁 Part 3 Complete!</h3>
+                    <p>Exceptional work! You've mastered modern enumeration techniques for today's complex digital infrastructure. You've learned:</p>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li>✅ Multi-cloud enumeration across AWS, Azure, and Google Cloud</li>
+                        <li>✅ Comprehensive database service enumeration and analysis</li>
+                        <li>✅ Advanced web application reconnaissance techniques</li>
+                        <li>✅ API and microservice discovery methodologies</li>
+                        <li>✅ Modern attack surface analysis and mapping</li>
+                        <li>✅ Cloud-native and serverless enumeration techniques</li>
+                    </ul>
+                    <p><strong>Ready for the finale?</strong> Part 4 brings everything together with comprehensive assessments, advanced tool mastery, and hands-on enumeration laboratories!</p>
+                </div>
+
+                <button class="btn btn-success next-part-btn" onclick="goToNextPart()">Continue to Part 4: Assessment & Labs →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed information -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let completedSections = [];
+        let sectionOrder = ['overview', 'cloud-enum', 'database-enum', 'webapp-enum'];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            setupKeyboardNavigation();
+        });
+
+        // Keyboard navigation setup
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeModal();
+                    return;
+                }
+                
+                if (event.key === 'ArrowLeft') {
+                    navigateSection('previous');
+                    event.preventDefault();
+                } else if (event.key === 'ArrowRight') {
+                    navigateSection('next');
+                    event.preventDefault();
+                }
+            });
+        }
+
+        // Navigate between sections using keyboard
+        function navigateSection(direction) {
+            const currentIndex = sectionOrder.indexOf(currentSection);
+            let newIndex;
+            
+            if (direction === 'next') {
+                newIndex = currentIndex + 1;
+                if (newIndex >= sectionOrder.length) newIndex = 0;
+            } else if (direction === 'previous') {
+                newIndex = currentIndex - 1;
+                if (newIndex < 0) newIndex = sectionOrder.length - 1;
+            }
+            
+            const newSection = sectionOrder[newIndex];
+            showSection(newSection);
+        }
+
+        // Section navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.module-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn:not(.prev-part-btn):not(.next-part-btn)').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const sectionIndex = sectionOrder.indexOf(sectionId);
+            const navButtons = document.querySelectorAll('.nav-btn:not(.prev-part-btn):not(.next-part-btn)');
+            if (navButtons[sectionIndex]) {
+                navButtons[sectionIndex].classList.add('active');
+            }
+            
+            if (!completedSections.includes(sectionId)) {
+                completedSections.push(sectionId);
+                updateProgress();
+            }
+            
+            currentSection = sectionId;
+        }
+
+        // Progress tracking
+        function updateProgress() {
+            const totalSections = 4;
+            const progressPercent = (completedSections.length / totalSections) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+            document.getElementById('progressText').textContent = `Part 3 Progress: ${Math.round(progressPercent)}% Complete`;
+        }
+
+        // Navigation functions
+        function goToPreviousPart() {
+            alert('Navigate back to Part 2: Directory Services to review LDAP, DNS, RPC, and null session techniques.');
+        }
+
+        function goToNextPart() {
+            alert('Part 4: Assessment & Labs will provide comprehensive assessments, tool mastery challenges, and hands-on enumeration laboratories.\n\nCreate the final artifact to complete your CEH v13 Module 4 journey!');
+        }
+
+        // Show cloud provider details
+        function showCloudDetails(provider) {
+            const providers = {
+                'aws': {
+                    title: 'Amazon Web Services (AWS) Enumeration',
+                    description: 'Comprehensive AWS infrastructure reconnaissance and security assessment',
+                    services: [
+                        'S3 Bucket Discovery and Analysis',
+                        'EC2 Instance Metadata Extraction', 
+                        'IAM Role and Policy Enumeration',
+                        'Lambda Function Discovery',
+                        'RDS Database Identification',
+                        'CloudFormation Stack Analysis',
+                        'ECS and EKS Container Services',
+                        'API Gateway Endpoint Discovery'
+                    ],
+                    tools: ['aws-cli', 'pacu', 'cloudenum', 's3scanner', 'prowler'],
+                    techniques: [
+                        'S3 bucket brute forcing and permission testing',
+                        'EC2 metadata service exploitation (169.254.169.254)',
+                        'IAM policy analysis and privilege escalation',
+                        'Cross-account role assumption attacks',
+                        'CloudTrail log analysis and evasion',
+                        'VPC and security group enumeration'
+                    ]
+                },
+                'azure': {
+                    title: 'Microsoft Azure Enumeration',
+                    description: 'Azure cloud platform reconnaissance and tenant analysis',
+                    services: [
+                        'Azure AD Tenant Discovery',
+                        'Storage Account Enumeration',
+                        'Virtual Machine Reconnaissance',
+                        'Key Vault Secret Discovery',
+                        'Function App Analysis',
+                        'SQL Database Identification',
+                        'Resource Group Mapping',
+                        'Subscription and Management Discovery'
+                    ],
+                    tools: ['azure-cli', 'stormspotter', 'azurehound', 'microburst', 'o365enum'],
+                    techniques: [
+                        'Azure AD user enumeration and tenant discovery',
+                        'Storage account container and blob enumeration',
+                        'Managed identity token extraction',
+                        'Azure Resource Manager (ARM) template analysis',
+                        'Key Vault access and secret enumeration',
+                        'Application registration and service principal abuse'
+                    ]
+                },
+                'gcp': {
+                    title: 'Google Cloud Platform (GCP) Enumeration',
+                    description: 'Google Cloud infrastructure assessment and project discovery',
+                    services: [
+                        'Cloud Storage Bucket Discovery',
+                        'Compute Engine Instance Analysis',
+                        'IAM Policy and Role Enumeration',
+                        'Cloud Functions Reconnaissance',
+                        'BigQuery Dataset Discovery',
+                        'Cloud SQL Database Identification',
+                        'Kubernetes Engine Cluster Analysis',
+                        'API Gateway and Endpoints'
+                    ],
+                    tools: ['gcloud-cli', 'gcpbucketbrute', 'gcp-enum', 'cloud-security-scanner'],
+                    techniques: [
+                        'Storage bucket enumeration and public access testing',
+                        'Compute Engine metadata server exploitation',
+                        'Service account key enumeration and impersonation',
+                        'Cloud Function source code analysis',
+                        'IAM policy privilege escalation',
+                        'BigQuery dataset and table enumeration'
+                    ]
+                }
+            };
+            
+            const prov = providers[provider] || providers['aws'];
+            const content = `
+                <h2>${prov.title}</h2>
+                <h3>Description:</h3>
+                <p>${prov.description}</p>
+                
+                <h3>Key Services and Resources:</h3>
+                <ul>
+                    ${prov.services.map(service => `<li>${service}</li>`).join('')}
+                </ul>
+                
+                <h3>Enumeration Tools:</h3>
+                <ul>
+                    ${prov.tools.map(tool => `<li><code>${tool}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Advanced Techniques:</h3>
+                <ul>
+                    ${prov.techniques.map(tech => `<li>${tech}</li>`).join('')}
+                </ul>
+                
+                <h3>Security Considerations:</h3>
+                <ul>
+                    <li>Always ensure proper authorization for cloud enumeration</li>
+                    <li>Be aware of logging and monitoring in cloud environments</li>
+                    <li>Understand shared responsibility models</li>
+                    <li>Consider multi-cloud and hybrid architectures</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Show database details
+        function showDatabaseDetails(dbType) {
+            const databases = {
+                'sql-traditional': {
+                    title: 'Traditional SQL Database Enumeration',
+                    description: 'Comprehensive analysis of relational database management systems',
+                    systems: ['MySQL', 'PostgreSQL', 'Microsoft SQL Server', 'Oracle Database', 'SQLite'],
+                    techniques: [
+                        'Version detection and vulnerability identification',
+                        'User account and privilege enumeration',
+                        'Database schema and table discovery',
+                        'Stored procedure and function analysis',
+                        'Configuration file and backup discovery',
+                        'SQL injection testing and exploitation'
+                    ],
+                    commands: [
+                        'nmap -sV --script mysql-enum target',
+                        'sqlmap -u "target" --dbs',
+                        'psql -h target -U postgres -l',
+                        'sqlcmd -S target -Q "SELECT @@version"'
+                    ]
+                },
+                'nosql': {
+                    title: 'NoSQL Database Enumeration',
+                    description: 'Document-oriented and non-relational database assessment',
+                    systems: ['MongoDB', 'CouchDB', 'Apache Cassandra', 'Amazon DynamoDB', 'Redis'],
+                    techniques: [
+                        'Authentication bypass and access control testing',
+                        'Database and collection enumeration',
+                        'Document structure and schema analysis',
+                        'NoSQL injection testing (JSON, XML)',
+                        'Aggregation pipeline exploitation',
+                        'Index and query optimization abuse'
+                    ],
+                    commands: [
+                        'mongo --host target --eval "db.version()"',
+                        'curl -X GET "target:5984/_all_dbs"',
+                        'cqlsh target -e "DESCRIBE KEYSPACES"',
+                        'redis-cli -h target info'
+                    ]
+                },
+                'cloud-databases': {
+                    title: 'Cloud Database Service Enumeration',
+                    description: 'Cloud-native and managed database service assessment',
+                    systems: ['AWS RDS', 'Azure SQL Database', 'Google Cloud SQL', 'DynamoDB', 'CosmosDB'],
+                    techniques: [
+                        'Cloud database instance discovery and enumeration',
+                        'IAM and access control policy analysis',
+                        'Backup and snapshot identification',
+                        'Network security group and firewall analysis',
+                        'Encryption and compliance configuration review',
+                        'Cross-service privilege escalation'
+                    ],
+                    commands: [
+                        'aws rds describe-db-instances',
+                        'az sql server list',
+                        'gcloud sql instances list',
+                        'aws dynamodb list-tables'
+                    ]
+                },
+                'redis-memcached': {
+                    title: 'In-Memory Database Enumeration',
+                    description: 'Cache and session store analysis and exploitation',
+                    systems: ['Redis', 'Memcached', 'Apache Ignite', 'Hazelcast'],
+                    techniques: [
+                        'Memory dump analysis and data extraction',
+                        'Key enumeration and pattern analysis',
+                        'Session hijacking and manipulation',
+                        'Cache poisoning and data corruption',
+                        'Lua script injection (Redis)',
+                        'Cluster configuration and replication analysis'
+                    ],
+                    commands: [
+                        'redis-cli -h target info',
+                        'redis-cli -h target --scan',
+                        'echo "stats" | nc target 11211',
+                        'redis-cli -h target eval "script" 0'
+                    ]
+                },
+                'elasticsearch': {
+                    title: 'Search and Analytics Engine Enumeration',
+                    description: 'Full-text search and analytics platform assessment',
+                    systems: ['Elasticsearch', 'Apache Solr', 'Amazon OpenSearch', 'Splunk'],
+                    techniques: [
+                        'Index discovery and mapping analysis',
+                        'Query injection and data extraction',
+                        'Cluster node enumeration and configuration',
+                        'Security plugin bypass and privilege escalation',
+                        'Log analysis and sensitive data discovery',
+                        'API endpoint enumeration and abuse'
+                    ],
+                    commands: [
+                        'curl -X GET "target:9200/_cat/indices"',
+                        'curl -X GET "target:9200/_cluster/health"',
+                        'curl -X GET "target:8983/solr/admin/collections"',
+                        'curl -X GET "target:9200/_search?q=*"'
+                    ]
+                },
+                'graph-databases': {
+                    title: 'Graph Database Enumeration',
+                    description: 'Relationship-based database analysis and traversal',
+                    systems: ['Neo4j', 'ArangoDB', 'Amazon Neptune', 'OrientDB'],
+                    techniques: [
+                        'Graph schema and relationship discovery',
+                        'Node and edge enumeration',
+                        'Cypher and Gremlin query injection',
+                        'Graph traversal and path analysis',
+                        'Privilege escalation through relationships',
+                        'Data export and visualization'
+                    ],
+                    commands: [
+                        'cypher-shell -a bolt://target',
+                        'curl -X POST "target:7474/db/data/cypher"',
+                        'arangosh --server.endpoint target',
+                        'gremlin-console'
+                    ]
+                }
+            };
+            
+            const db = databases[dbType] || databases['sql-traditional'];
+            const content = `
+                <h2>${db.title}</h2>
+                <h3>Description:</h3>
+                <p>${db.description}</p>
+                
+                <h3>Database Systems:</h3>
+                <ul>
+                    ${db.systems.map(system => `<li>${system}</li>`).join('')}
+                </ul>
+                
+                <h3>Enumeration Techniques:</h3>
+                <ul>
+                    ${db.techniques.map(tech => `<li>${tech}</li>`).join('')}
+                </ul>
+                
+                <h3>Common Commands:</h3>
+                <ul>
+                    ${db.commands.map(cmd => `<li><code>${cmd}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Security Implications:</h3>
+                <ul>
+                    <li>Unauthorized data access and extraction</li>
+                    <li>Database configuration exposure</li>
+                    <li>Privilege escalation through database functions</li>
+                    <li>Data integrity and availability threats</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Show web application details
+        function showWebAppDetails(category) {
+            const categories = {
+                'discovery': {
+                    title: 'Web Application Discovery and Mapping',
+                    description: 'Comprehensive application structure and resource enumeration',
+                    techniques: [
+                        'Directory and file brute forcing',
+                        'Hidden endpoint and parameter discovery',
+                        'Backup and configuration file detection',
+                        'Version control system exposure (Git, SVN)',
+                        'Administrative interface identification',
+                        'Development and staging environment discovery'
+                    ],
+                    tools: ['gobuster', 'dirbuster', 'ffuf', 'feroxbuster', 'wfuzz'],
+                    impact: [
+                        'Exposure of sensitive configuration data',
+                        'Access to administrative interfaces',
+                        'Discovery of development and testing environments',
+                        'Source code and intellectual property exposure'
+                    ]
+                },
+                'technology-stack': {
+                    title: 'Technology Stack Identification and Analysis',
+                    description: 'Framework, library, and infrastructure component discovery',
+                    techniques: [
+                        'HTTP header analysis and fingerprinting',
+                        'JavaScript library and framework detection',
+                        'Server software and version identification',
+                        'Content Management System (CMS) detection',
+                        'Third-party component and plugin enumeration',
+                        'CDN and hosting provider identification'
+                    ],
+                    tools: ['whatweb', 'wappalyzer', 'builtwith', 'retire.js', 'nmap'],
+                    impact: [
+                        'Identification of known vulnerabilities in components',
+                        'Attack vector prioritization based on technology stack',
+                        'Framework-specific exploitation techniques',
+                        'Supply chain and dependency analysis'
+                    ]
+                },
+                'api-enumeration': {
+                    title: 'API and Microservice Discovery',
+                    description: 'Modern application API endpoint and service enumeration',
+                    techniques: [
+                        'REST API endpoint discovery and mapping',
+                        'GraphQL schema introspection and analysis',
+                        'SOAP service enumeration and WSDL analysis',
+                        'Microservice architecture mapping',
+                        'API documentation exposure (Swagger, OpenAPI)',
+                        'WebSocket and Server-Sent Events discovery'
+                    ],
+                    tools: ['ffuf', 'kiterunner', 'graphql-voyager', 'postman', 'insomnia'],
+                    impact: [
+                        'Unauthorized API access and data exposure',
+                        'Business logic bypass through direct API calls',
+                        'Privilege escalation via API endpoints',
+                        'Microservice lateral movement and enumeration'
+                    ]
+                },
+                'authentication': {
+                    title: 'Authentication and Session Management Analysis',
+                    description: 'Identity and access control mechanism assessment',
+                    techniques: [
+                        'Login mechanism analysis and bypass testing',
+                        'Session token generation and entropy analysis',
+                        'Multi-factor authentication (MFA) bypass techniques',
+                        'OAuth and OpenID Connect flow analysis',
+                        'SAML assertion manipulation and replay',
+                        'JWT token structure and vulnerability analysis'
+                    ],
+                    tools: ['burpsuite', 'jwt.io', 'saml-raider', 'oauth2-proxy', 'authz0'],
+                    impact: [
+                        'Account takeover and unauthorized access',
+                        'Session hijacking and impersonation',
+                        'Authentication bypass and privilege escalation',
+                        'Identity federation and SSO abuse'
+                    ]
+                },
+                'client-side': {
+                    title: 'Client-Side Application Analysis',
+                    description: 'Frontend code and browser-side security assessment',
+                    techniques: [
+                        'JavaScript code analysis and deobfuscation',
+                        'API endpoint extraction from client code',
+                        'Sensitive data discovery in source code',
+                        'Frontend framework vulnerability identification',
+                        'Client-side storage and cache analysis',
+                        'WebAssembly (WASM) analysis and reverse engineering'
+                    ],
+                    tools: ['js-beautify', 'retirejs', 'jshint', 'webpack-bundle-analyzer', 'wabt'],
+                    impact: [
+                        'API key and credential exposure',
+                        'Business logic and algorithm disclosure',
+                        'Client-side security control bypass',
+                        'Intellectual property and trade secret exposure'
+                    ]
+                },
+                'mobile-api': {
+                    title: 'Mobile and IoT Application Enumeration',
+                    description: 'Mobile app and IoT device communication analysis',
+                    techniques: [
+                        'Mobile application reverse engineering',
+                        'API traffic interception and analysis',
+                        'Certificate pinning bypass techniques',
+                        'IoT device communication protocol analysis',
+                        'Firmware extraction and analysis',
+                        'Backend service discovery and mapping'
+                    ],
+                    tools: ['mitmproxy', 'frida', 'objection', 'apktool', 'jadx'],
+                    impact: [
+                        'Mobile app backend API exposure',
+                        'IoT device takeover and botnet recruitment',
+                        'User privacy violation and data theft',
+                        'Critical infrastructure compromise'
+                    ]
+                }
+            };
+            
+            const cat = categories[category] || categories['discovery'];
+            const content = `
+                <h2>${cat.title}</h2>
+                <h3>Description:</h3>
+                <p>${cat.description}</p>
+                
+                <h3>Enumeration Techniques:</h3>
+                <ul>
+                    ${cat.techniques.map(tech => `<li>${tech}</li>`).join('')}
+                </ul>
+                
+                <h3>Tools and Technologies:</h3>
+                <ul>
+                    ${cat.tools.map(tool => `<li><code>${tool}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Security Impact:</h3>
+                <ul>
+                    ${cat.impact.map(imp => `<li>${imp}</li>`).join('')}
+                </ul>
+                
+                <h3>Best Practices:</h3>
+                <ul>
+                    <li>Combine automated tools with manual analysis</li>
+                    <li>Focus on business logic and application flow</li>
+                    <li>Analyze both client-side and server-side components</li>
+                    <li>Consider modern architectures (SPA, PWA, microservices)</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Show tool details
+        function showToolDetails(tool) {
+            const tools = {
+                'cloudenum': {
+                    title: 'CloudEnum - Multi-Cloud Enumeration Tool',
+                    description: 'Automated cloud resource discovery across AWS, Azure, and GCP',
+                    features: [
+                        'Multi-cloud resource enumeration in a single tool',
+                        'Domain-based cloud resource discovery',
+                        'Storage bucket and container enumeration',
+                        'Subdomain-based cloud service discovery',
+                        'Custom wordlist support for targeted enumeration'
+                    ],
+                    usage: [
+                        'python3 cloudenum.py -k company',
+                        'python3 cloudenum.py -k company --quickscan',
+                        'python3 cloudenum.py -l company_list.txt',
+                        'python3 cloudenum.py -k company -t 50'
+                    ],
+                    output: 'Identifies publicly accessible cloud resources across multiple providers'
+                },
+                'pacu': {
+                    title: 'Pacu - AWS Exploitation Framework',
+                    description: 'Comprehensive AWS security assessment and exploitation toolkit',
+                    features: [
+                        'Modular AWS service enumeration and exploitation',
+                        'Automated privilege escalation detection',
+                        'Session management and credential handling',
+                        'Comprehensive logging and reporting',
+                        'Extensible module system for custom attacks'
+                    ],
+                    usage: [
+                        'run aws__enum_account',
+                        'run iam__enum_users_roles_policies_groups',
+                        'run s3__bucket_finder',
+                        'run ec2__enum'
+                    ],
+                    output: 'Comprehensive AWS environment assessment with exploitation capabilities'
+                },
+                'stormspotter': {
+                    title: 'StormSpotter - Azure Red Team Tool',
+                    description: 'Azure environment enumeration and attack path discovery',
+                    features: [
+                        'Azure AD tenant and resource enumeration',
+                        'Attack path visualization and analysis',
+                        'Privilege escalation route identification',
+                        'Resource relationship mapping',
+                        'Interactive web-based interface'
+                    ],
+                    usage: [
+                        'stormspotter --tenant-id tenant-id',
+                        'stormspotter --subscription-id sub-id',
+                        'stormspotter --resource-group rg-name'
+                    ],
+                    output: 'Visual attack paths and Azure environment mapping'
+                },
+                'gcpbucketbrute': {
+                    title: 'GCPBucketBrute - Google Cloud Storage Enumeration',
+                    description: 'Google Cloud Storage bucket discovery and analysis tool',
+                    features: [
+                        'Automated GCS bucket discovery',
+                        'Permission and access control testing',
+                        'Content enumeration and analysis',
+                        'Bulk bucket processing capabilities',
+                        'Custom wordlist and pattern support'
+                    ],
+                    usage: [
+                        'python3 gcpbucketbrute.py -k company',
+                        'python3 gcpbucketbrute.py -w wordlist.txt',
+                        'python3 gcpbucketbrute.py -k company -o output.txt'
+                    ],
+                    output: 'Accessible GCS buckets with permission analysis'
+                }
+            };
+            
+            const toolData = tools[tool] || tools['cloudenum'];
+            const content = `
+                <h2>${toolData.title}</h2>
+                <h3>Description:</h3>
+                <p>${toolData.description}</p>
+                
+                <h3>Key Features:</h3>
+                <ul>
+                    ${toolData.features.map(feature => `<li>${feature}</li>`).join('')}
+                </ul>
+                
+                <h3>Usage Examples:</h3>
+                <ul>
+                    ${toolData.usage.map(cmd => `<li><code>${cmd}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Expected Output:</h3>
+                <p>${toolData.output}</p>
+                
+                <h3>Security Considerations:</h3>
+                <ul>
+                    <li>Ensure proper authorization before running cloud enumeration</li>
+                    <li>Be aware of API rate limits and detection mechanisms</li>
+                    <li>Use responsibly and in accordance with terms of service</li>
+                    <li>Consider operational security and logging implications</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Show web tool details
+        function showWebToolDetails(tool) {
+            const webTools = {
+                'burpsuite': {
+                    title: 'Burp Suite - Web Application Security Testing',
+                    description: 'Comprehensive platform for web application security testing',
+                    features: [
+                        'Intercepting proxy for traffic analysis',
+                        'Automated vulnerability scanning',
+                        'Manual testing tools and extensions',
+                        'Session management and authentication testing',
+                        'Custom payload generation and fuzzing'
+                    ],
+                    usage: [
+                        'Configure browser proxy to 127.0.0.1:8080',
+                        'Use Scanner for automated vulnerability detection',
+                        'Leverage Intruder for fuzzing and brute force',
+                        'Utilize Repeater for manual request modification'
+                    ]
+                },
+                'ffuf': {
+                    title: 'FFUF - Fast Web Fuzzer',
+                    description: 'High-performance web fuzzing tool for content discovery',
+                    features: [
+                        'Fast directory and file discovery',
+                        'Flexible wordlist and payload support',
+                        'Advanced filtering and matching options',
+                        'HTTP method and parameter fuzzing',
+                        'Rate limiting and concurrent request control'
+                    ],
+                    usage: [
+                        'ffuf -w wordlist -u https://target/FUZZ',
+                        'ffuf -w params.txt -u https://target/?FUZZ=value',
+                        'ffuf -w wordlist -u https://target/FUZZ -mc 200,301,302'
+                    ]
+                },
+                'nuclei': {
+                    title: 'Nuclei - Template-Based Vulnerability Scanner',
+                    description: 'Fast vulnerability scanner with community-driven templates',
+                    features: [
+                        'Template-based vulnerability detection',
+                        'Large community template library',
+                        'Custom template creation capabilities',
+                        'Multi-threading and rate limiting',
+                        'Integration with CI/CD pipelines'
+                    ],
+                    usage: [
+                        'nuclei -u https://target',
+                        'nuclei -l targets.txt -t templates/',
+                        'nuclei -u target -tags cve,oast,config'
+                    ]
+                },
+                'amass': {
+                    title: 'AMASS - OSINT-Based Subdomain Enumeration',
+                    description: 'Network mapping and subdomain discovery using OSINT',
+                    features: [
+                        'Passive subdomain enumeration',
+                        'Active DNS enumeration and brute forcing',
+                        'ASN and IP range discovery',
+                        'Integration with multiple data sources',
+                        'Visualization and reporting capabilities'
+                    ],
+                    usage: [
+                        'amass enum -d target.com',
+                        'amass enum -src -ip -d target.com',
+                        'amass enum -brute -d target.com'
+                    ]
+                },
+                'httpx': {
+                    title: 'HTTPX - HTTP Toolkit',
+                    description: 'Fast HTTP probe and reconnaissance tool',
+                    features: [
+                        'HTTP service discovery and probing',
+                        'Technology stack identification',
+                        'Response analysis and filtering',
+                        'Pipeline integration capabilities',
+                        'Custom header and method support'
+                    ],
+                    usage: [
+                        'httpx -l targets.txt -title -tech',
+                        'httpx -u target -status-code -content-length',
+                        'httpx -l subdomains.txt -mc 200 -fc 404'
+                    ]
+                },
+                'jaeles': {
+                    title: 'Jaeles - Signature-Based Security Scanner',
+                    description: 'Flexible security scanner with signature-based detection',
+                    features: [
+                        'Signature-based vulnerability detection',
+                        'Custom signature creation and sharing',
+                        'Passive and active scanning modes',
+                        'Integration with other reconnaissance tools',
+                        'Distributed scanning capabilities'
+                    ],
+                    usage: [
+                        'jaeles scan -u https://target',
+                        'jaeles scan -U targets.txt -s signatures/',
+                        'jaeles scan -u target -s /path/to/signatures'
+                    ]
+                }
+            };
+            
+            const toolData = webTools[tool] || webTools['burpsuite'];
+            const content = `
+                <h2>${toolData.title}</h2>
+                <h3>Description:</h3>
+                <p>${toolData.description}</p>
+                
+                <h3>Key Features:</h3>
+                <ul>
+                    ${toolData.features.map(feature => `<li>${feature}</li>`).join('')}
+                </ul>
+                
+                <h3>Usage Examples:</h3>
+                <ul>
+                    ${toolData.usage.map(cmd => `<li><code>${cmd}</code></li>`).join('')}
+                </ul>
+                
+                <h3>Best Practices:</h3>
+                <ul>
+                    <li>Combine with other reconnaissance and testing tools</li>
+                    <li>Use appropriate rate limiting to avoid detection</li>
+                    <li>Validate findings with manual testing</li>
+                    <li>Maintain updated signatures and wordlists</li>
+                </ul>
+            `;
+            showModal(content);
+        }
+
+        // Demo functions
+        function runCloudDemo() {
+            const terminal = document.getElementById('cloudEnumTerminal');
+            terminal.innerHTML = '';
+            
+            const scenario = [
+                { type: 'prompt', text: 'cloud@kali:~$ python3 cloudenum.py -k company -t 100' },
+                { type: 'output', text: 'CloudEnum v0.5 - Multi-Cloud OSINT Tool' },
+                { type: 'output', text: 'Enumerating cloud resources for: company' },
+                { type: 'output', text: 'Threading level: 100' },
+                { type: 'output', text: '' },
+                { type: 'aws-output', text: '[AWS] Checking S3 buckets...' },
+                { type: 'warning', text: '[AWS] Found S3 bucket: company-backup-prod (Public Read)' },
+                { type: 'error', text: '[AWS] Found S3 bucket: company-secrets-dev (Public Read/Write)' },
+                { type: 'azure-output', text: '[Azure] Checking storage accounts...' },
+                { type: 'warning', text: '[Azure] Found storage: companydatastorage.blob.core.windows.net' },
+                { type: 'gcp-output', text: '[GCP] Checking Cloud Storage...' },
+                { type: 'error', text: '[GCP] Found bucket: company-employee-data (AllUsers: Reader)' },
+                { type: 'output', text: '' },
+                { type: 'info', text: 'Scan completed in 45.2 seconds' },
+                { type: 'info', text: 'Total resources found: 15 (5 AWS, 6 Azure, 4 GCP)' },
+                { type: 'error', text: 'High-risk findings: 3 publicly writable resources' }
+            ];
+            
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 800);
+            });
+        }
+
+        function runDatabaseDemo() {
+            const terminal = document.getElementById('databaseEnumTerminal');
+            terminal.innerHTML = '';
+            
+            const scenario = [
+                { type: 'prompt', text: 'db@kali:~$ nosqlmap -u mongodb://192.168.1.100:27017 --schema' },
+                { type: 'output', text: 'NoSQLMap v0.7 - Automated NoSQL Injection Testing Tool' },
+                { type: 'output', text: 'Target: mongodb://192.168.1.100:27017' },
+                { type: 'output', text: 'Testing: MongoDB NoSQL Injection' },
+                { type: 'output', text: '' },
+                { type: 'warning', text: '[+] MongoDB instance found!' },
+                { type: 'warning', text: '[+] Authentication: Not required' },
+                { type: 'output', text: '[*] Enumerating databases...' },
+                { type: 'warning', text: '    - admin' },
+                { type: 'warning', text: '    - config' },
+                { type: 'error', text: '    - ecommerce' },
+                { type: 'error', text: '    - users' },
+                { type: 'error', text: '    - financial_data' },
+                { type: 'output', text: '[*] Enumerating collections in "ecommerce"...' },
+                { type: 'warning', text: '    - products' },
+                { type: 'error', text: '    - customers' },
+                { type: 'error', text: '    - orders' },
+                { type: 'error', text: '    - payment_methods' },
+                { type: 'output', text: '[*] Testing NoSQL injection vectors...' },
+                { type: 'error', text: '[!] Vulnerable to: JavaScript injection' },
+                { type: 'error', text: '[!] Vulnerable to: Operator injection' },
+                { type: 'info', text: 'Enumeration completed - 4 databases, 12 collections found' },
+                { type: 'error', text: 'Critical: Unauthenticated access to sensitive financial data!' }
+            ];
+            
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 700);
+            });
+        }
+
+        function runWebAppDemo() {
+            const terminal = document.getElementById('webappEnumTerminal');
+            terminal.innerHTML = '';
+            
+            const scenario = [
+                { type: 'prompt', text: 'webapp@kali:~$ ffuf -w /usr/share/seclists/Discovery/Web-Content/api/api-endpoints.txt -u https://target.com/api/FUZZ' },
+                { type: 'output', text: '' },
+                { type: 'output', text: '        /'/'/'/'`/' },
+                { type: 'output', text: '       /  _  /  File Fuzzer' },
+                { type: 'output', text: '      /  [_]/  v1.5.0' },
+                { type: 'output', text: '     /_//_/' },
+                { type: 'output', text: '' },
+                { type: 'output', text: ' :: Method           : GET' },
+                { type: 'output', text: ' :: URL              : https://target.com/api/FUZZ' },
+                { type: 'output', text: ' :: Wordlist         : FUZZ: api-endpoints.txt' },
+                { type: 'output', text: ' :: Follow redirects : false' },
+                { type: 'output', text: ' :: Calibration      : false' },
+                { type: 'output', text: ' :: Timeout          : 10' },
+                { type: 'output', text: ' :: Threads          : 40' },
+                { type: 'output', text: ' :: Matcher          : Response status: 200,204,301,302,307,401,403,405' },
+                { type: 'output', text: '________________________________________________' },
+                { type: 'output', text: '' },
+                { type: 'warning', text: 'users                   [Status: 200, Size: 2847, Words: 456, Lines: 67]' },
+                { type: 'warning', text: 'login                   [Status: 200, Size: 1205, Words: 234, Lines: 28]' },
+                { type: 'warning', text: 'admin                   [Status: 401, Size: 87, Words: 5, Lines: 2]' },
+                { type: 'error', text: 'config                  [Status: 200, Size: 3421, Words: 678, Lines: 89]' },
+                { type: 'warning', text: 'health                  [Status: 200, Size: 156, Words: 12, Lines: 4]' },
+                { type: 'error', text: 'internal                [Status: 200, Size: 5634, Words: 987, Lines: 156]' },
+                { type: 'warning', text: 'debug                   [Status: 200, Size: 4567, Words: 789, Lines: 123]' },
+                { type: 'error', text: 'database                [Status: 200, Size: 2134, Words: 345, Lines: 67]' },
+                { type: 'warning', text: 'metrics                 [Status: 200, Size: 3456, Words: 567, Lines: 89]' },
+                { type: 'error', text: 'backup                  [Status: 200, Size: 1987, Words: 298, Lines: 45]' },
+                { type: 'output', text: '' },
+                { type: 'info', text: ':: Progress: [1500/1500] :: Job [1/1] :: 234 req/sec :: Duration: [0:00:06] :: Errors: 0 ::' }
+            ];
+            
+            scenario.forEach((line, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = `terminal-line ${line.type}`;
+                    div.textContent = line.text;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 400);
+            });
+        }
+
+        // Modal functions
+        function showModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            const modal = document.getElementById('detailModal');
+            modal.style.display = 'block';
+            
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('detailModal');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
