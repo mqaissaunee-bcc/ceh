@@ -190,14 +190,9 @@
             margin-top: 10px;
         }
 
-        .part-item {
-            background: rgba(0, 255, 0, 0.1);
-            border: 1px solid #00ff00;
-            border-radius: 5px;
-            padding: 8px 12px;
-            font-size: 0.85rem;
-            text-align: center;
-            color: #00ff00;
+        .part-item:hover {
+            background: rgba(0, 255, 0, 0.3);
+            transform: scale(1.05);
         }
 
         .module-status {
@@ -423,74 +418,27 @@
                     </div>
                 </a>
 
-                <a href="ceh_module4_part1.html" class="module-card">
+                <div class="module-card" style="border: 2px solid #00ff00; background: rgba(0, 255, 0, 0.05);">
                     <div class="module-number">MODULE 04</div>
-                    <h3 class="module-title">Enumeration</h3>
+                    <h3 class="module-title">Enumeration - 4-Part Series</h3>
                     <p class="module-description">
                         Comprehensive enumeration techniques across traditional and modern infrastructure.
                         Master NetBIOS, SMB, SNMP, LDAP, DNS, RPC, null sessions, cloud services, databases, 
                         and web applications. Complete with advanced tool mastery and hands-on laboratories.
                     </p>
                     <div class="module-parts">
-                        <strong>4-Part Series:</strong>
+                        <strong>Individual Parts Available:</strong>
                         <div class="part-list">
-                            <div class="part-item">Part 1: Core Fundamentals</div>
-                            <div class="part-item">Part 2: Directory Services</div>
-                            <div class="part-item">Part 3: Modern Targets</div>
-                            <div class="part-item">Part 4: Assessment & Labs</div>
+                            <a href="ceh_module4_part1.html" class="part-item" style="cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit;">Part 1: Core Fundamentals</a>
+                            <a href="ceh_module4_part2.html" class="part-item" style="cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit;">Part 2: Directory Services</a>
+                            <a href="ceh_module4_part3.html" class="part-item" style="cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit;">Part 3: Modern Targets</a>
+                            <a href="ceh_module4_part4.html" class="part-item" style="cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit;">Part 4: Assessment & Labs</a>
                         </div>
                     </div>
                     <div class="module-status">
                         <div class="status-indicator"></div>
-                        <span>COMPLETE - ALL PARTS</span>
+                        <span>COMPLETE - ALL PARTS AVAILABLE</span>
                     </div>
-                </a>
-            </div>
-        </section>
-
-        <section class="course-description">
-            <h2>Module 4: Enumeration - Complete Breakdown</h2>
-            <div style="background: rgba(0, 255, 0, 0.05); border: 1px solid #00ff00; border-radius: 10px; padding: 25px; margin: 20px 0;">
-                <h3 style="color: #00ff00; margin-bottom: 15px;">🎯 Part 1: Core Fundamentals</h3>
-                <p style="color: #ccc; margin-bottom: 15px;">Master the essential enumeration techniques including NetBIOS, SMB, and SNMP protocols. Learn the fundamental methodology and establish a solid foundation for advanced enumeration.</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-                    <div style="background: rgba(52, 152, 219, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">NetBIOS & SMB Enumeration</div>
-                    <div style="background: rgba(52, 152, 219, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">SNMP Protocol Analysis</div>
-                    <div style="background: rgba(52, 152, 219, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">Service Identification</div>
-                    <div style="background: rgba(52, 152, 219, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">Methodology Framework</div>
-                </div>
-            </div>
-
-            <div style="background: rgba(0, 255, 0, 0.05); border: 1px solid #00ff00; border-radius: 10px; padding: 25px; margin: 20px 0;">
-                <h3 style="color: #00ff00; margin-bottom: 15px;">🏗️ Part 2: Directory Services</h3>
-                <p style="color: #ccc; margin-bottom: 15px;">Dive deep into directory service enumeration including LDAP, DNS, RPC, and null session techniques. Learn advanced Active Directory enumeration and BloodHound analysis.</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-                    <div style="background: rgba(22, 160, 133, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">LDAP & DNS Enumeration</div>
-                    <div style="background: rgba(22, 160, 133, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">RPC & Null Sessions</div>
-                    <div style="background: rgba(22, 160, 133, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">Active Directory Analysis</div>
-                    <div style="background: rgba(22, 160, 133, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">BloodHound Techniques</div>
-                </div>
-            </div>
-
-            <div style="background: rgba(0, 255, 0, 0.05); border: 1px solid #00ff00; border-radius: 10px; padding: 25px; margin: 20px 0;">
-                <h3 style="color: #00ff00; margin-bottom: 15px;">☁️ Part 3: Modern Targets</h3>
-                <p style="color: #ccc; margin-bottom: 15px;">Master enumeration of modern infrastructure including cloud services (AWS, Azure, GCP), databases, web applications, APIs, and microservices.</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-                    <div style="background: rgba(243, 156, 18, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">Cloud Service Enumeration</div>
-                    <div style="background: rgba(243, 156, 18, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">Database Analysis</div>
-                    <div style="background: rgba(243, 156, 18, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">Web Application Recon</div>
-                    <div style="background: rgba(243, 156, 18, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">API & Microservices</div>
-                </div>
-            </div>
-
-            <div style="background: rgba(0, 255, 0, 0.05); border: 1px solid #00ff00; border-radius: 10px; padding: 25px; margin: 20px 0;">
-                <h3 style="color: #00ff00; margin-bottom: 15px;">🎯 Part 4: Assessment & Labs</h3>
-                <p style="color: #ccc; margin-bottom: 15px;">Apply all learned techniques through comprehensive assessments, tool mastery challenges, and hands-on enumeration laboratories with real-world scenarios.</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-                    <div style="background: rgba(142, 68, 173, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">Tool Mastery Assessment</div>
-                    <div style="background: rgba(142, 68, 173, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">Comprehensive Quiz</div>
-                    <div style="background: rgba(142, 68, 173, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">Hands-on Laboratories</div>
-                    <div style="background: rgba(142, 68, 173, 0.2); padding: 10px; border-radius: 5px; font-size: 0.9rem;">Certification Path</div>
                 </div>
             </div>
         </section>
