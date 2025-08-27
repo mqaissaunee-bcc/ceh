@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 16: Hacking Wireless Networks</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --dark-color: #34495e;
+            --light-color: #ecf0f1;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 5px;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: var(--gradient-success);
+            height: 30px;
+            border-radius: 20px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            width: 10%;
+        }
+
+        .navigation {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .module-section {
+            display: none;
+        }
+
+        .module-section.active {
+            display: block;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid var(--secondary-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .card p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border: 1px solid #ff6b6b;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: 1px solid #74b9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            border: 1px solid #27ae60;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .grid-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--gradient-secondary);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .tool-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .attack-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .timeline-number {
+            background: var(--secondary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .quiz-container {
+            margin: 20px 0;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: var(--secondary-color);
+            background: #f8f9fa;
+        }
+
+        .option.selected {
+            border-color: var(--secondary-color);
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .option.correct {
+            border-color: var(--success-color);
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .option.incorrect {
+            border-color: var(--accent-color);
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .explanation {
+            background: #e8f4f8;
+            border-left: 4px solid var(--secondary-color);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .security-protocol {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .protocol-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+
+        .vulnerability-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .vulnerability-table th,
+        .vulnerability-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .vulnerability-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .vulnerability-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .navigation {
+                gap: 5px;
+            }
+
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.8em;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 1.8em;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .timeline-number {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            code {
+                font-size: 0.8em;
+                word-break: break-all;
+            }
+
+            .vulnerability-table {
+                font-size: 0.9em;
+            }
+
+            .vulnerability-table th,
+            .vulnerability-table td {
+                padding: 8px 10px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--warning-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CEH v13 Module 16</h1>
+            <p>Hacking Wireless Networks & Security Protocols</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar">10%</div>
+            </div>
+            <p id="progressText">Progress: 10% Complete</p>
+            <div style="margin-top: 15px; font-size: 0.9em; color: rgba(255,255,255,0.8);">
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    ← → Navigate Sections
+                </span>
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    Esc Close Modal
+                </span>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('overview')">Overview</button>
+            <button class="nav-btn" onclick="showSection('fundamentals')">Wireless Fundamentals</button>
+            <button class="nav-btn" onclick="showSection('protocols')">Security Protocols</button>
+            <button class="nav-btn" onclick="showSection('attacks')">Attack Techniques</button>
+            <button class="nav-btn" onclick="showSection('wep-attacks')">WEP Attacks</button>
+            <button class="nav-btn" onclick="showSection('wpa-attacks')">WPA/WPA2 Attacks</button>
+            <button class="nav-btn" onclick="showSection('tools')">Hacking Tools</button>
+            <button class="nav-btn" onclick="showSection('countermeasures')">Countermeasures</button>
+            <button class="nav-btn" onclick="showSection('quiz')">Assessment</button>
+            <button class="nav-btn" onclick="showSection('certification')">Certification</button>
+        </div>
+
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">Module 16 Overview</h2>
+                
+                <div class="card">
+                    <h3>Wireless Network Security: The Modern Battlefield</h3>
+                    <p>Welcome to CEH v13 Module 16! Wireless networks have revolutionized connectivity but introduced unique security challenges. This module explores wireless network vulnerabilities, attack methodologies, and defensive strategies essential for ethical hackers.</p>
+                    
+                    <div class="warning-box">
+                        <strong>Critical Security Alert:</strong> According to cybersecurity studies, 60% of small businesses experiencing wireless security breaches fail within 6 months. Wireless networks are often the weakest link in organizational security.
+                    </div>
+                </div>
+
+                <div class="grid-container">
+                    <div class="grid-item">
+                        <h4>Learning Objectives</h4>
+                        <ul style="line-height: 1.8;">
+                            <li>Understand wireless network fundamentals and technologies</li>
+                            <li>Analyze security protocols: WEP, WPA, WPA2, WPA3</li>
+                            <li>Master wireless attack methodologies</li>
+                            <li>Execute WEP and WPA cracking techniques</li>
+                            <li>Implement wireless security countermeasures</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid-item">
+                        <h4>Module Statistics</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Duration:</strong> 3+ hours comprehensive study</li>
+                            <li><strong>Topics Covered:</strong> 8 core sections</li>
+                            <li><strong>Assessment:</strong> 25 challenging questions</li>
+                            <li><strong>Practical Focus:</strong> Real-world attack scenarios</li>
+                            <li><strong>Tools Covered:</strong> 12+ professional tools</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Wireless Technology Evolution</h3>
+                    <p>Wireless technology has evolved from simple radio communications to complex, high-speed networks. Understanding this evolution is crucial for identifying vulnerabilities:</p>
+                    
+                    <div class="attack-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-number">1</div>
+                            <div>
+                                <strong>802.11 Legacy (1997)</strong><br>
+                                First wireless standard, 2 Mbps, basic security
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">2</div>
+                            <div>
+                                <strong>802.11b/g/a (1999-2003)</strong><br>
+                                Speed improvements, WEP security introduction
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">3</div>
+                            <div>
+                                <strong>802.11n/ac (2009-2013)</strong><br>
+                                MIMO technology, WPA2 standardization
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">4</div>
+                            <div>
+                                <strong>802.11ax/Wi-Fi 6 (2019)</strong><br>
+                                Enhanced security with WPA3, improved performance
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('fundamentals')">Next: Wireless Fundamentals →</button>
+            </div>
+
+            <!-- Fundamentals Section -->
+            <div id="fundamentals" class="module-section">
+                <h2 class="section-title">Wireless Network Fundamentals</h2>
+
+                <div class="card">
+                    <h3>Radio Frequency Fundamentals</h3>
+                    <p>Wireless networks operate using electromagnetic waves in the radio frequency spectrum. Understanding RF principles is essential for both attacking and defending wireless networks.</p>
+                </div>
+
+                <div class="grid-container">
+                    <div class="grid-item">
+                        <h4>Frequency Bands</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>2.4 GHz:</strong> 802.11b/g/n, longer range, more interference</li>
+                            <li><strong>5 GHz:</strong> 802.11a/n/ac/ax, shorter range, less crowded</li>
+                            <li><strong>6 GHz:</strong> Wi-Fi 6E, newest band with more channels</li>
+                            <li><strong>60 GHz:</strong> 802.11ad/ay, very short range, high speed</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid-item">
+                        <h4>Antenna Types</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Omnidirectional:</strong> 360-degree coverage</li>
+                            <li><strong>Directional:</strong> Focused beam, increased range</li>
+                            <li><strong>Yagi:</strong> High-gain directional antenna</li>
+                            <li><strong>Parabolic:</strong> Very high gain, long-distance</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Network Topologies</h3>
+                    <div class="protocol-comparison">
+                        <div class="security-protocol">
+                            <h4>Infrastructure Mode</h4>
+                            <p>Centralized topology with access points managing client connections. Most common in enterprise environments.</p>
+                            <ul style="text-align: left; margin: 15px 0;">
+                                <li>Central access point coordination</li>
+                                <li>SSID broadcasting</li>
+                                <li>Authentication and encryption</li>
+                                <li>Network traffic routing</li>
+                            </ul>
+                        </div>
+
+                        <div class="security-protocol">
+                            <h4>Ad-Hoc Mode</h4>
+                            <p>Peer-to-peer network without central access point. Devices communicate directly with each other.</p>
+                            <ul style="text-align: left; margin: 15px 0;">
+                                <li>Direct device communication</li>
+                                <li>No central authority</li>
+                                <li>Limited security options</li>
+                                <li>Temporary network setups</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>802.11 Frame Types</h3>
+                    <table class="vulnerability-table">
+                        <thead>
+                            <tr>
+                                <th>Frame Type</th>
+                                <th>Purpose</th>
+                                <th>Security Relevance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Management</strong></td>
+                                <td>Network control (association, authentication)</td>
+                                <td>Can be spoofed for deauth attacks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Control</strong></td>
+                                <td>Access control (ACK, RTS/CTS)</td>
+                                <td>Used in some DoS attacks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Data</strong></td>
+                                <td>User data transmission</td>
+                                <td>Contains encrypted payload</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-box">
+                    <h4>Discovery Techniques</h4>
+                    <p><strong>War Driving:</strong> Mobile wireless network discovery using vehicles</p>
+                    <p><strong>War Walking:</strong> Pedestrian wireless network reconnaissance</p>
+                    <p><strong>War Flying:</strong> Aerial wireless network detection using drones</p>
+                    <p><strong>War Chalking:</strong> Physical symbols indicating wireless network presence</p>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('overview')">← Previous</button>
+                <button class="btn btn-success" onclick="showSection('protocols')">Next: Security Protocols →</button>
+            </div>
+
+            <!-- Protocols Section -->
+            <div id="protocols" class="module-section">
+                <h2 class="section-title">Wireless Security Protocols</h2>
+
+                <div class="card">
+                    <h3>Evolution of Wireless Security</h3>
+                    <p>Wireless security protocols have evolved to address vulnerabilities and provide stronger protection. Understanding each protocol's strengths and weaknesses is crucial for effective security assessment.</p>
+                </div>
+
+                <div class="protocol-comparison">
+                    <div class="security-protocol">
+                        <h4>WEP (Wired Equivalent Privacy)</h4>
+                        <p><strong>Status:</strong> Deprecated (2004)</p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li><strong>Encryption:</strong> RC4 with 40/104-bit keys</li>
+                            <li><strong>Key Management:</strong> Static keys</li>
+                            <li><strong>Vulnerabilities:</strong> IV attacks, weak implementation</li>
+                            <li><strong>Crack Time:</strong> Minutes to hours</li>
+                            <li><strong>Security Rating:</strong> ★ (Broken)</li>
+                        </ul>
+                    </div>
+
+                    <div class="security-protocol">
+                        <h4>WPA (Wi-Fi Protected Access)</h4>
+                        <p><strong>Status:</strong> Legacy (2003)</p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li><strong>Encryption:</strong> TKIP with RC4</li>
+                            <li><strong>Key Management:</strong> Dynamic key rotation</li>
+                            <li><strong>Vulnerabilities:</strong> TKIP attacks, WPS flaws</li>
+                            <li><strong>Crack Time:</strong> Hours to days</li>
+                            <li><strong>Security Rating:</strong> ★★ (Weak)</li>
+                        </ul>
+                    </div>
+
+                    <div class="security-protocol">
+                        <h4>WPA2 (802.11i)</h4>
+                        <p><strong>Status:</strong> Current Standard (2004)</p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li><strong>Encryption:</strong> AES-CCMP</li>
+                            <li><strong>Key Management:</strong> Robust key derivation</li>
+                            <li><strong>Vulnerabilities:</strong> KRACK, dictionary attacks</li>
+                            <li><strong>Crack Time:</strong> Days to years</li>
+                            <li><strong>Security Rating:</strong> ★★★★ (Strong)</li>
+                        </ul>
+                    </div>
+
+                    <div class="security-protocol">
+                        <h4>WPA3 (Latest)</h4>
+                        <p><strong>Status:</strong> Next Generation (2018)</p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li><strong>Encryption:</strong> AES-256, SAE</li>
+                            <li><strong>Key Management:</strong> Perfect Forward Secrecy</li>
+                            <li><strong>Vulnerabilities:</strong> Minimal known issues</li>
+                            <li><strong>Crack Time:</strong> Currently infeasible</li>
+                            <li><strong>Security Rating:</strong> ★★★★★ (Excellent)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>WPA3 Security Enhancements</h4>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>SAE (Simultaneous Authentication of Equals):</strong> Replaces PSK with stronger handshake</li>
+                        <li><strong>Perfect Forward Secrecy:</strong> Past sessions remain secure even if key is compromised</li>
+                        <li><strong>Enhanced Protection:</strong> Stronger brute-force attack resistance</li>
+                        <li><strong>Individualized Encryption:</strong> Unique encryption for each client in public networks</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Authentication Methods</h3>
+                    <div class="grid-container">
+                        <div class="grid-item">
+                            <h4>Personal (PSK)</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>Pre-shared key authentication</li>
+                                <li>Single passphrase for all users</li>
+                                <li>Suitable for home/small office</li>
+                                <li>Vulnerable to dictionary attacks</li>
+                            </ul>
+                        </div>
+
+                        <div class="grid-item">
+                            <h4>Enterprise (802.1X/EAP)</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>RADIUS server authentication</li>
+                                <li>Individual user credentials</li>
+                                <li>Certificate-based authentication</li>
+                                <li>Enhanced security and auditing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('fundamentals')">← Previous</button>
+                <button class="btn btn-success" onclick="showSection('attacks')">Next: Attack Techniques →</button>
+            </div>
+
+            <!-- Attacks Section -->
+            <div id="attacks" class="module-section">
+                <h2 class="section-title">Wireless Attack Techniques</h2>
+
+                <div class="card">
+                    <h3>Attack Classifications</h3>
+                    <p>Wireless attacks can be categorized into several types based on their objectives and methodologies. Understanding these categories helps in developing comprehensive defense strategies.</p>
+                </div>
+
+                <div class="grid-container">
+                    <div class="tool-card" onclick="showAttackDetails('passive-attacks')">
+                        <h4>Passive Attacks</h4>
+                        <p>Eavesdropping and monitoring wireless traffic without actively interfering with network operations.</p>
+                        <ul style="margin: 15px 0;">
+                            <li>Wireless sniffing and packet capture</li>
+                            <li>Traffic analysis and pattern recognition</li>
+                            <li>Signal strength monitoring</li>
+                            <li>Network reconnaissance</li>
+                        </ul>
+                    </div>
+
+                    <div class="tool-card" onclick="showAttackDetails('active-attacks')">
+                        <h4>Active Attacks</h4>
+                        <p>Direct interference with wireless networks through injection, jamming, or manipulation of communications.</p>
+                        <ul style="margin: 15px 0;">
+                            <li>Packet injection and replay attacks</li>
+                            <li>Deauthentication and disassociation</li>
+                            <li>Evil twin access point setup</li>
+                            <li>Man-in-the-middle attacks</li>
+                        </ul>
+                    </div>
+
+                    <div class="tool-card" onclick="showAttackDetails('dos-attacks')">
+                        <h4>Denial of Service</h4>
+                        <p>Disrupting wireless network availability through various interference and flooding techniques.</p>
+                        <ul style="margin: 15px 0;">
+                            <li>RF jamming and interference</li>
+                            <li>Authentication flood attacks</li>
+                            <li>Association flood attacks</li>
+                            <li>Power exhaustion attacks</li>
+                        </ul>
+                    </div>
+
+                    <div class="tool-card" onclick="showAttackDetails('encryption-attacks')">
+                        <h4>Encryption Attacks</h4>
+                        <p>Breaking or bypassing wireless encryption mechanisms to access protected communications.</p>
+                        <ul style="margin: 15px 0;">
+                            <li>WEP key recovery attacks</li>
+                            <li>WPA/WPA2 handshake capture</li>
+                            <li>Dictionary and brute-force attacks</li>
+                            <li>Rainbow table attacks</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Common Attack Methodologies</h3>
+                    
+                    <div class="attack-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-number">1</div>
+                            <div>
+                                <strong>Reconnaissance</strong><br>
+                                Wireless network discovery, SSID enumeration, signal analysis
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">2</div>
+                            <div>
+                                <strong>Network Mapping</strong><br>
+                                Access point identification, client enumeration, network topology analysis
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">3</div>
+                            <div>
+                                <strong>Vulnerability Assessment</strong><br>
+                                Security protocol analysis, encryption strength evaluation, configuration review
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">4</div>
+                            <div>
+                                <strong>Attack Execution</strong><br>
+                                Exploitation of identified vulnerabilities, credential harvesting, network access
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">5</div>
+                            <div>
+                                <strong>Post-Exploitation</strong><br>
+                                Lateral movement, data exfiltration, persistent access establishment
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Advanced Attack Techniques</h3>
+                    <table class="vulnerability-table">
+                        <thead>
+                            <tr>
+                                <th>Attack Type</th>
+                                <th>Description</th>
+                                <th>Target Protocol</th>
+                                <th>Difficulty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Evil Twin</strong></td>
+                                <td>Rogue AP mimicking legitimate network</td>
+                                <td>All protocols</td>
+                                <td>Medium</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Karma Attack</strong></td>
+                                <td>AP responds to any probe request</td>
+                                <td>Open networks</td>
+                                <td>Low</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Caffe Latte</strong></td>
+                                <td>WEP attack against client adapters</td>
+                                <td>WEP only</td>
+                                <td>High</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hirte Attack</strong></td>
+                                <td>Fragmentation attack variation</td>
+                                <td>WEP only</td>
+                                <td>High</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warning-box">
+                    <h4>Ethical Hacking Guidelines</h4>
+                    <p><strong>Legal Authorization:</strong> Only test networks you own or have explicit written permission to test</p>
+                    <p><strong>Responsible Disclosure:</strong> Report vulnerabilities through appropriate channels</p>
+                    <p><strong>Minimal Impact:</strong> Avoid disrupting normal network operations during testing</p>
+                    <p><strong>Documentation:</strong> Maintain detailed logs of all testing activities</p>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('protocols')">← Previous</button>
+                <button class="btn btn-success" onclick="showSection('wep-attacks')">Next: WEP Attacks →</button>
+            </div>
+
+            <!-- WEP Attacks Section -->
+            <div id="wep-attacks" class="module-section">
+                <h2 class="section-title">WEP Attack Techniques</h2>
+
+                <div class="warning-box">
+                    <h4>WEP: The Broken Protocol</h4>
+                    <p>WEP (Wired Equivalent Privacy) was officially deprecated in 2004 due to fundamental cryptographic flaws. However, legacy systems still use WEP, making these attacks relevant for security assessments.</p>
+                </div>
+
+                <div class="card">
+                    <h3>WEP Vulnerabilities</h3>
+                    <div class="grid-container">
+                        <div class="grid-item">
+                            <h4>IV (Initialization Vector) Flaws</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>24-bit IV creates predictable patterns</li>
+                                <li>IV reuse after ~5,000 packets</li>
+                                <li>Weak IV sequences reveal key bits</li>
+                                <li>Statistical analysis possible</li>
+                            </ul>
+                        </div>
+
+                        <div class="grid-item">
+                            <h4>Key Management Issues</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>Static key sharing among all users</li>
+                                <li>No key rotation mechanism</li>
+                                <li>Weak key derivation function</li>
+                                <li>Poor entropy in key generation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>WEP Attack Methods</h3>
+                    
+                    <div class="tool-card" onclick="showWEPAttack('fms-attack')">
+                        <h4>FMS Attack (Fluhrer-Mantin-Shamir)</h4>
+                        <p><strong>Method:</strong> Statistical analysis of weak IVs</p>
+                        <p><strong>Requirements:</strong> 500,000+ unique IVs</p>
+                        <p><strong>Success Rate:</strong> High with sufficient data</p>
+                        <p><strong>Time Required:</strong> 2-8 hours passive collection</p>
+                    </div>
+
+                    <div class="tool-card" onclick="showWEPAttack('korek-attack')">
+                        <h4>KoreK Attack</h4>
+                        <p><strong>Method:</strong> Enhanced statistical approach</p>
+                        <p><strong>Requirements:</strong> 300,000+ unique IVs</p>
+                        <p><strong>Success Rate:</strong> Higher than FMS</p>
+                        <p><strong>Time Required:</strong> 1-4 hours passive collection</p>
+                    </div>
+
+                    <div class="tool-card" onclick="showWEPAttack('ptw-attack')">
+                        <h4>PTW Attack (Pyshkin-Tews-Weinmann)</h4>
+                        <p><strong>Method:</strong> Optimized statistical analysis</p>
+                        <p><strong>Requirements:</strong> 40,000+ ARP packets</p>
+                        <p><strong>Success Rate:</strong> ~50% with minimal data</p>
+                        <p><strong>Time Required:</strong> 30 minutes - 2 hours</p>
+                    </div>
+
+                    <div class="tool-card" onclick="showWEPAttack('chopchop-attack')">
+                        <h4>Chop-Chop Attack</h4>
+                        <p><strong>Method:</strong> Interactive packet modification</p>
+                        <p><strong>Requirements:</strong> Single encrypted packet</p>
+                        <p><strong>Success Rate:</strong> High with cooperation</p>
+                        <p><strong>Time Required:</strong> Minutes to decrypt single packet</p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>WEP Cracking Process</h4>
+                    <div class="attack-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-number">1</div>
+                            <div>
+                                <strong>Monitor Target Network</strong><br>
+                                <code>airodump-ng -c [channel] -w capture wlan0mon</code>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">2</div>
+                            <div>
+                                <strong>Fake Authentication</strong><br>
+                                <code>aireplay-ng -1 0 -a [BSSID] wlan0mon</code>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">3</div>
+                            <div>
+                                <strong>ARP Replay Attack</strong><br>
+                                <code>aireplay-ng -3 -b [BSSID] wlan0mon</code>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">4</div>
+                            <div>
+                                <strong>Crack WEP Key</strong><br>
+                                <code>aircrack-ng capture-01.cap</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Advanced WEP Attacks</h3>
+                    <table class="vulnerability-table">
+                        <thead>
+                            <tr>
+                                <th>Attack Name</th>
+                                <th>Scenario</th>
+                                <th>Requirements</th>
+                                <th>Success Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Caffe Latte</strong></td>
+                                <td>Client not connected to AP</td>
+                                <td>Client with stored WEP key</td>
+                                <td>85%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hirte Attack</strong></td>
+                                <td>Client connects to fake AP</td>
+                                <td>Fragmentation support</td>
+                                <td>90%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fragmentation</strong></td>
+                                <td>Limited ARP traffic</td>
+                                <td>Single data packet</td>
+                                <td>75%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Interactive</strong></td>
+                                <td>No data traffic</td>
+                                <td>Manual packet crafting</td>
+                                <td>60%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="success-box">
+                    <h4>WEP Crack Success Indicators</h4>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>IV Collection:</strong> 40,000+ unique IVs (PTW) or 500,000+ (FMS)</li>
+                        <li><strong>Packet Injection:</strong> Successful fake authentication to AP</li>
+                        <li><strong>ARP Replay:</strong> Continuous ARP request/response pairs</li>
+                        <li><strong>Key Recovery:</strong> 40-bit or 104-bit WEP key revealed</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('attacks')">← Previous</button>
+                <button class="btn btn-success" onclick="showSection('wpa-attacks')">Next: WPA/WPA2 Attacks →</button>
+            </div>
+
+            <!-- WPA Attacks Section -->
+            <div id="wpa-attacks" class="module-section">
+                <h2 class="section-title">WPA/WPA2 Attack Techniques</h2>
+
+                <div class="card">
+                    <h3>WPA/WPA2 Security Overview</h3>
+                    <p>WPA and WPA2 addressed many WEP vulnerabilities but introduced new attack vectors. Understanding these attacks is crucial for modern wireless security assessment.</p>
+                </div>
+
+                <div class="protocol-comparison">
+                    <div class="security-protocol">
+                        <h4>4-Way Handshake Process</h4>
+                        <ol style="text-align: left; margin: 15px 0;">
+                            <li><strong>ANonce:</strong> AP sends random number</li>
+                            <li><strong>SNonce + MIC:</strong> Client responds with its nonce</li>
+                            <li><strong>GTK + MIC:</strong> AP sends group temporal key</li>
+                            <li><strong>ACK:</strong> Client acknowledges completion</li>
+                        </ol>
+                        <p><strong>Vulnerability:</strong> Handshake can be captured and attacked offline</p>
+                    </div>
+
+                    <div class="security-protocol">
+                        <h4>KRACK Attack (2017)</h4>
+                        <p><strong>CVE-2017-13077 to 13088</strong></p>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li>Key reinstallation attack</li>
+                            <li>Exploits 4-way handshake</li>
+                            <li>Affects all WPA2 implementations</li>
+                            <li>Allows packet decryption and injection</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>WPA/WPA2 Attack Methods</h3>
+                    
+                    <div class="grid-container">
+                        <div class="tool-card" onclick="showWPAAttack('handshake-capture')">
+                            <h4>Handshake Capture Attack</h4>
+                            <p><strong>Objective:</strong> Capture 4-way authentication handshake</p>
+                            <p><strong>Method:</strong> Monitor association or force deauth</p>
+                            <p><strong>Requirements:</strong> Client must (re)connect during capture</p>
+                            <p><strong>Success Rate:</strong> 95%+ with patience</p>
+                        </div>
+
+                        <div class="tool-card" onclick="showWPAAttack('dictionary-attack')">
+                            <h4>Dictionary Attack</h4>
+                            <p><strong>Objective:</strong> Crack PSK using wordlist</p>
+                            <p><strong>Method:</strong> Offline brute-force against captured handshake</p>
+                            <p><strong>Requirements:</strong> Good wordlist and computing power</p>
+                            <p><strong>Success Rate:</strong> Depends on password complexity</p>
+                        </div>
+
+                        <div class="tool-card" onclick="showWPAAttack('wps-attack')">
+                            <h4>WPS Attack</h4>
+                            <p><strong>Objective:</strong> Exploit Wi-Fi Protected Setup flaws</p>
+                            <p><strong>Method:</strong> PIN brute-force or Pixie Dust attack</p>
+                            <p><strong>Requirements:</strong> WPS enabled on target AP</p>
+                            <p><strong>Success Rate:</strong> 90%+ on vulnerable devices</p>
+                        </div>
+
+                        <div class="tool-card" onclick="showWPAAttack('pmkid-attack')">
+                            <h4>PMKID Attack</h4>
+                            <p><strong>Objective:</strong> Extract PMKID without handshake</p>
+                            <p><strong>Method:</strong> Request PMKID from AP without association</p>
+                            <p><strong>Requirements:</strong> AP that responds with PMKID</p>
+                            <p><strong>Success Rate:</strong> 70%+ on modern routers</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Detailed Attack Procedures</h3>
+                    
+                    <div class="info-box">
+                        <h4>WPA2 Handshake Capture</h4>
+                        <div class="attack-timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-number">1</div>
+                                <div>
+                                    <strong>Monitor Target Network</strong><br>
+                                    <code>airodump-ng -c [channel] --bssid [BSSID] -w capture wlan0mon</code>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-number">2</div>
+                                <div>
+                                    <strong>Deauthenticate Client</strong><br>
+                                    <code>aireplay-ng -0 5 -a [BSSID] -c [CLIENT] wlan0mon</code>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-number">3</div>
+                                <div>
+                                    <strong>Capture Handshake</strong><br>
+                                    Wait for "WPA handshake: [BSSID]" message
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-number">4</div>
+                                <div>
+                                    <strong>Crack Password</strong><br>
+                                    <code>aircrack-ng -w rockyou.txt capture-01.cap</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="success-box">
+                        <h4>WPS Attack Process</h4>
+                        <div class="attack-timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-number">1</div>
+                                <div>
+                                    <strong>WPS Discovery</strong><br>
+                                    <code>wash -i wlan0mon</code>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-number">2</div>
+                                <div>
+                                    <strong>Pixie Dust Attack</strong><br>
+                                    <code>reaver -i wlan0mon -b [BSSID] -K 1</code>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-number">3</div>
+                                <div>
+                                    <strong>PIN Brute Force</strong><br>
+                                    <code>reaver -i wlan0mon -b [BSSID] -vv</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Modern WPA2/WPA3 Attacks</h3>
+                    <table class="vulnerability-table">
+                        <thead>
+                            <tr>
+                                <th>Attack</th>
+                                <th>Target</th>
+                                <th>Method</th>
+                                <th>Mitigation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>KRACK</strong></td>
+                                <td>WPA2 4-way handshake</td>
+                                <td>Key reinstallation</td>
+                                <td>Firmware updates, WPA3</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dragonblood</strong></td>
+                                <td>WPA3 SAE handshake</td>
+                                <td>Side-channel attacks</td>
+                                <td>Implementation fixes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>FragAttacks</strong></td>
+                                <td>Frame aggregation/fragmentation</td>
+                                <td>Design flaws in standard</td>
+                                <td>Proper validation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warning-box">
+                    <h4>Modern Defense Mechanisms</h4>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>WPS Lockout:</strong> Many modern routers disable WPS after failed attempts</li>
+                        <li><strong>Rate Limiting:</strong> Deauthentication attack protection</li>
+                        <li><strong>Strong PSKs:</strong> Long, complex passwords resist dictionary attacks</li>
+                        <li><strong>802.11w (PMF):</strong> Management frame protection prevents deauth attacks</li>
+                        <li><strong>WPA3:</strong> SAE protocol eliminates offline dictionary attacks</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('wep-attacks')">← Previous</button>
+                <button class="btn btn-success" onclick="showSection('tools')">Next: Hacking Tools →</button>
+            </div>
+
+            <!-- Tools Section -->
+            <div id="tools" class="module-section">
+                <h2 class="section-title">Wireless Hacking Tools</h2>
+
+                <div class="card">
+                    <h3>Essential Wireless Security Tools</h3>
+                    <p>Professional wireless security assessment requires specialized tools for reconnaissance, attack execution, and analysis. These tools form the foundation of ethical wireless hacking.</p>
+                </div>
+
+                <div class="grid-container">
+                    <div class="tool-card" onclick="showToolDetails('aircrack-suite')">
+                        <h4>Aircrack-ng Suite</h4>
+                        <p><strong>Purpose:</strong> Complete wireless security auditing</p>
+                        <ul style="margin: 15px 0;">
+                            <li><strong>airodump-ng:</strong> Packet capture and analysis</li>
+                            <li><strong>aireplay-ng:</strong> Packet injection attacks</li>
+                            <li><strong>aircrack-ng:</strong> WEP/WPA key recovery</li>
+                            <li><strong>airmon-ng:</strong> Monitor mode management</li>
+                        </ul>
+                    </div>
+
+                    <div class="tool-card" onclick="showToolDetails('kismet')">
+                        <h4>Kismet</h4>
+                        <p><strong>Purpose:</strong> Wireless network detector and IDS</p>
+                        <ul style="margin: 15px 0;">
+                            <li>Passive wireless detection</li>
+                            <li>Network mapping and GPS integration</li>
+                            <li>Intrusion detection capabilities</li>
+                            <li>Multi-protocol support</li>
+                        </ul>
+                    </div>
+
+                    <div class="tool-card" onclick="showToolDetails('reaver')">
+                        <h4>Reaver</h4>
+                        <p><strong>Purpose:</strong> WPS PIN brute-force attack</p>
+                        <ul style="margin: 15px 0;">
+                            <li>WPS PIN enumeration</li>
+                            <li>Pixie Dust attack implementation</li>
+                            <li>PSK recovery from WPS</li>
+                            <li>Automated attack execution</li>
+                        </ul>
+                    </div>
+
+                    <div class="tool-card" onclick="showToolDetails('wifite')">
+                        <h4>Wifite</h4>
+                        <p><strong>Purpose:</strong> Automated wireless attack framework</p>
+                        <ul style="margin: 15px 0;">
+                            <li>Automated WEP/WPA/WPS attacks</li>
+                            <li>Target selection by signal strength</li>
+                            <li>Multiple attack method support</li>
+                            <li>Results logging and reporting</li>
+                        </ul>
+                    </div>
+
+                    <div class="tool-card" onclick="showToolDetails('wireshark')">
+                        <h4>Wireshark</h4>
+                        <p><strong>Purpose:</strong> Network protocol analysis</p>
+                        <ul style="margin: 15px 0;">
+                            <li>Deep packet inspection</li>
+                            <li>802.11 frame analysis</li>
+                            <li>Decryption capabilities</li>
+                            <li>Statistical analysis features</li>
+                        </ul>
+                    </div>
+
+                    <div class="tool-card" onclick="showToolDetails('fern-wifi')">
+                        <h4>Fern WiFi Cracker</h4>
+                        <p><strong>Purpose:</strong> GUI-based wireless security auditing</p>
+                        <ul style="margin: 15px 0;">
+                            <li>Graphical interface for beginners</li>
+                            <li>WEP/WPA/WPS attack automation</li>
+                            <li>Session hijacking capabilities</li>
+                            <li>Built-in wordlist management</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Specialized Tools</h3>
+                    <table class="vulnerability-table">
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Primary Function</th>
+                                <th>Platform</th>
+                                <th>Skill Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Hashcat</strong></td>
+                                <td>GPU-accelerated password cracking</td>
+                                <td>Cross-platform</td>
+                                <td>Advanced</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bully</strong></td>
+                                <td>WPS brute-force implementation</td>
+                                <td>Linux</td>
+                                <td>Intermediate</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MDK3</strong></td>
+                                <td>Wireless DoS testing</td>
+                                <td>Linux</td>
+                                <td>Intermediate</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hcxtools</strong></td>
+                                <td>Handshake conversion and analysis</td>
+                                <td>Linux</td>
+                                <td>Advanced</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WiFi Pineapple</strong></td>
+                                <td>Rogue AP platform</td>
+                                <td>Hardware device</td>
+                                <td>Intermediate</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>Mobile Wireless Tools</h3>
+                    <div class="grid-container">
+                        <div class="grid-item">
+                            <h4>Android Tools</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><strong>WiFi Analyzer:</strong> Signal strength analysis</li>
+                                <li><strong>WiGLE WiFi Wardriving:</strong> Network mapping</li>
+                                <li><strong>WiFiFoFum:</strong> Network discovery</li>
+                                <li><strong>Zanti:</strong> Network penetration testing</li>
+                            </ul>
+                        </div>
+
+                        <div class="grid-item">
+                            <h4>iOS Tools</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><strong>WiFi Explorer:</strong> Network analysis</li>
+                                <li><strong>WiFi Analyzer:</strong> Signal monitoring</li>
+                                <li><strong>Network Analyzer:</strong> Traffic analysis</li>
+                                <li><strong>iWep Pro:</strong> Network testing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>Tool Setup and Configuration</h4>
+                    <div class="attack-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-number">1</div>
+                            <div>
+                                <strong>Enable Monitor Mode</strong><br>
+                                <code>airmon-ng start wlan0</code>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">2</div>
+                            <div>
+                                <strong>Check Interface Status</strong><br>
+                                <code>iwconfig</code>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">3</div>
+                            <div>
+                                <strong>Kill Conflicting Processes</strong><br>
+                                <code>airmon-ng check kill</code>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">4</div>
+                            <div>
+                                <strong>Verify Monitor Mode</strong><br>
+                                <code>iwconfig wlan0mon</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>Legal and Ethical Tool Usage</h4>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>Authorization Required:</strong> Only use tools on networks you own or have written permission to test</li>
+                        <li><strong>Responsible Disclosure:</strong> Report vulnerabilities found during testing</li>
+                        <li><strong>Minimize Impact:</strong> Avoid disrupting production network operations</li>
+                        <li><strong>Professional Purpose:</strong> Use tools for legitimate security assessment only</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('wpa-attacks')">← Previous</button>
+                <button class="btn btn-success" onclick="showSection('countermeasures')">Next: Countermeasures →</button>
+            </div>
+
+            <!-- Countermeasures Section -->
+            <div id="countermeasures" class="module-section">
+                <h2 class="section-title">Wireless Security Countermeasures</h2>
+
+                <div class="card">
+                    <h3>Defense-in-Depth Strategy</h3>
+                    <p>Effective wireless security requires multiple layers of protection. A comprehensive approach addresses technical, procedural, and physical security aspects.</p>
+                </div>
+
+                <div class="grid-container">
+                    <div class="security-protocol">
+                        <h4>Encryption Controls</h4>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li><strong>WPA3 Implementation:</strong> Deploy latest security standard</li>
+                            <li><strong>Strong PSKs:</strong> 15+ character complex passwords</li>
+                            <li><strong>Enterprise Authentication:</strong> 802.1X/EAP with certificates</li>
+                            <li><strong>Regular Key Rotation:</strong> Periodic password changes</li>
+                        </ul>
+                    </div>
+
+                    <div class="security-protocol">
+                        <h4>Access Point Security</h4>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li><strong>Disable WPS:</strong> Prevent PIN brute-force attacks</li>
+                            <li><strong>Hide SSID:</strong> Reduce casual discovery attempts</li>
+                            <li><strong>MAC Filtering:</strong> Whitelist authorized devices</li>
+                            <li><strong>Firmware Updates:</strong> Regular security patches</li>
+                        </ul>
+                    </div>
+
+                    <div class="security-protocol">
+                        <h4>Network Segmentation</h4>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li><strong>Guest Networks:</strong> Isolate visitor traffic</li>
+                            <li><strong>VLAN Separation:</strong> Segregate wireless from wired</li>
+                            <li><strong>Firewall Rules:</strong> Restrict inter-network communication</li>
+                            <li><strong>DMZ Placement:</strong> Contain wireless networks</li>
+                        </ul>
+                    </div>
+
+                    <div class="security-protocol">
+                        <h4>Monitoring & Detection</h4>
+                        <ul style="text-align: left; margin: 15px 0;">
+                            <li><strong>WIDS/WIPS:</strong> Intrusion detection and prevention</li>
+                            <li><strong>Rogue AP Detection:</strong> Unauthorized access point identification</li>
+                            <li><strong>Anomaly Detection:</strong> Unusual traffic pattern analysis</li>
+                            <li><strong>Log Analysis:</strong> Security event correlation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Specific Attack Mitigations</h3>
+                    
+                    <div class="grid-container">
+                        <div class="grid-item">
+                            <h4>WEP Attack Prevention</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><strong>Complete Elimination:</strong> Replace all WEP-capable devices</li>
+                                <li><strong>Legacy System Isolation:</strong> Air-gap critical WEP systems</li>
+                                <li><strong>VPN Tunneling:</strong> Encrypt traffic over WEP networks</li>
+                                <li><strong>Regular Audits:</strong> Scan for WEP usage</li>
+                            </ul>
+                        </div>
+
+                        <div class="grid-item">
+                            <h4>Handshake Attack Mitigation</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><strong>802.11w (PMF):</strong> Management frame protection</li>
+                                <li><strong>Strong PSKs:</strong> Resist dictionary attacks</li>
+                                <li><strong>Deauth Protection:</strong> Rate limiting and blocking</li>
+                                <li><strong>Client Education:</strong> Avoid unknown networks</li>
+                            </ul>
+                        </div>
+
+                        <div class="grid-item">
+                            <h4>WPS Attack Prevention</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><strong>Disable WPS:</strong> Turn off entirely if not needed</li>
+                                <li><strong>WPS Lockout:</strong> Enable automatic lockout features</li>
+                                <li><strong>PIN Randomization:</strong> Regular PIN changes</li>
+                                <li><strong>Alternative Setup:</strong> Manual configuration preferred</li>
+                            </ul>
+                        </div>
+
+                        <div class="grid-item">
+                            <h4>Physical Security</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><strong>AP Placement:</strong> Secure mounting locations</li>
+                                <li><strong>Signal Containment:</strong> RF shielding where needed</li>
+                                <li><strong>Power Protection:</strong> UPS and surge protection</li>
+                                <li><strong>Tamper Detection:</strong> Physical access monitoring</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Enterprise Security Framework</h3>
+                    <table class="vulnerability-table">
+                        <thead>
+                            <tr>
+                                <th>Control Category</th>
+                                <th>Implementation</th>
+                                <th>Effectiveness</th>
+                                <th>Complexity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Certificate-based Auth</strong></td>
+                                <td>802.1X/EAP-TLS with PKI</td>
+                                <td>Very High</td>
+                                <td>High</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Access Control</strong></td>
+                                <td>Dynamic VLAN assignment</td>
+                                <td>High</td>
+                                <td>Medium</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Wireless IPS</strong></td>
+                                <td>Real-time threat detection</td>
+                                <td>High</td>
+                                <td>Medium</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Client Isolation</strong></td>
+                                <td>Prevent peer communication</td>
+                                <td>Medium</td>
+                                <td>Low</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="success-box">
+                    <h4>Security Best Practices Checklist</h4>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Deploy WPA3 or minimum WPA2 with AES encryption</li>
+                        <li>Use complex passwords (15+ characters)</li>
+                        <li>Disable WPS completely</li>
+                        <li>Enable management frame protection (802.11w)</li>
+                        <li>Implement network segmentation and VLANs</li>
+                        <li>Deploy wireless intrusion detection systems</li>
+                        <li>Regular security audits and penetration testing</li>
+                        <li>Staff training on wireless security awareness</li>
+                        <li>Incident response procedures for wireless breaches</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('tools')">← Previous</button>
+                <button class="btn btn-success" onclick="showSection('quiz')">Next: Assessment →</button>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quiz" class="module-section">
+                <h2 class="section-title">Module Assessment</h2>
+                
+                <div class="card">
+                    <h3>Wireless Security Knowledge Test</h3>
+                    <p>Test your understanding of wireless network security concepts, attack techniques, and countermeasures.</p>
+                </div>
+
+                <div class="quiz-container">
+                    <div class="question-card">
+                        <div class="question-text">1. Which wireless security protocol is most vulnerable to IV attacks?</div>
+                        <div class="option" onclick="selectOption(this, false)">A) WPA3</div>
+                        <div class="option" onclick="selectOption(this, false)">B) WPA2</div>
+                        <div class="option" onclick="selectOption(this, true)">C) WEP</div>
+                        <div class="option" onclick="selectOption(this, false)">D) WPA</div>
+                        <div class="explanation">
+                            <strong>Explanation:</strong> WEP is highly vulnerable to IV (Initialization Vector) attacks due to its weak implementation of RC4 encryption and reuse of IVs after approximately 5,000 packets.
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-text">2. What is the primary advantage of the PMKID attack over traditional handshake capture?</div>
+                        <div class="option" onclick="selectOption(this, false)">A) Faster cracking speed</div>
+                        <div class="option" onclick="selectOption(this, true)">B) No client interaction required</div>
+                        <div class="option" onclick="selectOption(this, false)">C) Works against WPA3</div>
+                        <div class="option" onclick="selectOption(this, false)">D) Bypasses MAC filtering</div>
+                        <div class="explanation">
+                            <strong>Explanation:</strong> PMKID attacks can extract the PMKID directly from access points without requiring client authentication or deauthentication attacks.
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-text">3. Which attack technique exploits the 4-way handshake in WPA2?</div>
+                        <div class="option" onclick="selectOption(this, true)">A) KRACK (Key Reinstallation Attack)</div>
+                        <div class="option" onclick="selectOption(this, false)">B) Caffe Latte Attack</div>
+                        <div class="option" onclick="selectOption(this, false)">C) Fragmentation Attack</div>
+                        <div class="option" onclick="selectOption(this, false)">D) Chop-Chop Attack</div>
+                        <div class="explanation">
+                            <strong>Explanation:</strong> KRACK exploits vulnerabilities in the 4-way handshake by forcing key reinstallation, allowing attackers to decrypt and inject packets.
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-text">4. What is the minimum number of unique IVs typically required for a successful PTW attack on WEP?</div>
+                        <div class="option" onclick="selectOption(this, false)">A) 10,000</div>
+                        <div class="option" onclick="selectOption(this, true)">B) 40,000</div>
+                        <div class="option" onclick="selectOption(this, false)">C) 100,000</div>
+                        <div class="option" onclick="selectOption(this, false)">D) 500,000</div>
+                        <div class="explanation">
+                            <strong>Explanation:</strong> The PTW attack requires approximately 40,000 ARP packets (unique IVs) for effective WEP key recovery, making it much more efficient than older attacks.
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-text">5. Which protocol provides Perfect Forward Secrecy in wireless networks?</div>
+                        <div class="option" onclick="selectOption(this, false)">A) WEP</div>
+                        <div class="option" onclick="selectOption(this, false)">B) WPA</div>
+                        <div class="option" onclick="selectOption(this, false)">C) WPA2</div>
+                        <div class="option" onclick="selectOption(this, true)">D) WPA3</div>
+                        <div class="explanation">
+                            <strong>Explanation:</strong> WPA3 implements Perfect Forward Secrecy through SAE (Simultaneous Authentication of Equals), ensuring past sessions remain secure even if current keys are compromised.
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-text">6. What does the term "Evil Twin" refer to in wireless security?</div>
+                        <div class="option" onclick="selectOption(this, false)">A) Duplicate MAC addresses</div>
+                        <div class="option" onclick="selectOption(this, true)">B) Rogue access point mimicking legitimate network</div>
+                        <div class="option" onclick="selectOption(this, false)">C) Cloned wireless cards</div>
+                        <div class="option" onclick="selectOption(this, false)">D) Identical SSID names</div>
+                        <div class="explanation">
+                            <strong>Explanation:</strong> An Evil Twin is a rogue access point that mimics a legitimate wireless network to trick users into connecting and potentially stealing credentials.
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-text">7. Which tool is specifically designed for WPS PIN brute-force attacks?</div>
+                        <div class="option" onclick="selectOption(this, false)">A) Airodump-ng</div>
+                        <div class="option" onclick="selectOption(this, true)">B) Reaver</div>
+                        <div class="option" onclick="selectOption(this, false)">C) Wireshark</div>
+                        <div class="option" onclick="selectOption(this, false)">D) Kismet</div>
+                        <div class="explanation">
+                            <strong>Explanation:</strong> Reaver is specifically designed to perform WPS PIN brute-force attacks and includes implementations of various WPS vulnerabilities including Pixie Dust attacks.
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-text">8. What is 802.11w designed to protect against?</div>
+                        <div class="option" onclick="selectOption(this, false)">A) Data frame attacks</div>
+                        <div class="option" onclick="selectOption(this, true)">B) Management frame attacks</div>
+                        <div class="option" onclick="selectOption(this, false)">C) Control frame attacks</div>
+                        <div class="option" onclick="selectOption(this, false)">D) Beacon frame attacks</div>
+                        <div class="explanation">
+                            <strong>Explanation:</strong> 802.11w (Protected Management Frames) protects against management frame attacks such as deauthentication and disassociation attacks by adding integrity protection.
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-text">9. Which frequency band is most commonly used for 802.11n networks?</div>
+                        <div class="option" onclick="selectOption(this, true)">A) 2.4 GHz and 5 GHz</div>
+                        <div class="option" onclick="selectOption(this, false)">B) 2.4 GHz only</div>
+                        <div class="option" onclick="selectOption(this, false)">C) 5 GHz only</div>
+                        <div class="option" onclick="selectOption(this, false)">D) 6 GHz</div>
+                        <div class="explanation">
+                            <strong>Explanation:</strong> 802.11n operates in both 2.4 GHz and 5 GHz frequency bands, providing flexibility in deployment and helping avoid interference.
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-text">10. What is the primary weakness exploited in WPS Pixie Dust attacks?</div>
+                        <div class="option" onclick="selectOption(this, false)">A) Weak random number generation</div>
+                        <div class="option" onclick="selectOption(this, true)">B) Poor implementation of nonce generation</div>
+                        <div class="option" onclick="selectOption(this, false)">C) Insufficient PIN complexity</div>
+                        <div class="option" onclick="selectOption(this, false)">D) Lack of rate limiting</div>
+                        <div class="explanation">
+                            <strong>Explanation:</strong> Pixie Dust attacks exploit poor implementation of nonce generation in WPS, allowing attackers to recover the WPS PIN without brute-forcing all possibilities.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>Assessment Results</h4>
+                    <p id="quiz-results">Complete all questions to see your results.</p>
+                    <button class="btn btn-warning" onclick="showResults()">Show Results</button>
+                    <button class="btn btn-primary" onclick="resetQuiz()">Reset Quiz</button>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('countermeasures')">← Previous</button>
+                <button class="btn btn-success" onclick="showSection('certification')">Next: Certification →</button>
+            </div>
+
+            <!-- Certification Section -->
+            <div id="certification" class="module-section">
+                <h2 class="section-title">Module Certification</h2>
+                
+                <div class="card">
+                    <h3>CEH Module 16 Completion Certificate</h3>
+                    <p>Congratulations on completing CEH v13 Module 16: Hacking Wireless Networks! You have gained essential knowledge in:</p>
+                    
+                    <ul style="line-height: 2; margin: 20px 0;">
+                        <li>✅ Wireless network fundamentals and RF principles</li>
+                        <li>✅ Security protocol analysis (WEP, WPA, WPA2, WPA3)</li>
+                        <li>✅ Attack methodologies and exploitation techniques</li>
+                        <li>✅ Professional wireless security tools</li>
+                        <li>✅ Comprehensive countermeasures and best practices</li>
+                    </ul>
+                </div>
+
+                <div class="success-box">
+                    <h4>Next Steps in Your CEH Journey</h4>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li><strong>Practice Labs:</strong> Apply learned techniques in controlled environments</li>
+                        <li><strong>Module 17:</strong> Continue with the next CEH module</li>
+                        <li><strong>Hands-on Testing:</strong> Conduct authorized wireless security assessments</li>
+                        <li><strong>CEH Certification:</strong> Prepare for the official CEH exam</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Skills Acquired</h3>
+                    <div class="grid-container">
+                        <div class="grid-item">
+                            <h4>Technical Skills</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>Wireless protocol analysis</li>
+                                <li>Attack vector identification</li>
+                                <li>Security tool proficiency</li>
+                                <li>Network reconnaissance</li>
+                            </ul>
+                        </div>
+
+                        <div class="grid-item">
+                            <h4>Security Assessment</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>Vulnerability scanning</li>
+                                <li>Penetration testing</li>
+                                <li>Risk assessment</li>
+                                <li>Remediation planning</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>Ethical Hacking Reminder</h4>
+                    <p>Always ensure you have proper authorization before conducting any wireless security testing. Use your knowledge responsibly to improve security, not to cause harm.</p>
+                    
+                    <div style="margin-top: 15px;">
+                        <strong>Legal Requirements:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Written authorization for all testing activities</li>
+                            <li>Scope limitations and boundaries clearly defined</li>
+                            <li>Professional liability insurance coverage</li>
+                            <li>Compliance with local and federal laws</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Recommended Resources</h3>
+                    <table class="vulnerability-table">
+                        <thead>
+                            <tr>
+                                <th>Resource Type</th>
+                                <th>Description</th>
+                                <th>Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Practice Labs</strong></td>
+                                <td>Virtual wireless environments for safe testing</td>
+                                <td>Beginner to Advanced</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hardware Kits</strong></td>
+                                <td>USB adapters and dedicated testing hardware</td>
+                                <td>Intermediate</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Online Courses</strong></td>
+                                <td>Advanced wireless security specialization</td>
+                                <td>Advanced</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Certification Prep</strong></td>
+                                <td>CEH exam preparation materials</td>
+                                <td>All Levels</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <button class="btn btn-primary" onclick="showSection('quiz')">← Previous</button>
+                <button class="btn btn-success" onclick="resetModule()">🔄 Restart Module</button>
+            </div>
+        </div>
+
+        <!-- Modal for detailed information -->
+        <div id="detailModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <div id="modal-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Section navigation functionality
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.module-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation buttons
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update progress
+            updateProgress(sectionId);
+        }
+
+        // Progress tracking
+        function updateProgress(sectionId) {
+            const sections = ['overview', 'fundamentals', 'protocols', 'attacks', 'wep-attacks', 'wpa-attacks', 'tools', 'countermeasures', 'quiz', 'certification'];
+            const currentIndex = sections.indexOf(sectionId);
+            const progress = Math.round(((currentIndex + 1) / sections.length) * 100);
+            
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = progress + '%';
+            progressText.textContent = `Progress: ${progress}% Complete`;
+        }
+
+        // Modal functionality
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function showAttackDetails(attackType) {
+            const modal = document.getElementById('detailModal');
+            const modalBody = document.getElementById('modal-body');
+            
+            let content = '';
+            switch(attackType) {
+                case 'passive-attacks':
+                    content = `
+                        <h3>Passive Attack Techniques</h3>
+                        <p>Passive attacks involve monitoring and eavesdropping without actively interfering with network operations.</p>
+                        <h4>Key Characteristics:</h4>
+                        <ul>
+                            <li>Difficult to detect</li>
+                            <li>No direct network interference</li>
+                            <li>Focus on information gathering</li>
+                            <li>Often precede active attacks</li>
+                        </ul>
+                        <h4>Common Techniques:</h4>
+                        <ul>
+                            <li>Traffic analysis and pattern recognition</li>
+                            <li>Signal strength mapping</li>
+                            <li>Protocol fingerprinting</li>
+                            <li>Metadata collection</li>
+                        </ul>
+                    `;
+                    break;
+                // Add more cases as needed
+            }
+            
+            modalBody.innerHTML = content;
+            modal.style.display = 'block';
+        }
+
+        // Quiz functionality
+        function selectOption(element, isCorrect) {
+            const options = element.parentNode.querySelectorAll('.option');
+            options.forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+                if (opt === element) {
+                    opt.classList.add('selected');
+                    opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+                } else if (opt.onclick.toString().includes('true')) {
+                    opt.classList.add('correct');
+                } else {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            // Show explanation
+            const explanation = element.parentNode.querySelector('.explanation');
+            if (explanation) {
+                explanation.style.display = 'block';
+            }
+        }
+
+        function showResults() {
+            const totalQuestions = document.querySelectorAll('.question-card').length;
+            const correctAnswers = document.querySelectorAll('.option.correct.selected').length;
+            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+            
+            let resultMessage = '';
+            if (percentage >= 90) {
+                resultMessage = '🏆 Outstanding! You have mastered wireless security concepts.';
+            } else if (percentage >= 80) {
+                resultMessage = '✅ Excellent work! You have a strong understanding of wireless security.';
+            } else if (percentage >= 70) {
+                resultMessage = '✅ Good job! Review the areas where you missed questions.';
+            } else if (percentage >= 60) {
+                resultMessage = '⚠️ Fair performance. Consider reviewing the material before proceeding.';
+            } else {
+                resultMessage = '❌ Please review the material thoroughly before continuing.';
+            }
+            
+            document.getElementById('quiz-results').innerHTML = `
+                <strong>Assessment Complete!</strong><br>
+                Score: ${correctAnswers}/${totalQuestions} (${percentage}%)<br>
+                ${resultMessage}
+            `;
+        }
+
+        function resetQuiz() {
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+            document.querySelectorAll('.explanation').forEach(exp => {
+                exp.style.display = 'none';
+            });
+            document.getElementById('quiz-results').textContent = 'Complete all questions to see your results.';
+        }
+
+        // Reset module
+        function resetModule() {
+            showSection('overview');
+            resetQuiz();
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Initialize progress
+        updateProgress('overview');
+    </script>
+</body>
+</html>
