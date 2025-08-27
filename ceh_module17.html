@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH v13 Module 17: Hacking Mobile Platforms</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --info-color: #17a2b8;
+            --dark-color: #1a1a1a;
+            --light-color: #ecf0f1;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-accent: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-hover: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            height: 8px;
+            margin: 20px 0 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-success);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+            width: 0%;
+            position: relative;
+        }
+
+        #progressText {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .navigation {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            background: var(--gradient-secondary);
+            color: white;
+        }
+
+        .nav-btn.active {
+            background: var(--gradient-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .module-section {
+            display: none;
+        }
+
+        .module-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--gradient-accent);
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,249,250,0.9));
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .card h4 {
+            color: var(--secondary-color);
+            margin: 15px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .threat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .threat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .threat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .attack-vector {
+            background: var(--gradient-accent);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .security-tip {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid rgba(255,255,255,0.3);
+        }
+
+        .tool-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .tool-card {
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover {
+            border-color: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .quiz-container {
+            margin: 20px 0;
+        }
+
+        .quiz-question {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--info-color);
+        }
+
+        .quiz-options {
+            margin: 15px 0;
+        }
+
+        .quiz-options label {
+            display: block;
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-options label:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .quiz-options input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--accent-color);
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .resource-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--secondary-color);
+        }
+
+        .resource-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .resource-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .resource-card li {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .resource-card li::before {
+            content: '🔗';
+            position: absolute;
+            left: 0;
+        }
+
+        .resource-card a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .resource-card a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        .certification-preview {
+            text-align: center;
+            padding: 40px;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .owasp-list {
+            counter-reset: owasp-counter;
+        }
+
+        .owasp-item {
+            counter-increment: owasp-counter;
+            background: white;
+            margin: 15px 0;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--accent-color);
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .owasp-item::before {
+            content: "M" counter(owasp-counter, decimal-leading-zero);
+            position: absolute;
+            left: -25px;
+            top: 20px;
+            background: var(--accent-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.8em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-btn {
+                width: 90%;
+                margin: 5px 0;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+
+            .threat-grid,
+            .tool-showcase,
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 CEH v13 Module 17</h1>
+            <p>Hacking Mobile Platforms & Security Assessment</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="progressText">Progress: 0% Complete</p>
+            <div style="margin-top: 15px; font-size: 0.9em; color: rgba(255,255,255,0.8);">
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    ← → Navigate Sections
+                </span>
+                <span style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; margin: 0 5px;">
+                    Esc Close Modal
+                </span>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('overview')">📋 Overview</button>
+            <button class="nav-btn" onclick="showSection('owasp-mobile')">🛡️ OWASP Mobile Top 10</button>
+            <button class="nav-btn" onclick="showSection('android-hacking')">🤖 Android Hacking</button>
+            <button class="nav-btn" onclick="showSection('ios-hacking')">🍎 iOS Hacking</button>
+            <button class="nav-btn" onclick="showSection('attack-vectors')">⚔️ Attack Vectors</button>
+            <button class="nav-btn" onclick="showSection('tools')">🔧 Mobile Hacking Tools</button>
+            <button class="nav-btn" onclick="showSection('countermeasures')">🛡️ Security Countermeasures</button>
+            <button class="nav-btn" onclick="showSection('mdm-security')">📱 MDM & Security</button>
+            <button class="nav-btn" onclick="showSection('quiz')">📝 Assessment</button>
+            <button class="nav-btn" onclick="showSection('certification')">🏆 Certification</button>
+        </div>
+
+        <div class="content-area">
+            <!-- Overview Section -->
+            <div id="overview" class="module-section active">
+                <h2 class="section-title">🎯 Module 17 Overview</h2>
+                
+                <div class="card">
+                    <h3>📱 Mobile Platform Security: The Modern Battlefield</h3>
+                    <p>Welcome to CEH v13 Module 17! In today's interconnected world, mobile devices have become the primary gateway to digital services, making them attractive targets for cybercriminals. This module provides comprehensive coverage of mobile platform security, focusing on real-world attack vectors and defense strategies.</p>
+                </div>
+
+                <div class="card">
+                    <h3>🎓 Learning Objectives</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>🔍 Mobile Threat Landscape</h4>
+                            <p>Understand the current mobile security threats, attack vectors, and vulnerability trends affecting Android and iOS platforms.</p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>🛡️ OWASP Mobile Security</h4>
+                            <p>Master the OWASP Mobile Top 10 2024 risks and learn to identify and exploit common mobile application vulnerabilities.</p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>⚔️ Platform-Specific Attacks</h4>
+                            <p>Learn advanced techniques for Android and iOS exploitation, including jailbreaking, rooting, and bypassing security controls.</p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>🔧 Security Assessment Tools</h4>
+                            <p>Master professional mobile security testing tools and methodologies used in penetration testing engagements.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Mobile Security Statistics 2024</h3>
+                    <div style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1)); padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <ul style="line-height: 2;">
+                            <li><strong>🏆 6.8 billion smartphone users worldwide</strong> - representing 85% of the global population</li>
+                            <li><strong>🔥 97% of malware targets Android</strong> - making it the primary focus for mobile security</li>
+                            <li><strong>📈 50% increase in mobile banking trojans</strong> - targeting financial applications</li>
+                            <li><strong>🎯 75% of mobile apps fail basic security tests</strong> - highlighting widespread vulnerabilities</li>
+                            <li><strong>💰 $4.8 million average cost</strong> - for mobile data breaches in enterprise environments</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('owasp-mobile')">Next: OWASP Mobile Top 10 →</button>
+            </div>
+
+            <!-- OWASP Mobile Top 10 Section -->
+            <div id="owasp-mobile" class="module-section">
+                <h2 class="section-title">🛡️ OWASP Mobile Top 10 2024</h2>
+                
+                <div class="card">
+                    <h3>🎯 The Mobile Security Foundation</h3>
+                    <p>The OWASP Mobile Top 10 represents the most critical security risks facing mobile applications today. Understanding these risks is essential for any mobile security assessment.</p>
+                </div>
+
+                <div class="owasp-list">
+                    <div class="owasp-item">
+                        <h4>Improper Credential Usage</h4>
+                        <p><strong>Risk Level:</strong> Critical</p>
+                        <p>Mobile apps storing credentials insecurely, using hardcoded API keys, or failing to implement proper authentication mechanisms.</p>
+                        <div class="attack-vector">
+                            <strong>Common Attacks:</strong> Credential extraction, API key harvesting, reverse engineering
+                        </div>
+                    </div>
+
+                    <div class="owasp-item">
+                        <h4>Inadequate Supply Chain Security</h4>
+                        <p><strong>Risk Level:</strong> High</p>
+                        <p>Vulnerabilities introduced through third-party libraries, SDKs, or compromised development tools.</p>
+                        <div class="attack-vector">
+                            <strong>Common Attacks:</strong> Malicious SDK injection, compromised libraries, supply chain poisoning
+                        </div>
+                    </div>
+
+                    <div class="owasp-item">
+                        <h4>Insecure Authentication/Authorization</h4>
+                        <p><strong>Risk Level:</strong> High</p>
+                        <p>Weak authentication schemes, poor session management, or inadequate authorization controls.</p>
+                        <div class="attack-vector">
+                            <strong>Common Attacks:</strong> Session hijacking, privilege escalation, authentication bypass
+                        </div>
+                    </div>
+
+                    <div class="owasp-item">
+                        <h4>Insufficient Input/Output Validation</h4>
+                        <p><strong>Risk Level:</strong> High</p>
+                        <p>Failure to properly validate input data or sanitize output, leading to injection attacks.</p>
+                        <div class="attack-vector">
+                            <strong>Common Attacks:</strong> SQL injection, XSS, command injection, path traversal
+                        </div>
+                    </div>
+
+                    <div class="owasp-item">
+                        <h4>Insecure Communication</h4>
+                        <p><strong>Risk Level:</strong> High</p>
+                        <p>Unencrypted data transmission, weak TLS implementation, or certificate validation bypasses.</p>
+                        <div class="attack-vector">
+                            <strong>Common Attacks:</strong> Man-in-the-middle, traffic interception, certificate pinning bypass
+                        </div>
+                    </div>
+
+                    <div class="owasp-item">
+                        <h4>Inadequate Privacy Controls</h4>
+                        <p><strong>Risk Level:</strong> Medium</p>
+                        <p>Excessive data collection, inadequate consent mechanisms, or privacy policy violations.</p>
+                        <div class="attack-vector">
+                            <strong>Common Attacks:</strong> Data harvesting, privacy violations, unauthorized tracking
+                        </div>
+                    </div>
+
+                    <div class="owasp-item">
+                        <h4>Insufficient Binary Protections</h4>
+                        <p><strong>Risk Level:</strong> Medium</p>
+                        <p>Lack of code obfuscation, anti-tampering measures, or runtime application self-protection.</p>
+                        <div class="attack-vector">
+                            <strong>Common Attacks:</strong> Reverse engineering, code tampering, runtime manipulation
+                        </div>
+                    </div>
+
+                    <div class="owasp-item">
+                        <h4>Security Misconfiguration</h4>
+                        <p><strong>Risk Level:</strong> Medium</p>
+                        <p>Default configurations, unnecessary features enabled, or improper security settings.</p>
+                        <div class="attack-vector">
+                            <strong>Common Attacks:</strong> Information disclosure, privilege escalation, feature abuse
+                        </div>
+                    </div>
+
+                    <div class="owasp-item">
+                        <h4>Insecure Data Storage</h4>
+                        <p><strong>Risk Level:</strong> Medium</p>
+                        <p>Sensitive data stored in plaintext, weak encryption, or accessible storage locations.</p>
+                        <div class="attack-vector">
+                            <strong>Common Attacks:</strong> Local data extraction, database compromise, file system access
+                        </div>
+                    </div>
+
+                    <div class="owasp-item">
+                        <h4>Insufficient Cryptography</h4>
+                        <p><strong>Risk Level:</strong> Medium</p>
+                        <p>Weak encryption algorithms, poor key management, or cryptographic implementation flaws.</p>
+                        <div class="attack-vector">
+                            <strong>Common Attacks:</strong> Cryptographic attacks, key extraction, cipher breaking
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('android-hacking')">Next: Android Hacking →</button>
+            </div>
+
+            <!-- Android Hacking Section -->
+            <div id="android-hacking" class="module-section">
+                <h2 class="section-title">🤖 Android Platform Hacking</h2>
+                
+                <div class="card">
+                    <h3>🎯 Android Security Architecture</h3>
+                    <p>Android's Linux-based architecture provides multiple layers of security, but also presents unique attack opportunities. Understanding the platform's security model is crucial for effective penetration testing.</p>
+                    
+                    <div class="threat-grid">
+                        <div class="threat-card">
+                            <h4>📦 Application Sandbox</h4>
+                            <p>Each app runs in its own process with unique UID, providing isolation between applications</p>
+                        </div>
+                        
+                        <div class="threat-card">
+                            <h4>🛡️ Permission Model</h4>
+                            <p>Runtime and install-time permissions control access to system resources and user data</p>
+                        </div>
+                        
+                        <div class="threat-card">
+                            <h4>🔐 Secure Boot</h4>
+                            <p>Hardware-backed key attestation and verified boot process protect system integrity</p>
+                        </div>
+                        
+                        <div class="threat-card">
+                            <h4>🔒 KeyStore System</h4>
+                            <p>Hardware security module for cryptographic key storage and operations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚔️ Common Android Attack Techniques</h3>
+                    
+                    <h4>1. 🔓 Rooting & Bootloader Unlocking</h4>
+                    <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>Objective:</strong> Gain administrative access to the Android system</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Exploit kernel vulnerabilities (CVE-2016-5195 "Dirty COW")</li>
+                            <li>Use manufacturer-specific exploits</li>
+                            <li>Unlock bootloader through fastboot commands</li>
+                            <li>Install custom recovery (TWRP, CWM)</li>
+                            <li>Flash rooting packages (Magisk, SuperSU)</li>
+                        </ul>
+                    </div>
+
+                    <h4>2. 📱 APK Analysis & Reverse Engineering</h4>
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>Tools Required:</strong> APKTool, Jadx, Frida, Objection</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Static analysis of APK files</li>
+                            <li>Decompile to Java/Smali code</li>
+                            <li>Extract resources and certificates</li>
+                            <li>Identify hardcoded credentials/API keys</li>
+                            <li>Analyze manifest permissions</li>
+                        </ul>
+                    </div>
+
+                    <h4>3. 🔥 Runtime Manipulation</h4>
+                    <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>Framework:</strong> Frida Dynamic Instrumentation</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Hook Java methods and native functions</li>
+                            <li>Bypass SSL certificate pinning</li>
+                            <li>Modify application behavior in real-time</li>
+                            <li>Extract encryption keys from memory</li>
+                            <li>Bypass anti-debugging protections</li>
+                        </ul>
+                    </div>
+
+                    <h4>4. 🔐 FRP (Factory Reset Protection) Bypass</h4>
+                    <div style="background: rgba(243, 156, 18, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>Techniques:</strong> Samsung, LG, HTC specific methods</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Emergency dialer exploits</li>
+                            <li>Accessibility service abuse</li>
+                            <li>Download mode exploits</li>
+                            <li>ADB bypass methods</li>
+                            <li>Combination firmware usage</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🦠 Android Malware Analysis</h3>
+                    <p>Understanding mobile malware behavior is crucial for developing effective countermeasures.</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: linear-gradient(135deg, #FF6B6B, #4ECDC4); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🏦 Banking Trojans</h4>
+                            <p><strong>Examples:</strong> Anubis, Cerberus, Exobot</p>
+                            <p>Steal banking credentials, intercept SMS, perform fraudulent transactions</p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #A8E6CF, #3498DB); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>📞 Spyware</h4>
+                            <p><strong>Examples:</strong> FlexiSpy, mSpy, Pegasus</p>
+                            <p>Monitor calls, messages, location, and app usage</p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #FFD93D, #6BCF7F); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🔒 Ransomware</h4>
+                            <p><strong>Examples:</strong> Android/Lockdroid, Simplocker</p>
+                            <p>Encrypt files or lock device until ransom is paid</p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #FF8A80, #FF5722); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>💰 Adware/Clickers</h4>
+                            <p><strong>Examples:</strong> HiddenAds, AdWare.AndroidOS.Agent</p>
+                            <p>Display unwanted ads, perform click fraud</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('ios-hacking')">Next: iOS Hacking →</button>
+            </div>
+
+            <!-- iOS Hacking Section -->
+            <div id="ios-hacking" class="module-section">
+                <h2 class="section-title">🍎 iOS Platform Hacking</h2>
+                
+                <div class="card">
+                    <h3>🎯 iOS Security Model</h3>
+                    <p>iOS implements a highly restrictive security model with multiple layers of protection. Understanding these security mechanisms is essential for iOS penetration testing.</p>
+                    
+                    <div class="threat-grid">
+                        <div class="threat-card">
+                            <h4>🔐 Code Signing</h4>
+                            <p>All executables must be signed by Apple or the developer, preventing unauthorized code execution</p>
+                        </div>
+                        
+                        <div class="threat-card">
+                            <h4>📦 App Sandbox</h4>
+                            <p>Strict app isolation prevents inter-app communication and file system access</p>
+                        </div>
+                        
+                        <div class="threat-card">
+                            <h4>🛡️ System Integrity Protection</h4>
+                            <p>SIP protects critical system files from modification, even with root access</p>
+                        </div>
+                        
+                        <div class="threat-card">
+                            <h4>🔒 Secure Enclave</h4>
+                            <p>Hardware security processor for cryptographic operations and biometric data</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚔️ iOS Exploitation Techniques</h3>
+                    
+                    <h4>1. 🔓 Jailbreaking Methods</h4>
+                    <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>Modern Jailbreaks:</strong> Unc0ver, checkra1n, Taurine, Odyssey</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>Tethered:</strong> Requires computer connection for each boot</li>
+                            <li><strong>Untethered:</strong> Persistent jailbreak across reboots</li>
+                            <li><strong>Semi-tethered:</strong> Partial functionality without re-jailbreaking</li>
+                            <li><strong>Semi-untethered:</strong> App-based re-jailbreaking capability</li>
+                        </ul>
+                    </div>
+
+                    <h4>2. 📱 IPA Analysis & Class Dumping</h4>
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>Tools:</strong> class-dump, otool, Hopper Disassembler, Ghidra</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Extract IPA files from jailbroken devices</li>
+                            <li>Decrypt App Store binaries</li>
+                            <li>Dump Objective-C class information</li>
+                            <li>Analyze binary structure and dependencies</li>
+                            <li>Identify private APIs and methods</li>
+                        </ul>
+                    </div>
+
+                    <h4>3. 🔥 Runtime Manipulation with Frida</h4>
+                    <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>iOS-Specific Techniques:</strong> Method hooking, bypasses</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Hook Objective-C methods and Swift functions</li>
+                            <li>Bypass jailbreak detection mechanisms</li>
+                            <li>Manipulate Touch ID/Face ID authentication</li>
+                            <li>Extract keychain data</li>
+                            <li>Bypass SSL certificate pinning</li>
+                        </ul>
+                    </div>
+
+                    <h4>4. 🐚 Post-Exploitation with SeaShell Framework</h4>
+                    <div style="background: rgba(46, 204, 113, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>Advanced Post-Exploitation:</strong> SeaShell iOS framework</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Persistent backdoor installation</li>
+                            <li>Remote command execution</li>
+                            <li>Data exfiltration capabilities</li>
+                            <li>Stealth operation modes</li>
+                            <li>Multi-device management</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 iOS Vulnerability Research</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>🦠 iOS Malware Families</h4>
+                            <ul style="line-height: 1.8; margin: 10px 0;">
+                                <li><strong>XcodeGhost:</strong> Trojanized Xcode infections</li>
+                                <li><strong>YiSpecter:</strong> Private API abuse malware</li>
+                                <li><strong>AceDeceiver:</strong> DRM exploitation</li>
+                                <li><strong>Pegasus:</strong> Nation-state spyware</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>🔥 Common iOS Vulnerabilities</h4>
+                            <ul style="line-height: 1.8; margin: 10px 0;">
+                                <li><strong>Memory Corruption:</strong> Buffer overflows, use-after-free</li>
+                                <li><strong>Logic Bugs:</strong> Race conditions, state confusion</li>
+                                <li><strong>Kernel Exploits:</strong> Privilege escalation bugs</li>
+                                <li><strong>WebKit Exploits:</strong> Safari/WebView RCE</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('attack-vectors')">Next: Attack Vectors →</button>
+            </div>
+
+            <!-- Attack Vectors Section -->
+            <div id="attack-vectors" class="module-section">
+                <h2 class="section-title">⚔️ Mobile Attack Vectors</h2>
+                
+                <div class="card">
+                    <h3>🎯 Comprehensive Attack Surface</h3>
+                    <p>Mobile devices present multiple attack surfaces that threat actors can exploit. Understanding these vectors is crucial for comprehensive security assessment.</p>
+                </div>
+
+                <div class="threat-grid">
+                    <div class="threat-card">
+                        <h4>📡 Network-Based Attacks</h4>
+                        <p><strong>Vectors:</strong> Wi-Fi, Bluetooth, Cellular</p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Evil Twin Wi-Fi networks</li>
+                            <li>Bluetooth Low Energy attacks</li>
+                            <li>Cellular protocol exploitation</li>
+                            <li>Man-in-the-Middle attacks</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="threat-card">
+                        <h4>💾 Physical Access Attacks</h4>
+                        <p><strong>Scenarios:</strong> Lost, stolen, or seized devices</p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Lock screen bypass techniques</li>
+                            <li>Forensic data extraction</li>
+                            <li>Hardware implants</li>
+                            <li>Side-channel attacks</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="threat-card">
+                        <h4>🌐 Web-Based Attacks</h4>
+                        <p><strong>Vectors:</strong> Mobile browsers, WebViews</p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Mobile browser exploits</li>
+                            <li>WebView vulnerabilities</li>
+                            <li>Drive-by downloads</li>
+                            <li>JavaScript injection</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="threat-card">
+                        <h4>📱 Application-Based Attacks</h4>
+                        <p><strong>Vectors:</strong> Malicious apps, legitimate app abuse</p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Malware distribution</li>
+                            <li>Privilege escalation</li>
+                            <li>Data exfiltration</li>
+                            <li>Social engineering</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="threat-card">
+                        <h4>☁️ Cloud Service Attacks</h4>
+                        <p><strong>Targets:</strong> Backup services, sync platforms</p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>iCloud/Google Drive compromise</li>
+                            <li>Backup data extraction</li>
+                            <li>Account credential theft</li>
+                            <li>Cross-device propagation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="threat-card">
+                        <h4>🔗 Supply Chain Attacks</h4>
+                        <p><strong>Vectors:</strong> Compromised development tools</p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>Malicious SDK injection</li>
+                            <li>App store compromise</li>
+                            <li>Developer tool infection</li>
+                            <li>Third-party library exploitation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🚨 Advanced Persistent Threats (APT) in Mobile</h3>
+                    <div style="background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(155, 89, 182, 0.1)); padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <h4>📊 Notable Mobile APT Campaigns</h4>
+                        <ul style="line-height: 2; margin: 10px 0;">
+                            <li><strong>🇮🇱 Cellebrite UFED:</strong> Law enforcement mobile forensics platform</li>
+                            <li><strong>🕵️ Pegasus (NSO Group):</strong> Zero-click iOS/Android spyware</li>
+                            <li><strong>🔒 GrayKey (Grayshift):</strong> iOS password cracking device</li>
+                            <li><strong>🚨 Predator (Cytrox):</strong> Commercial grade surveillance malware</li>
+                            <li><strong>🌍 Operation Poisoned News:</strong> Android malware campaign targeting dissidents</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📱 Social Engineering Attack Vectors</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: linear-gradient(135deg, #FF6B6B, #4ECDC4); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>📞 Vishing (Voice Phishing)</h4>
+                            <p>Phone calls impersonating banks, tech support, or government agencies to steal credentials</p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #A8E6CF, #3498DB); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>💬 Smishing (SMS Phishing)</h4>
+                            <p>Malicious text messages containing links to fake websites or malware downloads</p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #FFD93D, #6BCF7F); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🔔 Push Notification Abuse</h4>
+                            <p>Deceptive notifications leading users to malicious websites or app installations</p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #FF8A80, #FF5722); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🎭 Fake App Stores</h4>
+                            <p>Alternative app stores distributing malware disguised as legitimate applications</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('tools')">Next: Mobile Hacking Tools →</button>
+            </div>
+
+            <!-- Tools Section -->
+            <div id="tools" class="module-section">
+                <h2 class="section-title">🔧 Mobile Security Testing Tools</h2>
+                
+                <div class="card">
+                    <h3>🛠️ Essential Mobile Penetration Testing Arsenal</h3>
+                    <p>Professional mobile security assessment requires specialized tools for static analysis, dynamic analysis, and runtime manipulation across Android and iOS platforms.</p>
+                </div>
+
+                <div class="tool-showcase">
+                    <div class="tool-card">
+                        <h4>🔥 Frida</h4>
+                        <p><strong>Type:</strong> Dynamic Analysis Framework</p>
+                        <p><strong>Platform:</strong> Android, iOS, Windows, Linux</p>
+                        <p>Runtime instrumentation toolkit for analyzing mobile applications, bypassing security controls, and manipulating application behavior.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> JavaScript API, method hooking, memory manipulation
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4>📱 MobSF</h4>
+                        <p><strong>Type:</strong> Mobile Security Testing Framework</p>
+                        <p><strong>Platform:</strong> Android, iOS</p>
+                        <p>All-in-one automated mobile application security testing framework performing static and dynamic analysis.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> Vulnerability scanning, code analysis, compliance checking
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4>🛡️ Objection</h4>
+                        <p><strong>Type:</strong> Runtime Mobile Exploration</p>
+                        <p><strong>Platform:</strong> Android, iOS</p>
+                        <p>Frida-powered toolkit for mobile security testing without requiring source code access.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> SSL pinning bypass, filesystem access, method tracing
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4>🔍 APKTool</h4>
+                        <p><strong>Type:</strong> APK Reverse Engineering</p>
+                        <p><strong>Platform:</strong> Android</p>
+                        <p>Reverse engineering Android APK files to extract resources, decode manifests, and analyze code.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> APK decompilation, resource extraction, manifest analysis
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4>⚡ Drozer</h4>
+                        <p><strong>Type:</strong> Android Security Assessment</p>
+                        <p><strong>Platform:</strong> Android</p>
+                        <p>Comprehensive Android application security testing framework for finding vulnerabilities.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> IPC testing, provider queries, intent fuzzing
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4>🍎 3uTools</h4>
+                        <p><strong>Type:</strong> iOS Device Management</p>
+                        <p><strong>Platform:</strong> iOS</p>
+                        <p>iOS device management tool for jailbreaking, data extraction, and forensic analysis.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> Jailbreak assistance, backup extraction, device information
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4>🔓 checkra1n</h4>
+                        <p><strong>Type:</strong> iOS Jailbreak Tool</p>
+                        <p><strong>Platform:</strong> iOS (A7-A11 devices)</p>
+                        <p>Semi-tethered jailbreak tool exploiting the checkm8 bootrom vulnerability.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> Bootrom exploit, persistent jailbreak, developer access
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4>📊 Burp Suite Mobile Assistant</h4>
+                        <p><strong>Type:</strong> Web Application Testing</p>
+                        <p><strong>Platform:</strong> Android, iOS</p>
+                        <p>Mobile application for facilitating web application testing with Burp Suite proxy.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> Proxy configuration, certificate installation, traffic analysis
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4>🔐 Keychain Dumper</h4>
+                        <p><strong>Type:</strong> iOS Keychain Analysis</p>
+                        <p><strong>Platform:</strong> iOS (Jailbroken)</p>
+                        <p>Tool for extracting and analyzing keychain items from jailbroken iOS devices.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> Keychain extraction, credential dumping, forensic analysis
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4>🐛 QARK</h4>
+                        <p><strong>Type:</strong> Android Static Analysis</p>
+                        <p><strong>Platform:</strong> Android</p>
+                        <p>LinkedIn's Quick Android Review Kit for automated Android application vulnerability scanning.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> Static analysis, vulnerability detection, reporting
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4>📱 iMazing</h4>
+                        <p><strong>Type:</strong> iOS Device Management</p>
+                        <p><strong>Platform:</strong> iOS</p>
+                        <p>iOS device management software for backup analysis and data extraction.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> Backup analysis, app management, data extraction
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4>🔬 Jadx</h4>
+                        <p><strong>Type:</strong> Android Decompiler</p>
+                        <p><strong>Platform:</strong> Android</p>
+                        <p>Command line and GUI tools for producing Java source code from Android Dex and APK files.</p>
+                        <div class="security-tip">
+                            <strong>Key Features:</strong> Dex to Java conversion, GUI analysis, batch processing
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🚀 Advanced Mobile Testing Techniques</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>🔄 Dynamic Analysis Workflow</h4>
+                            <ol style="line-height: 1.8; margin: 10px 0; text-align: left;">
+                                <li>Device preparation & tool installation</li>
+                                <li>Application installation & configuration</li>
+                                <li>Runtime instrumentation setup</li>
+                                <li>Security control bypass</li>
+                                <li>Vulnerability testing & exploitation</li>
+                            </ol>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 20px; border-radius: 12px;">
+                            <h4>🔍 Static Analysis Process</h4>
+                            <ol style="line-height: 1.8; margin: 10px 0; text-align: left;">
+                                <li>Application binary acquisition</li>
+                                <li>Decompilation & resource extraction</li>
+                                <li>Code review & vulnerability identification</li>
+                                <li>Security configuration analysis</li>
+                                <li>Report generation & recommendations</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('countermeasures')">Next: Security Countermeasures →</button>
+            </div>
+
+            <!-- Countermeasures Section -->
+            <div id="countermeasures" class="module-section">
+                <h2 class="section-title">🛡️ Mobile Security Countermeasures</h2>
+                
+                <div class="card">
+                    <h3>🎯 Defense-in-Depth Strategy</h3>
+                    <p>Effective mobile security requires implementing multiple layers of protection across the entire mobile ecosystem, from device hardware to cloud services.</p>
+                </div>
+
+                <div class="threat-grid">
+                    <div class="threat-card">
+                        <h4>🔐 Device-Level Security</h4>
+                        <ul style="text-align: left; line-height: 1.8;">
+                            <li>Strong authentication (PIN, password, biometrics)</li>
+                            <li>Device encryption (FileVault, BitLocker)</li>
+                            <li>Automatic lock timeouts</li>
+                            <li>Remote wipe capabilities</li>
+                            <li>Jailbreak/root detection</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="threat-card">
+                        <h4>📱 Application Security</h4>
+                        <ul style="text-align: left; line-height: 1.8;">
+                            <li>Code obfuscation & anti-tampering</li>
+                            <li>Runtime application self-protection (RASP)</li>
+                            <li>Certificate pinning implementation</li>
+                            <li>Secure coding practices</li>
+                            <li>Regular security testing</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="threat-card">
+                        <h4>🌐 Network Security</h4>
+                        <ul style="text-align: left; line-height: 1.8;">
+                            <li>VPN usage for public Wi-Fi</li>
+                            <li>TLS 1.3 implementation</li>
+                            <li>Certificate validation</li>
+                            <li>Network access control</li>
+                            <li>DNS filtering & monitoring</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="threat-card">
+                        <h4>☁️ Cloud & Backend Security</h4>
+                        <ul style="text-align: left; line-height: 1.8;">
+                            <li>API security & rate limiting</li>
+                            <li>Server-side validation</li>
+                            <li>Secure authentication protocols</li>
+                            <li>Data encryption at rest/transit</li>
+                            <li>Backup security & compliance</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔧 Technical Security Controls</h3>
+                    
+                    <h4>1. 🛡️ Application Security Measures</h4>
+                    <div style="background: rgba(46, 204, 113, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>Anti-Tampering Techniques:</strong></p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>Code Obfuscation:</strong> String encryption, control flow obfuscation</li>
+                            <li><strong>Runtime Checks:</strong> Debugger detection, emulator detection</li>
+                            <li><strong>Integrity Verification:</strong> Checksum validation, signature verification</li>
+                            <li><strong>Anti-Hooking:</strong> Frida detection, method call verification</li>
+                        </ul>
+                    </div>
+
+                    <h4>2. 🔒 Cryptographic Implementation</h4>
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>Best Practices:</strong></p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>Key Management:</strong> Hardware security modules, key derivation</li>
+                            <li><strong>Encryption Standards:</strong> AES-256, RSA-2048, ECC</li>
+                            <li><strong>Secure Storage:</strong> Keychain (iOS), KeyStore (Android)</li>
+                            <li><strong>Certificate Pinning:</strong> SSL/TLS certificate validation</li>
+                        </ul>
+                    </div>
+
+                    <h4>3. 🔐 Authentication & Authorization</h4>
+                    <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <p><strong>Multi-Factor Authentication:</strong></p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>Biometric Authentication:</strong> Touch ID, Face ID, fingerprint</li>
+                            <li><strong>Token-Based:</strong> TOTP, HOTP, push notifications</li>
+                            <li><strong>Risk-Based:</strong> Device fingerprinting, behavioral analysis</li>
+                            <li><strong>OAuth 2.0/OIDC:</strong> Secure API authentication</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Mobile Threat Intelligence & Monitoring</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                        <div style="background: linear-gradient(135deg, #FF6B6B, #4ECDC4); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🚨 Real-Time Monitoring</h4>
+                            <ul style="line-height: 1.8; margin: 10px 0; text-align: left;">
+                                <li>Mobile Device Management (MDM)</li>
+                                <li>Mobile Threat Defense (MTD)</li>
+                                <li>Application Performance Monitoring</li>
+                                <li>Network traffic analysis</li>
+                                <li>Behavioral anomaly detection</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #A8E6CF, #3498DB); color: white; padding: 20px; border-radius: 10px;">
+                            <h4>🔍 Threat Intelligence</h4>
+                            <ul style="line-height: 1.8; margin: 10px 0; text-align: left;">
+                                <li>Malware signature updates</li>
+                                <li>Vulnerability databases</li>
+                                <li>App store monitoring</li>
+                                <li>Threat actor tracking</li>
+                                <li>IoC (Indicators of Compromise)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('mdm-security')">Next: MDM & Security →</button>
+            </div>
+
+            <!-- MDM Security Section -->
+            <div id="mdm-security" class="module-section">
+                <h2 class="section-title">📱 Mobile Device Management & Enterprise Security</h2>
+                
+                <div class="card">
+                    <h3>🎯 Enterprise Mobile Security Architecture</h3>
+                    <p>Modern enterprises require comprehensive mobile security solutions that balance user productivity with organizational security requirements. MDM/EMM platforms provide centralized control over mobile device fleets.</p>
+                </div>
+
+                <div class="threat-grid">
+                    <div class="threat-card">
+                        <h4>📱 Mobile Device Management (MDM)</h4>
+                        <p><strong>Core Functions:</strong></p>
+                        <ul style="text-align: left; line-height: 1.8;">
+                            <li>Device enrollment & provisioning</li>
+                            <li>Policy enforcement</li>
+                            <li>Remote configuration</li>
+                            <li>Compliance monitoring</li>
+                            <li>Remote wipe capabilities</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="threat-card">
+                        <h4>📦 Mobile Application Management (MAM)</h4>
+                        <p><strong>Capabilities:</strong></p>
+                        <ul style="text-align: left; line-height: 1.8;">
+                            <li>App distribution & updates</li>
+                            <li>Application wrapping</li>
+                            <li>Data loss prevention</li>
+                            <li>App-level VPN</li>
+                            <li>Conditional access control</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="threat-card">
+                        <h4>📧 Mobile Content Management (MCM)</h4>
+                        <p><strong>Features:</strong></p>
+                        <ul style="text-align: left; line-height: 1.8;">
+                            <li>Secure file sharing</li>
+                            <li>Document encryption</li>
+                            <li>Access controls</li>
+                            <li>Audit trails</li>
+                            <li>Collaboration tools</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="threat-card">
+                        <h4>🔐 Mobile Identity Management (MIM)</h4>
+                        <p><strong>Components:</strong></p>
+                        <ul style="text-align: left; line-height: 1.8;">
+                            <li>Single sign-on (SSO)</li>
+                            <li>Multi-factor authentication</li>
+                            <li>Certificate management</li>
+                            <li>Identity federation</li>
+                            <li>Privileged access management</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🏢 Enterprise Security Policies</h3>
+                    
+                    <h4>1. 📋 Device Compliance Policies</h4>
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>OS Version Requirements:</strong> Minimum supported OS versions</li>
+                            <li><strong>Security Patch Level:</strong> Monthly security update requirements</li>
+                            <li><strong>Jailbreak/Root Detection:</strong> Automatic quarantine of compromised devices</li>
+                            <li><strong>Encryption Requirements:</strong> Full device encryption mandatory</li>
+                            <li><strong>Screen Lock Policy:</strong> PIN/password complexity requirements</li>
+                        </ul>
+                    </div>
+
+                    <h4>2. 📱 Application Control Policies</h4>
+                    <div style="background: rgba(46, 204, 113, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>App Whitelisting:</strong> Approved application catalog</li>
+                            <li><strong>App Blacklisting:</strong> Prohibited application restrictions</li>
+                            <li><strong>Sideloading Prevention:</strong> Block installation from unknown sources</li>
+                            <li><strong>App Wrapping:</strong> Security policies applied to enterprise apps</li>
+                            <li><strong>Container Segregation:</strong> Work/personal data separation</li>
+                        </ul>
+                    </div>
+
+                    <h4>3. 🌐 Network Access Control</h4>
+                    <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>VPN Requirements:</strong> Always-on VPN for corporate access</li>
+                            <li><strong>Wi-Fi Restrictions:</strong> Prohibited network connections</li>
+                            <li><strong>Geofencing:</strong> Location-based access controls</li>
+                            <li><strong>Time-Based Access:</strong> Working hours restrictions</li>
+                            <li><strong>Device Trust Levels:</strong> Risk-based access decisions</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔧 Popular MDM/EMM Solutions</h3>
+                    <div class="tool-showcase">
+                        <div class="tool-card">
+                            <h4>🏢 Microsoft Intune</h4>
+                            <p><strong>Platform:</strong> Cross-platform EMM</p>
+                            <p>Cloud-based endpoint management solution integrated with Microsoft 365 and Azure AD.</p>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>🛡️ VMware Workspace ONE</h4>
+                            <p><strong>Platform:</strong> Digital workspace platform</p>
+                            <p>Unified endpoint management and virtual app delivery platform.</p>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>🔒 IBM MaaS360</h4>
+                            <p><strong>Platform:</strong> AI-powered UEM</p>
+                            <p>Unified endpoint management with AI-driven analytics and security.</p>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>📱 Citrix Endpoint Management</h4>
+                            <p><strong>Platform:</strong> Enterprise mobility platform</p>
+                            <p>Comprehensive mobile device and application management solution.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('quiz')">Next: Assessment →</button>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quiz" class="module-section">
+                <h2 class="section-title">📝 Module 17 Assessment</h2>
+                
+                <div class="card">
+                    <h3>🎯 Mobile Platform Security Assessment</h3>
+                    <p>Test your knowledge of mobile platform hacking, OWASP Mobile Top 10, and security countermeasures. This comprehensive assessment covers all major topics from the module.</p>
+                
+                    <div style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1)); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>Assessment Details:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>20 multiple-choice questions</li>
+                            <li>Passing score: 80% (16/20 correct)</li>
+                            <li>Time limit: 30 minutes</li>
+                            <li>Covers all Module 17 topics</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="quiz-container" id="quizContainer">
+                    <!-- Quiz questions will be populated by JavaScript -->
+                </div>
+
+                <div class="card" id="quizResults" style="display: none;">
+                    <h3>📊 Assessment Results</h3>
+                    <div id="resultsContent">
+                        <!-- Results will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="showSection('certification')">View Certification →</button>
+            </div>
+
+            <!-- Certification Section -->
+            <div id="certification" class="module-section">
+                <h2 class="section-title">🏆 CEH v13 Module 17 Certification</h2>
+
+                <div class="certification-preview">
+                    <h2>🎉 Congratulations!</h2>
+                    <p>You have successfully completed CEH v13 Module 17: Hacking Mobile Platforms</p>
+                    <div style="margin: 30px 0;">
+                        <h3>✅ Certification Requirements Met:</h3>
+                        <div style="text-align: left; max-width: 600px; margin: 20px auto;">
+                            <p>☑️ Completed all module sections</p>
+                            <p>☑️ Mastered OWASP Mobile Top 10 2024</p>
+                            <p>☑️ Achieved 80%+ on comprehensive assessment</p>
+                            <p>☑️ Demonstrated mobile security expertise</p>
+                        </div>
+                    </div>
+                    <h4>🎯 Skills Mastered:</h4>
+                    <ul style="text-align: left; max-width: 600px; margin: 20px auto; line-height: 1.8;">
+                        <li>🔍 Mobile threat landscape analysis</li>
+                        <li>🤖 Android platform exploitation techniques</li>
+                        <li>🍎 iOS security assessment methods</li>
+                        <li>⚔️ Mobile attack vector identification</li>
+                        <li>🛡️ Security countermeasure implementation</li>
+                        <li>📱 Enterprise MDM/EMM management</li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="btn btn-success" id="claimCertBtn" onclick="checkCertificationEligibility()">🏆 Check Certification Status</button>
+                    <button class="btn btn-warning" onclick="showSection('overview')" style="margin-left: 10px;">🔄 Review Module</button>
+                </div>
+
+                <div class="card">
+                    <h3>🚀 Next Steps</h3>
+                    <div style="background: var(--gradient-primary); padding: 25px; border-radius: 15px; color: white; margin: 20px 0;">
+                        <h4>🎯 Continue Your CEH Journey</h4>
+                        <ul style="margin: 15px 0; padding-left: 20px; line-height: 1.8;">
+                            <li><strong>Module 18:</strong> IoT and OT Security</li>
+                            <li><strong>Module 19:</strong> Cloud Computing Security</li>
+                            <li><strong>Module 20:</strong> Cryptography and PKI</li>
+                            <li><strong>Advanced Specializations:</strong> Mobile Forensics, IoT Security</li>
+                            <li><strong>Certification Exam:</strong> Schedule your CEH v13 certification</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed information -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let completedSections = new Set();
+        let sectionOrder = ['overview', 'owasp-mobile', 'android-hacking', 'ios-hacking', 'attack-vectors', 'tools', 'countermeasures', 'mdm-security', 'quiz', 'certification'];
+        let quizAnswers = {};
+        let quizScore = 0;
+        let startTime = Date.now();
+        let totalStudyTime = 0;
+
+        // Quiz questions database
+        const quizQuestions = [
+            {
+                question: "Which OWASP Mobile Top 10 2024 risk involves hardcoded API keys and weak authentication mechanisms?",
+                options: [
+                    "Improper Credential Usage",
+                    "Inadequate Supply Chain Security", 
+                    "Insecure Authentication/Authorization",
+                    "Insufficient Input/Output Validation"
+                ],
+                correct: 0,
+                explanation: "M01: Improper Credential Usage addresses hardcoded API keys, weak credential storage, and improper authentication mechanisms in mobile applications."
+            },
+            {
+                question: "What is the primary difference between tethered and untethered iOS jailbreaks?",
+                options: [
+                    "Tethered requires computer connection on each boot, untethered persists across reboots",
+                    "Untethered requires computer connection, tethered does not",
+                    "Tethered works on newer iOS versions, untethered on older",
+                    "There is no significant difference between them"
+                ],
+                correct: 0,
+                explanation: "Tethered jailbreaks require a computer connection every time the device boots, while untethered jailbreaks remain persistent across reboots without external assistance."
+            },
+            {
+                question: "Which tool is specifically designed for runtime manipulation of mobile applications?",
+                options: [
+                    "APKTool",
+                    "Frida",
+                    "MobSF",
+                    "Jadx"
+                ],
+                correct: 1,
+                explanation: "Frida is a dynamic instrumentation framework specifically designed for runtime manipulation, method hooking, and behavior modification of mobile applications."
+            },
+            {
+                question: "What does FRP stand for in Android security context?",
+                options: [
+                    "File Resource Protection",
+                    "Factory Reset Protection",
+                    "Firmware Root Prevention",
+                    "Fingerprint Recognition Protocol"
+                ],
+                correct: 1,
+                explanation: "FRP (Factory Reset Protection) is an Android security feature that prevents unauthorized factory resets and requires original Google account credentials for device setup."
+            },
+            {
+                question: "Which iOS security feature prevents modification of critical system files even with root access?",
+                options: [
+                    "Code Signing",
+                    "App Sandbox",
+                    "System Integrity Protection",
+                    "Secure Enclave"
+                ],
+                correct: 2,
+                explanation: "System Integrity Protection (SIP) is a security feature that protects critical system files and processes from modification, even by users with root privileges."
+            },
+            {
+                question: "What is the primary purpose of certificate pinning in mobile applications?",
+                options: [
+                    "To improve application performance",
+                    "To prevent man-in-the-middle attacks",
+                    "To reduce battery consumption",
+                    "To enable offline functionality"
+                ],
+                correct: 1,
+                explanation: "Certificate pinning prevents man-in-the-middle attacks by validating that the server's certificate matches a known, trusted certificate embedded in the application."
+            },
+            {
+                question: "Which Android component is most commonly exploited for privilege escalation?",
+                options: [
+                    "Activities",
+                    "Services",
+                    "Content Providers",
+                    "Broadcast Receivers"
+                ],
+                correct: 2,
+                explanation: "Content Providers are frequently exploited for privilege escalation due to improper permission configurations and SQL injection vulnerabilities."
+            },
+            {
+                question: "What is the SeaShell framework primarily used for?",
+                options: [
+                    "Android static analysis",
+                    "iOS post-exploitation",
+                    "Mobile forensics",
+                    "Cross-platform development"
+                ],
+                correct: 1,
+                explanation: "SeaShell is a post-exploitation framework specifically designed for iOS devices, providing persistent backdoor capabilities and remote command execution."
+            },
+            {
+                question: "Which mobile malware type specifically targets banking applications?",
+                options: [
+                    "Adware",
+                    "Spyware", 
+                    "Banking Trojan",
+                    "Ransomware"
+                ],
+                correct: 2,
+                explanation: "Banking Trojans are specialized malware designed to steal banking credentials, intercept SMS messages, and perform fraudulent transactions."
+            },
+            {
+                question: "What does MDM stand for in enterprise mobile security?",
+                options: [
+                    "Mobile Data Management",
+                    "Mobile Device Management",
+                    "Mobile Development Management", 
+                    "Mobile Defense Mechanism"
+                ],
+                correct: 1,
+                explanation: "MDM (Mobile Device Management) refers to enterprise solutions for centrally managing, monitoring, and securing mobile devices in organizational environments."
+            },
+            {
+                question: "Which attack vector exploits SMS messages to deliver malicious content?",
+                options: [
+                    "Vishing",
+                    "Smishing",
+                    "Phishing",
+                    "Pharming"
+                ],
+                correct: 1,
+                explanation: "Smishing (SMS Phishing) uses text messages to deliver malicious links or social engineering attacks to mobile device users."
+            },
+            {
+                question: "What is the primary security concern with mobile application sideloading?",
+                options: [
+                    "Increased battery consumption",
+                    "Bypassing app store security reviews",
+                    "Reduced application performance",
+                    "Compatibility issues"
+                ],
+                correct: 1,
+                explanation: "Sideloading bypasses app store security reviews and allows installation of potentially malicious applications that haven't undergone proper security validation."
+            },
+            {
+                question: "Which iOS jailbreak tool exploits the checkm8 bootrom vulnerability?",
+                options: [
+                    "unc0ver",
+                    "Taurine",
+                    "checkra1n",
+                    "Odyssey"
+                ],
+                correct: 2,
+                explanation: "checkra1n exploits the checkm8 bootrom vulnerability, which is a hardware-level vulnerability affecting iPhone 5s through iPhone X devices."
+            },
+            {
+                question: "What is the primary purpose of application wrapping in mobile security?",
+                options: [
+                    "Improving application performance",
+                    "Adding security policies without modifying source code",
+                    "Reducing application size",
+                    "Enhancing user interface design"
+                ],
+                correct: 1,
+                explanation: "Application wrapping adds security policies and controls to mobile applications without requiring access to or modification of the original source code."
+            },
+            {
+                question: "Which mobile security testing approach analyzes application code without executing it?",
+                options: [
+                    "Dynamic Analysis",
+                    "Static Analysis",
+                    "Runtime Analysis",
+                    "Behavioral Analysis"
+                ],
+                correct: 1,
+                explanation: "Static Analysis examines application code, binaries, and resources without executing the application, identifying potential vulnerabilities through code review."
+            },
+            {
+                question: "What is the primary function of the Android KeyStore system?",
+                options: [
+                    "Application data storage",
+                    "User preference management",
+                    "Cryptographic key storage and operations",
+                    "System configuration management"
+                ],
+                correct: 2,
+                explanation: "Android KeyStore provides hardware-backed secure storage and cryptographic operations for sensitive cryptographic keys and certificates."
+            },
+            {
+                question: "Which social engineering attack specifically targets mobile device users through voice calls?",
+                options: [
+                    "Smishing",
+                    "Vishing",
+                    "Phishing",
+                    "Baiting"
+                ],
+                correct: 1,
+                explanation: "Vishing (Voice Phishing) uses phone calls to impersonate trusted entities and trick victims into revealing sensitive information or performing harmful actions."
+            },
+            {
+                question: "What does RASP stand for in mobile application security?",
+                options: [
+                    "Runtime Application Security Protection",
+                    "Remote Access Security Protocol",
+                    "Real-time Application Security Platform",
+                    "Rapid Application Security Provisioning"
+                ],
+                correct: 0,
+                explanation: "RASP (Runtime Application Security Protection) is a technology that detects and prevents attacks in real-time from within the running application."
+            },
+            {
+                question: "Which mobile threat specifically exploits compromised development tools and libraries?",
+                options: [
+                    "Network-based attacks",
+                    "Physical access attacks",
+                    "Supply chain attacks",
+                    "Social engineering attacks"
+                ],
+                correct: 2,
+                explanation: "Supply chain attacks compromise development tools, libraries, or distribution channels to inject malicious code into legitimate applications during the development process."
+            },
+            {
+                question: "What is the primary advantage of using hardware security modules (HSM) in mobile devices?",
+                options: [
+                    "Improved battery life",
+                    "Faster application performance",
+                    "Tamper-resistant cryptographic operations",
+                    "Enhanced network connectivity"
+                ],
+                correct: 2,
+                explanation: "Hardware Security Modules provide tamper-resistant, isolated environments for cryptographic key storage and operations, significantly enhancing security over software-only solutions."
+            }
+        ];
+
+        // Initialize the module
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('overview');
+            updateProgress();
+        });
+
+        // Section navigation function
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.module-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to corresponding nav button
+            event.target.classList.add('active');
+
+            // Mark section as completed
+            completedSections.add(currentSection);
+            currentSection = sectionId;
+            
+            // Update progress
+            updateProgress();
+
+            // Initialize quiz if quiz section is selected
+            if (sectionId === 'quiz') {
+                initializeQuiz();
+            }
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Update progress function
+        function updateProgress() {
+            const progress = (completedSections.size / sectionOrder.length) * 100;
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressBar.style.width = progress + '%';
+            progressText.textContent = `Progress: ${Math.round(progress)}% Complete`;
+        }
+
+        // Initialize quiz function
+        function initializeQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+
+            quizQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'quiz-question';
+                questionDiv.innerHTML = `
+                    <h4>Question ${index + 1}: ${q.question}</h4>
+                    <div class="quiz-options">
+                        ${q.options.map((option, optIndex) => `
+                            <label>
+                                <input type="radio" name="q${index}" value="${optIndex}" onchange="saveAnswer(${index}, ${optIndex})">
+                                ${option}
+                            </label>
+                        `).join('')}
+                    </div>
+                    <div id="explanation${index}" style="display: none; background: #e8f5e8; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <strong>Explanation:</strong> ${q.explanation}
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+
+            // Add submit button
+            const submitDiv = document.createElement('div');
+            submitDiv.innerHTML = `
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="btn btn-success" onclick="submitQuiz()">Submit Assessment</button>
+                </div>
+            `;
+            container.appendChild(submitDiv);
+        }
+
+        // Save quiz answer
+        function saveAnswer(questionIndex, answerIndex) {
+            quizAnswers[questionIndex] = answerIndex;
+        }
+
+        // Submit quiz function
+        function submitQuiz() {
+            let correct = 0;
+            const total = quizQuestions.length;
+
+            // Calculate score and show explanations
+            quizQuestions.forEach((q, index) => {
+                const userAnswer = quizAnswers[index];
+                const explanationDiv = document.getElementById(`explanation${index}`);
+                
+                if (userAnswer === q.correct) {
+                    correct++;
+                    explanationDiv.style.background = '#d4edda';
+                    explanationDiv.style.color = '#155724';
+                } else {
+                    explanationDiv.style.background = '#f8d7da';
+                    explanationDiv.style.color = '#721c24';
+                }
+                explanationDiv.style.display = 'block';
+            });
+
+            quizScore = Math.round((correct / total) * 100);
+            const passed = quizScore >= 80;
+
+            // Show results
+            const resultsDiv = document.getElementById('quizResults');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsContent.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h2 style="color: ${passed ? '#27ae60' : '#e74c3c'};">
+                        ${passed ? '🎉 Congratulations!' : '📚 Keep Learning!'}
+                    </h2>
+                    <div style="font-size: 2em; margin: 20px 0; color: ${passed ? '#27ae60' : '#e74c3c'};">
+                        ${quizScore}%
+                    </div>
+                    <p><strong>Score:</strong> ${correct} out of ${total} questions correct</p>
+                    <p><strong>Status:</strong> ${passed ? 'PASSED ✅' : 'NEEDS IMPROVEMENT ❌'}</p>
+                    <p><strong>Passing Score:</strong> 80%</p>
+                    
+                    ${passed ? `
+                        <div style="background: linear-gradient(135deg, #d4edda, #c3e6cb); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                            <h4>🏆 Achievement Unlocked!</h4>
+                            <p>You have successfully demonstrated mastery of CEH v13 Module 17: Hacking Mobile Platforms</p>
+                        </div>
+                    ` : `
+                        <div style="background: linear-gradient(135deg, #f8d7da, #f5c6cb); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                            <h4>📚 Study Recommendations</h4>
+                            <p>Review the OWASP Mobile Top 10, mobile attack vectors, and security countermeasures before retaking the assessment.</p>
+                        </div>
+                    `}
+                    
+                    <button class="btn btn-warning" onclick="initializeQuiz()" style="margin: 10px;">
+                        🔄 Retake Assessment
+                    </button>
+                </div>
+            `;
+            
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Modal functions
+        function showModal(title, content) {
+            document.getElementById('modalContent').innerHTML = `<h2>${title}</h2>${content}`;
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // Certification eligibility check
+        function checkCertificationEligibility() {
+            const hasPassedQuiz = quizScore >= 80;
+            const completionPercentage = (completedSections.size / sectionOrder.length) * 100;
+            
+            if (hasPassedQuiz && completionPercentage >= 90) {
+                showModal('🏆 Certification Eligible!', `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 4em; margin: 20px 0;">🎉</div>
+                        <h3>Congratulations!</h3>
+                        <p>You meet all requirements for CEH v13 Module 17 certification:</p>
+                        <div style="text-align: left; margin: 20px 0;">
+                            <p>✅ Module completion: ${Math.round(completionPercentage)}%</p>
+                            <p>✅ Assessment score: ${quizScore}%</p>
+                            <p>✅ Time invested: ${Math.round((Date.now() - startTime) / 60000)} minutes</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                            <h4>🏆 Certificate of Completion</h4>
+                            <p><strong>CEH v13 Module 17: Hacking Mobile Platforms</strong></p>
+                            <p>This certifies proficiency in mobile security assessment, OWASP Mobile Top 10, and mobile platform exploitation techniques.</p>
+                        </div>
+                        <p><em>In a real certification program, this would generate an official certificate.</em></p>
+                    </div>
+                `);
+            } else {
+                showModal('📚 Certification Requirements', `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3>Complete the following to earn certification:</h3>
+                        <div style="text-align: left; margin: 20px 0;">
+                            <p>${completionPercentage >= 90 ? '✅' : '❌'} Complete all module sections (${Math.round(completionPercentage)}%)</p>
+                            <p>${hasPassedQuiz ? '✅' : '❌'} Pass the assessment with 80% or higher (${quizScore}%)</p>
+                        </div>
+                        ${!hasPassedQuiz ? '<p><strong>Please complete the assessment to proceed with certification.</strong></p>' : ''}
+                    </div>
+                `);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            } else if (event.key === 'ArrowLeft') {
+                navigateSection(-1);
+            } else if (event.key === 'ArrowRight') {
+                navigateSection(1);
+            }
+        });
+
+        function navigateSection(direction) {
+            const currentIndex = sectionOrder.indexOf(currentSection);
+            let newIndex = currentIndex + direction;
+            
+            if (newIndex >= 0 && newIndex < sectionOrder.length) {
+                const newSection = sectionOrder[newIndex];
+                showSection(newSection);
+                
+                // Update active nav button
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                const newNavBtn = Array.from(document.querySelectorAll('.nav-btn'))
+                    .find(btn => btn.textContent.toLowerCase().includes(newSection.replace('-', ' ')));
+                if (newNavBtn) {
+                    newNavBtn.classList.add('active');
+                }
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Update study time periodically
+        setInterval(() => {
+            totalStudyTime = Date.now() - startTime;
+        }, 60000); // Update every minute
+    </script>
+</body>
+</html>
