@@ -1,0 +1,2624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEH Chapter 10: Hacking Web Servers - Interactive Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            color: #93c5fd;
+            font-size: 1.2em;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .section {
+            display: none;
+            background: rgba(30, 41, 59, 0.7);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        h2 {
+            color: #60a5fa;
+            margin-bottom: 20px;
+            font-size: 2em;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #93c5fd;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+
+        .info-box {
+            background: rgba(30, 58, 138, 0.3);
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: rgba(153, 27, 27, 0.3);
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .success-box {
+            background: rgba(5, 150, 105, 0.3);
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .code-block {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block pre {
+            color: #94a3b8;
+            margin: 0;
+        }
+
+        .terminal {
+            background: #000000;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            min-height: 200px;
+        }
+
+        .terminal-header {
+            color: #10b981;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .terminal-output {
+            color: #22c55e;
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+
+        .terminal-input {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .terminal-prompt {
+            color: #10b981;
+            margin-right: 5px;
+        }
+
+        .terminal-input input {
+            background: transparent;
+            border: none;
+            color: #22c55e;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            flex: 1;
+            outline: none;
+        }
+
+        .interactive-demo {
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .demo-btn {
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            background: linear-gradient(135deg, #8b5cf6 0%, #c4b5fd 100%);
+            transform: translateY(-2px);
+        }
+
+        input[type="text"],
+        input[type="password"],
+        textarea {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            border-radius: 6px;
+            padding: 10px;
+            color: #e0e0e0;
+            font-size: 1em;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .quiz-container {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .quiz-question {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .quiz-options {
+            margin: 15px 0;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .quiz-option:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+        }
+
+        .quiz-option input[type="radio"] {
+            margin-right: 10px;
+            width: auto;
+        }
+
+        .submit-quiz {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .submit-quiz:hover {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            transform: translateY(-2px);
+        }
+
+        .quiz-result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .quiz-result.pass {
+            background: rgba(5, 150, 105, 0.3);
+            border: 2px solid #10b981;
+        }
+
+        .quiz-result.fail {
+            background: rgba(153, 27, 27, 0.3);
+            border: 2px solid #ef4444;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: rgba(30, 58, 138, 0.6);
+            color: #93c5fd;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+        }
+
+        tr:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .lab-exercise {
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid #8b5cf6;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .lab-steps {
+            counter-reset: step-counter;
+            list-style: none;
+        }
+
+        .lab-steps li {
+            counter-increment: step-counter;
+            margin: 15px 0;
+            padding-left: 40px;
+            position: relative;
+        }
+
+        .lab-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        ul:not(.lab-steps) {
+            margin: 15px 0 15px 30px;
+        }
+
+        ul:not(.lab-steps) li {
+            margin: 8px 0;
+            padding-left: 10px;
+        }
+
+        .owasp-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .owasp-item {
+            background: rgba(30, 58, 138, 0.2);
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .owasp-item:hover {
+            background: rgba(30, 58, 138, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .owasp-number {
+            color: #60a5fa;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 2px solid #3b82f6;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #ef4444;
+            cursor: pointer;
+            line-height: 20px;
+        }
+
+        .close-modal:hover {
+            color: #dc2626;
+        }
+
+        .tool-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .tool-card h4 {
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+
+        .highlight {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        .vulnerability-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        .badge-critical {
+            background: #991b1b;
+            color: #fca5a5;
+        }
+
+        .badge-high {
+            background: #c2410c;
+            color: #fdba74;
+        }
+
+        .badge-medium {
+            background: #a16207;
+            color: #fde047;
+        }
+
+        .badge-low {
+            background: #365314;
+            color: #bef264;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(71, 85, 105, 0.3);
+            color: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+            }
+
+            .owasp-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌐 Chapter 10: Hacking Web Servers</h1>
+            <p class="subtitle">Certified Ethical Hacker (CEH) v13 - Interactive Training Module</p>
+        </header>
+
+        <div class="warning-box">
+            <strong>⚠️ LEGAL DISCLAIMER:</strong> This training material is for authorized security testing and educational purposes only. 
+            Never attempt to test or exploit web servers without explicit written permission. Unauthorized access is illegal and punishable by law.
+        </div>
+
+        <div class="nav-buttons" id="navButtons">
+            <button class="nav-btn active" data-section="overview">Module Overview</button>
+            <button class="nav-btn" data-section="web-apps">Web Applications</button>
+            <button class="nav-btn" data-section="technologies">Technologies</button>
+            <button class="nav-btn" data-section="vulnerabilities">Vulnerabilities</button>
+            <button class="nav-btn" data-section="owasp">OWASP Top 10</button>
+            <button class="nav-btn" data-section="testing">Testing Methods</button>
+            <button class="nav-btn" data-section="tools">Security Tools</button>
+            <button class="nav-btn" data-section="labs">Hands-On Labs</button>
+            <button class="nav-btn" data-section="assessment">Assessment</button>
+        </div>
+
+        <!-- Overview Section -->
+        <section class="section active" id="overview">
+            <h2>📚 Module Overview</h2>
+            
+            <div class="info-box">
+                <h3>Learning Objectives</h3>
+                <p>By the end of this module, you will be able to:</p>
+                <ul>
+                    <li>Describe web application components and architecture</li>
+                    <li>Explain common web application vulnerabilities</li>
+                    <li>Identify and analyze the OWASP Top 10 security risks</li>
+                    <li>Describe various web server testing methodologies</li>
+                    <li>Use security tools to assess web application security</li>
+                    <li>Perform authorized security testing on web servers</li>
+                </ul>
+            </div>
+
+            <h3>Why Web Server Security Matters</h3>
+            <p>Web applications are the primary interface between organizations and their users. Security vulnerabilities in web servers can lead to:</p>
+            
+            <div class="owasp-list">
+                <div class="owasp-item">
+                    <strong>🎯 Website Defacement</strong>
+                    <p>Attackers can modify website content, damaging reputation</p>
+                </div>
+                <div class="owasp-item">
+                    <strong>💾 Data Breaches</strong>
+                    <p>Theft or destruction of sensitive database information</p>
+                </div>
+                <div class="owasp-item">
+                    <strong>👤 Account Compromise</strong>
+                    <p>Unauthorized access to user accounts and credentials</p>
+                </div>
+                <div class="owasp-item">
+                    <strong>🔗 Network Infiltration</strong>
+                    <p>Web server as pivot point to internal network</p>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <strong>📊 Industry Statistics:</strong>
+                <ul>
+                    <li>43% of cyberattacks target small and medium businesses</li>
+                    <li>Web application attacks account for over 30% of all breaches</li>
+                    <li>Average cost of a data breach: $4.45 million (2023)</li>
+                    <li>76% of web applications have at least one critical vulnerability</li>
+                </ul>
+            </div>
+
+            <h3>Course Scope</h3>
+            <p>This module covers:</p>
+            <table>
+                <tr>
+                    <th>Topic</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>Web Application Basics</td>
+                    <td>Static vs. dynamic pages, forms, CGI, frameworks</td>
+                </tr>
+                <tr>
+                    <td>Server Technologies</td>
+                    <td>IIS, Apache, ASP.NET, PHP, database connections</td>
+                </tr>
+                <tr>
+                    <td>Vulnerability Types</td>
+                    <td>OWASP Top 10, injection flaws, authentication issues</td>
+                </tr>
+                <tr>
+                    <td>Testing Methodologies</td>
+                    <td>SAST, DAST, IAST, penetration testing</td>
+                </tr>
+                <tr>
+                    <td>Security Tools</td>
+                    <td>Burp Suite, ZAP, Wapiti, WebGoat, browser dev tools</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Web Applications Section -->
+        <section class="section" id="web-apps">
+            <h2>🌐 Understanding Web Applications</h2>
+
+            <div class="info-box">
+                <strong>Key Principle:</strong> The larger and more accessible a program is, the higher the risk of security vulnerabilities. 
+                Web applications are inherently exposed to millions of potential attackers.
+            </div>
+
+            <h3>Static vs. Dynamic Webpages</h3>
+            
+            <div class="interactive-demo">
+                <h4>Static Webpage Example</h4>
+                <div class="code-block">
+<pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Welcome Page&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Welcome to Our Website&lt;/h1&gt;
+    &lt;p&gt;This content never changes.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+                </div>
+                <p><strong>Characteristics:</strong> Same content for all users, no server-side processing, created with HTML only.</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h4>Dynamic Webpage Components</h4>
+                <p>Dynamic webpages adapt content based on user input, time, database queries, or user identity. They require:</p>
+                <ul>
+                    <li><strong>HTML Forms</strong> - Collect user input</li>
+                    <li><strong>Server-Side Scripts</strong> - Process data (PHP, ASP.NET, JSP)</li>
+                    <li><strong>Database Connections</strong> - Store and retrieve information</li>
+                    <li><strong>Client-Side Scripts</strong> - Enhance user experience (JavaScript, AJAX)</li>
+                </ul>
+            </div>
+
+            <h3>Web Forms</h3>
+            <p>Web forms use the <code>&lt;form&gt;</code> element to collect user input and submit it to a web server for processing.</p>
+
+            <div class="interactive-demo">
+                <h4>Interactive Form Demo</h4>
+                <div id="formDemo">
+                    <form id="demoForm" onsubmit="return handleFormSubmit(event)">
+                        <label>Username:</label>
+                        <input type="text" id="demoUsername" placeholder="Enter username" required>
+                        
+                        <label>Password:</label>
+                        <input type="password" id="demoPassword" placeholder="Enter password" required>
+                        
+                        <button type="submit" class="demo-btn">Submit Form</button>
+                    </form>
+                    <div id="formOutput" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+
+            <h3>Common Gateway Interface (CGI)</h3>
+            <div class="tool-card">
+                <h4>What is CGI?</h4>
+                <p>CGI is an interface standard that determines how a web server passes data to a web browser. It enables dynamic webpage creation using scripting languages like Perl, Python, or C.</p>
+                
+                <div class="code-block">
+<pre>#!/usr/bin/perl
+# Simple CGI script in Perl
+print "Content-type: text/html\n\n";
+print "&lt;html&gt;&lt;body&gt;";
+print "&lt;h1&gt;Hello Security Testers!&lt;/h1&gt;";
+print "&lt;/body&gt;&lt;/html&gt;";</pre>
+                </div>
+                
+                <p><strong>Main Role:</strong> Passing data between web servers and web browsers, enabling dynamic content generation.</p>
+            </div>
+
+            <h3>Third-Party Frameworks & Libraries</h3>
+            <p>Modern web development relies heavily on frameworks that simplify programming but introduce security considerations:</p>
+            
+            <div class="owasp-list">
+                <div class="owasp-item">
+                    <strong>Spring Framework</strong>
+                    <p>Java-based enterprise application framework</p>
+                </div>
+                <div class="owasp-item">
+                    <strong>Angular JS</strong>
+                    <p>JavaScript framework for dynamic web apps</p>
+                </div>
+                <div class="owasp-item">
+                    <strong>React</strong>
+                    <p>UI library for building user interfaces</p>
+                </div>
+                <div class="owasp-item">
+                    <strong>Vue.js</strong>
+                    <p>Progressive framework for UIs</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Security Concern:</strong> As third-party libraries grow in popularity, keeping them current and patched becomes critical. 
+                Many breaches result from using components with known vulnerabilities.
+            </div>
+        </section>
+
+        <!-- Technologies Section -->
+        <section class="section" id="technologies">
+            <h2>⚙️ Web Server Technologies</h2>
+
+            <h3>Web Server Software</h3>
+            <table>
+                <tr>
+                    <th>Server</th>
+                    <th>Market Share</th>
+                    <th>Platforms</th>
+                    <th>Key Features</th>
+                </tr>
+                <tr>
+                    <td>Apache HTTP Server</td>
+                    <td>31.7%</td>
+                    <td>Linux, Windows, macOS</td>
+                    <td>Free, open-source, highly configurable</td>
+                </tr>
+                <tr>
+                    <td>Microsoft IIS</td>
+                    <td>6.7%</td>
+                    <td>Windows Server</td>
+                    <td>Integrated with Windows, ASP.NET support</td>
+                </tr>
+                <tr>
+                    <td>Nginx</td>
+                    <td>33.6%</td>
+                    <td>Linux, Windows, macOS</td>
+                    <td>High performance, reverse proxy, load balancing</td>
+                </tr>
+            </table>
+
+            <h3>Active Server Pages (ASP & ASP.NET)</h3>
+            <div class="tool-card">
+                <h4>ASP.NET Overview</h4>
+                <p>Microsoft's framework for building dynamic web applications using compiled server-side languages like C# and the .NET framework.</p>
+                
+                <div class="code-block">
+<pre>&lt;html&gt;
+&lt;head&gt;&lt;title&gt;My First ASP.NET Webpage&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Hello, security professionals&lt;/h1&gt;
+    The date and time is &lt;%=DateTime.Now %&gt;.
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+                </div>
+
+                <p><strong>Key Points:</strong></p>
+                <ul>
+                    <li>Server processes code before sending HTML to browser</li>
+                    <li>Supports languages like C#, VB.NET, JScript</li>
+                    <li>Not all web servers support ASP.NET (primarily IIS)</li>
+                    <li>More modern and powerful than classic ASP</li>
+                </ul>
+            </div>
+
+            <h3>PHP Hypertext Processor</h3>
+            <div class="interactive-demo">
+                <h4>PHP Basics</h4>
+                <p>PHP is an open-source server-side scripting language widely used for dynamic webpage creation.</p>
+                
+                <div class="code-block">
+<pre>&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;My First PHP Program&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;?php 
+        echo '&lt;h1&gt;Hello, Security Testers!&lt;/h1&gt;';
+        echo '&lt;p&gt;Current time: ' . date('H:i:s') . '&lt;/p&gt;';
+    ?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+                </div>
+
+                <div class="success-box">
+                    <strong>Advantages:</strong>
+                    <ul>
+                        <li>Free and open-source</li>
+                        <li>Cross-platform compatibility</li>
+                        <li>Extensive database support</li>
+                        <li>Large community and resources</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>JavaScript</h3>
+            <div class="interactive-demo">
+                <h4>JavaScript in Web Applications</h4>
+                <p>JavaScript is a powerful client-side scripting language that creates interactive, dynamic webpages.</p>
+                
+                <div class="demo-controls">
+                    <button class="demo-btn" onclick="showJavaScriptDemo()">Run JavaScript Demo</button>
+                    <button class="demo-btn" onclick="clearJavaScriptDemo()">Clear Demo</button>
+                </div>
+                
+                <div id="jsDemo"></div>
+
+                <div class="code-block">
+<pre>&lt;script type="text/javascript"&gt;
+function chastise_user() {
+    alert("So, you like breaking rules?");
+    document.getElementById("cmdButton").focus();
+}
+&lt;/script&gt;
+
+&lt;h3&gt;"If you are a Security Tester, please do not click!"&lt;/h3&gt;
+&lt;button id="cmdButton" onclick="chastise_user()"&gt;
+    Don't Click!
+&lt;/button&gt;</pre>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Security Concerns:</strong> JavaScript vulnerabilities can lead to Cross-Site Scripting (XSS) attacks, 
+                    clickjacking, and client-side data manipulation.
+                </div>
+            </div>
+
+            <h3>Database Connections</h3>
+            
+            <h4>Open Database Connectivity (ODBC)</h4>
+            <div class="info-box">
+                <p><strong>ODBC</strong> is a standard database access method that allows applications to access data stored in any DBMS.</p>
+                <p><strong>Key Features:</strong></p>
+                <ul>
+                    <li>Standardized representation for data types</li>
+                    <li>Library of ODBC function calls</li>
+                    <li>Standard connection and login methods</li>
+                    <li>Platform-independent database access</li>
+                </ul>
+            </div>
+
+            <h4>OLE DB (Object Linking and Embedding Database)</h4>
+            <div class="tool-card">
+                <h4>OLE DB Providers</h4>
+                <p>Designed by Microsoft as a faster, more efficient alternative to ODBC.</p>
+                
+                <table>
+                    <tr>
+                        <th>Provider</th>
+                        <th>Connection String</th>
+                    </tr>
+                    <tr>
+                        <td>SQL Server</td>
+                        <td>Provider=SQLOLEDB</td>
+                    </tr>
+                    <tr>
+                        <td>MySQL</td>
+                        <td>Provider=MySQLProv</td>
+                    </tr>
+                    <tr>
+                        <td>Oracle</td>
+                        <td>Provider=OraOLEDB.Oracle</td>
+                    </tr>
+                    <tr>
+                        <td>Microsoft Jet</td>
+                        <td>Provider=Microsoft.Jet.OLEDB.4.0</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h4>ActiveX Data Objects (ADO)</h4>
+            <div class="interactive-demo">
+                <h4>ADO Database Access Steps</h4>
+                <ol class="lab-steps">
+                    <li>Create an ADO connection to the database</li>
+                    <li>Open the database connection</li>
+                    <li>Create an ADO recordset</li>
+                    <li>Open the recordset</li>
+                    <li>Select data based on criteria</li>
+                    <li>Close recordset and database connection</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Vulnerabilities Section -->
+        <section class="section" id="vulnerabilities">
+            <h2>🔓 Web Application Vulnerabilities</h2>
+
+            <div class="warning-box">
+                <strong>⚠️ Critical Understanding:</strong> Application security is as important as network security. 
+                Attackers controlling a web server can deface websites, steal data, compromise accounts, and pivot to internal networks.
+            </div>
+
+            <h3>Common Vulnerability Categories</h3>
+
+            <div class="interactive-demo">
+                <h4>Input Validation Vulnerabilities</h4>
+                <p>Input validation involves filtering, rejecting, or sanitizing user input before processing. Poor input validation leads to:</p>
+                
+                <div class="owasp-list">
+                    <div class="owasp-item">
+                        <strong>SQL Injection</strong>
+                        <span class="vulnerability-badge badge-critical">CRITICAL</span>
+                        <p>Injecting SQL commands through input fields</p>
+                    </div>
+                    <div class="owasp-item">
+                        <strong>Command Injection</strong>
+                        <span class="vulnerability-badge badge-critical">CRITICAL</span>
+                        <p>Executing OS commands through the application</p>
+                    </div>
+                    <div class="owasp-item">
+                        <strong>XSS (Cross-Site Scripting)</strong>
+                        <span class="vulnerability-badge badge-high">HIGH</span>
+                        <p>Injecting malicious scripts into web pages</p>
+                    </div>
+                    <div class="owasp-item">
+                        <strong>Path Traversal</strong>
+                        <span class="vulnerability-badge badge-high">HIGH</span>
+                        <p>Accessing files outside intended directories</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>SQL Injection Deep Dive</h3>
+            <div class="interactive-demo">
+                <h4>Understanding SQL Injection</h4>
+                <p>SQL Injection (SQLi) occurs when an attacker supplies SQL commands through application input fields.</p>
+
+                <div class="code-block">
+<pre>// Vulnerable SQL Query
+SELECT * FROM customer 
+WHERE tblusername = '<span class="highlight">' OR 1=1 -- </span>' 
+AND tblpassword = '<span class="highlight">' '</span>'
+
+// The injected input
+Username: <span class="highlight">' OR 1=1 --</span>
+Password: (anything)
+
+// Result: Authentication bypassed!
+// Because 1=1 is always TRUE
+// -- comments out the password check</pre>
+                </div>
+
+                <div class="demo-controls">
+                    <button class="demo-btn" onclick="showSQLInjectionDemo()">Run SQLi Demo</button>
+                    <button class="demo-btn" onclick="clearSQLDemo()">Reset</button>
+                </div>
+                
+                <div id="sqlDemo"></div>
+
+                <div class="warning-box">
+                    <strong>Testing for SQL Injection:</strong>
+                    <ul>
+                        <li>Enter punctuation marks in input fields</li>
+                        <li>Try single quotes followed by SQL keywords (SELECT, DROP, etc.)</li>
+                        <li>Look for database error messages</li>
+                        <li>Test for "Blind SQL Injection" when no errors are shown</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Authentication & Authorization Flaws</h3>
+            <div class="tool-card">
+                <h4>Authentication Testing</h4>
+                <p>Key questions to ask during authentication testing:</p>
+                <ul>
+                    <li>Is data passed in cleartext or encrypted?</li>
+                    <li>Are passwords stored securely (hashed and salted)?</li>
+                    <li>Is the authentication server properly configured?</li>
+                    <li>Can authentication be bypassed?</li>
+                    <li>Are session tokens properly generated and protected?</li>
+                </ul>
+            </div>
+
+            <div class="tool-card">
+                <h4>Authorization Testing</h4>
+                <p>Authorization checks whether a user has privileges to access resources. Common issues:</p>
+                <ul>
+                    <li>Reliance on hidden fields or obscured URLs for access control</li>
+                    <li>Lack of server-side privilege verification</li>
+                    <li>Horizontal privilege escalation (accessing other users' data)</li>
+                    <li>Vertical privilege escalation (gaining admin rights)</li>
+                </ul>
+            </div>
+
+            <h3>Error Handling & Information Disclosure</h3>
+            <div class="interactive-demo">
+                <h4>Insecure Error Handling</h4>
+                
+                <div class="warning-box">
+                    <strong>Dangerous Example:</strong>
+                    <div class="code-block">
+<pre>// Error message revealing sensitive information
+Fatal error: Uncaught mysqli_sql_exception: 
+Access denied for user 'webapp_user'@'localhost' 
+(using password: YES) in /var/www/html/login.php:15
+
+Stack trace:
+#0 /var/www/html/login.php(15): mysqli->__construct()
+#1 {main}</pre>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>Secure Alternative:</strong>
+                    <div class="code-block">
+<pre>// Generic error message
+An error occurred while processing your request.
+Please try again later or contact support if the problem persists.</pre>
+                    </div>
+                </div>
+
+                <p><strong>Best Practices:</strong></p>
+                <ul>
+                    <li>Disable debugging mode in production</li>
+                    <li>Log detailed errors server-side only</li>
+                    <li>Display generic messages to users</li>
+                    <li>Never expose stack traces, database info, or file paths</li>
+                </ul>
+            </div>
+
+            <h3>Cryptography Issues</h3>
+            <div class="info-box">
+                <p>Common cryptography problems in web applications:</p>
+                <ul>
+                    <li><strong>Weak Random Number Generators:</strong> Predictable session tokens</li>
+                    <li><strong>Outdated Algorithms:</strong> MD5, SHA-1, DES still in use</li>
+                    <li><strong>Self-Signed Certificates:</strong> No trusted certificate authority validation</li>
+                    <li><strong>Unencrypted Channels:</strong> Sensitive data transmitted over HTTP</li>
+                    <li><strong>Poor Key Management:</strong> Hardcoded keys in source code</li>
+                </ul>
+            </div>
+
+            <h3>Client-Side Vulnerabilities</h3>
+            <div class="warning-box">
+                <strong>Critical Principle:</strong> Never trust client-side security controls alone!
+                
+                <p style="margin-top: 15px;"><strong>Common Client-Side Issues:</strong></p>
+                <ul>
+                    <li>Sensitive data stored in cookies or local storage</li>
+                    <li>Client-side input validation only (can be bypassed)</li>
+                    <li>JavaScript-based access controls</li>
+                    <li>Exposed API keys and credentials in client code</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- OWASP Top 10 Section -->
+        <section class="section" id="owasp">
+            <h2>🛡️ OWASP Top 10 Web Application Security Risks</h2>
+
+            <div class="info-box">
+                <p>The <strong>Open Web Application Security Project (OWASP)</strong> is a not-for-profit organization dedicated to 
+                improving software security. Their "Top 10" list identifies the most critical web application security risks.</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>OWASP Top 10 (Latest Edition)</h3>
+                
+                <div class="owasp-item" style="margin: 15px 0;">
+                    <div class="owasp-number">A01:2021</div>
+                    <h4>Broken Access Control</h4>
+                    <p>Users can act outside their intended permissions, accessing unauthorized functionality or data.</p>
+                    <p><strong>Examples:</strong> URL manipulation, forced browsing, privilege escalation</p>
+                    <span class="vulnerability-badge badge-critical">CRITICAL</span>
+                </div>
+
+                <div class="owasp-item" style="margin: 15px 0;">
+                    <div class="owasp-number">A02:2021</div>
+                    <h4>Cryptographic Failures</h4>
+                    <p>Sensitive data exposed due to lack of encryption, weak algorithms, or poor key management.</p>
+                    <p><strong>Examples:</strong> Passwords stored in plaintext, weak SSL/TLS configurations</p>
+                    <span class="vulnerability-badge badge-critical">CRITICAL</span>
+                </div>
+
+                <div class="owasp-item" style="margin: 15px 0;">
+                    <div class="owasp-number">A03:2021</div>
+                    <h4>Injection</h4>
+                    <p>Hostile data sent to an interpreter as part of a command or query, tricking it into executing unintended commands.</p>
+                    <p><strong>Examples:</strong> SQL injection, NoSQL injection, OS command injection, LDAP injection</p>
+                    <span class="vulnerability-badge badge-critical">CRITICAL</span>
+                </div>
+
+                <div class="owasp-item" style="margin: 15px 0;">
+                    <div class="owasp-number">A04:2021</div>
+                    <h4>Insecure Design</h4>
+                    <p>Risks from design and architectural flaws, requiring threat modeling and secure design patterns.</p>
+                    <p><strong>Examples:</strong> Missing rate limiting, inadequate security controls</p>
+                    <span class="vulnerability-badge badge-high">HIGH</span>
+                </div>
+
+                <div class="owasp-item" style="margin: 15px 0;">
+                    <div class="owasp-number">A05:2021</div>
+                    <h4>Security Misconfiguration</h4>
+                    <p>Missing security hardening, unnecessary features enabled, default accounts active.</p>
+                    <p><strong>Examples:</strong> Default credentials, verbose error messages, outdated software</p>
+                    <span class="vulnerability-badge badge-high">HIGH</span>
+                </div>
+
+                <div class="owasp-item" style="margin: 15px 0;">
+                    <div class="owasp-number">A06:2021</div>
+                    <h4>Vulnerable and Outdated Components</h4>
+                    <p>Using components with known vulnerabilities, unsupported libraries, or outdated dependencies.</p>
+                    <p><strong>Examples:</strong> Unpatched frameworks, deprecated libraries, outdated CMS</p>
+                    <span class="vulnerability-badge badge-high">HIGH</span>
+                </div>
+
+                <div class="owasp-item" style="margin: 15px 0;">
+                    <div class="owasp-number">A07:2021</div>
+                    <h4>Identification and Authentication Failures</h4>
+                    <p>Incorrectly implemented authentication and session management allowing attackers to compromise credentials.</p>
+                    <p><strong>Examples:</strong> Weak passwords, credential stuffing, session fixation</p>
+                    <span class="vulnerability-badge badge-high">HIGH</span>
+                </div>
+
+                <div class="owasp-item" style="margin: 15px 0;">
+                    <div class="owasp-number">A08:2021</div>
+                    <h4>Software and Data Integrity Failures</h4>
+                    <p>Code and infrastructure without protection against integrity violations.</p>
+                    <p><strong>Examples:</strong> Unsigned updates, insecure CI/CD pipelines, insecure deserialization</p>
+                    <span class="vulnerability-badge badge-high">HIGH</span>
+                </div>
+
+                <div class="owasp-item" style="margin: 15px 0;">
+                    <div class="owasp-number">A09:2021</div>
+                    <h4>Security Logging and Monitoring Failures</h4>
+                    <p>Insufficient logging, monitoring, or incident response enabling attackers to persist undetected.</p>
+                    <p><strong>Examples:</strong> No audit logs, unmonitored security events, delayed breach detection</p>
+                    <span class="vulnerability-badge badge-medium">MEDIUM</span>
+                </div>
+
+                <div class="owasp-item" style="margin: 15px 0;">
+                    <div class="owasp-number">A10:2021</div>
+                    <h4>Server-Side Request Forgery (SSRF)</h4>
+                    <p>Web application fetches remote resources without validating user-supplied URLs.</p>
+                    <p><strong>Examples:</strong> Internal port scanning, accessing cloud metadata, data exfiltration</p>
+                    <span class="vulnerability-badge badge-medium">MEDIUM</span>
+                </div>
+            </div>
+
+            <h3>OWASP WebGoat Training Platform</h3>
+            <div class="success-box">
+                <h4>About WebGoat</h4>
+                <p>WebGoat is an intentionally insecure web application maintained by OWASP for security training.</p>
+                
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>Interactive lessons on each OWASP Top 10 vulnerability</li>
+                    <li>Hands-on exercises in a safe environment</li>
+                    <li>Progressive difficulty levels</li>
+                    <li>Community-contributed lessons</li>
+                    <li>Suitable for beginners through advanced testers</li>
+                </ul>
+
+                <p><strong>Installation:</strong></p>
+                <div class="code-block">
+<pre># Download and run WebGoat using Docker
+docker pull webgoat/webgoat
+docker run -p 8080:8080 -p 9090:9090 webgoat/webgoat
+
+# Access WebGoat at: http://localhost:8080/WebGoat</pre>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>📚 Additional OWASP Resources:</strong>
+                <ul>
+                    <li><strong>OWASP Testing Guide:</strong> Comprehensive web application security testing framework</li>
+                    <li><strong>OWASP Cheat Sheet Series:</strong> Quick reference guides for developers</li>
+                    <li><strong>OWASP Broken Web Apps:</strong> Collection of vulnerable applications for practice</li>
+                    <li><strong>OWASP ZAP:</strong> Free web application security scanner</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Testing Methods Section -->
+        <section class="section" id="testing">
+            <h2>🔍 Web Application Testing Methodologies</h2>
+
+            <h3>Testing Approaches</h3>
+            
+            <div class="owasp-list">
+                <div class="owasp-item">
+                    <h4>SAST - Static Application Security Testing</h4>
+                    <p><strong>White Box Testing</strong></p>
+                    <p>Analyzes source code for vulnerabilities without executing the program</p>
+                    <p><strong>Pros:</strong> Finds vulnerabilities early, pinpoints exact location</p>
+                    <p><strong>Cons:</strong> Requires source code access, can have false positives</p>
+                </div>
+
+                <div class="owasp-item">
+                    <h4>DAST - Dynamic Application Security Testing</h4>
+                    <p><strong>Black Box Testing</strong></p>
+                    <p>Tests running applications from the outside, simulating real attacks</p>
+                    <p><strong>Pros:</strong> No source code needed, finds runtime issues</p>
+                    <p><strong>Cons:</strong> Later in development cycle, limited code coverage</p>
+                </div>
+
+                <div class="owasp-item">
+                    <h4>IAST - Interactive Application Security Testing</h4>
+                    <p><strong>Gray Box Testing</strong></p>
+                    <p>Combines SAST and DAST using agents inside the application</p>
+                    <p><strong>Pros:</strong> Real-time analysis, fewer false positives</p>
+                    <p><strong>Cons:</strong> Requires agent installation, performance overhead</p>
+                </div>
+            </div>
+
+            <h3>Information Gathering & Architecture Mapping</h3>
+            <div class="interactive-demo">
+                <h4>Critical Questions for Security Testers</h4>
+                
+                <table>
+                    <tr>
+                        <th>Category</th>
+                        <th>Questions to Answer</th>
+                    </tr>
+                    <tr>
+                        <td>Database</td>
+                        <td>Does the application use a database? What type? How is it accessed?</td>
+                    </tr>
+                    <tr>
+                        <td>Authentication</td>
+                        <td>Is authentication required? How is it implemented? Where are credentials stored?</td>
+                    </tr>
+                    <tr>
+                        <td>Content Type</td>
+                        <td>Static or dynamic pages? What generates dynamic content?</td>
+                    </tr>
+                    <tr>
+                        <td>Technology Stack</td>
+                        <td>What languages, frameworks, and platforms are used?</td>
+                    </tr>
+                    <tr>
+                        <td>Security Controls</td>
+                        <td>Are WAFs, IDS/IPS, or other security devices present?</td>
+                    </tr>
+                    <tr>
+                        <td>Data Flow</td>
+                        <td>How does data move through the application? What paths exist?</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>Platform Security & Configuration Testing</h3>
+            <div class="lab-exercise">
+                <h4>Configuration Assessment Checklist</h4>
+                <ol class="lab-steps">
+                    <li>Identify the web server software and version</li>
+                    <li>Check for known vulnerabilities in server and components</li>
+                    <li>Verify encryption is used for sensitive communications</li>
+                    <li>Test for administrative interfaces and default credentials</li>
+                    <li>Review server configuration files for misconfigurations</li>
+                    <li>Check for unnecessary services and open ports</li>
+                    <li>Verify proper file permissions and directory listings</li>
+                    <li>Test for information disclosure in HTTP headers</li>
+                </ol>
+            </div>
+
+            <h3>Input Validation Testing</h3>
+            <div class="interactive-demo">
+                <h4>Comprehensive Input Testing</h4>
+                
+                <div class="terminal">
+                    <div class="terminal-header">Input Validation Test Cases</div>
+                    <div class="terminal-output">
+# Test 1: Special Characters
+Input: ' " ; < > / \ | & $ ( ) ` 
+
+# Test 2: SQL Keywords
+Input: ' OR 1=1 --
+Input: '; DROP TABLE users; --
+Input: admin' --
+
+# Test 3: XSS Payloads
+Input: &lt;script&gt;alert('XSS')&lt;/script&gt;
+Input: &lt;img src=x onerror=alert('XSS')&gt;
+
+# Test 4: Path Traversal
+Input: ../../etc/passwd
+Input: ..\..\windows\system32\config\sam
+
+# Test 5: Command Injection
+Input: | whoami
+Input: ; cat /etc/passwd
+Input: `ping -c 5 attacker.com`
+
+# Test 6: LDAP Injection
+Input: *
+Input: admin)(|(password=*)
+
+# Test 7: XML Injection
+Input: &lt;!DOCTYPE foo [&lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;]&gt;
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Testing Guidelines:</strong>
+                    <ul>
+                        <li>Only test applications you're authorized to assess</li>
+                        <li>Document all test cases and results</li>
+                        <li>Use a proxy to capture and replay requests</li>
+                        <li>Test both GET and POST parameters</li>
+                        <li>Check for blind injection vulnerabilities</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Business Logic Testing</h3>
+            <div class="tool-card">
+                <h4>Understanding Business Logic Flaws</h4>
+                <p>Business logic refers to procedures users follow to accomplish goals. Logic flaws allow bypassing these procedures.</p>
+                
+                <p><strong>Example Scenarios:</strong></p>
+                <ul>
+                    <li><strong>Price Manipulation:</strong> Changing prices in POST data before checkout</li>
+                    <li><strong>Quantity Bypass:</strong> Ordering negative quantities for refunds</li>
+                    <li><strong>Workflow Bypass:</strong> Skipping required approval steps</li>
+                    <li><strong>Rate Limiting:</strong> Circumventing transaction limits</li>
+                    <li><strong>Race Conditions:</strong> Exploiting timing dependencies</li>
+                </ul>
+
+                <div class="demo-controls">
+                    <button class="demo-btn" onclick="showBusinessLogicDemo()">Show Example</button>
+                    <button class="demo-btn" onclick="clearBusinessLogicDemo()">Clear</button>
+                </div>
+                <div id="businessLogicDemo"></div>
+            </div>
+        </section>
+
+        <!-- Tools Section -->
+        <section class="section" id="tools">
+            <h2>🛠️ Web Application Security Tools</h2>
+
+            <div class="info-box">
+                <p>Security professionals use various tools to assess web application security. Most are available for free 
+                and included in penetration testing distributions like Kali Linux.</p>
+            </div>
+
+            <h3>Browser Developer Tools</h3>
+            <div class="tool-card">
+                <h4>Firefox & Chrome DevTools</h4>
+                <p>Built-in browser tools essential for application security testing:</p>
+                
+                <div class="owasp-list">
+                    <div class="owasp-item">
+                        <strong>Network Inspector</strong>
+                        <p>View all HTTP requests/responses, headers, timing</p>
+                    </div>
+                    <div class="owasp-item">
+                        <strong>Console</strong>
+                        <p>Execute JavaScript, view errors, test XSS</p>
+                    </div>
+                    <div class="owasp-item">
+                        <strong>Storage Inspector</strong>
+                        <p>View/modify cookies, local storage, session storage</p>
+                    </div>
+                    <div class="owasp-item">
+                        <strong>Debugger</strong>
+                        <p>Set breakpoints, step through JavaScript code</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+<pre>// Common DevTools Shortcuts:
+F12 - Open DevTools
+Ctrl+Shift+C - Inspect Element
+Ctrl+Shift+K - Console
+Ctrl+Shift+E - Network Tab</pre>
+                </div>
+            </div>
+
+            <h3>Burp Suite</h3>
+            <div class="interactive-demo">
+                <h4>Burp Suite Professional Features</h4>
+                <p>Industry-standard web application security testing platform included in Kali Linux.</p>
+
+                <div class="success-box">
+                    <strong>Key Features:</strong>
+                    <ul>
+                        <li><strong>Intercepting Proxy:</strong> Capture and modify HTTP/HTTPS traffic between browser and server</li>
+                        <li><strong>Spider:</strong> Automatically crawl web applications to map structure</li>
+                        <li><strong>Scanner:</strong> Automated vulnerability detection (Professional version)</li>
+                        <li><strong>Intruder:</strong> Automated attack tool for fuzzing and brute force</li>
+                        <li><strong>Repeater:</strong> Manually modify and resend individual requests</li>
+                        <li><strong>Decoder:</strong> Encode/decode data in various formats</li>
+                        <li><strong>Comparer:</strong> Visual diff tool for comparing requests/responses</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+<pre># Starting Burp Suite in Kali Linux
+burpsuite
+
+# Configure browser to use Burp proxy:
+# Proxy: localhost
+# Port: 8080
+
+# Install Burp CA certificate for HTTPS interception:
+# 1. Browse to http://burp
+# 2. Download CA certificate
+# 3. Install in browser's certificate store</pre>
+                </div>
+
+                <div class="terminal">
+                    <div class="terminal-header">Burp Suite Workflow Example</div>
+                    <div class="terminal-output">
+1. Configure browser to use Burp proxy (127.0.0.1:8080)
+2. Turn on "Intercept" in Burp's Proxy tab
+3. Browse to target application
+4. Capture login request in Burp
+5. Send to Repeater for manual testing
+6. Modify parameters: username=' OR 1=1--
+7. Forward request and observe response
+8. Document vulnerability if authentication bypassed
+                    </div>
+                </div>
+            </div>
+
+            <h3>OWASP ZAP (Zed Attack Proxy)</h3>
+            <div class="tool-card">
+                <h4>Open Source Web Application Scanner</h4>
+                <p>Free alternative to Burp Suite with similar features, ideal for automated scanning.</p>
+
+                <div class="owasp-list">
+                    <div class="owasp-item">
+                        <strong>Automated Scanner</strong>
+                        <p>Passive and active scanning modes</p>
+                    </div>
+                    <div class="owasp-item">
+                        <strong>Intercepting Proxy</strong>
+                        <p>Similar to Burp's proxy functionality</p>
+                    </div>
+                    <div class="owasp-item">
+                        <strong>Fuzzer</strong>
+                        <p>Built-in fuzzing capabilities</p>
+                    </div>
+                    <div class="owasp-item">
+                        <strong>API Testing</strong>
+                        <p>Support for REST and SOAP APIs</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+<pre># Installing OWASP ZAP
+apt-get update
+apt-get install zaproxy
+
+# Starting ZAP
+zaproxy
+
+# Command-line scanning
+zap-cli quick-scan --spider http://target.com
+zap-cli active-scan http://target.com</pre>
+                </div>
+            </div>
+
+            <h3>Wapiti</h3>
+            <div class="tool-card">
+                <h4>Black Box Web Application Vulnerability Scanner</h4>
+                <p>Wapiti performs "black box" testing by crawling pages and injecting payloads to detect vulnerabilities.</p>
+
+                <div class="info-box">
+                    <strong>Detection Capabilities:</strong>
+                    <ul>
+                        <li>SQL Injection (SQLi)</li>
+                        <li>Cross-Site Scripting (XSS)</li>
+                        <li>File Inclusion (LFI/RFI)</li>
+                        <li>Command Execution</li>
+                        <li>XXE (XML External Entity)</li>
+                        <li>CRLF Injection</li>
+                        <li>Server-Side Request Forgery (SSRF)</li>
+                    </ul>
+                </div>
+
+                <div class="terminal">
+                    <div class="terminal-header">Wapiti Usage Examples</div>
+                    <div class="terminal-output">
+# Basic scan
+wapiti -u http://target.com
+
+# Scan with authentication
+wapiti -u http://target.com --auth-cred "user:pass"
+
+# Test specific modules
+wapiti -u http://target.com -m sql,xss
+
+# Generate HTML report
+wapiti -u http://target.com -f html -o /tmp/report
+
+# Verbose output with all modules
+wapiti -u http://target.com -v 2 -m all
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Note:</strong> Wapiti uses aggressive testing techniques. Only use on applications 
+                    you have explicit authorization to test.
+                </div>
+            </div>
+
+            <h3>Nikto Web Scanner</h3>
+            <div class="tool-card">
+                <h4>Web Server Scanner</h4>
+                <div class="code-block">
+<pre># Scan web server for vulnerabilities
+nikto -h http://target.com
+
+# Scan with SSL support
+nikto -h https://target.com
+
+# Save results to file
+nikto -h http://target.com -o results.html -Format html
+
+# Scan specific port
+nikto -h target.com -p 8080</pre>
+                </div>
+            </div>
+
+            <h3>SQLMap</h3>
+            <div class="interactive-demo">
+                <h4>Automated SQL Injection Tool</h4>
+                <p>SQLMap automates the detection and exploitation of SQL injection vulnerabilities.</p>
+
+                <div class="terminal">
+                    <div class="terminal-header">SQLMap Commands</div>
+                    <div class="terminal-output">
+# Test URL parameter for SQLi
+sqlmap -u "http://target.com/page?id=1"
+
+# Test POST data
+sqlmap -u "http://target.com/login" --data="user=admin&pass=test"
+
+# Enumerate databases
+sqlmap -u "http://target.com/page?id=1" --dbs
+
+# Dump specific database
+sqlmap -u "http://target.com/page?id=1" -D database_name --dump
+
+# Get OS shell (if possible)
+sqlmap -u "http://target.com/page?id=1" --os-shell
+
+# Use Burp Suite request file
+sqlmap -r request.txt
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Legal Warning:</strong> SQLMap is a powerful exploitation tool. Never use it 
+                    without written authorization. Unauthorized database access is a serious crime.
+                </div>
+            </div>
+
+            <h3>Tool Comparison Matrix</h3>
+            <table>
+                <tr>
+                    <th>Tool</th>
+                    <th>Type</th>
+                    <th>Cost</th>
+                    <th>Best For</th>
+                </tr>
+                <tr>
+                    <td>Browser DevTools</td>
+                    <td>Manual Testing</td>
+                    <td>Free</td>
+                    <td>Client-side analysis, basic testing</td>
+                </tr>
+                <tr>
+                    <td>Burp Suite Community</td>
+                    <td>Manual + Basic Auto</td>
+                    <td>Free</td>
+                    <td>Comprehensive manual testing</td>
+                </tr>
+                <tr>
+                    <td>Burp Suite Professional</td>
+                    <td>Manual + Advanced Auto</td>
+                    <td>$449/year</td>
+                    <td>Professional penetration testing</td>
+                </tr>
+                <tr>
+                    <td>OWASP ZAP</td>
+                    <td>Automated + Manual</td>
+                    <td>Free</td>
+                    <td>Automated scanning, CI/CD integration</td>
+                </tr>
+                <tr>
+                    <td>Wapiti</td>
+                    <td>Automated Black Box</td>
+                    <td>Free</td>
+                    <td>Quick vulnerability scanning</td>
+                </tr>
+                <tr>
+                    <td>SQLMap</td>
+                    <td>Specialized (SQLi)</td>
+                    <td>Free</td>
+                    <td>SQL injection exploitation</td>
+                </tr>
+                <tr>
+                    <td>Nikto</td>
+                    <td>Server Scanner</td>
+                    <td>Free</td>
+                    <td>Web server misconfiguration detection</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Labs Section -->
+        <section class="section" id="labs">
+            <h2>🔬 Hands-On Laboratory Exercises</h2>
+
+            <div class="warning-box">
+                <strong>⚠️ CRITICAL REMINDER:</strong> These labs must only be performed in authorized testing environments. 
+                Never test against production systems or systems you don't own without explicit written permission.
+            </div>
+
+            <div class="lab-exercise">
+                <h3>Lab 1: Web Application Reconnaissance</h3>
+                <p><strong>Objective:</strong> Gather information about a web application's architecture and technology stack.</p>
+                
+                <h4>Setup:</h4>
+                <ul>
+                    <li>Kali Linux VM or similar penetration testing distribution</li>
+                    <li>Target: DVWA (Damn Vulnerable Web Application) or WebGoat</li>
+                    <li>Browser with developer tools</li>
+                </ul>
+
+                <h4>Procedure:</h4>
+                <ol class="lab-steps">
+                    <li>Install and start DVWA or WebGoat on your test system</li>
+                    <li>Open browser developer tools (F12) and navigate to the target</li>
+                    <li>Examine HTTP headers to identify web server software and version</li>
+                    <li>Use Wappalyzer or similar tools to detect technologies</li>
+                    <li>Browse the application and map available functionality</li>
+                    <li>Identify input fields, parameters, and potential attack surfaces</li>
+                    <li>Document your findings in a reconnaissance report</li>
+                </ol>
+
+                <div class="terminal">
+                    <div class="terminal-header">Lab 1 Commands</div>
+                    <div class="terminal-output">
+# Start DVWA (if using Docker)
+docker run --rm -it -p 80:80 vulnerables/web-dvwa
+
+# Scan with Nikto
+nikto -h http://localhost
+
+# Identify technologies
+whatweb http://localhost
+
+# Check HTTP headers
+curl -I http://localhost
+
+# Map application structure
+dirb http://localhost /usr/share/wordlists/dirb/common.txt
+                    </div>
+                </div>
+
+                <div class="demo-controls">
+                    <button class="demo-btn" onclick="showLab1Solution()">Show Solution Guide</button>
+                    <button class="demo-btn" onclick="clearLabSolution()">Hide Solution</button>
+                </div>
+                <div id="labSolution"></div>
+            </div>
+
+            <div class="lab-exercise">
+                <h3>Lab 2: SQL Injection Testing</h3>
+                <p><strong>Objective:</strong> Identify and exploit SQL injection vulnerabilities using manual techniques.</p>
+
+                <h4>Prerequisites:</h4>
+                <ul>
+                    <li>DVWA or similar vulnerable application</li>
+                    <li>Basic SQL knowledge</li>
+                    <li>Burp Suite or OWASP ZAP configured</li>
+                </ul>
+
+                <h4>Procedure:</h4>
+                <ol class="lab-steps">
+                    <li>Navigate to the SQL Injection page in DVWA (set security to "low")</li>
+                    <li>Test input field with single quote (') to check for errors</li>
+                    <li>Try basic SQLi payloads: <code>' OR 1=1 --</code></li>
+                    <li>Use SQLMap to automate detection and exploitation</li>
+                    <li>Extract database names using enumeration techniques</li>
+                    <li>Dump user table contents</li>
+                    <li>Document the vulnerability and proof of concept</li>
+                </ol>
+
+                <div class="interactive-demo">
+                    <h4>SQL Injection Practice</h4>
+                    <p>Test your SQL injection skills with this interactive demo:</p>
+                    
+                    <label>User ID to search:</label>
+                    <input type="text" id="sqliInput" placeholder="Enter user ID (try: 1' OR '1'='1)">
+                    <button class="demo-btn" onclick="testSQLInjection()">Execute Query</button>
+                    
+                    <div id="sqliResult" style="margin-top: 15px;"></div>
+                </div>
+
+                <div class="terminal">
+                    <div class="terminal-header">Lab 2 SQLMap Commands</div>
+                    <div class="terminal-output">
+# Test for SQL injection
+sqlmap -u "http://localhost/vulnerabilities/sqli/?id=1&Submit=Submit" \
+  --cookie="security=low; PHPSESSID=your_session_id"
+
+# Enumerate databases
+sqlmap -u "http://localhost/vulnerabilities/sqli/?id=1&Submit=Submit" \
+  --cookie="security=low; PHPSESSID=your_session_id" --dbs
+
+# Enumerate tables in database
+sqlmap -u "http://localhost/vulnerabilities/sqli/?id=1&Submit=Submit" \
+  --cookie="security=low; PHPSESSID=your_session_id" -D dvwa --tables
+
+# Dump users table
+sqlmap -u "http://localhost/vulnerabilities/sqli/?id=1&Submit=Submit" \
+  --cookie="security=low; PHPSESSID=your_session_id" -D dvwa -T users --dump
+                    </div>
+                </div>
+            </div>
+
+            <div class="lab-exercise">
+                <h3>Lab 3: Cross-Site Scripting (XSS) Detection</h3>
+                <p><strong>Objective:</strong> Identify and demonstrate reflected, stored, and DOM-based XSS vulnerabilities.</p>
+
+                <h4>Procedure:</h4>
+                <ol class="lab-steps">
+                    <li>Navigate to XSS testing page in vulnerable application</li>
+                    <li>Test for reflected XSS with: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>
+                    <li>Try alternative payloads if basic ones are filtered</li>
+                    <li>Test for stored XSS in comment/message fields</li>
+                    <li>Use Burp Suite Intruder with XSS payload list</li>
+                    <li>Document successful payloads and their contexts</li>
+                    <li>Create proof of concept demonstrating the impact</li>
+                </ol>
+
+                <div class="interactive-demo">
+                    <h4>XSS Testing Payloads</h4>
+                    <div class="code-block">
+<pre>// Basic XSS
+&lt;script&gt;alert('XSS')&lt;/script&gt;
+
+// IMG tag XSS
+&lt;img src=x onerror=alert('XSS')&gt;
+
+// Body onload
+&lt;body onload=alert('XSS')&gt;
+
+// SVG XSS
+&lt;svg onload=alert('XSS')&gt;
+
+// Event handler
+&lt;input onfocus=alert('XSS') autofocus&gt;
+
+// JavaScript URL
+&lt;a href="javascript:alert('XSS')"&gt;Click&lt;/a&gt;
+
+// Filter bypass examples
+&lt;ScRiPt&gt;alert('XSS')&lt;/sCrIpT&gt;
+&lt;img src=x onerror="alert(String.fromCharCode(88,83,83))"&gt;
+&lt;iframe src="javascript:alert('XSS')"&gt;</pre>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Impact Assessment:</strong> Successful XSS can lead to session hijacking, credential theft, 
+                    malware distribution, and website defacement. Always demonstrate impact in security reports.
+                </div>
+            </div>
+
+            <div class="lab-exercise">
+                <h3>Lab 4: Burp Suite Intercepting Proxy</h3>
+                <p><strong>Objective:</strong> Master Burp Suite proxy for intercepting and modifying HTTP traffic.</p>
+
+                <h4>Setup Steps:</h4>
+                <ol class="lab-steps">
+                    <li>Start Burp Suite and verify proxy is listening on 127.0.0.1:8080</li>
+                    <li>Configure browser to use Burp as proxy</li>
+                    <li>Install Burp CA certificate for HTTPS interception</li>
+                    <li>Enable "Intercept" in Proxy tab</li>
+                    <li>Browse to target application</li>
+                    <li>Capture login request</li>
+                    <li>Modify parameters before forwarding</li>
+                    <li>Observe and document the response</li>
+                </ol>
+
+                <div class="info-box">
+                    <strong>Key Tasks:</strong>
+                    <ul>
+                        <li>Change POST parameters (username, password, etc.)</li>
+                        <li>Add/remove HTTP headers</li>
+                        <li>Modify cookies and session tokens</li>
+                        <li>Test for parameter tampering</li>
+                        <li>Send requests to Repeater for manual testing</li>
+                        <li>Use Intruder for automated parameter fuzzing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="lab-exercise">
+                <h3>Lab 5: Automated Scanning with OWASP ZAP</h3>
+                <p><strong>Objective:</strong> Perform automated vulnerability scanning using OWASP ZAP.</p>
+
+                <div class="terminal">
+                    <div class="terminal-header">ZAP Automated Scanning</div>
+                    <div class="terminal-output">
+# Start ZAP in daemon mode
+zap.sh -daemon -port 8090
+
+# Spider the target
+zap-cli spider http://target.local
+
+# Active scan
+zap-cli active-scan http://target.local
+
+# Generate HTML report
+zap-cli report -o /tmp/zap-report.html -f html
+
+# Shutdown ZAP
+zap-cli shutdown
+                    </div>
+                </div>
+
+                <h4>Analysis Steps:</h4>
+                <ol class="lab-steps">
+                    <li>Review identified vulnerabilities by severity</li>
+                    <li>Verify high/critical findings manually</li>
+                    <li>Eliminate false positives</li>
+                    <li>Document true positives with evidence</li>
+                    <li>Create remediation recommendations</li>
+                </ol>
+            </div>
+
+            <div class="success-box">
+                <h4>Lab Completion Checklist</h4>
+                <ul>
+                    <li>✓ Document all findings with screenshots</li>
+                    <li>✓ Note successful exploitation techniques</li>
+                    <li>✓ Understand why vulnerabilities exist</li>
+                    <li>✓ Research proper remediation methods</li>
+                    <li>✓ Practice responsible disclosure principles</li>
+                    <li>✓ Clean up test environments after completion</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Assessment Section -->
+        <section class="section" id="assessment">
+            <h2>📝 Chapter Assessment</h2>
+
+            <div class="info-box">
+                <strong>Assessment Instructions:</strong>
+                <ul>
+                    <li>Complete all questions to test your understanding</li>
+                    <li>Passing score: 80% (16 out of 20 correct)</li>
+                    <li>Review incorrect answers to reinforce learning</li>
+                    <li>You may retake the assessment if needed</li>
+                </ul>
+            </div>
+
+            <div class="quiz-container">
+                <form id="assessmentForm">
+                    <div class="quiz-question">
+                        <p><strong>1. What is the primary role of CGI in web applications?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a">
+                                Encrypting data between client and server
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b">
+                                Passing data between a web server and web browser
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c">
+                                Storing session information
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d">
+                                Managing database connections
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>2. Which of the following is an open-source server-side scripting language?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a">
+                                ASP.NET
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b">
+                                PHP
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c">
+                                ColdFusion
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d">
+                                IIS
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>3. What type of attack involves injecting SQL commands through application input fields?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a">
+                                Cross-Site Scripting (XSS)
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b">
+                                SQL Injection (SQLi)
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c">
+                                CSRF
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d">
+                                DDoS
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>4. Which testing method analyzes source code without executing the application?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a">
+                                DAST
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b">
+                                IAST
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c">
+                                SAST
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d">
+                                RAST
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>5. What does OWASP stand for?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a">
+                                Online Web Application Security Platform
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b">
+                                Open Web Application Security Project
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c">
+                                Operational Web Application Security Protocol
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d">
+                                Organized Web Application Security Process
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>6. Which tool is specifically designed for SQL injection exploitation?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q6" value="a">
+                                Burp Suite
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q6" value="b">
+                                SQLMap
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q6" value="c">
+                                Nikto
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q6" value="d">
+                                Wireshark
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>7. What is the default port for Burp Suite's intercepting proxy?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q7" value="a">
+                                8888
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q7" value="b">
+                                8080
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q7" value="c">
+                                3128
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q7" value="d">
+                                8443
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>8. Which vulnerability allows attackers to execute arbitrary scripts in users' browsers?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q8" value="a">
+                                SQL Injection
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q8" value="b">
+                                Cross-Site Scripting (XSS)
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q8" value="c">
+                                CSRF
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q8" value="d">
+                                XXE
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>9. What is WebGoat?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q9" value="a">
+                                A web server vulnerability scanner
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q9" value="b">
+                                An intentionally vulnerable training application
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q9" value="c">
+                                A web proxy tool
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q9" value="d">
+                                A database management system
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>10. Which database access method was designed by Microsoft as a faster alternative to ODBC?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q10" value="a">
+                                JDBC
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q10" value="b">
+                                OLE DB
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q10" value="c">
+                                ADO.NET
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q10" value="d">
+                                MySQL Connector
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>11. What does the SQL comment sequence "-- " do in SQL injection?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q11" value="a">
+                                Executes additional commands
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q11" value="b">
+                                Comments out the rest of the SQL statement
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q11" value="c">
+                                Closes the SQL connection
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q11" value="d">
+                                Encrypts the query
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>12. Which is NOT a characteristic of static webpages?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q12" value="a">
+                                Created using HTML
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q12" value="b">
+                                Same content for all users
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q12" value="c">
+                                Content changes based on user input
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q12" value="d">
+                                No server-side processing required
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>13. OWASP ZAP can be used interchangeably with which tool?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q13" value="a">
+                                Metasploit
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q13" value="b">
+                                Burp Suite
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q13" value="c">
+                                Nmap
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q13" value="d">
+                                John the Ripper
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>14. What is the market share of Apache Web Server as of 2021?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q14" value="a">
+                                6.7%
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q14" value="b">
+                                31.7%
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q14" value="c">
+                                50.2%
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q14" value="d">
+                                75.8%
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>15. Which vulnerability category was #1 in the OWASP Top 10 (2021)?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q15" value="a">
+                                Injection
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q15" value="b">
+                                Broken Access Control
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q15" value="c">
+                                Cryptographic Failures
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q15" value="d">
+                                XSS
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>16. Wapiti uses which testing approach?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q16" value="a">
+                                White box
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q16" value="b">
+                                Black box
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q16" value="c">
+                                Gray box
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q16" value="d">
+                                Clear box
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>17. What does ADO stand for?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q17" value="a">
+                                Active Database Objects
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q17" value="b">
+                                ActiveX Data Objects
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q17" value="c">
+                                Advanced Data Operations
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q17" value="d">
+                                Application Data Objects
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>18. Which HTTP method is typically used to submit form data?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q18" value="a">
+                                GET
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q18" value="b">
+                                POST
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q18" value="c">
+                                PUT
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q18" value="d">
+                                DELETE
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>19. What is "fuzzing" in the context of web application testing?</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q19" value="a">
+                                Encrypting test data
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q19" value="b">
+                                Injecting random/unexpected data to find vulnerabilities
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q19" value="c">
+                                Obfuscating source code
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q19" value="d">
+                                Scanning for open ports
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <p><strong>20. Business logic testing involves:</strong></p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q20" value="a">
+                                Testing database connections
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q20" value="b">
+                                Finding ways to bypass application workflows and procedures
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q20" value="c">
+                                Analyzing network traffic
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q20" value="d">
+                                Cracking password hashes
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="button" class="submit-quiz" onclick="submitAssessment()">Submit Assessment</button>
+                </form>
+
+                <div id="assessmentResult" class="quiz-result"></div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2024 CEH v13 Training Module - Chapter 10: Hacking Web Servers</p>
+            <p>For authorized security training and educational purposes only</p>
+            <p>Press <strong>ESC</strong> to close modals | Use <strong>Navigation Buttons</strong> to switch sections</p>
+        </footer>
+    </div>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const sections = document.querySelectorAll('.section');
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const sectionId = this.getAttribute('data-section');
+                    
+                    // Remove active class from all buttons and sections
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    sections.forEach(section => section.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding section
+                    this.classList.add('active');
+                    document.getElementById(sectionId).classList.add('active');
+                    
+                    // Scroll to top
+                    window.scrollTo(0, 0);
+                });
+            });
+
+            // Keyboard navigation (ESC key)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const activeModals = document.querySelectorAll('.modal.active');
+                    activeModals.forEach(modal => modal.classList.remove('active'));
+                }
+            });
+        });
+
+        // Form demo handler
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const username = document.getElementById('demoUsername').value;
+            const password = document.getElementById('demoPassword').value;
+            const output = document.getElementById('formOutput');
+            
+            output.innerHTML = `
+                <div class="info-box">
+                    <strong>Form Data Captured:</strong><br>
+                    Username: ${username}<br>
+                    Password: ${'*'.repeat(password.length)}<br>
+                    <br>
+                    <em>In a real application, this would be sent to the server for processing.</em>
+                </div>
+            `;
+        }
+
+        // JavaScript demo
+        function showJavaScriptDemo() {
+            const demoDiv = document.getElementById('jsDemo');
+            demoDiv.innerHTML = `
+                <div class="info-box" style="margin-top: 15px;">
+                    <h4>"If you are a Security Tester, please do not click the command button below!"</h4>
+                    <button class="demo-btn" onclick="alert('So, you like breaking rules?')">Don't Click!</button>
+                </div>
+            `;
+        }
+
+        function clearJavaScriptDemo() {
+            document.getElementById('jsDemo').innerHTML = '';
+        }
+
+        // SQL Injection demo
+        function showSQLInjectionDemo() {
+            const demoDiv = document.getElementById('sqlDemo');
+            demoDiv.innerHTML = `
+                <div class="terminal">
+                    <div class="terminal-header">SQL Injection Demonstration</div>
+                    <div class="terminal-output">
+Original Query:
+SELECT * FROM customer 
+WHERE tblusername = 'admin' AND tblpassword = 'password123'
+
+Injected Input:
+Username: ' OR 1=1 --
+Password: (anything)
+
+Resulting Query:
+SELECT * FROM customer 
+WHERE tblusername = '' OR 1=1 --' AND tblpassword = ''
+
+Result: ✅ Authentication BYPASSED!
+Reason: 1=1 is always TRUE, and -- comments out password check
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearSQLDemo() {
+            document.getElementById('sqlDemo').innerHTML = '';
+        }
+
+        // SQL Injection test function
+        function testSQLInjection() {
+            const input = document.getElementById('sqliInput').value;
+            const resultDiv = document.getElementById('sqliResult');
+            
+            if (input.includes("'") || input.toLowerCase().includes('or')) {
+                resultDiv.innerHTML = `
+                    <div class="warning-box">
+                        <strong>⚠️ SQL Injection Detected!</strong><br>
+                        Input: <code>${input}</code><br>
+                        <br>
+                        <strong>Simulated Query:</strong><br>
+                        <code>SELECT * FROM users WHERE id = '${input}'</code><br>
+                        <br>
+                        <em>This application is vulnerable to SQL injection!</em>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="success-box">
+                        <strong>✓ Normal Query</strong><br>
+                        Input: <code>${input}</code><br>
+                        <br>
+                        Query executed safely.
+                    </div>
+                `;
+            }
+        }
+
+        // Business Logic Demo
+        function showBusinessLogicDemo() {
+            const demoDiv = document.getElementById('businessLogicDemo');
+            demoDiv.innerHTML = `
+                <div class="info-box" style="margin-top: 15px;">
+                    <h4>Business Logic Flaw Example: E-commerce Price Manipulation</h4>
+                    <p><strong>Normal Flow:</strong></p>
+                    <ol>
+                        <li>User selects item ($100)</li>
+                        <li>Adds to cart</li>
+                        <li>Proceeds to checkout</li>
+                        <li>Pays $100</li>
+                    </ol>
+                    
+                    <p><strong>Exploitation:</strong></p>
+                    <div class="code-block">
+<pre>// Intercepted POST request
+POST /checkout HTTP/1.1
+...
+item_id=12345&price=100.00&quantity=1
+
+// Modified request
+POST /checkout HTTP/1.1
+...
+item_id=12345&price=0.01&quantity=1</pre>
+                    </div>
+                    
+                    <p><strong>Result:</strong> If the application trusts client-side price data, 
+                    the attacker can purchase items for pennies!</p>
+                    
+                    <p><strong>Prevention:</strong> Always validate prices and critical data server-side, 
+                    never trust client-submitted values.</p>
+                </div>
+            `;
+        }
+
+        function clearBusinessLogicDemo() {
+            document.getElementById('businessLogicDemo').innerHTML = '';
+        }
+
+        // Lab solution display
+        function showLab1Solution() {
+            const solutionDiv = document.getElementById('labSolution');
+            solutionDiv.innerHTML = `
+                <div class="success-box" style="margin-top: 20px;">
+                    <h4>Lab 1 Solution Guide</h4>
+                    
+                    <h5>Expected Findings:</h5>
+                    <ul>
+                        <li><strong>Web Server:</strong> Apache/2.4.x or nginx</li>
+                        <li><strong>Technologies:</strong> PHP, MySQL, JavaScript</li>
+                        <li><strong>Framework:</strong> May detect Bootstrap, jQuery</li>
+                        <li><strong>Headers:</strong> Server version, X-Powered-By, etc.</li>
+                        <li><strong>Entry Points:</strong> Login forms, search fields, contact forms</li>
+                    </ul>
+                    
+                    <h5>Sample Report Format:</h5>
+                    <div class="code-block">
+<pre>RECONNAISSANCE REPORT
+Target: http://dvwa.local
+Date: [Current Date]
+
+1. SERVER INFORMATION
+   - Software: Apache/2.4.52 (Ubuntu)
+   - OS: Linux
+   - Technologies: PHP 7.4.3
+
+2. ENTRY POINTS IDENTIFIED
+   - Login form (username, password)
+   - SQL injection test page
+   - XSS test page
+   - File upload functionality
+
+3. POTENTIAL VULNERABILITIES
+   - Default credentials may be accepted
+   - Input validation appears weak
+   - Error messages reveal system information
+
+4. RECOMMENDED TESTS
+   - SQL injection on login
+   - XSS on reflected input fields
+   - File upload restrictions
+</pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearLabSolution() {
+            document.getElementById('labSolution').innerHTML = '';
+        }
+
+        // Assessment submission
+        function submitAssessment() {
+            const answers = {
+                q1: 'b', q2: 'b', q3: 'b', q4: 'c', q5: 'b',
+                q6: 'b', q7: 'b', q8: 'b', q9: 'b', q10: 'b',
+                q11: 'b', q12: 'c', q13: 'b', q14: 'b', q15: 'b',
+                q16: 'b', q17: 'b', q18: 'b', q19: 'b', q20: 'b'
+            };
+
+            let score = 0;
+            let total = Object.keys(answers).length;
+            const form = document.getElementById('assessmentForm');
+            const resultDiv = document.getElementById('assessmentResult');
+
+            // Check answers
+            for (let question in answers) {
+                const selected = form.querySelector(`input[name="${question}"]:checked`);
+                if (selected && selected.value === answers[question]) {
+                    score++;
+                }
+            }
+
+            const percentage = (score / total) * 100;
+            const passed = percentage >= 80;
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = passed ? 'quiz-result pass' : 'quiz-result fail';
+            resultDiv.innerHTML = `
+                <h3>${passed ? '✅ Assessment Passed!' : '❌ Assessment Not Passed'}</h3>
+                <p><strong>Score:</strong> ${score} out of ${total} (${percentage.toFixed(1)}%)</p>
+                <p><strong>Passing Score:</strong> 80% (16 out of 20)</p>
+                ${passed 
+                    ? '<p>Congratulations! You have demonstrated proficiency in web server security concepts.</p>'
+                    : '<p>Please review the material and retake the assessment. Focus on areas where you had incorrect answers.</p>'
+                }
+                <button class="demo-btn" onclick="location.reload()">Retake Assessment</button>
+            `;
+
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Console message
+        console.log('%c⚠️ SECURITY TRAINING MODULE', 'color: #ef4444; font-size: 20px; font-weight: bold;');
+        console.log('%cCEH v13 - Chapter 10: Hacking Web Servers', 'color: #60a5fa; font-size: 14px;');
+        console.log('%cFor authorized educational purposes only', 'color: #10b981; font-size: 12px;');
+        console.log('%cNever attempt to exploit systems without permission', 'color: #fbbf24; font-size: 12px;');
+    </script>
+</body>
+</html>
