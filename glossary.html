@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-module="wireless" data-theme="dark">
+<html lang="en" data-module="glossary" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CEH v13 Module 16: Hacking Wireless Networks</title>
-<meta name="description" content="Attacking the open airwaves: 802.11 fundamentals, the WEP-to-WPA3 encryption evolution, the handshake-capture and PMKID attacks on WPA2-PSK, WPS and evil-twin techniques, WPA3 downgrade weaknesses, the aircrack-ng toolkit, and the defenses that actually hold.">
+<title>CEH v13 Course — Glossary</title>
+<meta name="description" content="Alphabetical glossary of key terms across the CEH v13 course, each linked to the module where it is taught.">
 <style>
 /* ============================================================
    CEH v13 COURSE CHASSIS  v1.0
@@ -815,6 +815,41 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
   body { font-size: 11pt; }
 }
 
+
+/* ---------- glossary page ---------- */
+.gloss-toolbar { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; margin: var(--sp-4) 0; }
+.gloss-search {
+  flex: 1; min-width: 220px; padding: var(--sp-2) var(--sp-3);
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border-strong); border-radius: var(--radius);
+  font-size: var(--fs-base);
+}
+.gloss-search:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--ring); border-color: var(--accent); }
+.az-nav { display: flex; flex-wrap: wrap; gap: 6px; }
+.az-link {
+  font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-sm);
+  color: var(--accent); text-decoration: none; padding: 2px 8px;
+  border: 1px solid var(--accent-line); border-radius: var(--radius); background: var(--accent-dim);
+}
+.az-link:hover, .az-link:focus-visible { background: var(--accent); color: var(--text-on-accent); outline: none; }
+.gloss-count { font-size: var(--fs-sm); color: var(--text-muted); }
+.gloss-group { margin: var(--sp-5) 0; }
+.gloss-letter {
+  font-family: var(--font-mono); color: var(--accent); font-size: var(--fs-h2);
+  border-bottom: 1px solid var(--border); padding-bottom: var(--sp-1); margin-bottom: var(--sp-3);
+}
+.gloss-list { margin: 0; display: grid; gap: var(--sp-3); }
+.gloss-item {
+  padding: var(--sp-3); background: var(--surface);
+  border: 1px solid var(--border); border-left: 3px solid var(--accent-line);
+  border-radius: var(--radius);
+}
+.gloss-term { font-weight: 700; color: var(--text); font-size: var(--fs-lg); margin-bottom: 4px; }
+.gloss-def { margin: 0; color: var(--text-muted); line-height: 1.6; }
+.gloss-home { display: inline-block; margin-top: 6px; font-size: var(--fs-sm); color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-line); }
+.gloss-home:hover { border-bottom-color: var(--accent); }
+.gloss-empty { padding: var(--sp-4); color: var(--text-muted); text-align: center; display: none; }
+.gloss-item.is-hidden, .gloss-group.is-hidden { display: none; }
 </style>
 </head>
 <body>
@@ -823,452 +858,121 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 <p id="a11yStatus" class="visually-hidden" role="status" aria-live="polite"></p>
 
 <div class="controlbar">
-    <span class="controlbar__brand">CEH v13 · Module 16</span>
-
+    <span class="controlbar__brand">CEH v13 · Glossary</span>
+    <a class="ctl" href="index.html" style="text-decoration:none;">← Course index</a>
     <div class="controlbar__group" role="group" aria-label="Text size">
         <span class="controlbar__label" aria-hidden="true">Text</span>
         <button class="ctl" id="fontDec" type="button" aria-label="Decrease text size">&minus;</button>
         <span class="controlbar__label" id="fontSizeValue" aria-live="polite">100%</span>
         <button class="ctl" id="fontInc" type="button" aria-label="Increase text size">+</button>
     </div>
-
-    <button class="ctl" id="themeToggle" type="button" aria-pressed="true"
-            aria-label="Switch to light theme">
+    <button class="ctl" id="themeToggle" type="button" aria-pressed="true" aria-label="Switch to light theme">
         <span class="ctl__icon" aria-hidden="true">🌙</span><span class="ctl__text">Dark</span>
     </button>
-
-    <button class="ctl" id="printBtn" type="button" aria-label="Print this module">
+    <button class="ctl" id="printBtn" type="button" aria-label="Print this page">
         <span aria-hidden="true">🖨</span><span class="ctl__text">Print</span>
     </button>
-
-    <button class="ctl" type="button" data-action="resetProgress"
-            aria-label="Reset progress for this module">Reset</button>
 </div>
 
 <div class="container">
     <header class="header">
-        <h1>CEH v13 Module 16: Hacking Wireless Networks</h1>
+        <h1>Course Glossary</h1>
         <div class="module-info">
-            <h3>Hacking Wireless Networks</h3>
-            <p>Attacking the open airwaves: 802.11 fundamentals, the WEP-to-WPA3 encryption evolution, the handshake-capture and PMKID attacks on WPA2-PSK, WPS and evil-twin techniques, WPA3 downgrade weaknesses, the aircrack-ng toolkit, and the defenses that actually hold.</p>
-            <div style="margin-top: 14px;">
-                    <span class="highlight">⏱️ 3+ hours</span>
-                    <span class="highlight">🧪 Hands-on labs</span>
-                    <span class="highlight">📝 Assessment</span>
-                    <span class="highlight">🔬 Interactive demos</span>
-            </div>
+            <h3>74 key terms across all 20 modules</h3>
+            <p>Every term is defined once and linked to the module where it is taught. The same
+            definitions power the hover tooltips throughout the course. Use the filter to find a term,
+            or jump by letter.</p>
         </div>
+        <div class="gloss-toolbar">
+            <input type="search" id="glossSearch" class="gloss-search" placeholder="Filter terms…" aria-label="Filter glossary terms" autocomplete="off">
+            <nav class="az-nav" aria-label="Jump to letter"><a class="az-link" href="#g-A">A</a> <a class="az-link" href="#g-B">B</a> <a class="az-link" href="#g-C">C</a> <a class="az-link" href="#g-D">D</a> <a class="az-link" href="#g-E">E</a> <a class="az-link" href="#g-H">H</a> <a class="az-link" href="#g-I">I</a> <a class="az-link" href="#g-J">J</a> <a class="az-link" href="#g-L">L</a> <a class="az-link" href="#g-M">M</a> <a class="az-link" href="#g-N">N</a> <a class="az-link" href="#g-O">O</a> <a class="az-link" href="#g-P">P</a> <a class="az-link" href="#g-R">R</a> <a class="az-link" href="#g-S">S</a> <a class="az-link" href="#g-T">T</a> <a class="az-link" href="#g-V">V</a> <a class="az-link" href="#g-W">W</a> <a class="az-link" href="#g-X">X</a> <a class="az-link" href="#g-Z">Z</a></nav>
+        </div>
+        <p class="gloss-count"><span id="glossShown">74</span> terms shown</p>
     </header>
 
-    <nav class="navigation" role="tablist" aria-label="Module sections">
-        <button class="nav-btn" role="tab" id="tab-overview" data-target="overview" aria-controls="overview" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 📋 Overview</button>
-        <button class="nav-btn" role="tab" id="tab-fundamentals" data-target="fundamentals" aria-controls="fundamentals" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 📡 Wireless Fundamentals</button>
-        <button class="nav-btn" role="tab" id="tab-encryption" data-target="encryption" aria-controls="encryption" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🔐 Encryption & Its Weaknesses</button>
-        <button class="nav-btn" role="tab" id="tab-attacks" data-target="attacks" aria-controls="attacks" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 💥 Key Attacks</button>
-        <button class="nav-btn" role="tab" id="tab-eviltwin" data-target="eviltwin" aria-controls="eviltwin" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 👿 Evil Twin & Rogue APs</button>
-        <button class="nav-btn" role="tab" id="tab-tools" data-target="tools" aria-controls="tools" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🛠️ Tools</button>
-        <button class="nav-btn" role="tab" id="tab-countermeasures" data-target="countermeasures" aria-controls="countermeasures" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🛡️ Countermeasures</button>
-        <button class="nav-btn" role="tab" id="tab-quiz" data-target="quiz" aria-controls="quiz" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🎯 Assessment</button>
-    </nav>
-
-    <div class="progress-wrap">
-        <div class="progress-bar" id="progressBar" role="progressbar"
-             aria-label="Module progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <span class="progress-text" id="progressText">0 of 8 sections · 0%</span>
-    </div>
-
     <main id="main">
-<section id="overview" class="module-section active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
-            <h2 class="section-title">📶 Overview</h2>
-
-            <div class="card">
-                <h3>Security in the open air</h3>
-                <p>Every module so far has attacked systems reachable over a network. This one attacks the network itself — specifically, the <strong>wireless</strong> network, where the transmission medium is not a cable an attacker must physically tap but the <em>open air</em>, radiating in every direction. That single fact reframes everything. A wired network has a natural perimeter: to intercept its traffic you must physically connect to it, inside the building, past the locks. A Wi-Fi network has no such perimeter — its signal spills through walls, into the parking lot, and down the street, and anyone within radio range can passively listen to every frame in the air without touching a thing. Wireless security exists to close a gap that the medium itself opens, and wireless hacking exists to test whether it succeeded.</p>
-            </div>
-
-            <div class="card">
-                <h3>Why this remains a live battleground</h3>
-                <p>It would be easy to assume Wi-Fi security is a solved problem — modern encryption is strong, and the standards have matured over twenty years. In practice, wireless remains one of the most productive areas in a penetration test, for a few reasons. Networks are often protected by <strong>weak passphrases</strong> that fall to offline cracking in seconds. The dominant standard in the real world is still <strong><span class="term" data-term="wpa2">WPA2</span></strong>, which has well-understood attacks, while the stronger <span class="term" data-term="wpa3">WPA3</span> has been slow to roll out. And the most effective wireless attacks — the <strong><span class="term" data-term="evil twin">evil twin</span></strong> and its relatives — bypass the encryption entirely by targeting the <em>user</em>, who will happily connect to a familiar network name regardless of how strong the underlying crypto is. Add the sprawl of IoT devices and legacy routers that never get firmware updates, and wireless stays a rich target.</p>
-            </div>
-
-            <div class="card">
-                <h3>The shape of wireless attacks</h3>
-                <p>Wireless hacking divides cleanly into a few families, and this module works through each. Some attacks go after the <strong>encryption</strong> — capturing the authentication handshake and cracking the passphrase offline, or using clientless techniques like the PMKID attack. Some go after the <strong>protocol and its features</strong> — exploiting WPS, or forcing WPA3 networks to downgrade to weaker WPA2. And some sidestep the crypto altogether to go after the <strong>client and user</strong> — the evil twin and rogue access points that impersonate legitimate networks. Underlying all of them is a set of building blocks: monitor mode, frame <span class="term" data-term="injection">injection</span>, and the deauthentication frame, which recur throughout. Understanding which family applies to a given target is how a tester chooses their approach.</p>
-            </div>
-
-            <div class="card">
-                <h3>What this module covers</h3>
-                <p>We start with <strong>wireless fundamentals</strong> — the 802.11 concepts, terminology, and the special hardware wireless attacks require. Then the <strong>encryption evolution</strong> from broken WEP through WPA2 to WPA3, and where each is weak. From there, the <strong>key attacks</strong> — handshake capture, deauthentication, PMKID, and WPS cracking — followed by the <strong>evil twin and rogue AP</strong> family that targets users directly, including the WPA3 downgrade angle. We survey the <strong>tools</strong> — the aircrack-ng suite and its companions — and close with <strong>countermeasures</strong>, where the defenses are refreshingly concrete. As always, the goal is a tester who can assess a wireless deployment and an engineer who can secure one.</p>
-            </div>
-
-            <div class="warning-box">
-                <p><strong>Radio range is not authorization.</strong> Being able to receive a network's signal — even from a public street — does not give you the right to attack it. Capturing handshakes, deauthenticating clients, or standing up an evil twin against any network you don't own or lack written permission to test is illegal in essentially every jurisdiction, and <span class="term" data-term="deauth">deauth</span> attacks in particular can disrupt others' connectivity. Practice these techniques only on your own equipment or in dedicated lab environments, and note that even passive interception of others' traffic is unlawful in many places.</p>
-            </div>
-
-            <button class="btn btn-success" data-action="showSection" data-args='["fundamentals"]'>Begin → Wireless Fundamentals</button>
-        </section>
-
-        <section id="fundamentals" class="module-section" role="tabpanel" aria-labelledby="tab-fundamentals" tabindex="0" hidden="">
-            <h2 class="section-title">📡 Wireless Fundamentals</h2>
-
-            <div class="card">
-                <h3>The language of 802.11</h3>
-                <p>Wireless networking runs on the <strong>IEEE 802.11</strong> family of standards — what everyone calls Wi-Fi — and a handful of terms recur through every attack, so it's worth fixing them first. An <strong>access point (AP)</strong> is the device (usually a router) that provides the wireless network. The <strong>SSID</strong> is the network's human-readable name (like "CoffeeShop_Guest"). The <strong>BSSID</strong> is the AP's MAC address — its unique hardware identifier, and the value you target precisely in an attack. A <strong>client</strong> or <strong>station</strong> is a connected device (laptop, phone). Networks operate on <strong>channels</strong> within the 2.4 GHz and 5 GHz bands (and now 6 GHz with Wi-Fi 6E), and a tester must tune to the target's channel to capture its traffic. These aren't trivia — every command in this module references a BSSID, a channel, or a client MAC.</p>
-            </div>
-
-            <div class="card">
-                <h3>How a client joins a network</h3>
-                <p>Understanding the attacks requires understanding the join process, because that's where the most valuable data appears. When a client connects to a protected network, it and the AP perform an authentication exchange — for WPA2-Personal, the <strong>4-way handshake</strong>. During this handshake, the two sides prove to each other that they both know the passphrase, <em>without</em> transmitting the passphrase itself. They do this by deriving keys from the shared password and exchanging values that let each verify the other. The crucial insight for an attacker: the handshake contains enough information to <em>verify a passphrase guess offline</em>. Capture the handshake, and you can test millions of candidate passwords against it on your own machine, at your own pace, without ever touching the network again. This is why so much of wireless attacking revolves around capturing that handshake.</p>
-            </div>
-
-            <div class="card">
-                <h3>Management frames: the unprotected layer</h3>
-                <p>802.11 traffic comes in three types: data frames (the actual content), control frames, and <strong>management frames</strong> (which handle association, authentication, and disconnection). For most of Wi-Fi's history, management frames were sent <em>unauthenticated and unencrypted</em> — and that design decision is the root of several attacks. Because a disconnect (deauthentication) frame carried no proof it came from the real AP, an attacker could simply <strong>forge one</strong> and kick a client off the network. This single weakness enables the deauth attack that underpins handshake capture and wireless denial-of-service alike. The fix, <strong>802.11w Protected Management Frames (PMF)</strong>, authenticates these frames and is mandatory in WPA3 — one of the concrete reasons WPA3 is more resilient.</p>
-            </div>
-
-            <div class="card">
-                <h3>The hardware prerequisite</h3>
-                <p>A practical reality separates wireless attacking from everything else in the course: <strong>you usually can't do it with the Wi-Fi card already in your laptop.</strong> Two special capabilities are required. <strong>Monitor mode</strong> lets the adapter capture <em>all</em> frames in the air — not just those addressed to it — which is necessary to see other devices' traffic and handshakes. <strong>Frame (packet) injection</strong> lets the adapter <em>transmit</em> arbitrary crafted 802.11 frames, which is what a deauth attack needs. Most consumer wireless chipsets support neither, so practitioners use specific external USB adapters with compatible chipsets (models built around Atheros and Ralink chipsets are longtime favorites). Knowing this in advance saves a great deal of confusion — the entire toolkit is useless without hardware that can enter monitor mode and inject.</p>
-            </div>
-
-            <div class="card">
-                <h3>The reconnaissance mindset</h3>
-                <p>Before any attack comes discovery, and wireless has its own <span class="term" data-term="reconnaissance">reconnaissance</span> vocabulary. <strong>Wardriving</strong> — moving through an area logging the APs detected — maps the wireless landscape, revealing network names, encryption types, and signal strengths. Passive scanning identifies which networks exist, which are protected and how, which have clients connected, and which have exploitable features like WPS enabled. This first look shapes everything after it: an open network needs no cracking, a WEP network is trivially broken, a WPS-enabled network offers a fast path, and a lone WPA2 network with a connected client points toward handshake capture. With the fundamentals in place, we can examine what those encryption labels actually mean.</p>
-            </div>
-
-            <button class="btn btn-success" data-action="showSection" data-args='["encryption"]'>Next → Encryption &amp; Its Weaknesses</button>
-        </section>
-
-        <section id="encryption" class="module-section" role="tabpanel" aria-labelledby="tab-encryption" tabindex="0" hidden="">
-            <h2 class="section-title">🔐 Encryption &amp; Its Weaknesses</h2>
-
-            <div class="card">
-                <h3>Twenty years of trying to secure the air</h3>
-                <p>Wireless encryption has evolved through several generations, each fixing the failures of the last, and knowing the lineage tells you immediately how to approach a given network. The progression runs <strong>WEP → WPA → WPA2 → WPA3</strong>, and a tester reads the encryption label the way a doctor reads a chart: it dictates the whole plan of attack. The headline summary: WEP is dead, WPA is nearly so, WPA2 is strong-but-crackable-if-the-passphrase-is-weak and still dominant, and WPA3 is the current best but not yet universal.</p>
-            </div>
-
-            <div class="card">
-                <h3>The generations</h3>
-                <div class="grid-2">
-                    <div class="feature-card">
-                        <h4>❌ WEP (1997)</h4>
-                        <p>Wired Equivalent Privacy — completely broken. Its flawed use of RC4 and weak initialization vectors let the key be recovered in minutes regardless of length, by collecting enough traffic. Treat any WEP network as effectively open. It should never be used, and finding it in an assessment is itself a critical finding.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>⚠️ WPA (2003)</h4>
-                        <p>A stopgap upgrade to WEP using TKIP, meant as a transitional fix. It patched the worst WEP flaws but inherited weaknesses and is now considered insecure and obsolete. Rarely the primary encryption on a modern network, but still seen on legacy gear.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>🔓 WPA2 (2004)</h4>
-                        <p>The long-reigning standard, using strong AES-CCMP encryption. The <em>encryption</em> itself is sound — the weakness is the human-chosen passphrase in Personal (PSK) mode, which can be cracked offline once the handshake is captured. Still the most common protocol you'll face in the real world.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>🔐 WPA3 (2018)</h4>
-                        <p>The current standard, whose SAE handshake resists the offline dictionary attacks that defeat WPA2-PSK, and which mandates Protected Management Frames. Stronger by design — but adoption lags, transition modes reintroduce risk, and implementation flaws (Dragonblood) have appeared.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Personal vs Enterprise</h3>
-                <p>An orthogonal distinction cuts across WPA2 and WPA3, and it changes the <span class="term" data-term="attack surface">attack surface</span> entirely. <strong>Personal mode (PSK)</strong> uses a single shared passphrase for everyone — this is home and small-business Wi-Fi, and it's the mode vulnerable to handshake-capture-and-crack, because the whole network's security is one guessable secret. <strong>Enterprise mode</strong> uses 802.1X authentication with individual credentials, typically checked against a RADIUS server, so there is no shared passphrase to crack. Enterprise is more secure but introduces its own attack surface: a rogue AP can impersonate the network and capture the authentication exchange (for example, harvesting credentials via a fake PEAP endpoint). Knowing which mode a target uses tells you whether you're cracking a passphrase or attacking an authentication server.</p>
-            </div>
-
-            <div class="card">
-                <h3>Why WPA2's strong crypto still fails</h3>
-                <p>It's worth being precise about WPA2's weakness, because it's widely misunderstood. The <span class="term" data-term="aes">AES</span> encryption in WPA2 is <em>not</em> broken — no one is defeating the cipher. The <span class="term" data-term="vulnerability">vulnerability</span> is entirely in the <strong>Pre-Shared Key</strong>: because everyone shares one passphrase, and because the 4-way handshake lets that passphrase be verified offline, a weak passphrase is the whole ballgame. A network with the passphrase "password123" is wide open despite military-grade encryption, because the attacker never attacks the encryption — they capture the handshake and guess the password against it at hundreds of millions of guesses per second on a GPU. This is the single most important idea in wireless security: <strong>strong encryption does not compensate for a weak passphrase</strong>, and it drives both the attacks in the next section and the defenses in the last.</p>
-            </div>
-
-            <button class="btn btn-success" data-action="showSection" data-args='["attacks"]'>Next → Key Attacks</button>
-        </section>
-
-        <section id="attacks" class="module-section" role="tabpanel" aria-labelledby="tab-attacks" tabindex="0" hidden="">
-            <h2 class="section-title">💥 Key Attacks</h2>
-
-            <div class="card">
-                <h3>Attacking the encryption</h3>
-                <p>This section covers the attacks that go after the network's encryption and protocol features — the ones that end with the attacker holding the passphrase. They share a structure: get hold of crackable material, then crack it offline. The single most important workflow in wireless testing is the handshake capture, so we start there and build outward.</p>
-            </div>
-
-            <div class="card">
-                <h3>The handshake capture attack</h3>
-                <p>The canonical WPA2-PSK attack has four steps, and it's worth walking through concretely because the whole toolkit orbits it.</p>
-                <div class="attack-flow">
-                    <div class="flow-step">1. Monitor<br><small>Capture on target channel</small></div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-step">2. Deauth<br><small>Force a reconnect</small></div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-step">3. Capture<br><small>Grab the 4-way handshake</small></div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-step">4. Crack<br><small>Offline dictionary/GPU</small></div>
-                </div>
-                <p>First, put the adapter in monitor mode and start capturing on the target's channel and BSSID. Second — the accelerator — send <strong>deauthentication frames</strong> to a connected client, forcing it to disconnect and immediately reconnect. Third, capture the fresh 4-way handshake that reconnection produces (the capture tool signals success when it sees it). Fourth, take that captured handshake offline and run a <strong>dictionary or brute-force attack</strong> against it. Concretely:</p>
-                <div class="code-block"># Capture on the target AP's channel and BSSID
-airodump-ng -c 6 --bssid AA:BB:CC:DD:EE:FF -w capture wlan0mon
-
-# In another terminal: deauth a client to force a handshake
-aireplay-ng -0 5 -a AA:BB:CC:DD:EE:FF -c CLIENT_MAC wlan0mon
-
-# Crack the captured handshake offline
-aircrack-ng capture-01.cap -w /usr/share/wordlists/rockyou.txt</div>
-                <p>The security of the network now rests entirely on whether that passphrase survives cracking — and against a mid-range GPU testing hundreds of millions of candidates per second, a weak one does not.</p>
-            </div>
-
-            <div class="card">
-                <h3>The deauthentication attack, examined</h3>
-                <p>The deauth frame deserves its own look, because it appears throughout wireless attacking. It exploits the unauthenticated management frames described earlier: the attacker forges a deauthentication frame that appears to come from the AP (or the client), and the target honors it and disconnects. Used once against a client, it forces the reconnection that yields a handshake. Used repeatedly against all clients, it becomes a <strong>denial-of-service</strong> attack that keeps a network unusable. It's also the mechanism that pushes victims toward an evil twin — kick them off the real AP and they may connect to the attacker's imposter. The defense is 802.11w Protected Management Frames, which authenticates these frames so forged ones are ignored.</p>
-            </div>
-
-            <div class="card">
-                <h3>The PMKID attack: no client required</h3>
-                <p>A significant advance in WPA2 cracking is the <strong>PMKID attack</strong>, discovered by Jens Steube (creator of Hashcat) in 2018. Its importance is that it is <strong>clientless</strong>: it recovers crackable key material directly from the access point's first EAPOL frame, without needing to capture a full 4-way handshake and — critically — without waiting for a client to connect or deauthenticating anyone. Against a WPA2-PSK network with no active clients, where handshake capture would require patience or an intrusive deauth, PMKID often gets the tester crackable material immediately and quietly. It's frequently the first thing to try. Note the constant, though: PMKID still yields material that must be <em>cracked offline against a wordlist</em>, so it too ultimately depends on the passphrase being weak.</p>
-            </div>
-
-            <div class="card">
-                <h3>WPS: the shortcut that backfired</h3>
-                <p>Wi-Fi Protected Setup (WPS) was meant to make connecting easy — enter an 8-digit PIN instead of a long passphrase — but it introduced a serious flaw. The PIN's design effectively reduces the search space to about <strong>11,000 possibilities</strong>, a keyspace that's trivial next to a full passphrase. Tools like <strong>Reaver</strong> and <strong>Bully</strong> brute-force the WPS PIN, and once recovered, the PIN reveals the actual WPA passphrase — completely bypassing the strength of the passphrase itself. Some APs are further vulnerable to the <strong>Pixie Dust</strong> attack, which recovers the PIN almost instantly by exploiting weak randomness. If WPS is enabled and unpatched, it is often the single fastest route into a network, which is exactly why disabling it is a standard hardening step.</p>
-            </div>
-
-            <div class="card">
-                <h3>The common thread</h3>
-                <p>Notice what unites these encryption attacks: every one of them ends at the same place — an <em>offline crack against a passphrase</em>, whether the material came from a handshake, a PMKID, or a WPS PIN. None of them break AES. They all <span class="term" data-term="exploit">exploit</span> either the passphrase's weakness or a protocol feature (WPS, unauthenticated management frames) layered on top. That's why the next family of attacks is so different, and often so much more effective: instead of fighting the encryption, the evil twin walks around it.</p>
-            </div>
-
-            <button class="btn btn-success" data-action="showSection" data-args='["eviltwin"]'>Next → Evil Twin &amp; Rogue APs</button>
-        </section>
-
-        <section id="eviltwin" class="module-section" role="tabpanel" aria-labelledby="tab-eviltwin" tabindex="0" hidden="">
-            <h2 class="section-title">👿 Evil Twin &amp; Rogue APs</h2>
-
-            <div class="card">
-                <h3>Attacking the user, not the crypto</h3>
-                <p>The encryption attacks all fight the mathematics. This family refuses that fight entirely. An <strong>evil twin</strong> attack doesn't crack anything — it sets up a <em>fake access point that impersonates a legitimate network</em>, and lets victims connect to it voluntarily. Because it targets the user's trust rather than the protocol, it works regardless of how strong the real network's encryption is, and it's frequently the most effective wireless attack in a real engagement. This is the wireless expression of a theme running through the whole course: the human is often the softest part of the system.</p>
-            </div>
-
-            <div class="card">
-                <h3>How an evil twin works</h3>
-                <p>The attacker stands up an access point broadcasting the <strong>same SSID</strong> as a network the victim trusts — "CorporateWiFi," "CoffeeShop_Guest." Devices are configured to automatically reconnect to networks they've used before, and they identify networks by name, so a device may connect to the imposter on its own — especially if the attacker boosts signal strength or uses a <strong>deauth attack</strong> to knock the victim off the real AP first, prompting the device to seek the familiar name and land on the twin. Once connected, <strong>all the victim's traffic flows through the attacker's machine</strong>, who sits in the middle (connecting the story to the sniffing and session-hijacking modules): they can intercept unencrypted data, harvest credentials through fake login or "captive portal" pages, and manipulate traffic. The victim, seeing a familiar network name and a working connection, typically notices nothing.</p>
-            </div>
-
-            <div class="card">
-                <h3>The rogue AP family</h3>
-                <div class="grid-2">
-                    <div class="feature-card">
-                        <h4>👿 Evil Twin</h4>
-                        <p>A fake AP impersonating a <em>specific</em> known network by cloning its SSID, to lure that network's users. The targeted, deceptive form.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>📡 Rogue AP</h4>
-                        <p>Any unauthorized AP attached to a network — sometimes planted by an attacker to create a backdoor into an otherwise-secured wired network, bypassing its perimeter entirely.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>🎣 Captive portal phishing</h4>
-                        <p>The evil twin serves a convincing fake login page ("enter your Wi-Fi password to continue") to harvest credentials directly — pure <span class="term" data-term="social engineering">social engineering</span> delivered over a rogue AP.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>🍍 Automated platforms</h4>
-                        <p>Tools like the Wi-Fi Pineapple, Fluxion, and Bettercap automate the whole evil-twin workflow — cloning, deauthing, and portal-serving — making the attack turnkey.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>The WPA3 downgrade angle</h3>
-                <p>The rogue-AP technique also provides the most practical attack on WPA3. WPA3's SAE handshake is specifically designed to resist the offline dictionary attacks that break WPA2-PSK, so the direct crack doesn't work. But many networks run WPA3 in <strong>transition mode</strong> — supporting both WPA3 and WPA2 for backward compatibility with older devices. An attacker exploits this by standing up a rogue AP that offers <em>only WPA2</em>: a client configured for transition mode will happily downgrade and connect over WPA2, at which point the entire handshake-capture-and-crack attack from the previous section applies again. This <strong>downgrade attack</strong> neutralizes much of WPA3's advantage wherever transition mode is enabled, which is why security-conscious deployments run WPA3 in its strict, WPA3-only mode.</p>
-            </div>
-
-            <div class="card">
-                <h3>Why WPA3 isn't a silver bullet</h3>
-                <p>It's tempting to think WPA3 ends wireless attacks; it doesn't. Its SAE handshake genuinely closes the offline-dictionary door, and mandatory Protected Management Frames stop the classic deauth. But the <strong>evil twin still works</strong> — it never touched the encryption in the first place — the downgrade attack reopens WPA2 wherever transition mode is on, and implementation flaws (the <strong>Dragonblood</strong> side-channel timing attacks against some SAE implementations) have surfaced. Research consistently finds that even WPA3 networks remain exposed to evil-twin and, in transition mode, to the old WPA2 attacks. The honest summary: WPA3 raises the bar meaningfully against encryption attacks, but it doesn't change the fact that a user who connects to the wrong network has already lost.</p>
-            </div>
-
-            <button class="btn btn-success" data-action="showSection" data-args='["tools"]'>Next → Tools</button>
-        </section>
-
-        <section id="tools" class="module-section" role="tabpanel" aria-labelledby="tab-tools" tabindex="0" hidden="">
-            <h2 class="section-title">🛠️ Tools</h2>
-
-            <div class="card">
-                <h3>The aircrack-ng suite: the foundation</h3>
-                <p>One toolkit defines wireless testing so thoroughly that most other Wi-Fi attack tools are essentially wrappers around it: <strong>Aircrack-ng</strong>. It's not a single program but a suite, and its components map directly onto the handshake-capture workflow, so learning them <em>is</em> learning the attack.</p>
-                <div class="grid-2">
-                    <div class="feature-card">
-                        <h4>📻 airmon-ng</h4>
-                        <p>Enables monitor mode on the wireless adapter — the first step of any engagement, turning a normal interface (wlan0) into a capture interface (wlan0mon).</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>📊 airodump-ng</h4>
-                        <p>The capture and reconnaissance workhorse: discovers APs and clients, shows their BSSIDs, channels, and encryption, and captures handshakes to a file. Your window onto the airspace.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>💉 aireplay-ng</h4>
-                        <p>The injection tool: generates and transmits frames, most importantly the deauthentication frames that force reconnections and handshakes. Requires an injection-capable adapter.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>🔓 aircrack-ng</h4>
-                        <p>The cracker: takes a captured handshake and a wordlist and tests candidate passphrases against it. Effective for dictionary attacks; for serious speed, the capture is handed to Hashcat.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>The wider toolkit</h3>
-                <div class="grid-2">
-                    <div class="feature-card">
-                        <h4>⚡ Hashcat</h4>
-                        <p>The GPU-accelerated password cracker. Where aircrack-ng cracks on the CPU, Hashcat harnesses the GPU to test hundreds of millions of WPA2 candidates per second — the tool that makes weak passphrases fall in seconds and handles PMKID material directly.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>🔑 Reaver / Bully</h4>
-                        <p>WPS PIN attackers. They brute-force the ~11,000-value WPS PIN space (or use Pixie Dust against vulnerable APs) to recover the WPA passphrase, exploiting the WPS shortcut rather than the encryption.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>🍍 Bettercap / Fluxion / Wi-Fi Pineapple</h4>
-                        <p>Evil-twin and rogue-AP platforms that automate cloning an SSID, deauthing victims, and serving captive-portal <span class="term" data-term="phishing">phishing</span> pages — turning a multi-step attack into a turnkey operation. The Pineapple is a dedicated hardware device for this.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>🦈 Wireshark</h4>
-                        <p>The packet analyzer from the sniffing module, essential here for inspecting captured wireless frames, verifying a handshake was caught, and analyzing traffic once inside a network.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>The hardware, revisited</h3>
-                <p>Worth restating because it trips up so many beginners: none of these tools work without <strong>an adapter that supports monitor mode and frame injection</strong>. The software is free and the techniques are well-documented, but a typical laptop's built-in Wi-Fi card will silently fail to capture others' traffic or inject deauth frames. Practitioners keep a known-good external USB adapter (built on a supported chipset) specifically for this work. This is the one place in the course where a hardware purchase is effectively a prerequisite, and it's the first thing to sort out before practicing.</p>
-            </div>
-
-            <div class="card">
-                <h3>The AI and automation dimension</h3>
-                <p>Consistent with CEH v13's modernization, wireless attacks increasingly incorporate automation and AI. Machine-learning-driven password guessing prioritizes likely candidates based on patterns and breach data, making dictionary attacks against captured handshakes smarter and faster. AI assists in analyzing captured traffic and orchestrating multi-step attacks. As throughout the course, these accelerate the work on top of the fundamentals — the tester who understands the handshake, the deauth, and the evil twin can direct and verify the automation, while one who only runs a script is lost when it fails. The airspace still rewards understanding over button-pushing.</p>
-            </div>
-
-            <div class="info-box">
-                <p><strong>These tools transmit, not just listen.</strong> Deauthentication and evil-twin tools actively interfere with networks and devices — disrupting connectivity and intercepting others' traffic — which makes running them against networks you don't own both illegal and genuinely disruptive to bystanders. Confine all practice to your own equipment or purpose-built labs.</p>
-            </div>
-
-            <button class="btn btn-success" data-action="showSection" data-args='["countermeasures"]'>Next → Countermeasures</button>
-        </section>
-
-        <section id="countermeasures" class="module-section" role="tabpanel" aria-labelledby="tab-countermeasures" tabindex="0" hidden="">
-            <h2 class="section-title">🛡️ Countermeasures</h2>
-
-            <div class="card">
-                <h3>Defenses that follow directly from the attacks</h3>
-                <p>Wireless defense is unusually satisfying because each countermeasure maps cleanly onto an attack you've just seen. The encryption attacks all end in an offline passphrase crack, so the defenses harden the passphrase and the protocol; the evil twin attacks target the user, so the defenses address detection and user behavior. Work through them in that order and the whole picture holds together.</p>
-            </div>
-
-            <div class="card">
-                <h3>Defending against the encryption attacks</h3>
-                <div class="grid-2">
-                    <div class="feature-card">
-                        <h4>🔑 A strong, unique passphrase</h4>
-                        <p>The single most important defense. Since WPA2-PSK security rests entirely on the passphrase surviving an offline crack, use a long (16+ character), random, unique passphrase. This one step turns the handshake and PMKID attacks into computationally hopeless efforts — the crack simply never finishes.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>🔐 Upgrade to WPA3 (strict mode)</h4>
-                        <p>WPA3's SAE handshake resists offline dictionary attacks outright. Run it in WPA3-only mode, not transition mode, to close the downgrade attack that reopens WPA2. This addresses the root of the handshake-crack family.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>🚫 Disable WPS</h4>
-                        <p>WPS is often the fastest way in, via PIN brute-force or Pixie Dust. It offers convenience at a severe security cost; disable it entirely. There is rarely a good reason to leave it on.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h4>🛡️ Enable 802.11w (PMF)</h4>
-                        <p>Protected Management Frames authenticate management frames, so forged deauthentication frames are ignored — defeating the deauth attack that drives both handshake capture and evil-twin herding. Mandatory in WPA3.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Defending against evil twins and rogue APs</h3>
-                <p>Because these attacks target the user and bypass the encryption, they need a different class of defense. <strong>Wireless intrusion detection/prevention systems (WIDS/WIPS)</strong> monitor the airspace for unauthorized APs broadcasting known SSIDs and for deauth floods, alerting defenders to an evil twin or rogue AP. <strong>User education</strong> matters more here than almost anywhere: users should be wary of connecting to open networks, suspicious of unexpected Wi-Fi login pages asking for credentials, and taught to verify networks rather than trusting a familiar name. On the technical side, <strong>enterprise authentication (802.1X) with proper server-certificate validation</strong> lets clients verify they're talking to the real network — a client that checks the RADIUS server's certificate won't hand credentials to an imposter. And a <strong>VPN</strong> protects the traffic even if a user does connect to a malicious AP, since the attacker in the middle sees only encrypted tunnel traffic.</p>
-            </div>
-
-            <div class="card">
-                <h3>What doesn't work</h3>
-                <p>Two widely-deployed "defenses" deserve a warning because they create false confidence. <strong>Hiding the SSID</strong> (disabling its broadcast) stops nothing — the name still appears in other frames and is trivially recovered, and it can even make clients <em>more</em> vulnerable by causing them to actively probe for the hidden network by name. <strong>MAC address filtering</strong> is equally weak: MAC addresses are sent in the clear in every frame, so an attacker simply observes an allowed address and spoofs it in seconds. Both add administrative hassle and a feeling of security without meaningfully raising the bar for any competent attacker. Real wireless security comes from strong encryption with a strong passphrase, not from obscurity.</p>
-            </div>
-
-            <div class="card">
-                <h3>The through-line</h3>
-                <p>Wireless security comes down to two ideas that the whole module has circled. First, on the encryption side: <strong>strong crypto plus a strong, unique passphrase, on a modern protocol with WPS off and PMF on</strong> — because every encryption attack ultimately bets on a weak passphrase or a legacy feature, and this configuration takes that bet off the table. Second, on the human side: <strong>the evil twin proves that no amount of encryption helps a user who connects to the wrong network</strong>, so detection, certificate validation, VPNs, and education carry the defense where the crypto can't reach. An ethical hacker who understands both halves can walk an airspace, find the weak passphrases and rogue APs, and help an organization close a perimeter that, by the nature of radio, was never really closed to begin with. The next module leaves the airwaves for the devices most of that traffic now flows to: mobile platforms.</p>
-            </div>
-
-            <button class="btn btn-success" data-action="showSection" data-args='["quiz"]'>Next → Test Your Knowledge</button>
-        </section>
-
-        <section id="quiz" class="module-section" role="tabpanel" aria-labelledby="tab-quiz" tabindex="0" hidden="">
-            <h2 class="section-title">🎯 Module Assessment</h2>
-            <div class="card">
-                <h3>📊 Knowledge Check</h3>
-                <p>Test your understanding. Answer all questions to receive your score and detailed explanations.</p>
-                <div id="quizScore" class="score-display" style="display:none;"></div>
-                <div id="comprehensiveQuiz"></div>
-                <div style="margin-top:20px;">
-                    <button class="btn btn-success" data-action="submitQuiz">Submit Answers</button>
-                    <button class="btn" data-action="resetQuiz">Reset</button>
-                </div>
-            </div>
-        </section>
-    
-
-    
+        <section class="gloss-group" id="g-A"><h2 class="gloss-letter">A</h2><dl class="gloss-list"><div class="gloss-item" data-term="aes"><dt class="gloss-term">AES</dt><dd class="gloss-def">Advanced Encryption Standard — the modern symmetric cipher, typically with 128- or 256-bit keys. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div>
+<div class="gloss-item" data-term="arp spoofing"><dt class="gloss-term">Arp spoofing</dt><dd class="gloss-def">Sending forged ARP messages to associate the attacker&#x27;s MAC with another host&#x27;s IP, enabling interception. <a class="gloss-home" href="ceh_module8.html" target="_blank" rel="noopener">Sniffing ↗</a></dd></div>
+<div class="gloss-item" data-term="asymmetric encryption"><dt class="gloss-term">Asymmetric encryption</dt><dd class="gloss-def">Public-key cryptography using a linked key pair — a public key to encrypt/verify and a private key to decrypt/sign. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div>
+<div class="gloss-item" data-term="attack surface"><dt class="gloss-term">Attack surface</dt><dd class="gloss-def">The total set of points where an attacker could try to enter or extract data from a system. <a class="gloss-home" href="ceh_module1.html" target="_blank" rel="noopener">Introduction to Ethical Hacking ↗</a></dd></div>
+<div class="gloss-item" data-term="availability"><dt class="gloss-term">Availability</dt><dd class="gloss-def">Ensuring systems and data are accessible to authorized users when needed. <a class="gloss-home" href="ceh_module10.html" target="_blank" rel="noopener">Denial-of-Service ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-B"><h2 class="gloss-letter">B</h2><dl class="gloss-list"><div class="gloss-item" data-term="botnet"><dt class="gloss-term">Botnet</dt><dd class="gloss-def">A network of compromised devices controlled by an attacker, often used to launch DDoS attacks. <a class="gloss-home" href="ceh_module10.html" target="_blank" rel="noopener">Denial-of-Service ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-C"><h2 class="gloss-letter">C</h2><dl class="gloss-list"><div class="gloss-item" data-term="c2"><dt class="gloss-term">C2</dt><dd class="gloss-def">Command and Control — the infrastructure an attacker uses to remotely direct compromised systems. <a class="gloss-home" href="ceh_module7.html" target="_blank" rel="noopener">Malware Threats ↗</a></dd></div>
+<div class="gloss-item" data-term="cia triad"><dt class="gloss-term">CIA Triad</dt><dd class="gloss-def">Confidentiality, Integrity, and Availability — the three core goals of information security. <a class="gloss-home" href="ceh_module1.html" target="_blank" rel="noopener">Introduction to Ethical Hacking ↗</a></dd></div>
+<div class="gloss-item" data-term="confidentiality"><dt class="gloss-term">Confidentiality</dt><dd class="gloss-def">Ensuring information is readable only by authorized parties, typically via encryption. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div>
+<div class="gloss-item" data-term="container escape"><dt class="gloss-term">Container escape</dt><dd class="gloss-def">An attack that breaks out of a container&#x27;s isolation to reach the host or other containers. <a class="gloss-home" href="ceh_module19.html" target="_blank" rel="noopener">Cloud Computing ↗</a></dd></div>
+<div class="gloss-item" data-term="csrf"><dt class="gloss-term">CSRF</dt><dd class="gloss-def">Cross-Site Request Forgery — tricking a logged-in user&#x27;s browser into making an unwanted authenticated request. <a class="gloss-home" href="ceh_module14.html" target="_blank" rel="noopener">Hacking Web Applications ↗</a></dd></div>
+<div class="gloss-item" data-term="cve"><dt class="gloss-term">CVE</dt><dd class="gloss-def">Common Vulnerabilities and Exposures — a public catalog assigning a unique ID to each known vulnerability. <a class="gloss-home" href="ceh_module5.html" target="_blank" rel="noopener">Vulnerability Analysis ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-D"><h2 class="gloss-letter">D</h2><dl class="gloss-list"><div class="gloss-item" data-term="ddos"><dt class="gloss-term">DDOS</dt><dd class="gloss-def">Distributed Denial of Service — overwhelming a target with traffic from many sources to make it unavailable. <a class="gloss-home" href="ceh_module10.html" target="_blank" rel="noopener">Denial-of-Service ↗</a></dd></div>
+<div class="gloss-item" data-term="deauth"><dt class="gloss-term">Deauth</dt><dd class="gloss-def">A forged Wi-Fi management frame that disconnects a client, often to force a reconnection that yields a handshake. <a class="gloss-home" href="ceh_module16.html" target="_blank" rel="noopener">Hacking Wireless Networks ↗</a></dd></div>
+<div class="gloss-item" data-term="defense in depth"><dt class="gloss-term">Defense in depth</dt><dd class="gloss-def">Layering multiple independent security controls so that if one fails, others still protect the system. <a class="gloss-home" href="ceh_module1.html" target="_blank" rel="noopener">Introduction to Ethical Hacking ↗</a></dd></div>
+<div class="gloss-item" data-term="digital signature"><dt class="gloss-term">Digital signature</dt><dd class="gloss-def">Data signed with a private key that anyone can verify with the matching public key, proving origin and integrity. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div>
+<div class="gloss-item" data-term="directory traversal"><dt class="gloss-term">Directory traversal</dt><dd class="gloss-def">An attack that uses ../ sequences to access files outside the web server&#x27;s intended directory. <a class="gloss-home" href="ceh_module13.html" target="_blank" rel="noopener">Hacking Web Servers ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-E"><h2 class="gloss-letter">E</h2><dl class="gloss-list"><div class="gloss-item" data-term="ecc"><dt class="gloss-term">ECC</dt><dd class="gloss-def">Elliptic Curve Cryptography — asymmetric cryptography giving RSA-level security with much smaller keys. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div>
+<div class="gloss-item" data-term="enumeration"><dt class="gloss-term">Enumeration</dt><dd class="gloss-def">Actively extracting detailed information — usernames, shares, services — from a target&#x27;s systems. <a class="gloss-home" href="ceh_module4.html" target="_blank" rel="noopener">Enumeration ↗</a></dd></div>
+<div class="gloss-item" data-term="evil twin"><dt class="gloss-term">Evil twin</dt><dd class="gloss-def">A rogue access point impersonating a legitimate network&#x27;s name to lure victims into connecting. <a class="gloss-home" href="ceh_module16.html" target="_blank" rel="noopener">Hacking Wireless Networks ↗</a></dd></div>
+<div class="gloss-item" data-term="exploit"><dt class="gloss-term">Exploit</dt><dd class="gloss-def">Code or a technique that takes advantage of a specific vulnerability to cause unintended behavior. <a class="gloss-home" href="ceh_module5.html" target="_blank" rel="noopener">Vulnerability Analysis ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-H"><h2 class="gloss-letter">H</h2><dl class="gloss-list"><div class="gloss-item" data-term="harvest now, decrypt later"><dt class="gloss-term">Harvest now, decrypt later</dt><dd class="gloss-def">Recording encrypted traffic today to decrypt once quantum computers mature; needs no quantum capability at collection time. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div>
+<div class="gloss-item" data-term="hashing"><dt class="gloss-term">Hashing</dt><dd class="gloss-def">A one-way function mapping any input to a fixed-size digest; used for integrity checks and password storage. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-I"><h2 class="gloss-letter">I</h2><dl class="gloss-list"><div class="gloss-item" data-term="iam"><dt class="gloss-term">IAM</dt><dd class="gloss-def">Identity and Access Management — the cloud system governing who can do what to which resources. <a class="gloss-home" href="ceh_module19.html" target="_blank" rel="noopener">Cloud Computing ↗</a></dd></div>
+<div class="gloss-item" data-term="idor"><dt class="gloss-term">IDOR</dt><dd class="gloss-def">Insecure Direct Object Reference — changing a reference (like an ID) to access another user&#x27;s data. <a class="gloss-home" href="ceh_module14.html" target="_blank" rel="noopener">Hacking Web Applications ↗</a></dd></div>
+<div class="gloss-item" data-term="ids"><dt class="gloss-term">IDS</dt><dd class="gloss-def">Intrusion Detection System — monitors network or host activity and alerts on suspected malicious behavior. <a class="gloss-home" href="ceh_module12.html" target="_blank" rel="noopener">Evading IDS, Firewalls, and Honeypots ↗</a></dd></div>
+<div class="gloss-item" data-term="injection"><dt class="gloss-term">Injection</dt><dd class="gloss-def">A flaw where untrusted input is sent to an interpreter as part of a command or query and executed as code. <a class="gloss-home" href="ceh_module14.html" target="_blank" rel="noopener">Hacking Web Applications ↗</a></dd></div>
+<div class="gloss-item" data-term="integrity"><dt class="gloss-term">Integrity</dt><dd class="gloss-def">Ensuring data has not been altered; tampering can be detected, typically via hashing. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div>
+<div class="gloss-item" data-term="ips"><dt class="gloss-term">IPS</dt><dd class="gloss-def">Intrusion Prevention System — like an IDS but able to actively block detected malicious traffic. <a class="gloss-home" href="ceh_module12.html" target="_blank" rel="noopener">Evading IDS, Firewalls, and Honeypots ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-J"><h2 class="gloss-letter">J</h2><dl class="gloss-list"><div class="gloss-item" data-term="jailbreaking"><dt class="gloss-term">Jailbreaking</dt><dd class="gloss-def">Gaining privileged administrative control of an iOS device by removing Apple&#x27;s restrictions. <a class="gloss-home" href="ceh_module17.html" target="_blank" rel="noopener">Hacking Mobile Platforms ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-L"><h2 class="gloss-letter">L</h2><dl class="gloss-list"><div class="gloss-item" data-term="lateral movement"><dt class="gloss-term">Lateral movement</dt><dd class="gloss-def">Moving from one compromised system to others inside a network to reach higher-value targets. <a class="gloss-home" href="ceh_module6.html" target="_blank" rel="noopener">System Hacking ↗</a></dd></div>
+<div class="gloss-item" data-term="least privilege"><dt class="gloss-term">Least privilege</dt><dd class="gloss-def">Granting every identity only the permissions it needs and no more, to limit the blast radius of a compromise. <a class="gloss-home" href="ceh_module19.html" target="_blank" rel="noopener">Cloud Computing ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-M"><h2 class="gloss-letter">M</h2><dl class="gloss-list"><div class="gloss-item" data-term="malware"><dt class="gloss-term">Malware</dt><dd class="gloss-def">Malicious software designed to damage, disrupt, or gain unauthorized access to systems. <a class="gloss-home" href="ceh_module7.html" target="_blank" rel="noopener">Malware Threats ↗</a></dd></div>
+<div class="gloss-item" data-term="man-in-the-middle"><dt class="gloss-term">Man-in-the-middle</dt><dd class="gloss-def">An attacker who secretly relays and possibly alters communication between two parties who believe they talk directly. <a class="gloss-home" href="ceh_module8.html" target="_blank" rel="noopener">Sniffing ↗</a></dd></div>
+<div class="gloss-item" data-term="mdm"><dt class="gloss-term">MDM</dt><dd class="gloss-def">Mobile Device Management — software for centrally securing and enforcing policy on an organization&#x27;s mobile devices. <a class="gloss-home" href="ceh_module17.html" target="_blank" rel="noopener">Hacking Mobile Platforms ↗</a></dd></div>
+<div class="gloss-item" data-term="mfa"><dt class="gloss-term">MFA</dt><dd class="gloss-def">Multi-Factor Authentication — requiring two or more independent proofs of identity to log in. <a class="gloss-home" href="ceh_module6.html" target="_blank" rel="noopener">System Hacking ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-N"><h2 class="gloss-letter">N</h2><dl class="gloss-list"><div class="gloss-item" data-term="non-repudiation"><dt class="gloss-term">Non-repudiation</dt><dd class="gloss-def">A guarantee that a party cannot credibly deny having taken an action, e.g. signing a message. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-O"><h2 class="gloss-letter">O</h2><dl class="gloss-list"><div class="gloss-item" data-term="owasp"><dt class="gloss-term">OWASP</dt><dd class="gloss-def">Open Web Application Security Project — a nonprofit best known for its Top 10 lists of critical security risks. <a class="gloss-home" href="ceh_module14.html" target="_blank" rel="noopener">Hacking Web Applications ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-P"><h2 class="gloss-letter">P</h2><dl class="gloss-list"><div class="gloss-item" data-term="parameterized query"><dt class="gloss-term">Parameterized query</dt><dd class="gloss-def">A query that sends SQL code and user data on separate channels so input can never be parsed as code — the definitive SQLi fix. <a class="gloss-home" href="ceh_module15.html" target="_blank" rel="noopener">SQL Injection ↗</a></dd></div>
+<div class="gloss-item" data-term="payload"><dt class="gloss-term">Payload</dt><dd class="gloss-def">The part of an attack that performs the intended malicious action once delivered. <a class="gloss-home" href="ceh_module7.html" target="_blank" rel="noopener">Malware Threats ↗</a></dd></div>
+<div class="gloss-item" data-term="phishing"><dt class="gloss-term">Phishing</dt><dd class="gloss-def">Fraudulent messages that impersonate a trusted source to steal credentials or deliver malware. <a class="gloss-home" href="ceh_module9.html" target="_blank" rel="noopener">Social Engineering ↗</a></dd></div>
+<div class="gloss-item" data-term="pki"><dt class="gloss-term">PKI</dt><dd class="gloss-def">Public Key Infrastructure — the system of certificates and authorities that binds public keys to verified identities. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div>
+<div class="gloss-item" data-term="plc"><dt class="gloss-term">PLC</dt><dd class="gloss-def">Programmable Logic Controller — a rugged computer that directly controls physical industrial machinery. <a class="gloss-home" href="ceh_module18.html" target="_blank" rel="noopener">IoT and OT Hacking ↗</a></dd></div>
+<div class="gloss-item" data-term="post-quantum cryptography"><dt class="gloss-term">Post-quantum cryptography</dt><dd class="gloss-def">New algorithms (e.g. ML-KEM, ML-DSA) designed to resist attacks from quantum computers. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div>
+<div class="gloss-item" data-term="pretexting"><dt class="gloss-term">Pretexting</dt><dd class="gloss-def">Inventing a fabricated scenario or identity to persuade a victim to divulge information or act. <a class="gloss-home" href="ceh_module9.html" target="_blank" rel="noopener">Social Engineering ↗</a></dd></div>
+<div class="gloss-item" data-term="privilege escalation"><dt class="gloss-term">Privilege escalation</dt><dd class="gloss-def">Gaining higher permissions than intended — vertically (to a higher role) or horizontally (to another user&#x27;s resources). <a class="gloss-home" href="ceh_module6.html" target="_blank" rel="noopener">System Hacking ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-R"><h2 class="gloss-letter">R</h2><dl class="gloss-list"><div class="gloss-item" data-term="rainbow table"><dt class="gloss-term">Rainbow table</dt><dd class="gloss-def">A precomputed table of hashes used to reverse unsalted password hashes quickly. <a class="gloss-home" href="ceh_module6.html" target="_blank" rel="noopener">System Hacking ↗</a></dd></div>
+<div class="gloss-item" data-term="ransomware"><dt class="gloss-term">Ransomware</dt><dd class="gloss-def">Malware that encrypts a victim&#x27;s data and demands payment for the decryption key. <a class="gloss-home" href="ceh_module7.html" target="_blank" rel="noopener">Malware Threats ↗</a></dd></div>
+<div class="gloss-item" data-term="reconnaissance"><dt class="gloss-term">Reconnaissance</dt><dd class="gloss-def">The first phase of an attack: gathering information about a target before attempting to breach it. <a class="gloss-home" href="ceh_module2.html" target="_blank" rel="noopener">Footprinting and Reconnaissance ↗</a></dd></div>
+<div class="gloss-item" data-term="rooting"><dt class="gloss-term">Rooting</dt><dd class="gloss-def">Gaining privileged administrative control of an Android device by removing manufacturer restrictions. <a class="gloss-home" href="ceh_module17.html" target="_blank" rel="noopener">Hacking Mobile Platforms ↗</a></dd></div>
+<div class="gloss-item" data-term="rootkit"><dt class="gloss-term">Rootkit</dt><dd class="gloss-def">Malware that hides its presence and maintains privileged access deep in a system. <a class="gloss-home" href="ceh_module7.html" target="_blank" rel="noopener">Malware Threats ↗</a></dd></div>
+<div class="gloss-item" data-term="rsa"><dt class="gloss-term">RSA</dt><dd class="gloss-def">A widely used asymmetric algorithm whose security rests on the difficulty of factoring large numbers. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-S"><h2 class="gloss-letter">S</h2><dl class="gloss-list"><div class="gloss-item" data-term="salt"><dt class="gloss-term">Salt</dt><dd class="gloss-def">A unique random value added to a password before hashing, defeating precomputed (rainbow-table) attacks. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div>
+<div class="gloss-item" data-term="sandbox"><dt class="gloss-term">Sandbox</dt><dd class="gloss-def">An isolated environment where an app runs without free access to other apps or the system. <a class="gloss-home" href="ceh_module17.html" target="_blank" rel="noopener">Hacking Mobile Platforms ↗</a></dd></div>
+<div class="gloss-item" data-term="scada"><dt class="gloss-term">SCADA</dt><dd class="gloss-def">Supervisory Control and Data Acquisition — systems that monitor and control industrial processes. <a class="gloss-home" href="ceh_module18.html" target="_blank" rel="noopener">IoT and OT Hacking ↗</a></dd></div>
+<div class="gloss-item" data-term="session hijacking"><dt class="gloss-term">Session hijacking</dt><dd class="gloss-def">Taking over a valid user session, typically by stealing or forging the session token. <a class="gloss-home" href="ceh_module11.html" target="_blank" rel="noopener">Session Hijacking ↗</a></dd></div>
+<div class="gloss-item" data-term="shared responsibility model"><dt class="gloss-term">Shared responsibility model</dt><dd class="gloss-def">The split where the cloud provider secures the infrastructure and the customer secures their data, configuration, and access. <a class="gloss-home" href="ceh_module19.html" target="_blank" rel="noopener">Cloud Computing ↗</a></dd></div>
+<div class="gloss-item" data-term="siem"><dt class="gloss-term">SIEM</dt><dd class="gloss-def">Security Information and Event Management — a system that aggregates and correlates logs to detect threats. <a class="gloss-home" href="ceh_module12.html" target="_blank" rel="noopener">Evading IDS, Firewalls, and Honeypots ↗</a></dd></div>
+<div class="gloss-item" data-term="smishing"><dt class="gloss-term">Smishing</dt><dd class="gloss-def">Phishing carried out over SMS text messages, often with malicious links. <a class="gloss-home" href="ceh_module17.html" target="_blank" rel="noopener">Hacking Mobile Platforms ↗</a></dd></div>
+<div class="gloss-item" data-term="social engineering"><dt class="gloss-term">Social engineering</dt><dd class="gloss-def">Manipulating people into revealing information or taking actions that compromise security. <a class="gloss-home" href="ceh_module9.html" target="_blank" rel="noopener">Social Engineering ↗</a></dd></div>
+<div class="gloss-item" data-term="sql injection"><dt class="gloss-term">SQL Injection</dt><dd class="gloss-def">Injecting attacker-controlled SQL into a query so the database executes it as code rather than data. <a class="gloss-home" href="ceh_module15.html" target="_blank" rel="noopener">SQL Injection ↗</a></dd></div>
+<div class="gloss-item" data-term="symmetric encryption"><dt class="gloss-term">Symmetric encryption</dt><dd class="gloss-def">Encryption using one shared secret key for both encryption and decryption; fast, ideal for bulk data (e.g. AES). <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-T"><h2 class="gloss-letter">T</h2><dl class="gloss-list"><div class="gloss-item" data-term="threat actor"><dt class="gloss-term">Threat actor</dt><dd class="gloss-def">Any individual or group that carries out, or intends to carry out, malicious activity. <a class="gloss-home" href="ceh_module1.html" target="_blank" rel="noopener">Introduction to Ethical Hacking ↗</a></dd></div>
+<div class="gloss-item" data-term="tls"><dt class="gloss-term">TLS</dt><dd class="gloss-def">Transport Layer Security — the protocol behind HTTPS; uses asymmetric crypto to exchange a fast symmetric session key. <a class="gloss-home" href="ceh_module20.html" target="_blank" rel="noopener">Cryptography ↗</a></dd></div>
+<div class="gloss-item" data-term="trojan"><dt class="gloss-term">Trojan</dt><dd class="gloss-def">Malware disguised as legitimate software to trick a user into installing it. <a class="gloss-home" href="ceh_module7.html" target="_blank" rel="noopener">Malware Threats ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-V"><h2 class="gloss-letter">V</h2><dl class="gloss-list"><div class="gloss-item" data-term="vishing"><dt class="gloss-term">Vishing</dt><dd class="gloss-def">Voice phishing — social engineering conducted over a phone call. <a class="gloss-home" href="ceh_module9.html" target="_blank" rel="noopener">Social Engineering ↗</a></dd></div>
+<div class="gloss-item" data-term="vulnerability"><dt class="gloss-term">Vulnerability</dt><dd class="gloss-def">A weakness in a system that an attacker can use to compromise its security. <a class="gloss-home" href="ceh_module5.html" target="_blank" rel="noopener">Vulnerability Analysis ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-W"><h2 class="gloss-letter">W</h2><dl class="gloss-list"><div class="gloss-item" data-term="waf"><dt class="gloss-term">WAF</dt><dd class="gloss-def">Web Application Firewall — filters malicious HTTP requests; a layer of defense, not a substitute for fixing code. <a class="gloss-home" href="ceh_module13.html" target="_blank" rel="noopener">Hacking Web Servers ↗</a></dd></div>
+<div class="gloss-item" data-term="web shell"><dt class="gloss-term">Web shell</dt><dd class="gloss-def">A malicious script uploaded to a server that gives an attacker remote command execution. <a class="gloss-home" href="ceh_module14.html" target="_blank" rel="noopener">Hacking Web Applications ↗</a></dd></div>
+<div class="gloss-item" data-term="wpa2"><dt class="gloss-term">WPA2</dt><dd class="gloss-def">A long-standing Wi-Fi security standard using strong AES encryption; vulnerable when the passphrase is weak. <a class="gloss-home" href="ceh_module16.html" target="_blank" rel="noopener">Hacking Wireless Networks ↗</a></dd></div>
+<div class="gloss-item" data-term="wpa3"><dt class="gloss-term">WPA3</dt><dd class="gloss-def">The current Wi-Fi security standard, whose SAE handshake resists the offline dictionary attacks that defeat WPA2-PSK. <a class="gloss-home" href="ceh_module16.html" target="_blank" rel="noopener">Hacking Wireless Networks ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-X"><h2 class="gloss-letter">X</h2><dl class="gloss-list"><div class="gloss-item" data-term="xss"><dt class="gloss-term">XSS</dt><dd class="gloss-def">Cross-Site Scripting — injecting malicious script into a page so it runs in other users&#x27; browsers. <a class="gloss-home" href="ceh_module14.html" target="_blank" rel="noopener">Hacking Web Applications ↗</a></dd></div></dl></section>
+<section class="gloss-group" id="g-Z"><h2 class="gloss-letter">Z</h2><dl class="gloss-list"><div class="gloss-item" data-term="zero trust"><dt class="gloss-term">Zero trust</dt><dd class="gloss-def">“Never trust, always verify” — a model that treats every request as untrusted regardless of origin and continuously verifies identity and authorization. <a class="gloss-home" href="ceh_module19.html" target="_blank" rel="noopener">Cloud Computing ↗</a></dd></div>
+<div class="gloss-item" data-term="zero-day"><dt class="gloss-term">Zero-day</dt><dd class="gloss-def">A vulnerability unknown to the vendor, with no patch available, that attackers can exploit before it is fixed. <a class="gloss-home" href="ceh_module5.html" target="_blank" rel="noopener">Vulnerability Analysis ↗</a></dd></div></dl></section>
+        <p class="gloss-empty" id="glossEmpty">No terms match your filter.</p>
     </main>
 
-    <nav class="course-nav" aria-label="Course navigation">
-        <a href="ceh_module15.html" rel="prev">← Module 15</a>
-        <a class="is-home" href="index.html">Course home</a>
-        <a class="is-aux" href="cheatsheet-wireless.html" target="_blank" rel="noopener">Cheat sheet</a>
-        <a class="is-aux" href="glossary.html" target="_blank" rel="noopener">Glossary</a>
-        <a href="ceh_module17.html" rel="next">Module 17 →</a>
-    </nav>
-
     <footer class="module-footer">
-        <p class="legal"><strong>Authorized testing only.</strong> Every technique in this module is
-        presented for defensive education and authorized assessment. Running these tools against
-        systems you do not own or have written permission to test is illegal in most jurisdictions.</p>
-        <p>CEH v13 Course Series · Module 16 · Brookdale Community College · 2026</p>
+        <p class="legal">Aligned to the EC-Council CEH v13 curriculum. Independent study companion,
+        not affiliated with or endorsed by EC-Council.</p>
+        <p>CEH v13 Course Series · Brookdale Community College · 2026</p>
     </footer>
-</div>
-
-<div id="detailModal" class="modal" role="dialog" aria-modal="true"
-     aria-labelledby="modalContent" aria-hidden="true">
-    <div class="modal-content">
-        <button class="close" type="button" data-action="closeModal" aria-label="Close dialog">&times;</button>
-        <div id="modalContent"></div>
-    </div>
-</div>
-
-<button id="notesToggle" class="notes-fab" type="button"
-        aria-expanded="false" aria-controls="notesPanel" aria-label="Open notes">
-    <span class="notes-fab__icon" aria-hidden="true">📝</span>
-    <span class="notes-fab__text">Notes</span>
-    <span id="notesDot" class="notes-fab__dot" hidden aria-hidden="true"></span>
-</button>
-
-<div id="notesPanel" class="notes-panel" role="dialog" aria-modal="false"
-     aria-label="Study notes" aria-hidden="true">
-    <div class="notes-panel__head">
-        <span class="notes-panel__title">Notes</span>
-        <button id="notesClose" class="notes-panel__close" type="button" aria-label="Close notes">&times;</button>
-    </div>
-    <div class="notes-tabs" role="group" aria-label="Notes scope">
-        <button id="notesTabSection" class="notes-tab" type="button" aria-pressed="true">This section</button>
-        <button id="notesTabScratch" class="notes-tab" type="button" aria-pressed="false">Scratchpad</button>
-    </div>
-    <p id="notesScopeLabel" class="notes-panel__scope">Notes for this section</p>
-    <div class="notes-panel__body">
-        <textarea id="notesArea" class="notes-area" aria-label="Note text"
-                  spellcheck="true"></textarea>
-    </div>
-    <div class="notes-panel__foot">
-        <span class="notes-hint">Saved automatically</span>
-        <button id="notesClear" class="notes-mini is-danger" type="button">Clear</button>
-        <button id="notesExport" class="notes-mini" type="button">Export .md</button>
-    </div>
 </div>
 
 <div id="notification" class="notification" role="status" aria-live="polite"></div>
@@ -2027,217 +1731,29 @@ var CEH = (function () {
 </script>
 <script>
 (function () {
-  'use strict';
-
-  /* ---- module-specific behaviour (preserved from the original build) ---- */
-const quizQuestions = [
-                    {
-                                "question": "Why is wireless security fundamentally harder than wired security?",
-                                "options": [
-                                            "Wireless networks are always slower",
-                                            "The transmission medium is open air \u2014 signals radiate beyond physical walls, so an attacker within radio range can intercept traffic without any physical connection",
-                                            "Wireless networks cannot be encrypted",
-                                            "Wired networks have no vulnerabilities"
-                                ],
-                                "correct": 1,
-                                "explanation": "The defining challenge of wireless security is the medium itself: radio signals travel through the air and past physical boundaries, so anyone within range can passively receive the traffic without plugging into anything. A wired network requires physical access to the cable; a wireless network extends the attack surface into the parking lot and beyond. Every wireless attack builds on this basic fact."
-                    },
-                    {
-                                "question": "Which wireless encryption standard is considered completely broken and must never be used?",
-                                "options": [
-                                            "WPA3",
-                                            "WPA2",
-                                            "WEP",
-                                            "SAE"
-                                ],
-                                "correct": 2,
-                                "explanation": "WEP (Wired Equivalent Privacy) is fundamentally and completely broken \u2014 its weak RC4 implementation and flawed initialization vectors allow the key to be recovered in minutes regardless of complexity. It should be treated as providing no security at all. WPA2 remains widely used (though attackable via weak passphrases), and WPA3 is the current standard."
-                    },
-                    {
-                                "question": "What is the standard attack against a WPA2-PSK (Personal) network?",
-                                "options": [
-                                            "Guessing the password through the login page",
-                                            "Capturing the 4-way handshake (often by forcing a reconnection with deauth), then running an offline dictionary or brute-force attack against it",
-                                            "Physically stealing the router",
-                                            "Sending too much traffic to crash it"
-                                ],
-                                "correct": 1,
-                                "explanation": "The classic WPA2-PSK attack captures the 4-way handshake that occurs when a client authenticates \u2014 frequently accelerated by sending deauthentication frames to force a connected client to reconnect and produce a fresh handshake. The captured handshake is then cracked offline with a dictionary or GPU-accelerated brute force. The network's security therefore rests entirely on passphrase strength."
-                    },
-                    {
-                                "question": "What is a deauthentication (deauth) attack?",
-                                "options": [
-                                            "Permanently disabling a router",
-                                            "Sending forged deauthentication frames to disconnect clients from an access point, often to force a reconnection that yields a capturable handshake",
-                                            "Stealing a user's password directly",
-                                            "Encrypting the attacker's traffic"
-                                ],
-                                "correct": 1,
-                                "explanation": "A deauth attack sends spoofed 802.11 deauthentication frames that disconnect a client from its access point. It's used both as a denial-of-service (repeatedly kicking clients off) and, more commonly, as a means to force a client to reconnect so the attacker can capture the resulting 4-way handshake. Protected Management Frames (802.11w) defend against it."
-                    },
-                    {
-                                "question": "What makes the PMKID attack notable?",
-                                "options": [
-                                            "It only works on WEP networks",
-                                            "It is clientless \u2014 it can recover crackable key material directly from the access point without needing a connected client or a captured handshake",
-                                            "It instantly reveals any password",
-                                            "It requires physical access to the router"
-                                ],
-                                "correct": 1,
-                                "explanation": "The PMKID attack (discovered by Jens Steube in 2018) extracts key material from the first EAPOL frame the access point sends, meaning the attacker does not need to capture a full 4-way handshake or even wait for a client to connect. Because it requires no client interaction, it's often the first technique a tester tries against a WPA2-PSK target \u2014 though it still ultimately depends on cracking a weak passphrase."
-                    },
-                    {
-                                "question": "What is an evil twin attack?",
-                                "options": [
-                                            "A virus that duplicates itself",
-                                            "A rogue access point that impersonates a legitimate network's SSID so victims connect to the attacker, who then intercepts their traffic and credentials",
-                                            "Two routers with the same password",
-                                            "A backup access point"
-                                ],
-                                "correct": 1,
-                                "explanation": "An evil twin is a malicious access point configured to mimic a legitimate network's name (SSID). When victims connect to it \u2014 sometimes lured by a stronger signal or a forced disconnection from the real AP \u2014 all their traffic passes through the attacker's machine, allowing interception of data and harvesting of credentials. It attacks the client and user rather than the encryption, so it works even against strong protocols."
-                    },
-                    {
-                                "question": "What is a key limitation attackers face when performing WPA3 attacks, and what workaround exists?",
-                                "options": [
-                                            "WPA3 is completely unbreakable in all cases",
-                                            "WPA3's SAE handshake resists offline dictionary attacks, but transition/downgrade attacks can force a client back to WPA2, and evil twin attacks still work",
-                                            "WPA3 has no encryption at all",
-                                            "WPA3 only works on enterprise networks"
-                                ],
-                                "correct": 1,
-                                "explanation": "WPA3's SAE (Dragonfly) handshake is designed to resist the offline dictionary attacks that defeat WPA2-PSK. However, networks running WPA3 in transition mode (supporting both WPA2 and WPA3) can be downgraded by a rogue AP offering only WPA2, after which the standard attacks apply. Side-channel (Dragonblood) weaknesses exist in some implementations, and evil twin attacks \u2014 which target the user, not the crypto \u2014 remain effective."
-                    },
-                    {
-                                "question": "Why can't most standard laptop Wi-Fi cards perform wireless attacks?",
-                                "options": [
-                                            "They are too slow",
-                                            "Wireless attacks require monitor mode and packet (frame) injection, which most consumer wireless chipsets do not support",
-                                            "They don't have enough storage",
-                                            "They can only connect to one network"
-                                ],
-                                "correct": 1,
-                                "explanation": "Wireless attacks require the adapter to enter monitor mode (capturing all frames in the air, not just those addressed to it) and to perform frame injection (transmitting arbitrary crafted 802.11 frames, as deauth attacks need). Most built-in consumer chipsets support neither, which is why practitioners use specific external USB adapters with compatible chipsets. This is a practical prerequisite for the entire toolkit."
-                    },
-                    {
-                                "question": "Which tool suite is the foundation of most Wi-Fi security testing?",
-                                "options": [
-                                            "Nmap",
-                                            "Aircrack-ng (airmon-ng, airodump-ng, aireplay-ng, aircrack-ng)",
-                                            "Burp Suite",
-                                            "Metasploit"
-                                ],
-                                "correct": 1,
-                                "explanation": "The Aircrack-ng suite is the defining toolkit of wireless testing: airmon-ng enables monitor mode, airodump-ng captures traffic and handshakes, aireplay-ng injects frames (including deauth), and aircrack-ng cracks the captured handshakes. Most graphical Wi-Fi attack tools are essentially wrappers around it. GPU cracking with Hashcat and WPS tools like Reaver round out the kit."
-                    },
-                    {
-                                "question": "What is the most important defense for a WPA2-PSK wireless network?",
-                                "options": [
-                                            "Hiding the SSID",
-                                            "A long, complex, unique passphrase \u2014 since the entire security of WPA2-PSK rests on the passphrase surviving an offline cracking attempt",
-                                            "Enabling WPS",
-                                            "MAC address filtering"
-                                ],
-                                "correct": 1,
-                                "explanation": "Because the standard WPA2-PSK attack captures the handshake and cracks it offline, the network's security comes down to whether the passphrase can withstand that cracking \u2014 a weak one falls in seconds to GPU attacks. A long, random, unique passphrase is therefore the single most important defense. Upgrading to WPA3, disabling WPS, and enabling 802.11w (Protected Management Frames) strengthen it further. SSID hiding and MAC filtering are trivially bypassed and provide negligible security."
-                    }
-        ];
-
-        
-function generateQuiz() {
-            const c = document.getElementById('comprehensiveQuiz');
-            if (!c) return;
-            c.innerHTML = quizQuestions.map((q, index) => `
-                <div class="question" data-qindex="${index}">
-                    <h4>Question ${index + 1}: ${q.question}</h4>
-                    <div class="options">
-                        ${q.options.map((option, optIndex) => `
-                            <div class="option" data-action="selectQuizOption" data-args='[${index}, ${optIndex}]'>
-                                ${String.fromCharCode(65 + optIndex)}) ${option}
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="explanation" id="explanation-${index}" style="display:none;"></div>
-                </div>
-            `).join('');
-        }
-
-        const quizAnswers = {};
-
-        
-function selectQuizOption(qIndex, optIndex) {
-            quizAnswers[qIndex] = optIndex;
-            const q = document.querySelector('.question[data-qindex="' + qIndex + '"]');
-            if (!q) return;
-            q.querySelectorAll('.option').forEach((el, i) => {
-                el.classList.toggle('selected', i === optIndex);
-            });
-        }
-function submitQuiz() {
-            let correct = 0;
-            quizQuestions.forEach((q, index) => {
-                const q_el = document.querySelector('.question[data-qindex="' + index + '"]');
-                const chosen = quizAnswers[index];
-                if (q_el) {
-                    q_el.querySelectorAll('.option').forEach((el, i) => {
-                        el.classList.remove('correct', 'incorrect');
-                        if (i === q.correct) el.classList.add('correct');
-                        else if (i === chosen) el.classList.add('incorrect');
-                    });
-                    const exp = document.getElementById('explanation-' + index);
-                    if (exp) {
-                        exp.style.display = 'block';
-                        exp.innerHTML = '<strong>' + (chosen === q.correct ? '\u2705 Correct. ' : '\u274c Incorrect. ') + '</strong>' + q.explanation;
-                    }
-                }
-                if (chosen === q.correct) correct++;
-            });
-            const total = quizQuestions.length;
-            const pct = Math.round((correct / total) * 100);
-            const scoreEl = document.getElementById('quizScore');
-            if (scoreEl) {
-                scoreEl.style.display = 'block';
-                scoreEl.innerHTML = '<h3>Your Score: ' + correct + '/' + total + ' (' + pct + '%)</h3>' +
-                    '<p>' + (pct >= 80 ? 'Excellent \u2014 you have a strong grasp of this module.' :
-                             pct >= 60 ? 'Good work. Review the explanations below to close the gaps.' :
-                             'Review the module content and the explanations below, then try again.') + '</p>';
-                scoreEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            if (typeof updateProgress === 'function') CEH.updateProgress('quiz');
-        }
-function resetQuiz() {
-            for (const k in quizAnswers) delete quizAnswers[k];
-            generateQuiz();
-            const scoreEl = document.getElementById('quizScore');
-            if (scoreEl) scoreEl.style.display = 'none';
-        }
-
-        // Quiz rendering is triggered by the module patch via the chassis moduleReady() hook.
-    
-
-/* Module 16 — quiz bootstrap.
-   Native module authored on the chassis. generateQuiz() populates
-   #comprehensiveQuiz from the quizQuestions bank; we render it from the
-   moduleReady() hook the chassis calls once initialization completes, so the
-   assessment is present on first paint (the invisible-quiz fix, applied from
-   the start). */
-  function moduleReady() {
-    if (typeof generateQuiz === 'function' &&
-        document.getElementById('comprehensiveQuiz')) {
-      try { generateQuiz(); } catch (e) { console.error('[M16] quiz render failed:', e); }
-    }
+  if (window.CEH && CEH.init) CEH.init({ module: 'glossary', sections: [] });
+  var box = document.getElementById('glossSearch');
+  var items = Array.prototype.slice.call(document.querySelectorAll('.gloss-item'));
+  var groups = Array.prototype.slice.call(document.querySelectorAll('.gloss-group'));
+  var shown = document.getElementById('glossShown');
+  var empty = document.getElementById('glossEmpty');
+  function apply() {
+    var q = (box.value || '').trim().toLowerCase();
+    var n = 0;
+    items.forEach(function (it) {
+      var hay = (it.getAttribute('data-term') + ' ' + it.textContent).toLowerCase();
+      var match = !q || hay.indexOf(q) !== -1;
+      it.classList.toggle('is-hidden', !match);
+      if (match) n++;
+    });
+    groups.forEach(function (g) {
+      var any = g.querySelector('.gloss-item:not(.is-hidden)');
+      g.classList.toggle('is-hidden', !any);
+    });
+    if (shown) shown.textContent = String(n);
+    if (empty) empty.style.display = n ? 'none' : 'block';
   }
-
-  /* ---- wire it to the chassis ---- */
-  CEH.register({
-      generateQuiz: generateQuiz,
-      moduleReady: moduleReady,
-      resetQuiz: resetQuiz,
-      selectQuizOption: selectQuizOption,
-      submitQuiz: submitQuiz
-  });
-
-  CEH.init({ sections: ["overview", "fundamentals", "encryption", "attacks", "eviltwin", "tools", "countermeasures", "quiz"], onReady: moduleReady });
+  if (box) box.addEventListener('input', apply);
 })();
 </script>
 </body>

