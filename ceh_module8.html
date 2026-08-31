@@ -21,6 +21,9 @@
   --accent-line:     rgba(53, 224, 95, 0.34);
 
   --cyan:            #43d9d4;
+  --violet:          #b39bff;
+  --violet-dim:      rgba(179, 155, 255, 0.10);
+  --violet-line:     rgba(179, 155, 255, 0.30);
   --amber:           #f0b429;
   --danger:          #ff6b6b;
   --success:         #35e05f;
@@ -77,6 +80,9 @@
   --accent-line:     rgba(15, 122, 52, 0.30);
 
   --cyan:            #0b6d78;
+  --violet:          #6b46d6;
+  --violet-dim:      rgba(107, 70, 214, 0.07);
+  --violet-line:     rgba(107, 70, 214, 0.22);
   --amber:           #8a5a00;
   --danger:          #b3261e;
   --success:         #0f7a34;
@@ -612,6 +618,41 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .success-box { border-left-color: var(--success); }
 .warning-box { border-left-color: var(--amber); }
 
+/* ---------- ANALOGY CALLOUT ----------
+   Plain-language intuition placed at the head of each teaching section,
+   before the formal treatment. Deliberately visually distinct from
+   .info-box / .warning-box so learners can find (or skip) it at a glance. */
+.analogy {
+  margin: var(--sp-3) 0 var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--violet-dim);
+  border: 1px solid var(--violet-line);
+  border-left: 4px solid var(--violet);
+  border-radius: var(--radius);
+}
+.analogy__label {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-xs); font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--violet);
+}
+.analogy p { margin: 0 0 var(--sp-2); }
+.analogy p:last-child { margin-bottom: 0; }
+.analogy__hook {
+  font-size: var(--fs-lg); font-weight: 600;
+  line-height: 1.45; color: var(--text);
+}
+.analogy__limit {
+  padding-top: var(--sp-2);
+  border-top: 1px dashed var(--violet-line);
+  font-size: var(--fs-sm); color: var(--text-muted);
+}
+.analogy__limit b { color: var(--text); font-weight: 700; }
+@media (max-width: 720px) {
+  .analogy { padding: var(--sp-3); }
+}
+
 /* CVSS severity */
 .cvss-score {
   display: inline-block; padding: 2px 12px; border-radius: 999px;
@@ -760,6 +801,32 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .notes-mini:hover { border-color: var(--accent); color: var(--accent); }
 .notes-mini.is-danger:hover { border-color: var(--danger); color: var(--danger); }
 
+/* export format menu */
+.notes-export { position: relative; display: inline-flex; }
+.notes-mini__caret { margin-left: 6px; font-size: .8em; opacity: .8; }
+.notes-menu {
+  position: absolute; bottom: calc(100% + 6px); right: 0;
+  min-width: 232px; padding: var(--sp-1);
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  display: none; flex-direction: column; gap: 2px; z-index: 60;
+}
+.notes-menu.open { display: flex; }
+.notes-menu__item {
+  display: flex; align-items: center; gap: var(--sp-2);
+  width: 100%; min-height: 38px; padding: 0 var(--sp-2);
+  font: inherit; font-size: var(--fs-sm); text-align: left; white-space: nowrap;
+  color: var(--text); background: none; border: 0;
+  border-radius: 8px; cursor: pointer;
+}
+.notes-menu__item:hover,
+.notes-menu__item:focus-visible {
+  background: var(--accent); color: var(--text-on-accent); outline: none;
+}
+.notes-menu__check { flex: none; width: 1em; text-align: center; opacity: 0; }
+.notes-menu__item[aria-checked="true"] .notes-menu__check { opacity: 1; }
+.notes-menu__sep { height: 1px; margin: var(--sp-1) var(--sp-2); background: var(--border); }
+
 @media (max-width: 720px) {
   .notes-panel { right: 3vw; left: 3vw; width: auto; bottom: calc(var(--sp-3) + 64px); }
   .notes-fab { right: var(--sp-3); bottom: var(--sp-3); }
@@ -806,11 +873,12 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
     --code-bg: #f2f2f2; --code-text: #000; --shadow: none; --shadow-lg: none;
   }
   .controlbar, .navigation, .progress-wrap, .matrix-bg, .course-nav,
-  .notes-fab, .notes-panel,
+  .notes-fab, .notes-panel, .notes-menu,
   .notification, .demo-controls, .btn, .modal, .tooltip-bubble { display: none !important; }
   .term { border-bottom: none; background: none; color: inherit; }
   .module-section { display: block !important; page-break-after: always; }
   .card, .feature-card, .tool-card { page-break-inside: avoid; box-shadow: none; }
+  .analogy { page-break-inside: avoid; background: none; border-color: #999; border-left-color: #555; }
   a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; word-break: break-all; }
   body { font-size: 11pt; }
 }
@@ -885,6 +953,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <section id="overview" class="module-section active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
             <h2 class="section-title">📋 Module Overview &amp; Learning Objectives</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Sniffing is listening in a room where everyone assumed the conversations were private.</p>
+                <p>A network interface normally discards traffic not addressed to it. Promiscuous mode is the decision to listen to everything in the room instead. On unencrypted protocols that means credentials, messages and session tokens arriving in plain text, with no exploitation required at all.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The room got quieter. Switched networks deliver most traffic only to its destination and the majority of traffic is now TLS-encrypted, so passive sniffing yields far less than it once did — which is why this module moves quickly to active techniques.</p>
+            </aside>
+
             <div class="card">
                 <h3>What sniffing is, and why it still matters</h3>
                 <p>Sniffing is the practice of capturing network traffic as it travels across a medium — wired Ethernet, Wi-Fi, or a link between switches — and reading its contents. Every packet a computer sends is, at the physical level, electrical signals or radio waves that anything on the same medium can potentially observe. A network interface normally ignores traffic not addressed to it, but a sniffer puts the interface into <strong>promiscuous mode</strong> (or <strong>monitor mode</strong> on wireless), telling it to capture everything it can see rather than only its own traffic. That single change turns an ordinary network card into a surveillance device.</p>
@@ -931,6 +1006,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <section id="fundamentals" class="module-section" role="tabpanel" aria-labelledby="tab-fundamentals" tabindex="0" hidden="">
             <h2 class="section-title">🔍 Sniffing Fundamentals</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">A hub is a room where everybody shouts; a switch gives everybody a private phone line.</p>
+                <p>Hubs repeated every frame to every port, so sniffing was trivial and universal. Switches learn which MAC address lives on which port and deliver frames only there. That single engineering change is why passive sniffing stopped working, and why attackers had to start actively lying to the switch.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> A phone line is genuinely private. A switch's mapping is a cache built entirely on trust with no authentication anywhere in it, which is precisely the weakness the next section attacks.</p>
+            </aside>
+
             <div class="card">
                 <h3>How data actually moves: the two addresses that matter</h3>
                 <p>To understand sniffing you have to understand how a frame finds its destination, because every sniffing attack is a manipulation of that process. Traffic on a local network is addressed at two layers simultaneously. At <strong>Layer 2 (Data Link)</strong>, devices are identified by <strong>MAC addresses</strong> — 48-bit hardware addresses burned into each network interface, used to deliver frames within a single local segment. At <strong>Layer 3 (Network)</strong>, devices are identified by <strong>IP addresses</strong>, used to route packets across networks. A frame traveling from your laptop to a website carries both: the IP address identifies the ultimate destination, while the MAC address identifies the next hop on the local wire.</p>
@@ -973,6 +1055,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <!-- Active Sniffing Section -->
         <section id="active-sniffing" class="module-section" role="tabpanel" aria-labelledby="tab-active-sniffing" tabindex="0" hidden="">
             <h2 class="section-title">⚡ Active Sniffing Techniques</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">ARP spoofing is telling the post office you have moved into your neighbour's house.</p>
+                <p>ARP has no authentication, so whoever answers “that address is at my MAC” is believed. Claim to be the gateway and every machine on the segment sends you its traffic; forward it on afterwards and nobody notices anything beyond a slight delay. MAC flooding is cruder — overwhelm the switch's table until it fails open.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The post office would eventually check. ARP never does, but the traffic you intercept is usually TLS-protected, so a successful position in the middle often yields encrypted streams rather than passwords.</p>
+            </aside>
 
             <div class="card">
                 <h3>Defeating the switch</h3>
@@ -1049,6 +1138,13 @@ Click above to see DNS poisoning attack flow...
         <section id="attacks" class="module-section" role="tabpanel" aria-labelledby="tab-attacks" tabindex="0" hidden="">
             <h2 class="section-title">🎯 Advanced Attack Techniques</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">If ARP spoofing redirects the post, DNS spoofing changes the address in the recipient's address book.</p>
+                <p>The victim asks where their bank is and the attacker answers first, with their own server. DHCP starvation and rogue servers work earlier still: control the lease and you set the gateway and the DNS server for every device that joins the network from then on.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> A forged address book entry survives inspection; a forged website does not. Certificate validation, HSTS and pinning mean the victim gets a browser warning, so these attacks now depend on somebody clicking through it.</p>
+            </aside>
+
             <div class="card">
                 <h3>Beyond the basics</h3>
                 <p>ARP poisoning and MAC flooding are the foundation, but a full sniffing engagement draws on a wider set of techniques that either enable interception in specific circumstances or extend what the attacker can do once positioned in the traffic path. This section covers the most exam-relevant of them: MAC spoofing, DHCP-based attacks, and the layer-2 manipulations that target switch behavior directly.</p>
@@ -1104,6 +1200,13 @@ dhcpstarv -i eth0
         <!-- Tools Section -->
         <section id="tools" class="module-section" role="tabpanel" aria-labelledby="tab-tools" tabindex="0" hidden="">
             <h2 class="section-title">🛠️ Tools &amp; Analysis Techniques</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Wireshark is a microscope and tcpdump is the specimen jar.</p>
+                <p>tcpdump captures on the wire, exists everywhere, and works over SSH on a headless box. Wireshark is where you examine what you caught: protocol dissection, following a stream, and display filters that reduce ten million frames to the six that matter. Capture with one, analyse with the other.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> A microscope shows what is on the slide. Capture filters decide what you will ever be able to see, and a filter drawn too narrowly discards the evidence permanently — no analysis recovers it.</p>
+            </aside>
 
             <div class="card">
                 <h3>Capture is easy; analysis is the skill</h3>
@@ -1176,6 +1279,13 @@ Click any button above to start packet analysis demonstration...
         <!-- Countermeasures Section -->
         <section id="countermeasures" class="module-section" role="tabpanel" aria-labelledby="tab-countermeasures" tabindex="0" hidden="">
             <h2 class="section-title">🛡️ Countermeasures &amp; Defense Strategies</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">You cannot stop people listening; you can make sure there is nothing worth hearing.</p>
+                <p>Encryption is the answer and every other control is secondary. TLS everywhere, SSH rather than telnet, encrypted mail. Then reduce the opportunity: dynamic ARP inspection, DHCP snooping, port security, and segmentation limiting what a compromised host can even reach.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Encryption protects contents, not metadata. Who talks to whom, when, and how much remains visible, and that is frequently enough to map an organization without reading a single message.</p>
+            </aside>
 
             <div class="card">
                 <h3>Two layers of defense</h3>
@@ -1838,7 +1948,17 @@ Click analysis buttons to explore the data...
     <div class="notes-panel__foot">
         <span class="notes-hint">Saved automatically</span>
         <button id="notesClear" class="notes-mini is-danger" type="button">Clear</button>
-        <button id="notesExport" class="notes-mini" type="button">Export .md</button>
+        <span class="notes-export">
+            <button id="notesExport" class="notes-mini" type="button"
+                    aria-haspopup="true" aria-expanded="false" aria-controls="notesExportMenu">Download<span class="notes-mini__caret" aria-hidden="true">▾</span></button>
+            <div id="notesExportMenu" class="notes-menu" role="menu" aria-label="Download format">
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="doc"><span class="notes-menu__check" aria-hidden="true">✓</span>Word (.doc)</button>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="txt"><span class="notes-menu__check" aria-hidden="true">✓</span>Plain text (.txt)</button>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="pdf"><span class="notes-menu__check" aria-hidden="true">✓</span>Print / Save as PDF</button>
+                <div class="notes-menu__sep" role="none"></div>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="md"><span class="notes-menu__check" aria-hidden="true">✓</span>Markdown (.md)</button>
+            </div>
+        </span>
     </div>
 </div>
 
@@ -2076,7 +2196,7 @@ var CEH = (function () {
        notes.scratch          = module-wide scratchpad
        notes.sections[sectionId] = per-section note
      The popup shows a tab for the current section and a tab for the scratchpad,
-     auto-saving on input (debounced). Export produces a Markdown file. */
+     auto-saving on input (debounced). Downloads offer .doc/.txt/PDF/.md. */
   var notes = null;
   var notesScope = 'section';       // 'section' | 'scratch'
   var notesSaveTimer = null;
@@ -2196,33 +2316,254 @@ var CEH = (function () {
     saveNotes();
   }
 
-  function exportNotes() {
-    var n = loadNotes();
-    var title = (document.querySelector('.header h1') || {}).textContent || ('Module ' + MODULE_ID);
-    var lines = ['# Notes — ' + title.trim(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
+  /* ---------- notes export ----------
+     Four output formats share one collector. The chosen format is remembered
+     in shared prefs and shown with a check in the Download menu.
+       md  -> Markdown source
+       txt -> plain text with underlined headings
+       doc -> Word-readable HTML (opens natively in Word/Pages/LibreOffice)
+       pdf -> styled print view; the browser's own dialog saves the PDF   */
+  var NOTES_FORMATS = ['doc', 'txt', 'pdf', 'md'];
+
+  function notesFormat() {
+    return NOTES_FORMATS.indexOf(prefs.notesFormat) !== -1 ? prefs.notesFormat : 'md';
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function notesDocTitle() {
+    var h = document.querySelector('.header h1');
+    return ((h && h.textContent) || ('Module ' + MODULE_ID)).trim();
+  }
+
+  /* [{title, body}] in section order, scratchpad last. Empty notes omitted. */
+  function collectNotes() {
+    var n = loadNotes(), out = [];
     sectionOrder.forEach(function (id) {
       var v = n.sections[id];
-      if (v && v.trim()) {
-        lines.push('## ' + sectionTitle(id), '', v.trim(), '');
-      }
+      if (v && v.trim()) out.push({ title: sectionTitle(id), body: v.trim() });
     });
-    if (n.scratch && n.scratch.trim()) {
-      lines.push('## Scratchpad', '', n.scratch.trim(), '');
-    }
-    if (lines.length <= 4) {
-      notify('No notes to export yet.', 'warning');
+    if (n.scratch && n.scratch.trim()) out.push({ title: 'Scratchpad', body: n.scratch.trim() });
+    return out;
+  }
+
+  function notesAsMarkdown(entries, title, stamp) {
+    var lines = ['# Notes — ' + title, '', '_Exported ' + stamp + '_', ''];
+    entries.forEach(function (e) { lines.push('## ' + e.title, '', e.body, ''); });
+    return lines.join('\n');
+  }
+
+  function notesAsText(entries, title, stamp) {
+    var head = 'NOTES — ' + title;
+    var lines = [head, new Array(head.length + 1).join('='), 'Exported ' + stamp, ''];
+    entries.forEach(function (e) {
+      lines.push(e.title, new Array(e.title.length + 1).join('-'),
+                 e.body.replace(/\r\n?/g, '\n').replace(/\n/g, '\r\n'), '');
+    });
+    return lines.join('\r\n');
+  }
+
+  /* Shared body markup for the .doc and print/PDF outputs. */
+  function notesAsHtmlBody(entries, title, stamp) {
+    var html = '<h1>' + escHtml(title) + '</h1>\n' +
+               '<p class="meta">Notes exported ' + escHtml(stamp) + '</p>\n';
+    entries.forEach(function (e) {
+      html += '<h2>' + escHtml(e.title) + '</h2>\n';
+      e.body.split(/\n{2,}/).forEach(function (para) {
+        if (para.trim()) html += '<p>' + escHtml(para.trim()).replace(/\n/g, '<br>') + '</p>\n';
+      });
+    });
+    return html;
+  }
+
+  function notesAsWord(entries, title, stamp) {
+    return '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+           'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
+           'xmlns="http://www.w3.org/TR/REC-html40"><head>' +
+           '<meta charset="utf-8">' +
+           '<title>' + escHtml(title) + '</title>' +
+           '<style>' +
+           '@page { size: A4; margin: 2cm; }' +
+           'body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #111; line-height: 1.5; }' +
+           'h1 { font-size: 18pt; margin: 0 0 4pt; }' +
+           'h2 { font-size: 13pt; margin: 18pt 0 4pt; border-bottom: 1px solid #bbb; padding-bottom: 2pt; }' +
+           'p { margin: 0 0 8pt; }' +
+           '.meta { color: #666; font-size: 9pt; margin-bottom: 16pt; }' +
+           '</style></head><body>' +
+           notesAsHtmlBody(entries, title, stamp) +
+           '</body></html>';
+  }
+
+  function notesAsPrintable(entries, title, stamp) {
+    return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+           '<title>' + escHtml(title) + '</title>' +
+           '<style>' +
+           '@page { margin: 18mm; }' +
+           'body { font-family: Georgia, "Times New Roman", serif; font-size: 11.5pt; color: #111; line-height: 1.55; margin: 0; }' +
+           'h1 { font-size: 20pt; margin: 0 0 4pt; font-family: Helvetica, Arial, sans-serif; }' +
+           'h2 { font-size: 13pt; margin: 20pt 0 6pt; font-family: Helvetica, Arial, sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 3pt; page-break-after: avoid; }' +
+           'p { margin: 0 0 9pt; orphans: 3; widows: 3; }' +
+           '.meta { color: #666; font-size: 9pt; font-family: Helvetica, Arial, sans-serif; margin-bottom: 18pt; }' +
+           '</style></head><body>' +
+           notesAsHtmlBody(entries, title, stamp) +
+           '</body></html>';
+  }
+
+  function downloadBlob(text, mime, filename) {
+    var blob = new Blob([text], { type: mime });
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {   // legacy Edge/IE
+      window.navigator.msSaveOrOpenBlob(blob, filename);
       return;
     }
-    var blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'ceh-' + MODULE_ID + '-notes.md';
+    a.download = filename;
+    a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-    notify('Notes exported.');
+  }
+
+  /* Prints via a hidden iframe so no popup blocker is involved. */
+  function printHtml(html) {
+    var frame = document.createElement('iframe');
+    frame.setAttribute('aria-hidden', 'true');
+    frame.setAttribute('title', 'Notes print view');
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+    document.body.appendChild(frame);
+
+    var fired = false;
+    function go() {
+      if (fired) return;
+      fired = true;
+      try {
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+      } catch (e) {
+        notify('Your browser blocked the print dialog.', 'warning');
+      }
+      setTimeout(function () {
+        if (frame.parentNode) frame.parentNode.removeChild(frame);
+      }, 60000);
+    }
+
+    try {
+      var doc = frame.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+    } catch (e) {
+      if (frame.parentNode) frame.parentNode.removeChild(frame);
+      notify('Could not build the print view.', 'warning');
+      return;
+    }
+    frame.onload = go;
+    setTimeout(go, 500);   // fallback if onload already passed
+  }
+
+  function exportNotes(format) {
+    var fmt = NOTES_FORMATS.indexOf(format) !== -1 ? format : notesFormat();
+    flushNotes();
+
+    var entries = collectNotes();
+    if (!entries.length) {
+      notify('No notes to download yet.', 'warning');
+      return;
+    }
+
+    var title = notesDocTitle();
+    var stamp = new Date().toLocaleString();
+    var base  = 'ceh-' + MODULE_ID + '-notes';
+
+    if (fmt === 'pdf') {
+      printHtml(notesAsPrintable(entries, title, stamp));
+      notify('Print view opened — choose “Save as PDF”.');
+      return;
+    }
+    if (fmt === 'doc') {
+      downloadBlob(notesAsWord(entries, title, stamp),
+                   'application/msword', base + '.doc');
+      notify('Notes downloaded as Word (.doc).');
+      return;
+    }
+    if (fmt === 'txt') {
+      downloadBlob(notesAsText(entries, title, stamp),
+                   'text/plain;charset=utf-8', base + '.txt');
+      notify('Notes downloaded as plain text (.txt).');
+      return;
+    }
+    downloadBlob(notesAsMarkdown(entries, title, stamp),
+                 'text/markdown;charset=utf-8', base + '.md');
+    notify('Notes downloaded as Markdown (.md).');
+  }
+
+  /* ---------- export format menu ---------- */
+  function syncExportMenu() {
+    var cur = notesFormat();
+    var items = document.querySelectorAll('#notesExportMenu .notes-menu__item');
+    Array.prototype.forEach.call(items, function (btn) {
+      btn.setAttribute('aria-checked', String(btn.getAttribute('data-format') === cur));
+    });
+  }
+
+  function exportMenuOpen() {
+    var menu = document.getElementById('notesExportMenu');
+    return !!(menu && menu.classList.contains('open'));
+  }
+
+  function openExportMenu() {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    syncExportMenu();
+    menu.classList.add('open');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    var first = menu.querySelector('.notes-menu__item[aria-checked="true"]') ||
+                menu.querySelector('.notes-menu__item');
+    if (first) first.focus();
+  }
+
+  function closeExportMenu(refocus) {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    menu.classList.remove('open');
+    if (btn) {
+      btn.setAttribute('aria-expanded', 'false');
+      if (refocus) btn.focus();
+    }
+  }
+
+  function toggleExportMenu() {
+    if (exportMenuOpen()) closeExportMenu(true);
+    else openExportMenu();
+  }
+
+  function chooseExportFormat(fmt) {
+    if (NOTES_FORMATS.indexOf(fmt) === -1) return;
+    prefs.notesFormat = fmt;
+    write(PREFS_KEY, prefs);
+    syncExportMenu();
+    closeExportMenu(true);
+    exportNotes(fmt);
+  }
+
+  /* Roving arrow-key navigation inside the menu. */
+  function exportMenuKeydown(e) {
+    var items = Array.prototype.slice.call(
+      document.querySelectorAll('#notesExportMenu .notes-menu__item'));
+    if (!items.length) return;
+    var i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+    else if (e.key === 'Escape') { e.preventDefault(); closeExportMenu(true); }
   }
 
   function clearScopeNotes() {
@@ -2561,7 +2902,26 @@ var CEH = (function () {
     var tabScr = document.getElementById('notesTabScratch');
     if (tabScr) tabScr.addEventListener('click', function () { setNotesScope('scratch'); });
     var notesExport = document.getElementById('notesExport');
-    if (notesExport) notesExport.addEventListener('click', exportNotes);
+    if (notesExport) notesExport.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleExportMenu();
+    });
+    var notesExportMenu = document.getElementById('notesExportMenu');
+    if (notesExportMenu) {
+      notesExportMenu.addEventListener('click', function (e) {
+        var item = e.target.closest ? e.target.closest('.notes-menu__item') : null;
+        if (!item) return;
+        e.stopPropagation();
+        chooseExportFormat(item.getAttribute('data-format'));
+      });
+      notesExportMenu.addEventListener('keydown', exportMenuKeydown);
+    }
+    document.addEventListener('click', function (e) {
+      if (!exportMenuOpen()) return;
+      var wrap = e.target.closest ? e.target.closest('.notes-export') : null;
+      if (!wrap) closeExportMenu(false);
+    });
+    syncExportMenu();
     var notesClear = document.getElementById('notesClear');
     if (notesClear) notesClear.addEventListener('click', clearScopeNotes);
 

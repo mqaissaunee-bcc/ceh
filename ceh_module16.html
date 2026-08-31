@@ -21,6 +21,9 @@
   --accent-line:     rgba(53, 224, 95, 0.34);
 
   --cyan:            #43d9d4;
+  --violet:          #b39bff;
+  --violet-dim:      rgba(179, 155, 255, 0.10);
+  --violet-line:     rgba(179, 155, 255, 0.30);
   --amber:           #f0b429;
   --danger:          #ff6b6b;
   --success:         #35e05f;
@@ -77,6 +80,9 @@
   --accent-line:     rgba(15, 122, 52, 0.30);
 
   --cyan:            #0b6d78;
+  --violet:          #6b46d6;
+  --violet-dim:      rgba(107, 70, 214, 0.07);
+  --violet-line:     rgba(107, 70, 214, 0.22);
   --amber:           #8a5a00;
   --danger:          #b3261e;
   --success:         #0f7a34;
@@ -612,6 +618,41 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .success-box { border-left-color: var(--success); }
 .warning-box { border-left-color: var(--amber); }
 
+/* ---------- ANALOGY CALLOUT ----------
+   Plain-language intuition placed at the head of each teaching section,
+   before the formal treatment. Deliberately visually distinct from
+   .info-box / .warning-box so learners can find (or skip) it at a glance. */
+.analogy {
+  margin: var(--sp-3) 0 var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--violet-dim);
+  border: 1px solid var(--violet-line);
+  border-left: 4px solid var(--violet);
+  border-radius: var(--radius);
+}
+.analogy__label {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-xs); font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--violet);
+}
+.analogy p { margin: 0 0 var(--sp-2); }
+.analogy p:last-child { margin-bottom: 0; }
+.analogy__hook {
+  font-size: var(--fs-lg); font-weight: 600;
+  line-height: 1.45; color: var(--text);
+}
+.analogy__limit {
+  padding-top: var(--sp-2);
+  border-top: 1px dashed var(--violet-line);
+  font-size: var(--fs-sm); color: var(--text-muted);
+}
+.analogy__limit b { color: var(--text); font-weight: 700; }
+@media (max-width: 720px) {
+  .analogy { padding: var(--sp-3); }
+}
+
 /* CVSS severity */
 .cvss-score {
   display: inline-block; padding: 2px 12px; border-radius: 999px;
@@ -760,6 +801,32 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .notes-mini:hover { border-color: var(--accent); color: var(--accent); }
 .notes-mini.is-danger:hover { border-color: var(--danger); color: var(--danger); }
 
+/* export format menu */
+.notes-export { position: relative; display: inline-flex; }
+.notes-mini__caret { margin-left: 6px; font-size: .8em; opacity: .8; }
+.notes-menu {
+  position: absolute; bottom: calc(100% + 6px); right: 0;
+  min-width: 232px; padding: var(--sp-1);
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  display: none; flex-direction: column; gap: 2px; z-index: 60;
+}
+.notes-menu.open { display: flex; }
+.notes-menu__item {
+  display: flex; align-items: center; gap: var(--sp-2);
+  width: 100%; min-height: 38px; padding: 0 var(--sp-2);
+  font: inherit; font-size: var(--fs-sm); text-align: left; white-space: nowrap;
+  color: var(--text); background: none; border: 0;
+  border-radius: 8px; cursor: pointer;
+}
+.notes-menu__item:hover,
+.notes-menu__item:focus-visible {
+  background: var(--accent); color: var(--text-on-accent); outline: none;
+}
+.notes-menu__check { flex: none; width: 1em; text-align: center; opacity: 0; }
+.notes-menu__item[aria-checked="true"] .notes-menu__check { opacity: 1; }
+.notes-menu__sep { height: 1px; margin: var(--sp-1) var(--sp-2); background: var(--border); }
+
 @media (max-width: 720px) {
   .notes-panel { right: 3vw; left: 3vw; width: auto; bottom: calc(var(--sp-3) + 64px); }
   .notes-fab { right: var(--sp-3); bottom: var(--sp-3); }
@@ -806,11 +873,12 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
     --code-bg: #f2f2f2; --code-text: #000; --shadow: none; --shadow-lg: none;
   }
   .controlbar, .navigation, .progress-wrap, .matrix-bg, .course-nav,
-  .notes-fab, .notes-panel,
+  .notes-fab, .notes-panel, .notes-menu,
   .notification, .demo-controls, .btn, .modal, .tooltip-bubble { display: none !important; }
   .term { border-bottom: none; background: none; color: inherit; }
   .module-section { display: block !important; page-break-after: always; }
   .card, .feature-card, .tool-card { page-break-inside: avoid; box-shadow: none; }
+  .analogy { page-break-inside: avoid; background: none; border-color: #999; border-left-color: #555; }
   a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; word-break: break-all; }
   body { font-size: 11pt; }
 }
@@ -883,6 +951,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 <section id="overview" class="module-section active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
             <h2 class="section-title">📶 Overview</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Wired networks require you to be in the building. Wireless puts a network port in the car park.</p>
+                <p>Physical access control was always a genuine security boundary. Radio does not respect it — the signal leaks past walls into the street, the floor above, and a directional antenna a kilometre away. Every wireless control exists to replace the assurance a locked door used to provide for free.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The car park framing overstates the attacker's convenience. Sitting in range for hours is real exposure, which is why credential attacks now capture a handshake in seconds and do the cracking somewhere else entirely.</p>
+            </aside>
+
             <div class="card">
                 <h3>Security in the open air</h3>
                 <p>Every module so far has attacked systems reachable over a network. This one attacks the network itself — specifically, the <strong>wireless</strong> network, where the transmission medium is not a cable an attacker must physically tap but the <em>open air</em>, radiating in every direction. That single fact reframes everything. A wired network has a natural perimeter: to intercept its traffic you must physically connect to it, inside the building, past the locks. A Wi-Fi network has no such perimeter — its signal spills through walls, into the parking lot, and down the street, and anyone within radio range can passively listen to every frame in the air without touching a thing. Wireless security exists to close a gap that the medium itself opens, and wireless hacking exists to test whether it succeeded.</p>
@@ -912,6 +987,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="fundamentals" class="module-section" role="tabpanel" aria-labelledby="tab-fundamentals" tabindex="0" hidden="">
             <h2 class="section-title">📡 Wireless Fundamentals</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">An SSID is a shop sign, not a lock.</p>
+                <p>Access points broadcast beacon frames announcing themselves, and clients probe for networks they remember. Hiding the SSID removes the sign but not the shop — the network still transmits, and any client connecting reveals the name anyway. MAC filtering is similar theatre, since addresses are broadcast in the clear and trivially cloned.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Calling these useless is slightly unfair. They deter casual neighbours and add noise; they simply cannot be counted as controls in any threat model that includes somebody with aircrack-ng.</p>
+            </aside>
 
             <div class="card">
                 <h3>The language of 802.11</h3>
@@ -943,6 +1025,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="encryption" class="module-section" role="tabpanel" aria-labelledby="tab-encryption" tabindex="0" hidden="">
             <h2 class="section-title">🔐 Encryption &amp; Its Weaknesses</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">WEP, WPA2 and WPA3 are three generations of lock, each designed after the last one was picked.</p>
+                <p>WEP's flaw was mathematical — enough captured traffic reveals the key regardless of its length. WPA2's four-way handshake can be captured and attacked offline, so a weak passphrase falls to a wordlist. WPA3's SAE handshake removes offline cracking entirely, since every guess demands a fresh live interaction with the access point.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> A new lock doesn't help while the old one is still fitted. Transition mode, which accepts both WPA2 and WPA3 for compatibility, permits downgrade attacks — so a WPA3 network can often be attacked as WPA2.</p>
+            </aside>
 
             <div class="card">
                 <h3>Twenty years of trying to secure the air</h3>
@@ -986,6 +1075,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="attacks" class="module-section" role="tabpanel" aria-labelledby="tab-attacks" tabindex="0" hidden="">
             <h2 class="section-title">💥 Key Attacks</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Most wireless attacks are about making you reconnect while somebody is listening.</p>
+                <p>The four-way handshake happens at connection time, so the attacker sends deauthentication frames to knock you off, waits the second your device takes to reconnect, and captures the handshake. That capture is cracked offline afterwards. PMKID attacks skip the client altogether and request the material directly from the access point.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Management frame protection breaks the deauthentication step and is mandatory under WPA3, so the classic capture technique fails outright against a properly configured modern network.</p>
+            </aside>
 
             <div class="card">
                 <h3>Attacking the encryption</h3>
@@ -1042,6 +1138,13 @@ aircrack-ng capture-01.cap -w /usr/share/wordlists/rockyou.txt</div>
         <section id="eviltwin" class="module-section" role="tabpanel" aria-labelledby="tab-eviltwin" tabindex="0" hidden="">
             <h2 class="section-title">👿 Evil Twin &amp; Rogue APs</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">An evil twin is a shop with your bank's exact signage, one door down.</p>
+                <p>The attacker broadcasts an SSID matching one your device already trusts, with a stronger signal, and your phone connects automatically — because it was told to remember this network and has no way to verify the access point's identity. A captive portal then asks for the Wi-Fi password, and people type it in.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The forged shop is easier to spot than it was. Client operating systems warn when a known network changes security type, and certificate validation on enterprise networks defeats the twin outright — when clients are configured to actually validate.</p>
+            </aside>
+
             <div class="card">
                 <h3>Attacking the user, not the crypto</h3>
                 <p>The encryption attacks all fight the mathematics. This family refuses that fight entirely. An <strong>evil twin</strong> attack doesn't crack anything — it sets up a <em>fake access point that impersonates a legitimate network</em>, and lets victims connect to it voluntarily. Because it targets the user's trust rather than the protocol, it works regardless of how strong the real network's encryption is, and it's frequently the most effective wireless attack in a real engagement. This is the wireless expression of a theme running through the whole course: the human is often the softest part of the system.</p>
@@ -1089,6 +1192,13 @@ aircrack-ng capture-01.cap -w /usr/share/wordlists/rockyou.txt</div>
 
         <section id="tools" class="module-section" role="tabpanel" aria-labelledby="tab-tools" tabindex="0" hidden="">
             <h2 class="section-title">🛠️ Tools</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">A wireless assessment needs a specific card before it needs any software at all.</p>
+                <p>The prerequisite is an adapter supporting monitor mode and packet injection, because most built-in chipsets cannot listen to frames not addressed to them. After that the aircrack-ng suite handles capture and cracking, Kismet handles discovery, and Wireshark analyses whatever you caught.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> This is among the easiest modules in which to break the law accidentally. Deauthentication frames affect every client on the network, including neighbours you never intended to touch, so wireless scope has to be geographic and not merely a list of SSIDs.</p>
+            </aside>
 
             <div class="card">
                 <h3>The aircrack-ng suite: the foundation</h3>
@@ -1154,6 +1264,13 @@ aircrack-ng capture-01.cap -w /usr/share/wordlists/rockyou.txt</div>
 
         <section id="countermeasures" class="module-section" role="tabpanel" aria-labelledby="tab-countermeasures" tabindex="0" hidden="">
             <h2 class="section-title">🛡️ Countermeasures</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Treat the wireless network as hostile and it stops mattering who is sitting in the car park.</p>
+                <p>WPA3 where possible, WPA2-Enterprise with certificate validation otherwise, and a long random passphrase wherever a pre-shared key is unavoidable. Enable management frame protection. Segment guest Wi-Fi so it reaches the internet and nothing else. Disable WPS entirely, since its PIN is brute-forceable in hours.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Enterprise Wi-Fi's security depends entirely on client configuration. If devices don't validate the RADIUS server's certificate, an evil twin harvests credentials from a network that looks perfectly configured from the access point's side.</p>
+            </aside>
 
             <div class="card">
                 <h3>Defenses that follow directly from the attacks</h3>
@@ -1267,7 +1384,17 @@ aircrack-ng capture-01.cap -w /usr/share/wordlists/rockyou.txt</div>
     <div class="notes-panel__foot">
         <span class="notes-hint">Saved automatically</span>
         <button id="notesClear" class="notes-mini is-danger" type="button">Clear</button>
-        <button id="notesExport" class="notes-mini" type="button">Export .md</button>
+        <span class="notes-export">
+            <button id="notesExport" class="notes-mini" type="button"
+                    aria-haspopup="true" aria-expanded="false" aria-controls="notesExportMenu">Download<span class="notes-mini__caret" aria-hidden="true">▾</span></button>
+            <div id="notesExportMenu" class="notes-menu" role="menu" aria-label="Download format">
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="doc"><span class="notes-menu__check" aria-hidden="true">✓</span>Word (.doc)</button>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="txt"><span class="notes-menu__check" aria-hidden="true">✓</span>Plain text (.txt)</button>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="pdf"><span class="notes-menu__check" aria-hidden="true">✓</span>Print / Save as PDF</button>
+                <div class="notes-menu__sep" role="none"></div>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="md"><span class="notes-menu__check" aria-hidden="true">✓</span>Markdown (.md)</button>
+            </div>
+        </span>
     </div>
 </div>
 
@@ -1505,7 +1632,7 @@ var CEH = (function () {
        notes.scratch          = module-wide scratchpad
        notes.sections[sectionId] = per-section note
      The popup shows a tab for the current section and a tab for the scratchpad,
-     auto-saving on input (debounced). Export produces a Markdown file. */
+     auto-saving on input (debounced). Downloads offer .doc/.txt/PDF/.md. */
   var notes = null;
   var notesScope = 'section';       // 'section' | 'scratch'
   var notesSaveTimer = null;
@@ -1625,33 +1752,254 @@ var CEH = (function () {
     saveNotes();
   }
 
-  function exportNotes() {
-    var n = loadNotes();
-    var title = (document.querySelector('.header h1') || {}).textContent || ('Module ' + MODULE_ID);
-    var lines = ['# Notes — ' + title.trim(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
+  /* ---------- notes export ----------
+     Four output formats share one collector. The chosen format is remembered
+     in shared prefs and shown with a check in the Download menu.
+       md  -> Markdown source
+       txt -> plain text with underlined headings
+       doc -> Word-readable HTML (opens natively in Word/Pages/LibreOffice)
+       pdf -> styled print view; the browser's own dialog saves the PDF   */
+  var NOTES_FORMATS = ['doc', 'txt', 'pdf', 'md'];
+
+  function notesFormat() {
+    return NOTES_FORMATS.indexOf(prefs.notesFormat) !== -1 ? prefs.notesFormat : 'md';
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function notesDocTitle() {
+    var h = document.querySelector('.header h1');
+    return ((h && h.textContent) || ('Module ' + MODULE_ID)).trim();
+  }
+
+  /* [{title, body}] in section order, scratchpad last. Empty notes omitted. */
+  function collectNotes() {
+    var n = loadNotes(), out = [];
     sectionOrder.forEach(function (id) {
       var v = n.sections[id];
-      if (v && v.trim()) {
-        lines.push('## ' + sectionTitle(id), '', v.trim(), '');
-      }
+      if (v && v.trim()) out.push({ title: sectionTitle(id), body: v.trim() });
     });
-    if (n.scratch && n.scratch.trim()) {
-      lines.push('## Scratchpad', '', n.scratch.trim(), '');
-    }
-    if (lines.length <= 4) {
-      notify('No notes to export yet.', 'warning');
+    if (n.scratch && n.scratch.trim()) out.push({ title: 'Scratchpad', body: n.scratch.trim() });
+    return out;
+  }
+
+  function notesAsMarkdown(entries, title, stamp) {
+    var lines = ['# Notes — ' + title, '', '_Exported ' + stamp + '_', ''];
+    entries.forEach(function (e) { lines.push('## ' + e.title, '', e.body, ''); });
+    return lines.join('\n');
+  }
+
+  function notesAsText(entries, title, stamp) {
+    var head = 'NOTES — ' + title;
+    var lines = [head, new Array(head.length + 1).join('='), 'Exported ' + stamp, ''];
+    entries.forEach(function (e) {
+      lines.push(e.title, new Array(e.title.length + 1).join('-'),
+                 e.body.replace(/\r\n?/g, '\n').replace(/\n/g, '\r\n'), '');
+    });
+    return lines.join('\r\n');
+  }
+
+  /* Shared body markup for the .doc and print/PDF outputs. */
+  function notesAsHtmlBody(entries, title, stamp) {
+    var html = '<h1>' + escHtml(title) + '</h1>\n' +
+               '<p class="meta">Notes exported ' + escHtml(stamp) + '</p>\n';
+    entries.forEach(function (e) {
+      html += '<h2>' + escHtml(e.title) + '</h2>\n';
+      e.body.split(/\n{2,}/).forEach(function (para) {
+        if (para.trim()) html += '<p>' + escHtml(para.trim()).replace(/\n/g, '<br>') + '</p>\n';
+      });
+    });
+    return html;
+  }
+
+  function notesAsWord(entries, title, stamp) {
+    return '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+           'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
+           'xmlns="http://www.w3.org/TR/REC-html40"><head>' +
+           '<meta charset="utf-8">' +
+           '<title>' + escHtml(title) + '</title>' +
+           '<style>' +
+           '@page { size: A4; margin: 2cm; }' +
+           'body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #111; line-height: 1.5; }' +
+           'h1 { font-size: 18pt; margin: 0 0 4pt; }' +
+           'h2 { font-size: 13pt; margin: 18pt 0 4pt; border-bottom: 1px solid #bbb; padding-bottom: 2pt; }' +
+           'p { margin: 0 0 8pt; }' +
+           '.meta { color: #666; font-size: 9pt; margin-bottom: 16pt; }' +
+           '</style></head><body>' +
+           notesAsHtmlBody(entries, title, stamp) +
+           '</body></html>';
+  }
+
+  function notesAsPrintable(entries, title, stamp) {
+    return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+           '<title>' + escHtml(title) + '</title>' +
+           '<style>' +
+           '@page { margin: 18mm; }' +
+           'body { font-family: Georgia, "Times New Roman", serif; font-size: 11.5pt; color: #111; line-height: 1.55; margin: 0; }' +
+           'h1 { font-size: 20pt; margin: 0 0 4pt; font-family: Helvetica, Arial, sans-serif; }' +
+           'h2 { font-size: 13pt; margin: 20pt 0 6pt; font-family: Helvetica, Arial, sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 3pt; page-break-after: avoid; }' +
+           'p { margin: 0 0 9pt; orphans: 3; widows: 3; }' +
+           '.meta { color: #666; font-size: 9pt; font-family: Helvetica, Arial, sans-serif; margin-bottom: 18pt; }' +
+           '</style></head><body>' +
+           notesAsHtmlBody(entries, title, stamp) +
+           '</body></html>';
+  }
+
+  function downloadBlob(text, mime, filename) {
+    var blob = new Blob([text], { type: mime });
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {   // legacy Edge/IE
+      window.navigator.msSaveOrOpenBlob(blob, filename);
       return;
     }
-    var blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'ceh-' + MODULE_ID + '-notes.md';
+    a.download = filename;
+    a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-    notify('Notes exported.');
+  }
+
+  /* Prints via a hidden iframe so no popup blocker is involved. */
+  function printHtml(html) {
+    var frame = document.createElement('iframe');
+    frame.setAttribute('aria-hidden', 'true');
+    frame.setAttribute('title', 'Notes print view');
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+    document.body.appendChild(frame);
+
+    var fired = false;
+    function go() {
+      if (fired) return;
+      fired = true;
+      try {
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+      } catch (e) {
+        notify('Your browser blocked the print dialog.', 'warning');
+      }
+      setTimeout(function () {
+        if (frame.parentNode) frame.parentNode.removeChild(frame);
+      }, 60000);
+    }
+
+    try {
+      var doc = frame.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+    } catch (e) {
+      if (frame.parentNode) frame.parentNode.removeChild(frame);
+      notify('Could not build the print view.', 'warning');
+      return;
+    }
+    frame.onload = go;
+    setTimeout(go, 500);   // fallback if onload already passed
+  }
+
+  function exportNotes(format) {
+    var fmt = NOTES_FORMATS.indexOf(format) !== -1 ? format : notesFormat();
+    flushNotes();
+
+    var entries = collectNotes();
+    if (!entries.length) {
+      notify('No notes to download yet.', 'warning');
+      return;
+    }
+
+    var title = notesDocTitle();
+    var stamp = new Date().toLocaleString();
+    var base  = 'ceh-' + MODULE_ID + '-notes';
+
+    if (fmt === 'pdf') {
+      printHtml(notesAsPrintable(entries, title, stamp));
+      notify('Print view opened — choose “Save as PDF”.');
+      return;
+    }
+    if (fmt === 'doc') {
+      downloadBlob(notesAsWord(entries, title, stamp),
+                   'application/msword', base + '.doc');
+      notify('Notes downloaded as Word (.doc).');
+      return;
+    }
+    if (fmt === 'txt') {
+      downloadBlob(notesAsText(entries, title, stamp),
+                   'text/plain;charset=utf-8', base + '.txt');
+      notify('Notes downloaded as plain text (.txt).');
+      return;
+    }
+    downloadBlob(notesAsMarkdown(entries, title, stamp),
+                 'text/markdown;charset=utf-8', base + '.md');
+    notify('Notes downloaded as Markdown (.md).');
+  }
+
+  /* ---------- export format menu ---------- */
+  function syncExportMenu() {
+    var cur = notesFormat();
+    var items = document.querySelectorAll('#notesExportMenu .notes-menu__item');
+    Array.prototype.forEach.call(items, function (btn) {
+      btn.setAttribute('aria-checked', String(btn.getAttribute('data-format') === cur));
+    });
+  }
+
+  function exportMenuOpen() {
+    var menu = document.getElementById('notesExportMenu');
+    return !!(menu && menu.classList.contains('open'));
+  }
+
+  function openExportMenu() {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    syncExportMenu();
+    menu.classList.add('open');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    var first = menu.querySelector('.notes-menu__item[aria-checked="true"]') ||
+                menu.querySelector('.notes-menu__item');
+    if (first) first.focus();
+  }
+
+  function closeExportMenu(refocus) {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    menu.classList.remove('open');
+    if (btn) {
+      btn.setAttribute('aria-expanded', 'false');
+      if (refocus) btn.focus();
+    }
+  }
+
+  function toggleExportMenu() {
+    if (exportMenuOpen()) closeExportMenu(true);
+    else openExportMenu();
+  }
+
+  function chooseExportFormat(fmt) {
+    if (NOTES_FORMATS.indexOf(fmt) === -1) return;
+    prefs.notesFormat = fmt;
+    write(PREFS_KEY, prefs);
+    syncExportMenu();
+    closeExportMenu(true);
+    exportNotes(fmt);
+  }
+
+  /* Roving arrow-key navigation inside the menu. */
+  function exportMenuKeydown(e) {
+    var items = Array.prototype.slice.call(
+      document.querySelectorAll('#notesExportMenu .notes-menu__item'));
+    if (!items.length) return;
+    var i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+    else if (e.key === 'Escape') { e.preventDefault(); closeExportMenu(true); }
   }
 
   function clearScopeNotes() {
@@ -1990,7 +2338,26 @@ var CEH = (function () {
     var tabScr = document.getElementById('notesTabScratch');
     if (tabScr) tabScr.addEventListener('click', function () { setNotesScope('scratch'); });
     var notesExport = document.getElementById('notesExport');
-    if (notesExport) notesExport.addEventListener('click', exportNotes);
+    if (notesExport) notesExport.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleExportMenu();
+    });
+    var notesExportMenu = document.getElementById('notesExportMenu');
+    if (notesExportMenu) {
+      notesExportMenu.addEventListener('click', function (e) {
+        var item = e.target.closest ? e.target.closest('.notes-menu__item') : null;
+        if (!item) return;
+        e.stopPropagation();
+        chooseExportFormat(item.getAttribute('data-format'));
+      });
+      notesExportMenu.addEventListener('keydown', exportMenuKeydown);
+    }
+    document.addEventListener('click', function (e) {
+      if (!exportMenuOpen()) return;
+      var wrap = e.target.closest ? e.target.closest('.notes-export') : null;
+      if (!wrap) closeExportMenu(false);
+    });
+    syncExportMenu();
     var notesClear = document.getElementById('notesClear');
     if (notesClear) notesClear.addEventListener('click', clearScopeNotes);
 

@@ -21,6 +21,9 @@
   --accent-line:     rgba(53, 224, 95, 0.34);
 
   --cyan:            #43d9d4;
+  --violet:          #b39bff;
+  --violet-dim:      rgba(179, 155, 255, 0.10);
+  --violet-line:     rgba(179, 155, 255, 0.30);
   --amber:           #f0b429;
   --danger:          #ff6b6b;
   --success:         #35e05f;
@@ -77,6 +80,9 @@
   --accent-line:     rgba(15, 122, 52, 0.30);
 
   --cyan:            #0b6d78;
+  --violet:          #6b46d6;
+  --violet-dim:      rgba(107, 70, 214, 0.07);
+  --violet-line:     rgba(107, 70, 214, 0.22);
   --amber:           #8a5a00;
   --danger:          #b3261e;
   --success:         #0f7a34;
@@ -612,6 +618,41 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .success-box { border-left-color: var(--success); }
 .warning-box { border-left-color: var(--amber); }
 
+/* ---------- ANALOGY CALLOUT ----------
+   Plain-language intuition placed at the head of each teaching section,
+   before the formal treatment. Deliberately visually distinct from
+   .info-box / .warning-box so learners can find (or skip) it at a glance. */
+.analogy {
+  margin: var(--sp-3) 0 var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--violet-dim);
+  border: 1px solid var(--violet-line);
+  border-left: 4px solid var(--violet);
+  border-radius: var(--radius);
+}
+.analogy__label {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-xs); font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--violet);
+}
+.analogy p { margin: 0 0 var(--sp-2); }
+.analogy p:last-child { margin-bottom: 0; }
+.analogy__hook {
+  font-size: var(--fs-lg); font-weight: 600;
+  line-height: 1.45; color: var(--text);
+}
+.analogy__limit {
+  padding-top: var(--sp-2);
+  border-top: 1px dashed var(--violet-line);
+  font-size: var(--fs-sm); color: var(--text-muted);
+}
+.analogy__limit b { color: var(--text); font-weight: 700; }
+@media (max-width: 720px) {
+  .analogy { padding: var(--sp-3); }
+}
+
 /* CVSS severity */
 .cvss-score {
   display: inline-block; padding: 2px 12px; border-radius: 999px;
@@ -760,6 +801,32 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .notes-mini:hover { border-color: var(--accent); color: var(--accent); }
 .notes-mini.is-danger:hover { border-color: var(--danger); color: var(--danger); }
 
+/* export format menu */
+.notes-export { position: relative; display: inline-flex; }
+.notes-mini__caret { margin-left: 6px; font-size: .8em; opacity: .8; }
+.notes-menu {
+  position: absolute; bottom: calc(100% + 6px); right: 0;
+  min-width: 232px; padding: var(--sp-1);
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  display: none; flex-direction: column; gap: 2px; z-index: 60;
+}
+.notes-menu.open { display: flex; }
+.notes-menu__item {
+  display: flex; align-items: center; gap: var(--sp-2);
+  width: 100%; min-height: 38px; padding: 0 var(--sp-2);
+  font: inherit; font-size: var(--fs-sm); text-align: left; white-space: nowrap;
+  color: var(--text); background: none; border: 0;
+  border-radius: 8px; cursor: pointer;
+}
+.notes-menu__item:hover,
+.notes-menu__item:focus-visible {
+  background: var(--accent); color: var(--text-on-accent); outline: none;
+}
+.notes-menu__check { flex: none; width: 1em; text-align: center; opacity: 0; }
+.notes-menu__item[aria-checked="true"] .notes-menu__check { opacity: 1; }
+.notes-menu__sep { height: 1px; margin: var(--sp-1) var(--sp-2); background: var(--border); }
+
 @media (max-width: 720px) {
   .notes-panel { right: 3vw; left: 3vw; width: auto; bottom: calc(var(--sp-3) + 64px); }
   .notes-fab { right: var(--sp-3); bottom: var(--sp-3); }
@@ -806,11 +873,12 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
     --code-bg: #f2f2f2; --code-text: #000; --shadow: none; --shadow-lg: none;
   }
   .controlbar, .navigation, .progress-wrap, .matrix-bg, .course-nav,
-  .notes-fab, .notes-panel,
+  .notes-fab, .notes-panel, .notes-menu,
   .notification, .demo-controls, .btn, .modal, .tooltip-bubble { display: none !important; }
   .term { border-bottom: none; background: none; color: inherit; }
   .module-section { display: block !important; page-break-after: always; }
   .card, .feature-card, .tool-card { page-break-inside: avoid; box-shadow: none; }
+  .analogy { page-break-inside: avoid; background: none; border-color: #999; border-left-color: #555; }
   a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; word-break: break-all; }
   body { font-size: 11pt; }
 }
@@ -882,6 +950,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 <section id="overview" class="module-section active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
             <h2 class="section-title">🗄️ Overview</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">SQL injection is a form letter where the recipient writes their own postscript, and the clerk obeys it.</p>
+                <p>The application builds a query by gluing your input into a sentence. Supply input containing SQL syntax and your text stops being data and becomes part of the instruction. It is thirty years old, still on the OWASP list, and still causing breaches, because string concatenation remains the easiest thing to write.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The postscript image suggests appending. Injection can also terminate the intended query and run entirely separate statements — reading other tables, writing files, or executing commands, depending on the database and its privileges.</p>
+            </aside>
+
             <div class="card">
                 <h3>The vulnerability that refuses to die</h3>
                 <p>Modules 13 and 14 both pointed here, and this module makes good on the promise: a dedicated, in-depth treatment of <strong><span class="term" data-term="sql injection">SQL injection</span></strong>, the most consequential single application <span class="term" data-term="vulnerability">vulnerability</span> in the history of the web. SQLi was introduced in the previous module as one member of the <span class="term" data-term="injection">injection</span> family (<span class="term" data-term="owasp">OWASP</span> A05); here we take it apart completely. It earns a whole module for three reasons that are worth stating plainly at the outset. It is <strong>still everywhere</strong> — despite being understood for more than two decades, it remains one of the most prevalent web vulnerabilities in the wild. It is <strong>devastating</strong> — a single injectable endpoint can lead to the exfiltration of an entire database, and often to code execution on the server behind it. And for anyone pursuing the certification, it is <strong>the single most-tested vulnerability in the CEH practical exam</strong>, where a large share of the web-section flags come from SQLi.</p>
@@ -911,6 +986,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="fundamentals" class="module-section" role="tabpanel" aria-labelledby="tab-fundamentals" tabindex="0" hidden="">
             <h2 class="section-title">🧬 Fundamentals</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">The bug isn't the quote character; it's that the database was handed a sentence instead of a form.</p>
+                <p>When a query is assembled as text, the database receives one string and must work out what is instruction and what is value — and it cannot, because that information was destroyed when the string was built. Parameterized queries send structure and values separately, so a value can never be parsed as syntax.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Framing the fix as “escaping quotes” is how people build broken defences. Escaping is context-dependent and readily defeated by numeric contexts, second-order injection and encoding tricks; parameterization removes the ambiguity instead of policing it.</p>
+            </aside>
 
             <div class="card">
                 <h3>How web apps talk to databases</h3>
@@ -946,6 +1028,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="types" class="module-section" role="tabpanel" aria-labelledby="tab-types" tabindex="0" hidden="">
             <h2 class="section-title">🗂️ Types of SQL Injection</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">In-band injection reads the answer aloud; blind injection plays twenty questions.</p>
+                <p>Union-based and error-based attacks return data directly in the response. Blind boolean injection asks yes-or-no questions and reads the answer from whether the page changes at all. Time-based blind injection does the same, except the answer is whether the response took five seconds — usable when the page never changes.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The categories describe extraction speed, not severity. A time-based flaw yielding one bit per query is slower and exactly as serious, since automated tooling turns what sounds like days into minutes.</p>
+            </aside>
 
             <div class="card">
                 <h3>Classified by how the data comes back</h3>
@@ -1001,6 +1090,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <section id="methodology" class="module-section" role="tabpanel" aria-labelledby="tab-methodology" tabindex="0" hidden="">
             <h2 class="section-title">🎯 Detection &amp; Exploitation</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Find the seam, learn the language, then decide whether to open the drawer.</p>
+                <p>Detection tests every input for syntax that changes behaviour. Then fingerprint the database, because syntax differs across MySQL, MSSQL and Oracle. Then map the schema through information_schema, and only then extract anything. Testing proves reachability; the authorized scope decides how much further you are entitled to go.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> This is where assessments cause real damage. A malformed injected query can drop tables or lock a production database, so proof-of-concept work belongs on a copy, with the client's written agreement about exactly how far it goes.</p>
+            </aside>
+
             <div class="card">
                 <h3>From first probe to full compromise</h3>
                 <p>Exploiting SQL injection follows a clear progression, and knowing the sequence keeps testing efficient and thorough. It moves from confirming a flaw exists, to learning the database, to extracting its contents, to escalating as far as the configuration allows.</p>
@@ -1045,6 +1141,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="tools" class="module-section" role="tabpanel" aria-labelledby="tab-tools" tabindex="0" hidden="">
             <h2 class="section-title">🛠️ Tools</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">sqlmap is a power tool with the safety off by default.</p>
+                <p>It automates detection, fingerprinting, schema enumeration and extraction across every major database, including out-of-band techniques most testers would never attempt by hand. It is the standard instrument in the field, and its risk level scales sharply with the flags you give it.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Options such as --os-shell, --dump-all and high risk levels issue destructive or extremely heavy queries. Pointing sqlmap at production without agreed limits is one of the most common ways an authorized test becomes an incident.</p>
+            </aside>
 
             <div class="card">
                 <h3>sqlmap: the standard</h3>
@@ -1094,6 +1197,13 @@ sqlmap -r request.txt -D appdb -T users --dump</div>
 
         <section id="countermeasures" class="module-section" role="tabpanel" aria-labelledby="tab-countermeasures" tabindex="0" hidden="">
             <h2 class="section-title">🛡️ Countermeasures</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Parameterized queries end the ambiguity; everything else manages the consequences.</p>
+                <p>Prepared statements with bound parameters are the fix, and in every modern framework they are a one-line change. Beyond that: least privilege so the application's database account cannot read every table, allowlist validation for values that must be structural, and generic error messages so failures don't teach an attacker your schema.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> ORMs are widely assumed to provide automatic protection and don't. Raw query methods, dynamic ordering and string-built fragments reintroduce the flaw inside an ORM exactly as readily as outside one.</p>
+            </aside>
 
             <div class="card">
                 <h3>One defense above all others</h3>
@@ -1212,7 +1322,17 @@ SELECT * FROM users WHERE username = ? AND password = ?
     <div class="notes-panel__foot">
         <span class="notes-hint">Saved automatically</span>
         <button id="notesClear" class="notes-mini is-danger" type="button">Clear</button>
-        <button id="notesExport" class="notes-mini" type="button">Export .md</button>
+        <span class="notes-export">
+            <button id="notesExport" class="notes-mini" type="button"
+                    aria-haspopup="true" aria-expanded="false" aria-controls="notesExportMenu">Download<span class="notes-mini__caret" aria-hidden="true">▾</span></button>
+            <div id="notesExportMenu" class="notes-menu" role="menu" aria-label="Download format">
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="doc"><span class="notes-menu__check" aria-hidden="true">✓</span>Word (.doc)</button>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="txt"><span class="notes-menu__check" aria-hidden="true">✓</span>Plain text (.txt)</button>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="pdf"><span class="notes-menu__check" aria-hidden="true">✓</span>Print / Save as PDF</button>
+                <div class="notes-menu__sep" role="none"></div>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="md"><span class="notes-menu__check" aria-hidden="true">✓</span>Markdown (.md)</button>
+            </div>
+        </span>
     </div>
 </div>
 
@@ -1450,7 +1570,7 @@ var CEH = (function () {
        notes.scratch          = module-wide scratchpad
        notes.sections[sectionId] = per-section note
      The popup shows a tab for the current section and a tab for the scratchpad,
-     auto-saving on input (debounced). Export produces a Markdown file. */
+     auto-saving on input (debounced). Downloads offer .doc/.txt/PDF/.md. */
   var notes = null;
   var notesScope = 'section';       // 'section' | 'scratch'
   var notesSaveTimer = null;
@@ -1570,33 +1690,254 @@ var CEH = (function () {
     saveNotes();
   }
 
-  function exportNotes() {
-    var n = loadNotes();
-    var title = (document.querySelector('.header h1') || {}).textContent || ('Module ' + MODULE_ID);
-    var lines = ['# Notes — ' + title.trim(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
+  /* ---------- notes export ----------
+     Four output formats share one collector. The chosen format is remembered
+     in shared prefs and shown with a check in the Download menu.
+       md  -> Markdown source
+       txt -> plain text with underlined headings
+       doc -> Word-readable HTML (opens natively in Word/Pages/LibreOffice)
+       pdf -> styled print view; the browser's own dialog saves the PDF   */
+  var NOTES_FORMATS = ['doc', 'txt', 'pdf', 'md'];
+
+  function notesFormat() {
+    return NOTES_FORMATS.indexOf(prefs.notesFormat) !== -1 ? prefs.notesFormat : 'md';
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function notesDocTitle() {
+    var h = document.querySelector('.header h1');
+    return ((h && h.textContent) || ('Module ' + MODULE_ID)).trim();
+  }
+
+  /* [{title, body}] in section order, scratchpad last. Empty notes omitted. */
+  function collectNotes() {
+    var n = loadNotes(), out = [];
     sectionOrder.forEach(function (id) {
       var v = n.sections[id];
-      if (v && v.trim()) {
-        lines.push('## ' + sectionTitle(id), '', v.trim(), '');
-      }
+      if (v && v.trim()) out.push({ title: sectionTitle(id), body: v.trim() });
     });
-    if (n.scratch && n.scratch.trim()) {
-      lines.push('## Scratchpad', '', n.scratch.trim(), '');
-    }
-    if (lines.length <= 4) {
-      notify('No notes to export yet.', 'warning');
+    if (n.scratch && n.scratch.trim()) out.push({ title: 'Scratchpad', body: n.scratch.trim() });
+    return out;
+  }
+
+  function notesAsMarkdown(entries, title, stamp) {
+    var lines = ['# Notes — ' + title, '', '_Exported ' + stamp + '_', ''];
+    entries.forEach(function (e) { lines.push('## ' + e.title, '', e.body, ''); });
+    return lines.join('\n');
+  }
+
+  function notesAsText(entries, title, stamp) {
+    var head = 'NOTES — ' + title;
+    var lines = [head, new Array(head.length + 1).join('='), 'Exported ' + stamp, ''];
+    entries.forEach(function (e) {
+      lines.push(e.title, new Array(e.title.length + 1).join('-'),
+                 e.body.replace(/\r\n?/g, '\n').replace(/\n/g, '\r\n'), '');
+    });
+    return lines.join('\r\n');
+  }
+
+  /* Shared body markup for the .doc and print/PDF outputs. */
+  function notesAsHtmlBody(entries, title, stamp) {
+    var html = '<h1>' + escHtml(title) + '</h1>\n' +
+               '<p class="meta">Notes exported ' + escHtml(stamp) + '</p>\n';
+    entries.forEach(function (e) {
+      html += '<h2>' + escHtml(e.title) + '</h2>\n';
+      e.body.split(/\n{2,}/).forEach(function (para) {
+        if (para.trim()) html += '<p>' + escHtml(para.trim()).replace(/\n/g, '<br>') + '</p>\n';
+      });
+    });
+    return html;
+  }
+
+  function notesAsWord(entries, title, stamp) {
+    return '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+           'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
+           'xmlns="http://www.w3.org/TR/REC-html40"><head>' +
+           '<meta charset="utf-8">' +
+           '<title>' + escHtml(title) + '</title>' +
+           '<style>' +
+           '@page { size: A4; margin: 2cm; }' +
+           'body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #111; line-height: 1.5; }' +
+           'h1 { font-size: 18pt; margin: 0 0 4pt; }' +
+           'h2 { font-size: 13pt; margin: 18pt 0 4pt; border-bottom: 1px solid #bbb; padding-bottom: 2pt; }' +
+           'p { margin: 0 0 8pt; }' +
+           '.meta { color: #666; font-size: 9pt; margin-bottom: 16pt; }' +
+           '</style></head><body>' +
+           notesAsHtmlBody(entries, title, stamp) +
+           '</body></html>';
+  }
+
+  function notesAsPrintable(entries, title, stamp) {
+    return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+           '<title>' + escHtml(title) + '</title>' +
+           '<style>' +
+           '@page { margin: 18mm; }' +
+           'body { font-family: Georgia, "Times New Roman", serif; font-size: 11.5pt; color: #111; line-height: 1.55; margin: 0; }' +
+           'h1 { font-size: 20pt; margin: 0 0 4pt; font-family: Helvetica, Arial, sans-serif; }' +
+           'h2 { font-size: 13pt; margin: 20pt 0 6pt; font-family: Helvetica, Arial, sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 3pt; page-break-after: avoid; }' +
+           'p { margin: 0 0 9pt; orphans: 3; widows: 3; }' +
+           '.meta { color: #666; font-size: 9pt; font-family: Helvetica, Arial, sans-serif; margin-bottom: 18pt; }' +
+           '</style></head><body>' +
+           notesAsHtmlBody(entries, title, stamp) +
+           '</body></html>';
+  }
+
+  function downloadBlob(text, mime, filename) {
+    var blob = new Blob([text], { type: mime });
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {   // legacy Edge/IE
+      window.navigator.msSaveOrOpenBlob(blob, filename);
       return;
     }
-    var blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'ceh-' + MODULE_ID + '-notes.md';
+    a.download = filename;
+    a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-    notify('Notes exported.');
+  }
+
+  /* Prints via a hidden iframe so no popup blocker is involved. */
+  function printHtml(html) {
+    var frame = document.createElement('iframe');
+    frame.setAttribute('aria-hidden', 'true');
+    frame.setAttribute('title', 'Notes print view');
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+    document.body.appendChild(frame);
+
+    var fired = false;
+    function go() {
+      if (fired) return;
+      fired = true;
+      try {
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+      } catch (e) {
+        notify('Your browser blocked the print dialog.', 'warning');
+      }
+      setTimeout(function () {
+        if (frame.parentNode) frame.parentNode.removeChild(frame);
+      }, 60000);
+    }
+
+    try {
+      var doc = frame.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+    } catch (e) {
+      if (frame.parentNode) frame.parentNode.removeChild(frame);
+      notify('Could not build the print view.', 'warning');
+      return;
+    }
+    frame.onload = go;
+    setTimeout(go, 500);   // fallback if onload already passed
+  }
+
+  function exportNotes(format) {
+    var fmt = NOTES_FORMATS.indexOf(format) !== -1 ? format : notesFormat();
+    flushNotes();
+
+    var entries = collectNotes();
+    if (!entries.length) {
+      notify('No notes to download yet.', 'warning');
+      return;
+    }
+
+    var title = notesDocTitle();
+    var stamp = new Date().toLocaleString();
+    var base  = 'ceh-' + MODULE_ID + '-notes';
+
+    if (fmt === 'pdf') {
+      printHtml(notesAsPrintable(entries, title, stamp));
+      notify('Print view opened — choose “Save as PDF”.');
+      return;
+    }
+    if (fmt === 'doc') {
+      downloadBlob(notesAsWord(entries, title, stamp),
+                   'application/msword', base + '.doc');
+      notify('Notes downloaded as Word (.doc).');
+      return;
+    }
+    if (fmt === 'txt') {
+      downloadBlob(notesAsText(entries, title, stamp),
+                   'text/plain;charset=utf-8', base + '.txt');
+      notify('Notes downloaded as plain text (.txt).');
+      return;
+    }
+    downloadBlob(notesAsMarkdown(entries, title, stamp),
+                 'text/markdown;charset=utf-8', base + '.md');
+    notify('Notes downloaded as Markdown (.md).');
+  }
+
+  /* ---------- export format menu ---------- */
+  function syncExportMenu() {
+    var cur = notesFormat();
+    var items = document.querySelectorAll('#notesExportMenu .notes-menu__item');
+    Array.prototype.forEach.call(items, function (btn) {
+      btn.setAttribute('aria-checked', String(btn.getAttribute('data-format') === cur));
+    });
+  }
+
+  function exportMenuOpen() {
+    var menu = document.getElementById('notesExportMenu');
+    return !!(menu && menu.classList.contains('open'));
+  }
+
+  function openExportMenu() {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    syncExportMenu();
+    menu.classList.add('open');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    var first = menu.querySelector('.notes-menu__item[aria-checked="true"]') ||
+                menu.querySelector('.notes-menu__item');
+    if (first) first.focus();
+  }
+
+  function closeExportMenu(refocus) {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    menu.classList.remove('open');
+    if (btn) {
+      btn.setAttribute('aria-expanded', 'false');
+      if (refocus) btn.focus();
+    }
+  }
+
+  function toggleExportMenu() {
+    if (exportMenuOpen()) closeExportMenu(true);
+    else openExportMenu();
+  }
+
+  function chooseExportFormat(fmt) {
+    if (NOTES_FORMATS.indexOf(fmt) === -1) return;
+    prefs.notesFormat = fmt;
+    write(PREFS_KEY, prefs);
+    syncExportMenu();
+    closeExportMenu(true);
+    exportNotes(fmt);
+  }
+
+  /* Roving arrow-key navigation inside the menu. */
+  function exportMenuKeydown(e) {
+    var items = Array.prototype.slice.call(
+      document.querySelectorAll('#notesExportMenu .notes-menu__item'));
+    if (!items.length) return;
+    var i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+    else if (e.key === 'Escape') { e.preventDefault(); closeExportMenu(true); }
   }
 
   function clearScopeNotes() {
@@ -1935,7 +2276,26 @@ var CEH = (function () {
     var tabScr = document.getElementById('notesTabScratch');
     if (tabScr) tabScr.addEventListener('click', function () { setNotesScope('scratch'); });
     var notesExport = document.getElementById('notesExport');
-    if (notesExport) notesExport.addEventListener('click', exportNotes);
+    if (notesExport) notesExport.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleExportMenu();
+    });
+    var notesExportMenu = document.getElementById('notesExportMenu');
+    if (notesExportMenu) {
+      notesExportMenu.addEventListener('click', function (e) {
+        var item = e.target.closest ? e.target.closest('.notes-menu__item') : null;
+        if (!item) return;
+        e.stopPropagation();
+        chooseExportFormat(item.getAttribute('data-format'));
+      });
+      notesExportMenu.addEventListener('keydown', exportMenuKeydown);
+    }
+    document.addEventListener('click', function (e) {
+      if (!exportMenuOpen()) return;
+      var wrap = e.target.closest ? e.target.closest('.notes-export') : null;
+      if (!wrap) closeExportMenu(false);
+    });
+    syncExportMenu();
     var notesClear = document.getElementById('notesClear');
     if (notesClear) notesClear.addEventListener('click', clearScopeNotes);
 

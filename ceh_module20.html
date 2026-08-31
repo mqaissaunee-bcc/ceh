@@ -21,6 +21,9 @@
   --accent-line:     rgba(53, 224, 95, 0.34);
 
   --cyan:            #43d9d4;
+  --violet:          #b39bff;
+  --violet-dim:      rgba(179, 155, 255, 0.10);
+  --violet-line:     rgba(179, 155, 255, 0.30);
   --amber:           #f0b429;
   --danger:          #ff6b6b;
   --success:         #35e05f;
@@ -77,6 +80,9 @@
   --accent-line:     rgba(15, 122, 52, 0.30);
 
   --cyan:            #0b6d78;
+  --violet:          #6b46d6;
+  --violet-dim:      rgba(107, 70, 214, 0.07);
+  --violet-line:     rgba(107, 70, 214, 0.22);
   --amber:           #8a5a00;
   --danger:          #b3261e;
   --success:         #0f7a34;
@@ -612,6 +618,41 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .success-box { border-left-color: var(--success); }
 .warning-box { border-left-color: var(--amber); }
 
+/* ---------- ANALOGY CALLOUT ----------
+   Plain-language intuition placed at the head of each teaching section,
+   before the formal treatment. Deliberately visually distinct from
+   .info-box / .warning-box so learners can find (or skip) it at a glance. */
+.analogy {
+  margin: var(--sp-3) 0 var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--violet-dim);
+  border: 1px solid var(--violet-line);
+  border-left: 4px solid var(--violet);
+  border-radius: var(--radius);
+}
+.analogy__label {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-xs); font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--violet);
+}
+.analogy p { margin: 0 0 var(--sp-2); }
+.analogy p:last-child { margin-bottom: 0; }
+.analogy__hook {
+  font-size: var(--fs-lg); font-weight: 600;
+  line-height: 1.45; color: var(--text);
+}
+.analogy__limit {
+  padding-top: var(--sp-2);
+  border-top: 1px dashed var(--violet-line);
+  font-size: var(--fs-sm); color: var(--text-muted);
+}
+.analogy__limit b { color: var(--text); font-weight: 700; }
+@media (max-width: 720px) {
+  .analogy { padding: var(--sp-3); }
+}
+
 /* CVSS severity */
 .cvss-score {
   display: inline-block; padding: 2px 12px; border-radius: 999px;
@@ -760,6 +801,32 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .notes-mini:hover { border-color: var(--accent); color: var(--accent); }
 .notes-mini.is-danger:hover { border-color: var(--danger); color: var(--danger); }
 
+/* export format menu */
+.notes-export { position: relative; display: inline-flex; }
+.notes-mini__caret { margin-left: 6px; font-size: .8em; opacity: .8; }
+.notes-menu {
+  position: absolute; bottom: calc(100% + 6px); right: 0;
+  min-width: 232px; padding: var(--sp-1);
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  display: none; flex-direction: column; gap: 2px; z-index: 60;
+}
+.notes-menu.open { display: flex; }
+.notes-menu__item {
+  display: flex; align-items: center; gap: var(--sp-2);
+  width: 100%; min-height: 38px; padding: 0 var(--sp-2);
+  font: inherit; font-size: var(--fs-sm); text-align: left; white-space: nowrap;
+  color: var(--text); background: none; border: 0;
+  border-radius: 8px; cursor: pointer;
+}
+.notes-menu__item:hover,
+.notes-menu__item:focus-visible {
+  background: var(--accent); color: var(--text-on-accent); outline: none;
+}
+.notes-menu__check { flex: none; width: 1em; text-align: center; opacity: 0; }
+.notes-menu__item[aria-checked="true"] .notes-menu__check { opacity: 1; }
+.notes-menu__sep { height: 1px; margin: var(--sp-1) var(--sp-2); background: var(--border); }
+
 @media (max-width: 720px) {
   .notes-panel { right: 3vw; left: 3vw; width: auto; bottom: calc(var(--sp-3) + 64px); }
   .notes-fab { right: var(--sp-3); bottom: var(--sp-3); }
@@ -806,11 +873,12 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
     --code-bg: #f2f2f2; --code-text: #000; --shadow: none; --shadow-lg: none;
   }
   .controlbar, .navigation, .progress-wrap, .matrix-bg, .course-nav,
-  .notes-fab, .notes-panel,
+  .notes-fab, .notes-panel, .notes-menu,
   .notification, .demo-controls, .btn, .modal, .tooltip-bubble { display: none !important; }
   .term { border-bottom: none; background: none; color: inherit; }
   .module-section { display: block !important; page-break-after: always; }
   .card, .feature-card, .tool-card { page-break-inside: avoid; box-shadow: none; }
+  .analogy { page-break-inside: avoid; background: none; border-color: #999; border-left-color: #555; }
   a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; word-break: break-all; }
   body { font-size: 11pt; }
 }
@@ -883,6 +951,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 <section id="overview" class="module-section active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
             <h2 class="section-title">🔐 Overview</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Cryptography is a tool for moving trust, not for creating it.</p>
+                <p>It doesn't make data safe. It converts one problem into another that is easier to manage: “keep this message secret from anyone on the wire” becomes “keep this key secret,” which is smaller and far more tractable. Almost every real cryptographic failure is, at bottom, a key management failure.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The algorithms are the part nobody breaks. Failures come from implementation and operations — a reused nonce, a key in source control, an expired certificate — so studying only ciphers prepares you for the least likely problem you will face.</p>
+            </aside>
+
             <div class="card">
                 <h3>The foundation beneath everything</h3>
                 <p>This is the final module of the course, and there's a reason it comes last: cryptography is the <strong>mathematical foundation beneath nearly every defense you've studied</strong>. The <span class="term" data-term="tls">TLS</span> that protected the web applications in <a href="ceh_module14.html" target="_blank" rel="noopener" class="xref">Module 14</a>. The <span class="term" data-term="wpa3">WPA3</span> handshake from the wireless module. The <span class="term" data-term="hashing">hashing</span> behind the password storage in system hacking. The signatures that verify software updates, the encryption that protects cloud data at rest, the certificates that establish trust across the internet — all of it is cryptography. Where the other nineteen modules showed you how systems are attacked and defended, this one explains the machinery that makes defense possible in the first place. Understanding it turns a collection of security practices into a coherent whole.</p>
@@ -932,6 +1007,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <section id="symmetric" class="module-section" role="tabpanel" aria-labelledby="tab-symmetric" tabindex="0" hidden="">
             <h2 class="section-title">🔑 Symmetric Encryption</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Symmetric encryption is a padlock where both people need the same key, and the problem is getting them the key.</p>
+                <p>AES is fast, exhaustively analysed and ideal for bulk data. The difficulty is distribution: two parties need a shared secret before they can communicate at all, and n people need n(n−1)/2 keys between them. Mode matters enormously — ECB leaks structure so badly that an encrypted image stays recognizable.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The padlock image misses authentication. Encryption alone does not prevent tampering, which is why modern practice uses authenticated modes such as GCM that detect modification as well as concealing content.</p>
+            </aside>
+
             <div class="card">
                 <h3>One key, shared</h3>
                 <p><strong>Symmetric encryption</strong> is the oldest and most intuitive form of cryptography: a single secret <em>key</em> is used both to encrypt the data and to decrypt it. If you and I share the same key, I can scramble a message with it and you can unscramble it — and anyone without the key sees only ciphertext, meaningless noise. The concept is thousands of years old (simple ciphers date to antiquity), but modern symmetric algorithms are extraordinarily strong. Its great virtues are <strong>speed and efficiency</strong>: symmetric encryption is fast enough to protect huge volumes of data in real time, which is why it does the heavy lifting of encrypting the actual content in almost every secure system — files, disks, database fields, and the bulk of network traffic.</p>
@@ -968,6 +1050,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="asymmetric" class="module-section" role="tabpanel" aria-labelledby="tab-asymmetric" tabindex="0" hidden="">
             <h2 class="section-title">🔐 Asymmetric Encryption &amp; PKI</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">A public key is a mail slot: anyone can post, only the keyholder can open.</p>
+                <p>This solves distribution — publish the public key freely and anybody can send you something only you can read. Reverse the operation and it becomes a signature: only you could have produced it, and anyone can verify that. RSA and ECC achieve this with different mathematics, and ECC reaches equivalent strength with far smaller keys.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The mail slot doesn't tell you whose house it is on. Everything depends on binding a key to an identity, which is what PKI, certificate authorities and the whole chain of trust exist to do — and where the practical attacks actually live.</p>
+            </aside>
 
             <div class="card">
                 <h3>Two keys instead of one</h3>
@@ -1011,6 +1100,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="hashing" class="module-section" role="tabpanel" aria-labelledby="tab-hashing" tabindex="0" hidden="">
             <h2 class="section-title">#️⃣ Hashing &amp; Integrity</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">A hash is a tamper-evident seal, not an envelope.</p>
+                <p>It is one-way and fixed-length, and any change to the input produces a completely different output, so you can detect modification without storing the original. That is integrity, not confidentiality — a hash conceals nothing about content you can guess. Use SHA-256 for integrity, and bcrypt, scrypt or Argon2 for passwords, because those are deliberately slow.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The fast-versus-slow distinction is the one people get wrong. Using SHA-256 for passwords is a serious flaw precisely because it is efficient — a GPU tries billions per second, which is exactly what password hashing must prevent.</p>
+            </aside>
 
             <div class="card">
                 <h3>The one-way function</h3>
@@ -1057,6 +1153,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="attacks" class="module-section" role="tabpanel" aria-labelledby="tab-attacks" tabindex="0" hidden="">
             <h2 class="section-title">💥 Attacks on Cryptography</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Nobody breaks the algorithm. They read the key off the wall beside it.</p>
+                <p>Brute-forcing AES-256 is not happening. What happens instead: keys committed to git, nonce reuse, weak random number generation, padding oracles leaking plaintext one byte at a time, downgrade attacks negotiating an obsolete cipher, and side channels measuring timing or power to extract keys from the implementation.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> “Never roll your own crypto” is correct and often misapplied. Using a library incorrectly — wrong mode, static IV, unverified certificate — is far more common than writing a cipher, and no library prevents that.</p>
+            </aside>
 
             <div class="card">
                 <h3>You don't break the math — you break the use of it</h3>
@@ -1125,6 +1228,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <section id="post-quantum" class="module-section" role="tabpanel" aria-labelledby="tab-post-quantum" tabindex="0" hidden="">
             <h2 class="section-title">⚛️ Post-Quantum Cryptography</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Harvest now, decrypt later is why post-quantum matters before a quantum computer exists.</p>
+                <p>An adversary recording encrypted traffic today can decrypt it once a cryptographically relevant quantum machine arrives. Shor's algorithm breaks RSA and ECC outright; Grover's weakens symmetric cryptography but is handled by doubling key sizes. NIST standardized ML-KEM and ML-DSA in 2024, and hybrid deployments are already live in TLS.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Timelines are genuinely unknown and frequently stated with false confidence. The practical takeaway is crypto-agility — being able to change algorithms without rebuilding your systems — rather than any particular migration date.</p>
+            </aside>
+
             <div class="card">
                 <h3>The one thing that threatens the math</h3>
                 <p>Everything so far assumed that certain mathematical problems — factoring huge numbers, computing discrete logarithms — are effectively impossible to solve quickly. That assumption is what makes RSA and ECC secure. <strong>Quantum computing threatens to overturn it.</strong> This is the most significant development in cryptography in decades, a genuine paradigm shift, and CEH v13 rightly treats post-quantum awareness as essential knowledge for 2026. It's a fitting near-final topic, because it's where the mathematical foundations you've just learned meet their one real challenge — and where the security field is currently mobilizing on a massive scale.</p>
@@ -1180,6 +1290,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="best-practices" class="module-section" role="tabpanel" aria-labelledby="tab-best-practices" tabindex="0" hidden="">
             <h2 class="section-title">🛡️ Best Practices</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Use the boring option, keep the keys somewhere you don't control, and plan to rotate.</p>
+                <p>Vetted libraries over custom code. AES-256-GCM or ChaCha20-Poly1305 for encryption, Argon2id for passwords, SHA-256 or better for integrity. Keys in an HSM or a managed KMS and never in source. TLS 1.3. Automated certificate renewal, because expiry causes far more outages than attacks do. Rotate on schedule and after any suspected exposure.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Best-practice lists date quickly. What lasts is the habit of checking current guidance from NIST and your library maintainers rather than trusting a list — including this one.</p>
+            </aside>
 
             <div class="card">
                 <h3>Using cryptography correctly</h3>
@@ -1294,7 +1411,17 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
     <div class="notes-panel__foot">
         <span class="notes-hint">Saved automatically</span>
         <button id="notesClear" class="notes-mini is-danger" type="button">Clear</button>
-        <button id="notesExport" class="notes-mini" type="button">Export .md</button>
+        <span class="notes-export">
+            <button id="notesExport" class="notes-mini" type="button"
+                    aria-haspopup="true" aria-expanded="false" aria-controls="notesExportMenu">Download<span class="notes-mini__caret" aria-hidden="true">▾</span></button>
+            <div id="notesExportMenu" class="notes-menu" role="menu" aria-label="Download format">
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="doc"><span class="notes-menu__check" aria-hidden="true">✓</span>Word (.doc)</button>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="txt"><span class="notes-menu__check" aria-hidden="true">✓</span>Plain text (.txt)</button>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="pdf"><span class="notes-menu__check" aria-hidden="true">✓</span>Print / Save as PDF</button>
+                <div class="notes-menu__sep" role="none"></div>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="md"><span class="notes-menu__check" aria-hidden="true">✓</span>Markdown (.md)</button>
+            </div>
+        </span>
     </div>
 </div>
 
@@ -1532,7 +1659,7 @@ var CEH = (function () {
        notes.scratch          = module-wide scratchpad
        notes.sections[sectionId] = per-section note
      The popup shows a tab for the current section and a tab for the scratchpad,
-     auto-saving on input (debounced). Export produces a Markdown file. */
+     auto-saving on input (debounced). Downloads offer .doc/.txt/PDF/.md. */
   var notes = null;
   var notesScope = 'section';       // 'section' | 'scratch'
   var notesSaveTimer = null;
@@ -1652,33 +1779,254 @@ var CEH = (function () {
     saveNotes();
   }
 
-  function exportNotes() {
-    var n = loadNotes();
-    var title = (document.querySelector('.header h1') || {}).textContent || ('Module ' + MODULE_ID);
-    var lines = ['# Notes — ' + title.trim(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
+  /* ---------- notes export ----------
+     Four output formats share one collector. The chosen format is remembered
+     in shared prefs and shown with a check in the Download menu.
+       md  -> Markdown source
+       txt -> plain text with underlined headings
+       doc -> Word-readable HTML (opens natively in Word/Pages/LibreOffice)
+       pdf -> styled print view; the browser's own dialog saves the PDF   */
+  var NOTES_FORMATS = ['doc', 'txt', 'pdf', 'md'];
+
+  function notesFormat() {
+    return NOTES_FORMATS.indexOf(prefs.notesFormat) !== -1 ? prefs.notesFormat : 'md';
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function notesDocTitle() {
+    var h = document.querySelector('.header h1');
+    return ((h && h.textContent) || ('Module ' + MODULE_ID)).trim();
+  }
+
+  /* [{title, body}] in section order, scratchpad last. Empty notes omitted. */
+  function collectNotes() {
+    var n = loadNotes(), out = [];
     sectionOrder.forEach(function (id) {
       var v = n.sections[id];
-      if (v && v.trim()) {
-        lines.push('## ' + sectionTitle(id), '', v.trim(), '');
-      }
+      if (v && v.trim()) out.push({ title: sectionTitle(id), body: v.trim() });
     });
-    if (n.scratch && n.scratch.trim()) {
-      lines.push('## Scratchpad', '', n.scratch.trim(), '');
-    }
-    if (lines.length <= 4) {
-      notify('No notes to export yet.', 'warning');
+    if (n.scratch && n.scratch.trim()) out.push({ title: 'Scratchpad', body: n.scratch.trim() });
+    return out;
+  }
+
+  function notesAsMarkdown(entries, title, stamp) {
+    var lines = ['# Notes — ' + title, '', '_Exported ' + stamp + '_', ''];
+    entries.forEach(function (e) { lines.push('## ' + e.title, '', e.body, ''); });
+    return lines.join('\n');
+  }
+
+  function notesAsText(entries, title, stamp) {
+    var head = 'NOTES — ' + title;
+    var lines = [head, new Array(head.length + 1).join('='), 'Exported ' + stamp, ''];
+    entries.forEach(function (e) {
+      lines.push(e.title, new Array(e.title.length + 1).join('-'),
+                 e.body.replace(/\r\n?/g, '\n').replace(/\n/g, '\r\n'), '');
+    });
+    return lines.join('\r\n');
+  }
+
+  /* Shared body markup for the .doc and print/PDF outputs. */
+  function notesAsHtmlBody(entries, title, stamp) {
+    var html = '<h1>' + escHtml(title) + '</h1>\n' +
+               '<p class="meta">Notes exported ' + escHtml(stamp) + '</p>\n';
+    entries.forEach(function (e) {
+      html += '<h2>' + escHtml(e.title) + '</h2>\n';
+      e.body.split(/\n{2,}/).forEach(function (para) {
+        if (para.trim()) html += '<p>' + escHtml(para.trim()).replace(/\n/g, '<br>') + '</p>\n';
+      });
+    });
+    return html;
+  }
+
+  function notesAsWord(entries, title, stamp) {
+    return '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+           'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
+           'xmlns="http://www.w3.org/TR/REC-html40"><head>' +
+           '<meta charset="utf-8">' +
+           '<title>' + escHtml(title) + '</title>' +
+           '<style>' +
+           '@page { size: A4; margin: 2cm; }' +
+           'body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #111; line-height: 1.5; }' +
+           'h1 { font-size: 18pt; margin: 0 0 4pt; }' +
+           'h2 { font-size: 13pt; margin: 18pt 0 4pt; border-bottom: 1px solid #bbb; padding-bottom: 2pt; }' +
+           'p { margin: 0 0 8pt; }' +
+           '.meta { color: #666; font-size: 9pt; margin-bottom: 16pt; }' +
+           '</style></head><body>' +
+           notesAsHtmlBody(entries, title, stamp) +
+           '</body></html>';
+  }
+
+  function notesAsPrintable(entries, title, stamp) {
+    return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+           '<title>' + escHtml(title) + '</title>' +
+           '<style>' +
+           '@page { margin: 18mm; }' +
+           'body { font-family: Georgia, "Times New Roman", serif; font-size: 11.5pt; color: #111; line-height: 1.55; margin: 0; }' +
+           'h1 { font-size: 20pt; margin: 0 0 4pt; font-family: Helvetica, Arial, sans-serif; }' +
+           'h2 { font-size: 13pt; margin: 20pt 0 6pt; font-family: Helvetica, Arial, sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 3pt; page-break-after: avoid; }' +
+           'p { margin: 0 0 9pt; orphans: 3; widows: 3; }' +
+           '.meta { color: #666; font-size: 9pt; font-family: Helvetica, Arial, sans-serif; margin-bottom: 18pt; }' +
+           '</style></head><body>' +
+           notesAsHtmlBody(entries, title, stamp) +
+           '</body></html>';
+  }
+
+  function downloadBlob(text, mime, filename) {
+    var blob = new Blob([text], { type: mime });
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {   // legacy Edge/IE
+      window.navigator.msSaveOrOpenBlob(blob, filename);
       return;
     }
-    var blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'ceh-' + MODULE_ID + '-notes.md';
+    a.download = filename;
+    a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-    notify('Notes exported.');
+  }
+
+  /* Prints via a hidden iframe so no popup blocker is involved. */
+  function printHtml(html) {
+    var frame = document.createElement('iframe');
+    frame.setAttribute('aria-hidden', 'true');
+    frame.setAttribute('title', 'Notes print view');
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+    document.body.appendChild(frame);
+
+    var fired = false;
+    function go() {
+      if (fired) return;
+      fired = true;
+      try {
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+      } catch (e) {
+        notify('Your browser blocked the print dialog.', 'warning');
+      }
+      setTimeout(function () {
+        if (frame.parentNode) frame.parentNode.removeChild(frame);
+      }, 60000);
+    }
+
+    try {
+      var doc = frame.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+    } catch (e) {
+      if (frame.parentNode) frame.parentNode.removeChild(frame);
+      notify('Could not build the print view.', 'warning');
+      return;
+    }
+    frame.onload = go;
+    setTimeout(go, 500);   // fallback if onload already passed
+  }
+
+  function exportNotes(format) {
+    var fmt = NOTES_FORMATS.indexOf(format) !== -1 ? format : notesFormat();
+    flushNotes();
+
+    var entries = collectNotes();
+    if (!entries.length) {
+      notify('No notes to download yet.', 'warning');
+      return;
+    }
+
+    var title = notesDocTitle();
+    var stamp = new Date().toLocaleString();
+    var base  = 'ceh-' + MODULE_ID + '-notes';
+
+    if (fmt === 'pdf') {
+      printHtml(notesAsPrintable(entries, title, stamp));
+      notify('Print view opened — choose “Save as PDF”.');
+      return;
+    }
+    if (fmt === 'doc') {
+      downloadBlob(notesAsWord(entries, title, stamp),
+                   'application/msword', base + '.doc');
+      notify('Notes downloaded as Word (.doc).');
+      return;
+    }
+    if (fmt === 'txt') {
+      downloadBlob(notesAsText(entries, title, stamp),
+                   'text/plain;charset=utf-8', base + '.txt');
+      notify('Notes downloaded as plain text (.txt).');
+      return;
+    }
+    downloadBlob(notesAsMarkdown(entries, title, stamp),
+                 'text/markdown;charset=utf-8', base + '.md');
+    notify('Notes downloaded as Markdown (.md).');
+  }
+
+  /* ---------- export format menu ---------- */
+  function syncExportMenu() {
+    var cur = notesFormat();
+    var items = document.querySelectorAll('#notesExportMenu .notes-menu__item');
+    Array.prototype.forEach.call(items, function (btn) {
+      btn.setAttribute('aria-checked', String(btn.getAttribute('data-format') === cur));
+    });
+  }
+
+  function exportMenuOpen() {
+    var menu = document.getElementById('notesExportMenu');
+    return !!(menu && menu.classList.contains('open'));
+  }
+
+  function openExportMenu() {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    syncExportMenu();
+    menu.classList.add('open');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    var first = menu.querySelector('.notes-menu__item[aria-checked="true"]') ||
+                menu.querySelector('.notes-menu__item');
+    if (first) first.focus();
+  }
+
+  function closeExportMenu(refocus) {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    menu.classList.remove('open');
+    if (btn) {
+      btn.setAttribute('aria-expanded', 'false');
+      if (refocus) btn.focus();
+    }
+  }
+
+  function toggleExportMenu() {
+    if (exportMenuOpen()) closeExportMenu(true);
+    else openExportMenu();
+  }
+
+  function chooseExportFormat(fmt) {
+    if (NOTES_FORMATS.indexOf(fmt) === -1) return;
+    prefs.notesFormat = fmt;
+    write(PREFS_KEY, prefs);
+    syncExportMenu();
+    closeExportMenu(true);
+    exportNotes(fmt);
+  }
+
+  /* Roving arrow-key navigation inside the menu. */
+  function exportMenuKeydown(e) {
+    var items = Array.prototype.slice.call(
+      document.querySelectorAll('#notesExportMenu .notes-menu__item'));
+    if (!items.length) return;
+    var i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+    else if (e.key === 'Escape') { e.preventDefault(); closeExportMenu(true); }
   }
 
   function clearScopeNotes() {
@@ -2017,7 +2365,26 @@ var CEH = (function () {
     var tabScr = document.getElementById('notesTabScratch');
     if (tabScr) tabScr.addEventListener('click', function () { setNotesScope('scratch'); });
     var notesExport = document.getElementById('notesExport');
-    if (notesExport) notesExport.addEventListener('click', exportNotes);
+    if (notesExport) notesExport.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleExportMenu();
+    });
+    var notesExportMenu = document.getElementById('notesExportMenu');
+    if (notesExportMenu) {
+      notesExportMenu.addEventListener('click', function (e) {
+        var item = e.target.closest ? e.target.closest('.notes-menu__item') : null;
+        if (!item) return;
+        e.stopPropagation();
+        chooseExportFormat(item.getAttribute('data-format'));
+      });
+      notesExportMenu.addEventListener('keydown', exportMenuKeydown);
+    }
+    document.addEventListener('click', function (e) {
+      if (!exportMenuOpen()) return;
+      var wrap = e.target.closest ? e.target.closest('.notes-export') : null;
+      if (!wrap) closeExportMenu(false);
+    });
+    syncExportMenu();
     var notesClear = document.getElementById('notesClear');
     if (notesClear) notesClear.addEventListener('click', clearScopeNotes);
 

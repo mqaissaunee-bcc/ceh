@@ -21,6 +21,9 @@
   --accent-line:     rgba(53, 224, 95, 0.34);
 
   --cyan:            #43d9d4;
+  --violet:          #b39bff;
+  --violet-dim:      rgba(179, 155, 255, 0.10);
+  --violet-line:     rgba(179, 155, 255, 0.30);
   --amber:           #f0b429;
   --danger:          #ff6b6b;
   --success:         #35e05f;
@@ -77,6 +80,9 @@
   --accent-line:     rgba(15, 122, 52, 0.30);
 
   --cyan:            #0b6d78;
+  --violet:          #6b46d6;
+  --violet-dim:      rgba(107, 70, 214, 0.07);
+  --violet-line:     rgba(107, 70, 214, 0.22);
   --amber:           #8a5a00;
   --danger:          #b3261e;
   --success:         #0f7a34;
@@ -612,6 +618,41 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .success-box { border-left-color: var(--success); }
 .warning-box { border-left-color: var(--amber); }
 
+/* ---------- ANALOGY CALLOUT ----------
+   Plain-language intuition placed at the head of each teaching section,
+   before the formal treatment. Deliberately visually distinct from
+   .info-box / .warning-box so learners can find (or skip) it at a glance. */
+.analogy {
+  margin: var(--sp-3) 0 var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--violet-dim);
+  border: 1px solid var(--violet-line);
+  border-left: 4px solid var(--violet);
+  border-radius: var(--radius);
+}
+.analogy__label {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-xs); font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--violet);
+}
+.analogy p { margin: 0 0 var(--sp-2); }
+.analogy p:last-child { margin-bottom: 0; }
+.analogy__hook {
+  font-size: var(--fs-lg); font-weight: 600;
+  line-height: 1.45; color: var(--text);
+}
+.analogy__limit {
+  padding-top: var(--sp-2);
+  border-top: 1px dashed var(--violet-line);
+  font-size: var(--fs-sm); color: var(--text-muted);
+}
+.analogy__limit b { color: var(--text); font-weight: 700; }
+@media (max-width: 720px) {
+  .analogy { padding: var(--sp-3); }
+}
+
 /* CVSS severity */
 .cvss-score {
   display: inline-block; padding: 2px 12px; border-radius: 999px;
@@ -760,6 +801,32 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .notes-mini:hover { border-color: var(--accent); color: var(--accent); }
 .notes-mini.is-danger:hover { border-color: var(--danger); color: var(--danger); }
 
+/* export format menu */
+.notes-export { position: relative; display: inline-flex; }
+.notes-mini__caret { margin-left: 6px; font-size: .8em; opacity: .8; }
+.notes-menu {
+  position: absolute; bottom: calc(100% + 6px); right: 0;
+  min-width: 232px; padding: var(--sp-1);
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  display: none; flex-direction: column; gap: 2px; z-index: 60;
+}
+.notes-menu.open { display: flex; }
+.notes-menu__item {
+  display: flex; align-items: center; gap: var(--sp-2);
+  width: 100%; min-height: 38px; padding: 0 var(--sp-2);
+  font: inherit; font-size: var(--fs-sm); text-align: left; white-space: nowrap;
+  color: var(--text); background: none; border: 0;
+  border-radius: 8px; cursor: pointer;
+}
+.notes-menu__item:hover,
+.notes-menu__item:focus-visible {
+  background: var(--accent); color: var(--text-on-accent); outline: none;
+}
+.notes-menu__check { flex: none; width: 1em; text-align: center; opacity: 0; }
+.notes-menu__item[aria-checked="true"] .notes-menu__check { opacity: 1; }
+.notes-menu__sep { height: 1px; margin: var(--sp-1) var(--sp-2); background: var(--border); }
+
 @media (max-width: 720px) {
   .notes-panel { right: 3vw; left: 3vw; width: auto; bottom: calc(var(--sp-3) + 64px); }
   .notes-fab { right: var(--sp-3); bottom: var(--sp-3); }
@@ -806,11 +873,12 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
     --code-bg: #f2f2f2; --code-text: #000; --shadow: none; --shadow-lg: none;
   }
   .controlbar, .navigation, .progress-wrap, .matrix-bg, .course-nav,
-  .notes-fab, .notes-panel,
+  .notes-fab, .notes-panel, .notes-menu,
   .notification, .demo-controls, .btn, .modal, .tooltip-bubble { display: none !important; }
   .term { border-bottom: none; background: none; color: inherit; }
   .module-section { display: block !important; page-break-after: always; }
   .card, .feature-card, .tool-card { page-break-inside: avoid; box-shadow: none; }
+  .analogy { page-break-inside: avoid; background: none; border-color: #999; border-left-color: #555; }
   a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; word-break: break-all; }
   body { font-size: 11pt; }
 }
@@ -883,6 +951,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 <section id="overview" class="module-section active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
             <h2 class="section-title">🎭 Overview</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Social engineering attacks the operating system that has never been patched.</p>
+                <p>Every other module attacks software. This one attacks the judgement of a tired person at ten to five on a Friday. It is consistently the most effective route to initial access because it requires no vulnerability at all — the user holds legitimate credentials and is persuaded to use them on the attacker's behalf.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Calling people the weakest link is both unkind and unhelpful. Humans also catch attacks no tool detects, and the failure is usually a process that let one person wire money without a second pair of eyes.</p>
+            </aside>
+
             <div class="card">
                 <h3>Attacking the human, not the machine</h3>
                 <p>Every other module in this course attacks technology — a service that answers too freely, a password that falls to a wordlist, a protocol that can be spoofed. <span class="term" data-term="social engineering">Social engineering</span> attacks something no patch can fix: <strong>people</strong>. It is the art of manipulating human beings into taking actions or divulging information that compromises security — persuading someone to click a link, reveal a password, approve a transfer, or hold a door. The attacker's target is not the system's code but the human operating it, and the "<span class="term" data-term="vulnerability">vulnerability</span>" being exploited is trust, helpfulness, fear, or habit.</p>
@@ -914,6 +989,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="psychology" class="module-section" role="tabpanel" aria-labelledby="tab-psychology" tabindex="0" hidden="">
             <h2 class="section-title">🧠 The Psychology of Influence</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">These are the techniques of a good salesperson, aimed at a worse end.</p>
+                <p>Authority: the chief executive is asking. Urgency: the payment must go today. Scarcity: the offer closes at noon. Social proof: everybody else has signed. Reciprocity: I helped you last week. None of it is exotic, and all of it short-circuits deliberate thought in favour of a fast social judgement.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Knowing the list confers no immunity. These work perfectly well on people who can name them, which is why awareness training that stops at “learn the six principles” reliably fails to change behaviour under pressure.</p>
+            </aside>
 
             <div class="card">
                 <h3>Why understanding the psychology comes first</h3>
@@ -967,6 +1049,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="phishing-family" class="module-section" role="tabpanel" aria-labelledby="tab-phishing-family" tabindex="0" hidden="">
             <h2 class="section-title">🎣 The Phishing Family</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Phishing is a trawler net; spear phishing is a single cast at one named fish.</p>
+                <p>Phishing goes to a hundred thousand people and needs a response rate of a tenth of a per cent. Spear phishing targets one person using details only an insider should know — a manager's name, the project they're on. Whaling aims at executives, and business email compromise skips malware entirely to simply ask Finance to pay an invoice.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The fishing image implies bait and a hook. The most costly form of business email compromise contains no link and no attachment — just a plausible message from a genuinely compromised account, which is why technical controls miss it.</p>
+            </aside>
 
             <div class="card">
                 <h3>The most common attack, in many forms</h3>
@@ -1023,6 +1112,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <section id="vishing-pretexting" class="module-section" role="tabpanel" aria-labelledby="tab-vishing-pretexting" tabindex="0" hidden="">
             <h2 class="section-title">📞 Vishing &amp; Pretexting</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">A pretext is a costume, and the telephone is a stage where nobody can see it.</p>
+                <p>A voice claiming to be IT, calling about the ticket you really did raise, with hold music and a colleague's name, is enormously persuasive. Pretexting is the constructed identity and story; vishing is delivering it by phone, where urgency is easy to manufacture and no artefact survives for anyone to inspect later.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> A costume can be looked at. Voice cloning removes the last remaining check — familiarity — which is why the countermeasure has moved from “does this sound right” to calling back on a number you already held.</p>
+            </aside>
+
             <div class="card">
                 <h3>When the attacker talks to you directly</h3>
                 <p>Phishing hides behind a screen. This section covers the attacks where a human attacker interacts with the target more directly — through a phone call, a fabricated scenario, or a sustained impersonation. These attacks are often more effective than email precisely because real-time human interaction is more persuasive and harder to second-guess: a live voice conveying urgency and authority gives the target little time to reflect, and the social pressure to respond in the moment is intense. They also sidestep every email security control an organization owns.</p>
@@ -1064,6 +1160,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="physical" class="module-section" role="tabpanel" aria-labelledby="tab-physical" tabindex="0" hidden="">
             <h2 class="section-title">🚪 Physical Vectors</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">Tailgating is the attack whose countermeasure is being rude to a stranger carrying boxes.</p>
+                <p>Holding the door for somebody with full hands is ordinary decency, and it defeats every badge system ever installed. Dumpster diving, shoulder surfing and dropped USB drives exploit the same thing: physical controls quietly assume politeness will not override them, and it always does.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Framing this as staff failure misdiagnoses it. If one held door reaches critical systems, the real finding is missing internal segmentation — mantraps and layered zones fix what asking people to be suspicious cannot.</p>
+            </aside>
 
             <div class="card">
                 <h3>Social engineering in the physical world</h3>
@@ -1114,6 +1217,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <section id="deepfakes-ai" class="module-section" role="tabpanel" aria-labelledby="tab-deepfakes-ai" tabindex="0" hidden="">
             <h2 class="section-title">🤖 Deepfakes &amp; AI</h2>
 
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">The old advice was to verify by hearing the person's voice. That advice is now the vulnerability.</p>
+                <p>A few seconds of audio from a conference talk clones a voice convincingly, and video calls are now synthesized too — a 2024 case moved twenty-five million dollars on a fabricated conference call. AI also removes the tell everyone was trained to look for, which was bad grammar in phishing mail.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The technology is less universal than the coverage suggests. Real-time interactive deepfakes remain hard and fragile, and the dominant AI uplift is still text: better lures, at greater scale.</p>
+            </aside>
+
             <div class="card">
                 <h3>The technology that broke our oldest trust shortcut</h3>
                 <p>For all of human history, recognizing a familiar face and voice was proof enough of identity. If your CFO appeared on a video call and spoke in her own voice, she was who she claimed to be. Generative AI has quietly demolished that assumption, and this is the single most consequential development in social engineering today. <strong>Deepfakes</strong> — AI-generated video, images, and audio that convincingly mimic real people — mean that a face and a voice are no longer proof of anything. The trust shortcut that every organization implicitly relied on has become an attack vector, and the defensive implications ripple through every other section of this module.</p>
@@ -1156,6 +1266,13 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="countermeasures" class="module-section" role="tabpanel" aria-labelledby="tab-countermeasures" tabindex="0" hidden="">
             <h2 class="section-title">🛡️ Countermeasures</h2>
+
+            <aside class="analogy" role="note" aria-label="Analogy">
+                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
+                <p class="analogy__hook">The fix is a process that does not depend on anybody being suspicious at the right moment.</p>
+                <p>Out-of-band verification for payment changes, using a number from your own records rather than the email. Dual authorization above a threshold. Phishing-resistant MFA. And a reporting culture where raising a false alarm is rewarded, because the alternative is staff who stay silent after clicking.</p>
+                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Awareness training is necessary and routinely oversold. Click rates rebound within months, so training supplements controls that assume somebody will eventually click — it does not substitute for them.</p>
+            </aside>
 
             <div class="card">
                 <h3>Defending the human layer</h3>
@@ -1269,7 +1386,17 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
     <div class="notes-panel__foot">
         <span class="notes-hint">Saved automatically</span>
         <button id="notesClear" class="notes-mini is-danger" type="button">Clear</button>
-        <button id="notesExport" class="notes-mini" type="button">Export .md</button>
+        <span class="notes-export">
+            <button id="notesExport" class="notes-mini" type="button"
+                    aria-haspopup="true" aria-expanded="false" aria-controls="notesExportMenu">Download<span class="notes-mini__caret" aria-hidden="true">▾</span></button>
+            <div id="notesExportMenu" class="notes-menu" role="menu" aria-label="Download format">
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="doc"><span class="notes-menu__check" aria-hidden="true">✓</span>Word (.doc)</button>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="txt"><span class="notes-menu__check" aria-hidden="true">✓</span>Plain text (.txt)</button>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="pdf"><span class="notes-menu__check" aria-hidden="true">✓</span>Print / Save as PDF</button>
+                <div class="notes-menu__sep" role="none"></div>
+                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="md"><span class="notes-menu__check" aria-hidden="true">✓</span>Markdown (.md)</button>
+            </div>
+        </span>
     </div>
 </div>
 
@@ -1507,7 +1634,7 @@ var CEH = (function () {
        notes.scratch          = module-wide scratchpad
        notes.sections[sectionId] = per-section note
      The popup shows a tab for the current section and a tab for the scratchpad,
-     auto-saving on input (debounced). Export produces a Markdown file. */
+     auto-saving on input (debounced). Downloads offer .doc/.txt/PDF/.md. */
   var notes = null;
   var notesScope = 'section';       // 'section' | 'scratch'
   var notesSaveTimer = null;
@@ -1627,33 +1754,254 @@ var CEH = (function () {
     saveNotes();
   }
 
-  function exportNotes() {
-    var n = loadNotes();
-    var title = (document.querySelector('.header h1') || {}).textContent || ('Module ' + MODULE_ID);
-    var lines = ['# Notes — ' + title.trim(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
+  /* ---------- notes export ----------
+     Four output formats share one collector. The chosen format is remembered
+     in shared prefs and shown with a check in the Download menu.
+       md  -> Markdown source
+       txt -> plain text with underlined headings
+       doc -> Word-readable HTML (opens natively in Word/Pages/LibreOffice)
+       pdf -> styled print view; the browser's own dialog saves the PDF   */
+  var NOTES_FORMATS = ['doc', 'txt', 'pdf', 'md'];
+
+  function notesFormat() {
+    return NOTES_FORMATS.indexOf(prefs.notesFormat) !== -1 ? prefs.notesFormat : 'md';
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function notesDocTitle() {
+    var h = document.querySelector('.header h1');
+    return ((h && h.textContent) || ('Module ' + MODULE_ID)).trim();
+  }
+
+  /* [{title, body}] in section order, scratchpad last. Empty notes omitted. */
+  function collectNotes() {
+    var n = loadNotes(), out = [];
     sectionOrder.forEach(function (id) {
       var v = n.sections[id];
-      if (v && v.trim()) {
-        lines.push('## ' + sectionTitle(id), '', v.trim(), '');
-      }
+      if (v && v.trim()) out.push({ title: sectionTitle(id), body: v.trim() });
     });
-    if (n.scratch && n.scratch.trim()) {
-      lines.push('## Scratchpad', '', n.scratch.trim(), '');
-    }
-    if (lines.length <= 4) {
-      notify('No notes to export yet.', 'warning');
+    if (n.scratch && n.scratch.trim()) out.push({ title: 'Scratchpad', body: n.scratch.trim() });
+    return out;
+  }
+
+  function notesAsMarkdown(entries, title, stamp) {
+    var lines = ['# Notes — ' + title, '', '_Exported ' + stamp + '_', ''];
+    entries.forEach(function (e) { lines.push('## ' + e.title, '', e.body, ''); });
+    return lines.join('\n');
+  }
+
+  function notesAsText(entries, title, stamp) {
+    var head = 'NOTES — ' + title;
+    var lines = [head, new Array(head.length + 1).join('='), 'Exported ' + stamp, ''];
+    entries.forEach(function (e) {
+      lines.push(e.title, new Array(e.title.length + 1).join('-'),
+                 e.body.replace(/\r\n?/g, '\n').replace(/\n/g, '\r\n'), '');
+    });
+    return lines.join('\r\n');
+  }
+
+  /* Shared body markup for the .doc and print/PDF outputs. */
+  function notesAsHtmlBody(entries, title, stamp) {
+    var html = '<h1>' + escHtml(title) + '</h1>\n' +
+               '<p class="meta">Notes exported ' + escHtml(stamp) + '</p>\n';
+    entries.forEach(function (e) {
+      html += '<h2>' + escHtml(e.title) + '</h2>\n';
+      e.body.split(/\n{2,}/).forEach(function (para) {
+        if (para.trim()) html += '<p>' + escHtml(para.trim()).replace(/\n/g, '<br>') + '</p>\n';
+      });
+    });
+    return html;
+  }
+
+  function notesAsWord(entries, title, stamp) {
+    return '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+           'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
+           'xmlns="http://www.w3.org/TR/REC-html40"><head>' +
+           '<meta charset="utf-8">' +
+           '<title>' + escHtml(title) + '</title>' +
+           '<style>' +
+           '@page { size: A4; margin: 2cm; }' +
+           'body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #111; line-height: 1.5; }' +
+           'h1 { font-size: 18pt; margin: 0 0 4pt; }' +
+           'h2 { font-size: 13pt; margin: 18pt 0 4pt; border-bottom: 1px solid #bbb; padding-bottom: 2pt; }' +
+           'p { margin: 0 0 8pt; }' +
+           '.meta { color: #666; font-size: 9pt; margin-bottom: 16pt; }' +
+           '</style></head><body>' +
+           notesAsHtmlBody(entries, title, stamp) +
+           '</body></html>';
+  }
+
+  function notesAsPrintable(entries, title, stamp) {
+    return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+           '<title>' + escHtml(title) + '</title>' +
+           '<style>' +
+           '@page { margin: 18mm; }' +
+           'body { font-family: Georgia, "Times New Roman", serif; font-size: 11.5pt; color: #111; line-height: 1.55; margin: 0; }' +
+           'h1 { font-size: 20pt; margin: 0 0 4pt; font-family: Helvetica, Arial, sans-serif; }' +
+           'h2 { font-size: 13pt; margin: 20pt 0 6pt; font-family: Helvetica, Arial, sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 3pt; page-break-after: avoid; }' +
+           'p { margin: 0 0 9pt; orphans: 3; widows: 3; }' +
+           '.meta { color: #666; font-size: 9pt; font-family: Helvetica, Arial, sans-serif; margin-bottom: 18pt; }' +
+           '</style></head><body>' +
+           notesAsHtmlBody(entries, title, stamp) +
+           '</body></html>';
+  }
+
+  function downloadBlob(text, mime, filename) {
+    var blob = new Blob([text], { type: mime });
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {   // legacy Edge/IE
+      window.navigator.msSaveOrOpenBlob(blob, filename);
       return;
     }
-    var blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'ceh-' + MODULE_ID + '-notes.md';
+    a.download = filename;
+    a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-    notify('Notes exported.');
+  }
+
+  /* Prints via a hidden iframe so no popup blocker is involved. */
+  function printHtml(html) {
+    var frame = document.createElement('iframe');
+    frame.setAttribute('aria-hidden', 'true');
+    frame.setAttribute('title', 'Notes print view');
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+    document.body.appendChild(frame);
+
+    var fired = false;
+    function go() {
+      if (fired) return;
+      fired = true;
+      try {
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+      } catch (e) {
+        notify('Your browser blocked the print dialog.', 'warning');
+      }
+      setTimeout(function () {
+        if (frame.parentNode) frame.parentNode.removeChild(frame);
+      }, 60000);
+    }
+
+    try {
+      var doc = frame.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+    } catch (e) {
+      if (frame.parentNode) frame.parentNode.removeChild(frame);
+      notify('Could not build the print view.', 'warning');
+      return;
+    }
+    frame.onload = go;
+    setTimeout(go, 500);   // fallback if onload already passed
+  }
+
+  function exportNotes(format) {
+    var fmt = NOTES_FORMATS.indexOf(format) !== -1 ? format : notesFormat();
+    flushNotes();
+
+    var entries = collectNotes();
+    if (!entries.length) {
+      notify('No notes to download yet.', 'warning');
+      return;
+    }
+
+    var title = notesDocTitle();
+    var stamp = new Date().toLocaleString();
+    var base  = 'ceh-' + MODULE_ID + '-notes';
+
+    if (fmt === 'pdf') {
+      printHtml(notesAsPrintable(entries, title, stamp));
+      notify('Print view opened — choose “Save as PDF”.');
+      return;
+    }
+    if (fmt === 'doc') {
+      downloadBlob(notesAsWord(entries, title, stamp),
+                   'application/msword', base + '.doc');
+      notify('Notes downloaded as Word (.doc).');
+      return;
+    }
+    if (fmt === 'txt') {
+      downloadBlob(notesAsText(entries, title, stamp),
+                   'text/plain;charset=utf-8', base + '.txt');
+      notify('Notes downloaded as plain text (.txt).');
+      return;
+    }
+    downloadBlob(notesAsMarkdown(entries, title, stamp),
+                 'text/markdown;charset=utf-8', base + '.md');
+    notify('Notes downloaded as Markdown (.md).');
+  }
+
+  /* ---------- export format menu ---------- */
+  function syncExportMenu() {
+    var cur = notesFormat();
+    var items = document.querySelectorAll('#notesExportMenu .notes-menu__item');
+    Array.prototype.forEach.call(items, function (btn) {
+      btn.setAttribute('aria-checked', String(btn.getAttribute('data-format') === cur));
+    });
+  }
+
+  function exportMenuOpen() {
+    var menu = document.getElementById('notesExportMenu');
+    return !!(menu && menu.classList.contains('open'));
+  }
+
+  function openExportMenu() {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    syncExportMenu();
+    menu.classList.add('open');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    var first = menu.querySelector('.notes-menu__item[aria-checked="true"]') ||
+                menu.querySelector('.notes-menu__item');
+    if (first) first.focus();
+  }
+
+  function closeExportMenu(refocus) {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    menu.classList.remove('open');
+    if (btn) {
+      btn.setAttribute('aria-expanded', 'false');
+      if (refocus) btn.focus();
+    }
+  }
+
+  function toggleExportMenu() {
+    if (exportMenuOpen()) closeExportMenu(true);
+    else openExportMenu();
+  }
+
+  function chooseExportFormat(fmt) {
+    if (NOTES_FORMATS.indexOf(fmt) === -1) return;
+    prefs.notesFormat = fmt;
+    write(PREFS_KEY, prefs);
+    syncExportMenu();
+    closeExportMenu(true);
+    exportNotes(fmt);
+  }
+
+  /* Roving arrow-key navigation inside the menu. */
+  function exportMenuKeydown(e) {
+    var items = Array.prototype.slice.call(
+      document.querySelectorAll('#notesExportMenu .notes-menu__item'));
+    if (!items.length) return;
+    var i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+    else if (e.key === 'Escape') { e.preventDefault(); closeExportMenu(true); }
   }
 
   function clearScopeNotes() {
@@ -1992,7 +2340,26 @@ var CEH = (function () {
     var tabScr = document.getElementById('notesTabScratch');
     if (tabScr) tabScr.addEventListener('click', function () { setNotesScope('scratch'); });
     var notesExport = document.getElementById('notesExport');
-    if (notesExport) notesExport.addEventListener('click', exportNotes);
+    if (notesExport) notesExport.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleExportMenu();
+    });
+    var notesExportMenu = document.getElementById('notesExportMenu');
+    if (notesExportMenu) {
+      notesExportMenu.addEventListener('click', function (e) {
+        var item = e.target.closest ? e.target.closest('.notes-menu__item') : null;
+        if (!item) return;
+        e.stopPropagation();
+        chooseExportFormat(item.getAttribute('data-format'));
+      });
+      notesExportMenu.addEventListener('keydown', exportMenuKeydown);
+    }
+    document.addEventListener('click', function (e) {
+      if (!exportMenuOpen()) return;
+      var wrap = e.target.closest ? e.target.closest('.notes-export') : null;
+      if (!wrap) closeExportMenu(false);
+    });
+    syncExportMenu();
     var notesClear = document.getElementById('notesClear');
     if (notesClear) notesClear.addEventListener('click', clearScopeNotes);
 
