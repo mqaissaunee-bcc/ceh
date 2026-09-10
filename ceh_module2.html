@@ -2556,19 +2556,24 @@ var CEHLabKit = (function () {
     }
 
     function buildQuery(p) {
-      var parts = cfg.prefix ? [cfg.prefix] : [];
+      var head = cfg.prefix ? [cfg.prefix] : [];
+      // Operators emit in config order, except those with order:'last' (a bare
+      // target that must trail the flags). Everything else keeps its position.
+      var body = [], tail = [];
       ops.forEach(function (op) {
         var v = p[op.key];
         if (!v) return;
-        if (op.type === 'toggle') { parts.push(op.flag || op.key); return; }
-        if (op.bare) { parts.push(v); return; }
-        if (op.flag) { parts.push(op.flag + (op.flagJoin === '' ? '' : ' ') + v); return; }
-        if (op.key === 'kw') { parts.push(v); return; }
-        if (/\s/.test(v) && op.quote !== false) v = '"' + v + '"';
-        parts.push(op.key + ':' + v);
+        var token;
+        if (op.type === 'toggle') token = (op.flag || op.key);
+        else if (op.bare) token = v;
+        else if (op.flag) token = op.flag + (op.flagJoin === '' ? '' : ' ') + v;
+        else if (op.key === 'kw') token = v;
+        else { if (/\s/.test(v) && op.quote !== false) v = '"' + v + '"'; token = op.key + ':' + v; }
+        (op.order === 'last' ? tail : body).push(token);
       });
+      var parts = head.concat(body, tail);
       // A lone prefix is not a command worth running.
-      return (cfg.prefix && parts.length === 1) ? '' : parts.join(' ');
+      return (cfg.prefix && parts.length === head.length) ? '' : parts.join(' ');
     }
 
     function render() {
@@ -2890,7 +2895,8 @@ var CEHLabKit = (function () {
                '<span class="labkit-term__why">' + esc(hit.why) + '</span>');
       (hit.out || []).forEach(function (l) { line(l); });
       if (hit.note) lineHTML('<span class="labkit-term__muted">' + esc('→ ' + hit.note) + '</span>', 'labkit-term__wrap');
-      markObjective(hit.obj);
+      var objs = hit.obj == null ? [] : (Object.prototype.toString.call(hit.obj) === '[object Array]' ? hit.obj : [hit.obj]);
+      objs.forEach(markObjective);
       scrollEnd();
     }
 
