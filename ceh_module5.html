@@ -697,6 +697,46 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
   background: var(--amber); border: 2px solid var(--bg);
 }
 
+/* --- notes: image attachments --- */
+.notes-images {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: var(--sp-2) var(--sp-3) 0;
+  max-height: 148px; overflow-y: auto;
+}
+.notes-images:empty { display: none; }
+.notes-thumb {
+  position: relative; width: 84px; height: 64px; flex: none;
+  border: 1px solid var(--border-strong); border-radius: var(--radius);
+  overflow: hidden; background: var(--surface-2);
+}
+.notes-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.notes-thumb__del {
+  position: absolute; top: 2px; right: 2px;
+  width: 20px; height: 20px; line-height: 18px; text-align: center;
+  font-size: 13px; color: #fff; background: rgba(0,0,0,.62);
+  border: 0; border-radius: 50%; cursor: pointer; padding: 0;
+}
+.notes-thumb__del:hover { background: var(--danger); }
+
+/* --- notes: export menu --- */
+.notes-exportwrap { position: relative; }
+.notes-menu {
+  position: absolute; right: 0; bottom: calc(100% + 6px);
+  min-width: 168px; z-index: 5;
+  background: var(--bg-elev); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  padding: 4px; display: none;
+}
+.notes-menu.open { display: block; animation: fade-in .12s ease; }
+.notes-menu button {
+  display: flex; width: 100%; align-items: center; gap: 8px;
+  min-height: 38px; padding: 0 10px; text-align: left;
+  font: inherit; font-size: var(--fs-sm); color: var(--text);
+  background: transparent; border: 0; border-radius: 6px; cursor: pointer;
+}
+.notes-menu button:hover { background: var(--surface-2); color: var(--accent); }
+.notes-menu__k { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-faint); margin-left: auto; }
+
 .notes-panel {
   position: fixed; right: var(--sp-4); bottom: calc(var(--sp-4) + 68px);
   z-index: 95;
@@ -1980,10 +2020,22 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <textarea id="notesArea" class="notes-area" aria-label="Note text"
                   spellcheck="true"></textarea>
     </div>
+    <div id="notesImages" class="notes-images" role="list" aria-label="Attached images"></div>
+    <input id="notesImageInput" type="file" accept="image/*" multiple hidden>
     <div class="notes-panel__foot">
         <span class="notes-hint">Saved automatically</span>
+        <button id="notesAddImage" class="notes-mini" type="button">📎 Image</button>
         <button id="notesClear" class="notes-mini is-danger" type="button">Clear</button>
-        <button id="notesExport" class="notes-mini" type="button">Export .md</button>
+        <span class="notes-exportwrap">
+            <button id="notesExport" class="notes-mini" type="button"
+                    aria-haspopup="true" aria-expanded="false" aria-controls="notesExportMenu">Export ▾</button>
+            <span id="notesExportMenu" class="notes-menu" role="menu" aria-label="Export format">
+                <button type="button" role="menuitem" data-fmt="md">Markdown<span class="notes-menu__k">.md</span></button>
+                <button type="button" role="menuitem" data-fmt="html">Web page<span class="notes-menu__k">.html</span></button>
+                <button type="button" role="menuitem" data-fmt="doc">Word<span class="notes-menu__k">.doc</span></button>
+                <button type="button" role="menuitem" data-fmt="pdf">PDF<span class="notes-menu__k">print</span></button>
+            </span>
+        </span>
     </div>
 </div>
 
@@ -2218,20 +2270,27 @@ var CEH = (function () {
 
   /* ---------- notes ----------
      Two scopes stored under one per-module key:
-       notes.scratch          = module-wide scratchpad
-       notes.sections[sectionId] = per-section note
-     The popup shows a tab for the current section and a tab for the scratchpad,
-     auto-saving on input (debounced). Export produces a Markdown file. */
+       notes.scratch             = module-wide scratchpad text
+       notes.sections[sectionId] = per-section note text
+       notes.images.scratch      = [ {id, name, data} ] for the scratchpad
+       notes.images.sections[id] = [ {id, name, data} ] per section
+     Text auto-saves (debounced); images are data-URLs saved immediately.
+     Export offers Markdown, self-contained HTML, Word (.doc), and PDF
+     (via a styled print window). CSP-safe; no external libraries. */
   var notes = null;
   var notesScope = 'section';       // 'section' | 'scratch'
   var notesSaveTimer = null;
   var notesLastFocus = null;
+  var NOTES_IMG_BYTES_CAP = 4 * 1024 * 1024;   // ~4MB of image data per module
 
   function loadNotes() {
     if (notes) return notes;
-    notes = read(NOTES_KEY, { scratch: '', sections: {} });
+    notes = read(NOTES_KEY, { scratch: '', sections: {}, images: { scratch: [], sections: {} } });
     if (!notes.sections) notes.sections = {};
     if (typeof notes.scratch !== 'string') notes.scratch = '';
+    if (!notes.images) notes.images = { scratch: [], sections: {} };
+    if (!Array.isArray(notes.images.scratch)) notes.images.scratch = [];
+    if (!notes.images.sections) notes.images.sections = {};
     return notes;
   }
 
@@ -2251,9 +2310,16 @@ var CEH = (function () {
     else n.sections[current] = v;
   }
 
+  function currentImages() {
+    var n = loadNotes();
+    if (notesScope === 'scratch') return n.images.scratch;
+    if (!n.images.sections[current]) n.images.sections[current] = [];
+    return n.images.sections[current];
+  }
+
   function sectionTitle(id) {
     var tab = document.querySelector('.nav-btn[data-target="' + id + '"]');
-    if (tab) return tab.textContent.replace(/[✓]/g, '').trim();
+    if (tab) return tab.textContent.replace(/[\u2713]/g, '').trim();
     return id;
   }
 
@@ -2261,12 +2327,96 @@ var CEH = (function () {
     var n = loadNotes();
     if (n.scratch && n.scratch.trim()) return true;
     for (var k in n.sections) if (n.sections[k] && n.sections[k].trim()) return true;
+    if (n.images.scratch && n.images.scratch.length) return true;
+    for (var s in n.images.sections) if (n.images.sections[s] && n.images.sections[s].length) return true;
     return false;
   }
 
   function updateNotesIndicator() {
     var dot = document.getElementById('notesDot');
     if (dot) dot.hidden = !hasAnyNotes();
+  }
+
+  function notesImageBytes() {
+    var n = loadNotes(), total = 0, i, s;
+    for (i = 0; i < n.images.scratch.length; i++) total += (n.images.scratch[i].data || '').length;
+    for (s in n.images.sections) {
+      var arr = n.images.sections[s] || [];
+      for (i = 0; i < arr.length; i++) total += (arr[i].data || '').length;
+    }
+    return total;
+  }
+
+  function renderNotesImages() {
+    var wrap = document.getElementById('notesImages');
+    if (!wrap) return;
+    var imgs = currentImages();
+    wrap.innerHTML = '';
+    imgs.forEach(function (im) {
+      var cell = document.createElement('div');
+      cell.className = 'notes-thumb';
+      cell.setAttribute('role', 'listitem');
+      var img = document.createElement('img');
+      img.src = im.data;
+      img.alt = im.name || 'attached image';
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'notes-thumb__del';
+      del.setAttribute('aria-label', 'Remove ' + (im.name || 'image'));
+      del.textContent = '\u00D7';
+      del.addEventListener('click', function () { removeNotesImage(im.id); });
+      cell.appendChild(img);
+      cell.appendChild(del);
+      wrap.appendChild(cell);
+    });
+  }
+
+  function addNotesImageFiles(fileList) {
+    var files = Array.prototype.slice.call(fileList || []);
+    if (!files.length) return;
+    var existing = notesImageBytes();
+    var pending = 0, added = 0, processed = 0;
+
+    files.forEach(function (file) {
+      if (!file.type || file.type.indexOf('image/') !== 0) { processed++; return; }
+      pending++;
+      var reader = new FileReader();
+      reader.onload = function () {
+        processed++;
+        var data = String(reader.result || '');
+        if (existing + data.length > NOTES_IMG_BYTES_CAP) {
+          notify('Image too large to store — notes are kept in the browser and space is limited.', 'warning');
+        } else {
+          existing += data.length;
+          currentImages().push({
+            id: 'img-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+            name: file.name || 'image',
+            data: data
+          });
+          added++;
+        }
+        if (processed >= files.length) finishAdd();
+      };
+      reader.onerror = function () { processed++; if (processed >= files.length) finishAdd(); };
+      reader.readAsDataURL(file);
+    });
+    if (pending === 0) notify('No images found in that selection.', 'warning');
+
+    function finishAdd() {
+      if (!added) return;
+      saveNotes();
+      renderNotesImages();
+      notify(added === 1 ? 'Image added.' : added + ' images added.');
+    }
+  }
+
+  function removeNotesImage(id) {
+    var arr = currentImages();
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i].id === id) { arr.splice(i, 1); break; }
+    }
+    saveNotes();
+    renderNotesImages();
   }
 
   function renderNotesPanel() {
@@ -2286,6 +2436,7 @@ var CEH = (function () {
     area.placeholder = notesScope === 'scratch'
       ? 'A scratchpad for the whole module — anything not tied to one section.'
       : 'Notes for this section. They reappear whenever you return to this tab.';
+    renderNotesImages();
   }
 
   function openNotes() {
@@ -2306,6 +2457,7 @@ var CEH = (function () {
     var panel = document.getElementById('notesPanel');
     if (!panel) return;
     flushNotes();
+    closeExportMenu();
     panel.classList.remove('open');
     panel.setAttribute('aria-hidden', 'true');
     var toggle = document.getElementById('notesToggle');
@@ -2341,42 +2493,152 @@ var CEH = (function () {
     saveNotes();
   }
 
-  function exportNotes() {
-    var n = loadNotes();
-    var title = (document.querySelector('.header h1') || {}).textContent || ('Module ' + MODULE_ID);
-    var lines = ['# Notes — ' + title.trim(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
+  /* ----- export helpers ----- */
+  function notesTitle() {
+    var t = (document.querySelector('.header h1') || {}).textContent;
+    return (t || ('Module ' + MODULE_ID)).trim();
+  }
+
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // Collect notes as an ordered list of { title, text, images } blocks.
+  function collectNotes() {
+    var n = loadNotes(), blocks = [];
     sectionOrder.forEach(function (id) {
-      var v = n.sections[id];
-      if (v && v.trim()) {
-        lines.push('## ' + sectionTitle(id), '', v.trim(), '');
-      }
+      var text = (n.sections[id] || '').trim();
+      var imgs = n.images.sections[id] || [];
+      if (text || imgs.length) blocks.push({ title: sectionTitle(id), text: text, images: imgs });
     });
-    if (n.scratch && n.scratch.trim()) {
-      lines.push('## Scratchpad', '', n.scratch.trim(), '');
+    var st = (n.scratch || '').trim();
+    if (st || (n.images.scratch && n.images.scratch.length)) {
+      blocks.push({ title: 'Scratchpad', text: st, images: n.images.scratch || [] });
     }
-    if (lines.length <= 4) {
-      notify('No notes to export yet.', 'warning');
-      return;
-    }
-    var blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
+    return blocks;
+  }
+
+  function triggerDownload(blob, filename) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = url;
-    a.download = 'ceh-' + MODULE_ID + '-notes.md';
+    a.href = url; a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-    notify('Notes exported.');
   }
 
+  function exportMarkdown(blocks) {
+    var lines = ['# Notes \u2014 ' + notesTitle(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
+    blocks.forEach(function (b) {
+      lines.push('## ' + b.title, '');
+      if (b.text) lines.push(b.text, '');
+      b.images.forEach(function (im) { lines.push('![' + (im.name || 'image') + '](' + im.data + ')', ''); });
+    });
+    triggerDownload(new Blob([lines.join('\n')], { type: 'text/markdown' }), 'ceh-' + MODULE_ID + '-notes.md');
+    notify('Notes exported as Markdown.');
+  }
+
+  // Shared HTML body for the .html, .doc, and print(PDF) paths.
+  function notesHtmlBody(blocks) {
+    var out = ['<h1>' + escHtml('Notes \u2014 ' + notesTitle()) + '</h1>',
+               '<p class="meta">Exported ' + escHtml(new Date().toLocaleString()) + '</p>'];
+    blocks.forEach(function (b) {
+      out.push('<h2>' + escHtml(b.title) + '</h2>');
+      if (b.text) {
+        b.text.split(/\n{2,}/).forEach(function (para) {
+          out.push('<p>' + escHtml(para).replace(/\n/g, '<br>') + '</p>');
+        });
+      }
+      b.images.forEach(function (im) {
+        out.push('<figure><img src="' + im.data + '" alt="' + escHtml(im.name || 'image') + '">' +
+                 '<figcaption>' + escHtml(im.name || '') + '</figcaption></figure>');
+      });
+    });
+    return out.join('\n');
+  }
+
+  function notesStyle() {
+    return 'body{font-family:Georgia,\'Times New Roman\',serif;max-width:760px;margin:32px auto;padding:0 20px;color:#1a1a1a;line-height:1.55}' +
+           'h1{font-size:24px;border-bottom:2px solid #333;padding-bottom:8px}' +
+           'h2{font-size:18px;margin-top:26px;color:#003366}' +
+           '.meta{color:#666;font-style:italic;font-size:13px}' +
+           'figure{margin:14px 0}img{max-width:100%;height:auto;border:1px solid #ccc}' +
+           'figcaption{font-size:12px;color:#666;margin-top:4px}';
+  }
+
+  function fullNotesDocument(blocks) {
+    return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+           '<title>' + escHtml('Notes \u2014 ' + notesTitle()) + '</title>' +
+           '<style>' + notesStyle() + '</style></head><body>' +
+           notesHtmlBody(blocks) + '</body></html>';
+  }
+
+  function exportHtml(blocks) {
+    triggerDownload(new Blob([fullNotesDocument(blocks)], { type: 'text/html' }),
+                    'ceh-' + MODULE_ID + '-notes.html');
+    notify('Notes exported as a web page.');
+  }
+
+  function exportDoc(blocks) {
+    // Word opens HTML with a .doc extension; a Word MIME nudges it to do so.
+    triggerDownload(new Blob([fullNotesDocument(blocks)], { type: 'application/msword' }),
+                    'ceh-' + MODULE_ID + '-notes.doc');
+    notify('Notes exported for Word.');
+  }
+
+  function exportPdf(blocks) {
+    // No PDF library is bundled (offline, CSP-safe), so open a styled window
+    // and let the browser's "Save as PDF" handle it. Reliable and dependency-free.
+    var win = window.open('', '_blank');
+    if (!win) { notify('Allow pop-ups to export as PDF, or use the Web page format.', 'warning'); return; }
+    win.document.open();
+    win.document.write(fullNotesDocument(blocks));
+    win.document.close();
+    var done = false;
+    function go() {
+      if (done) return; done = true;
+      win.focus();
+      win.print();   // user chooses "Save as PDF" in the print dialog
+    }
+    if (win.document.readyState === 'complete') setTimeout(go, 300);
+    else win.onload = function () { setTimeout(go, 300); };
+    notify('Opening the print dialog \u2014 choose \u201CSave as PDF\u201D.');
+  }
+
+  function exportNotes(fmt) {
+    var blocks = collectNotes();
+    if (!blocks.length) { notify('No notes to export yet.', 'warning'); return; }
+    if (fmt === 'html') exportHtml(blocks);
+    else if (fmt === 'doc') exportDoc(blocks);
+    else if (fmt === 'pdf') exportPdf(blocks);
+    else exportMarkdown(blocks);
+  }
+
+  function toggleExportMenu(force) {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    var open = (typeof force === 'boolean') ? force : !menu.classList.contains('open');
+    menu.classList.toggle('open', open);
+    if (btn) btn.setAttribute('aria-expanded', String(open));
+  }
+  function closeExportMenu() { toggleExportMenu(false); }
+
   function clearScopeNotes() {
+    var hasImgs = currentImages().length > 0;
     var what = notesScope === 'scratch' ? 'the scratchpad' : 'notes for this section';
-    if (!window.confirm('Clear ' + what + '? This cannot be undone.')) return;
+    var extra = hasImgs ? ' (including attached images)' : '';
+    if (!window.confirm('Clear ' + what + extra + '? This cannot be undone.')) return;
     setCurrentNoteValue('');
+    if (notesScope === 'scratch') loadNotes().images.scratch = [];
+    else loadNotes().images.sections[current] = [];
     var area = document.getElementById('notesArea');
     if (area) area.value = '';
     saveNotes();
+    renderNotesImages();
     notify('Cleared ' + what + '.', 'warning');
   }
 
@@ -2706,7 +2968,40 @@ var CEH = (function () {
     var tabScr = document.getElementById('notesTabScratch');
     if (tabScr) tabScr.addEventListener('click', function () { setNotesScope('scratch'); });
     var notesExport = document.getElementById('notesExport');
-    if (notesExport) notesExport.addEventListener('click', exportNotes);
+    if (notesExport) notesExport.addEventListener('click', function (e) { e.stopPropagation(); toggleExportMenu(); });
+    var notesExportMenu = document.getElementById('notesExportMenu');
+    if (notesExportMenu) notesExportMenu.addEventListener('click', function (e) {
+      var item = e.target.closest('[data-fmt]');
+      if (!item) return;
+      closeExportMenu();
+      exportNotes(item.getAttribute('data-fmt'));
+    });
+    var notesAddImage = document.getElementById('notesAddImage');
+    var notesImageInput = document.getElementById('notesImageInput');
+    if (notesAddImage && notesImageInput) {
+      notesAddImage.addEventListener('click', function () { notesImageInput.click(); });
+      notesImageInput.addEventListener('change', function () {
+        addNotesImageFiles(notesImageInput.files);
+        notesImageInput.value = '';
+      });
+    }
+    // paste an image straight into the note text area
+    var notesAreaEl = document.getElementById('notesArea');
+    if (notesAreaEl) notesAreaEl.addEventListener('paste', function (e) {
+      var items = (e.clipboardData && e.clipboardData.items) || [];
+      var imgs = [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type && items[i].type.indexOf('image/') === 0) {
+          var f = items[i].getAsFile(); if (f) imgs.push(f);
+        }
+      }
+      if (imgs.length) { e.preventDefault(); addNotesImageFiles(imgs); }
+    });
+    // close the export menu on outside click
+    document.addEventListener('click', function (e) {
+      var menu = document.getElementById('notesExportMenu');
+      if (menu && menu.classList.contains('open') && !e.target.closest('.notes-exportwrap')) closeExportMenu();
+    });
     var notesClear = document.getElementById('notesClear');
     if (notesClear) notesClear.addEventListener('click', clearScopeNotes);
 
@@ -3103,7 +3398,7 @@ function downloadCertificate() {
 
 <script>
 /* ============================================================
-   CEH LAB KIT  v1.1  — portable interactive components
+   CEH LAB KIT  v1.2  — portable interactive components
    ------------------------------------------------------------
    Two data-driven widgets that mount themselves into any module
    built on the CEH chassis:
@@ -3226,9 +3521,16 @@ var CEHLabKit = (function () {
         '<span class="labkit__badge">SIMULATED</span>' +
       '</div>' +
       '<p class="labkit__intro">' + cfg.intro + '</p>' +
+      (cfg.message ? (
+        '<div class="labkit-msg">' +
+          '<div class="labkit-msg__row"><span class="labkit-msg__k">From:</span> ' + esc(cfg.message.from) + '</div>' +
+          '<div class="labkit-msg__row"><span class="labkit-msg__k">Subject:</span> ' + esc(cfg.message.subject) + '</div>' +
+          '<div class="labkit-msg__body">' + esc(cfg.message.body) + '</div>' +
+        '</div>'
+      ) : '') +
       '<div class="labkit__cols">' +
         '<div>' +
-          '<p class="labkit__sub" id="dorkOpsLabel">Operators</p>' +
+          '<p class="labkit__sub" id="dorkOpsLabel">' + esc(cfg.opsLabel || 'Operators') + '</p>' +
           '<div class="labkit-ops" role="group" aria-labelledby="dorkOpsLabel">' + opFields + '</div>' +
           '<p class="labkit__sub">' + esc(cfg.assembledLabel || 'Assembled query') + '</p>' +
           '<div class="labkit-query labkit-query--empty" id="dorkQuery" role="status" aria-live="polite">' +

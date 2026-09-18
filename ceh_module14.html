@@ -21,9 +21,6 @@
   --accent-line:     rgba(53, 224, 95, 0.34);
 
   --cyan:            #43d9d4;
-  --violet:          #b39bff;
-  --violet-dim:      rgba(179, 155, 255, 0.10);
-  --violet-line:     rgba(179, 155, 255, 0.30);
   --amber:           #f0b429;
   --danger:          #ff6b6b;
   --success:         #35e05f;
@@ -80,9 +77,6 @@
   --accent-line:     rgba(15, 122, 52, 0.30);
 
   --cyan:            #0b6d78;
-  --violet:          #6b46d6;
-  --violet-dim:      rgba(107, 70, 214, 0.07);
-  --violet-line:     rgba(107, 70, 214, 0.22);
   --amber:           #8a5a00;
   --danger:          #b3261e;
   --success:         #0f7a34;
@@ -618,41 +612,6 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .success-box { border-left-color: var(--success); }
 .warning-box { border-left-color: var(--amber); }
 
-/* ---------- ANALOGY CALLOUT ----------
-   Plain-language intuition placed at the head of each teaching section,
-   before the formal treatment. Deliberately visually distinct from
-   .info-box / .warning-box so learners can find (or skip) it at a glance. */
-.analogy {
-  margin: var(--sp-3) 0 var(--sp-4);
-  padding: var(--sp-3) var(--sp-4);
-  background: var(--violet-dim);
-  border: 1px solid var(--violet-line);
-  border-left: 4px solid var(--violet);
-  border-radius: var(--radius);
-}
-.analogy__label {
-  display: flex; align-items: center; gap: 7px;
-  margin: 0 0 var(--sp-2);
-  font-size: var(--fs-xs); font-weight: 700;
-  letter-spacing: .09em; text-transform: uppercase;
-  color: var(--violet);
-}
-.analogy p { margin: 0 0 var(--sp-2); }
-.analogy p:last-child { margin-bottom: 0; }
-.analogy__hook {
-  font-size: var(--fs-lg); font-weight: 600;
-  line-height: 1.45; color: var(--text);
-}
-.analogy__limit {
-  padding-top: var(--sp-2);
-  border-top: 1px dashed var(--violet-line);
-  font-size: var(--fs-sm); color: var(--text-muted);
-}
-.analogy__limit b { color: var(--text); font-weight: 700; }
-@media (max-width: 720px) {
-  .analogy { padding: var(--sp-3); }
-}
-
 /* CVSS severity */
 .cvss-score {
   display: inline-block; padding: 2px 12px; border-radius: 999px;
@@ -738,6 +697,46 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
   background: var(--amber); border: 2px solid var(--bg);
 }
 
+/* --- notes: image attachments --- */
+.notes-images {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: var(--sp-2) var(--sp-3) 0;
+  max-height: 148px; overflow-y: auto;
+}
+.notes-images:empty { display: none; }
+.notes-thumb {
+  position: relative; width: 84px; height: 64px; flex: none;
+  border: 1px solid var(--border-strong); border-radius: var(--radius);
+  overflow: hidden; background: var(--surface-2);
+}
+.notes-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.notes-thumb__del {
+  position: absolute; top: 2px; right: 2px;
+  width: 20px; height: 20px; line-height: 18px; text-align: center;
+  font-size: 13px; color: #fff; background: rgba(0,0,0,.62);
+  border: 0; border-radius: 50%; cursor: pointer; padding: 0;
+}
+.notes-thumb__del:hover { background: var(--danger); }
+
+/* --- notes: export menu --- */
+.notes-exportwrap { position: relative; }
+.notes-menu {
+  position: absolute; right: 0; bottom: calc(100% + 6px);
+  min-width: 168px; z-index: 5;
+  background: var(--bg-elev); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  padding: 4px; display: none;
+}
+.notes-menu.open { display: block; animation: fade-in .12s ease; }
+.notes-menu button {
+  display: flex; width: 100%; align-items: center; gap: 8px;
+  min-height: 38px; padding: 0 10px; text-align: left;
+  font: inherit; font-size: var(--fs-sm); color: var(--text);
+  background: transparent; border: 0; border-radius: 6px; cursor: pointer;
+}
+.notes-menu button:hover { background: var(--surface-2); color: var(--accent); }
+.notes-menu__k { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-faint); margin-left: auto; }
+
 .notes-panel {
   position: fixed; right: var(--sp-4); bottom: calc(var(--sp-4) + 68px);
   z-index: 95;
@@ -801,32 +800,6 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 .notes-mini:hover { border-color: var(--accent); color: var(--accent); }
 .notes-mini.is-danger:hover { border-color: var(--danger); color: var(--danger); }
 
-/* export format menu */
-.notes-export { position: relative; display: inline-flex; }
-.notes-mini__caret { margin-left: 6px; font-size: .8em; opacity: .8; }
-.notes-menu {
-  position: absolute; bottom: calc(100% + 6px); right: 0;
-  min-width: 232px; padding: var(--sp-1);
-  background: var(--surface); border: 1px solid var(--border-strong);
-  border-radius: var(--radius); box-shadow: var(--shadow-lg);
-  display: none; flex-direction: column; gap: 2px; z-index: 60;
-}
-.notes-menu.open { display: flex; }
-.notes-menu__item {
-  display: flex; align-items: center; gap: var(--sp-2);
-  width: 100%; min-height: 38px; padding: 0 var(--sp-2);
-  font: inherit; font-size: var(--fs-sm); text-align: left; white-space: nowrap;
-  color: var(--text); background: none; border: 0;
-  border-radius: 8px; cursor: pointer;
-}
-.notes-menu__item:hover,
-.notes-menu__item:focus-visible {
-  background: var(--accent); color: var(--text-on-accent); outline: none;
-}
-.notes-menu__check { flex: none; width: 1em; text-align: center; opacity: 0; }
-.notes-menu__item[aria-checked="true"] .notes-menu__check { opacity: 1; }
-.notes-menu__sep { height: 1px; margin: var(--sp-1) var(--sp-2); background: var(--border); }
-
 @media (max-width: 720px) {
   .notes-panel { right: 3vw; left: 3vw; width: auto; bottom: calc(var(--sp-3) + 64px); }
   .notes-fab { right: var(--sp-3); bottom: var(--sp-3); }
@@ -873,14 +846,196 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
     --code-bg: #f2f2f2; --code-text: #000; --shadow: none; --shadow-lg: none;
   }
   .controlbar, .navigation, .progress-wrap, .matrix-bg, .course-nav,
-  .notes-fab, .notes-panel, .notes-menu,
+  .notes-fab, .notes-panel,
   .notification, .demo-controls, .btn, .modal, .tooltip-bubble { display: none !important; }
   .term { border-bottom: none; background: none; color: inherit; }
   .module-section { display: block !important; page-break-after: always; }
   .card, .feature-card, .tool-card { page-break-inside: avoid; box-shadow: none; }
-  .analogy { page-break-inside: avoid; background: none; border-color: #999; border-left-color: #555; }
   a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; word-break: break-all; }
   body { font-size: 11pt; }
+}
+
+/* ---------- 23. LAB KIT (portable interactive components) ----------
+   Drop-in styling for the data-driven lab widgets (dork builder, recon
+   terminal). Token-only: no hardcoded colours, so it themes automatically
+   in every module that carries the chassis. */
+
+.labkit {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: var(--sp-4);
+  margin: var(--sp-4) 0;
+}
+.labkit__head {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  justify-content: space-between; margin-bottom: var(--sp-2);
+}
+.labkit__title {
+  margin: 0; font-size: var(--fs-h4); color: var(--text);
+  display: flex; align-items: center; gap: .45rem;
+}
+.labkit__badge {
+  font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: .04em;
+  border: 1px solid var(--accent-line); color: var(--accent);
+  background: var(--accent-dim); border-radius: 999px; padding: .22rem .6rem;
+  white-space: nowrap;
+}
+.labkit__intro { color: var(--text-muted); font-size: var(--fs-sm); margin: 0 0 var(--sp-3); }
+.labkit__sub {
+  margin: var(--sp-4) 0 var(--sp-2); font-size: var(--fs-sm); font-weight: 700;
+  color: var(--text); text-transform: uppercase; letter-spacing: .06em;
+}
+.labkit__cols { display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
+@media (min-width: 900px) { .labkit__cols { grid-template-columns: 1.6fr 1fr; } }
+/* grid children default to min-width:auto, which lets a wide <pre> terminal
+   blow out the page. Pin them to 0 so overflow scrolls inside the box. */
+.labkit__cols > * { min-width: 0; }
+
+.labkit :is(input[type="text"], input[type="search"]):focus-visible,
+.labkit button:focus-visible,
+.labkit [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* --- shared field --- */
+.labkit-field { display: flex; flex-direction: column; gap: .3rem; }
+.labkit-field > span { font-size: var(--fs-xs); color: var(--text-muted); }
+.labkit-text {
+  font-family: var(--font-mono); font-size: var(--fs-sm);
+  background: var(--bg-elev); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: .55rem .65rem; min-height: 44px; width: 100%;
+}
+.labkit-text::placeholder { color: var(--text-faint); }
+
+/* --- operator grid (dork builder) --- */
+.labkit-ops { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--sp-2); }
+.labkit-op {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-2); padding: var(--sp-2);
+}
+.labkit-op.on { border-color: var(--accent-line); background: var(--accent-dim); }
+.labkit-op__top { display: flex; align-items: center; gap: .5rem; min-height: 30px; }
+.labkit-op__top input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+.labkit-op__top label { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--text); cursor: pointer; }
+.labkit-op__hint { display: block; font-size: var(--fs-xs); color: var(--text-muted); margin: .25rem 0 .35rem; }
+
+/* --- assembled query --- */
+.labkit-query {
+  font-family: var(--font-mono); font-size: var(--fs-sm);
+  background: var(--code-bg); color: var(--code-text);
+  border: 1px solid var(--code-border); border-radius: var(--radius);
+  padding: var(--sp-3); min-height: 48px; word-break: break-word; white-space: pre-wrap;
+}
+.labkit-query--empty { color: var(--text-faint); }
+
+/* --- message card (phishing analyzer) --- */
+.labkit-msg {
+  border: 1px solid var(--border-strong); border-left: 3px solid var(--amber);
+  border-radius: var(--radius); background: var(--surface-2);
+  padding: var(--sp-3); margin-bottom: var(--sp-3); font-size: var(--fs-sm);
+}
+.labkit-msg__row { color: var(--text); margin-bottom: .2rem; }
+.labkit-msg__k { color: var(--text-muted); font-weight: 700; margin-right: .35rem; }
+.labkit-msg__body { color: var(--text-muted); margin-top: var(--sp-2); line-height: 1.5; white-space: pre-wrap; }
+
+
+/* Simulated tool output: keep column alignment, scroll rather than wrap. */
+.labkit-out {
+  font-family: var(--font-mono); font-size: var(--fs-sm);
+  background: var(--code-bg); color: var(--code-text);
+  border: 1px solid var(--code-border); border-radius: var(--radius);
+  padding: var(--sp-3); margin-top: var(--sp-2);
+  white-space: pre; overflow: auto; max-width: 100%;
+}
+
+.labkit-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-3); }
+
+/* --- simulated results --- */
+.labkit-results { display: grid; gap: var(--sp-2); margin-top: var(--sp-3); }
+.labkit-result {
+  border: 1px solid var(--border); border-left: 3px solid var(--cyan);
+  border-radius: var(--radius); background: var(--surface-2); padding: var(--sp-3);
+}
+.labkit-result__title { font-weight: 700; color: var(--text); font-size: var(--fs-sm); }
+.labkit-result__url { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--cyan); word-break: break-all; }
+.labkit-result__snip { color: var(--text-muted); font-size: var(--fs-sm); margin: .35rem 0 0; }
+.labkit-result__risk { font-size: var(--fs-xs); color: var(--text); margin: .45rem 0 0; }
+.labkit-empty { color: var(--text-muted); font-size: var(--fs-sm); border: 1px dashed var(--border-strong);
+  border-radius: var(--radius); padding: var(--sp-3); margin-top: var(--sp-3); }
+
+.labkit-note {
+  border-left: 3px solid var(--amber); background: var(--surface-2);
+  border-radius: var(--radius); padding: var(--sp-3); margin-top: var(--sp-3);
+  font-size: var(--fs-sm); color: var(--text-muted);
+}
+.labkit-note strong { color: var(--text); }
+
+/* --- challenges --- */
+.labkit-challenges { display: grid; gap: var(--sp-2); }
+.labkit-chal {
+  display: flex; gap: .6rem; align-items: flex-start; text-align: left; width: 100%;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-2); color: var(--text);
+  padding: var(--sp-2) var(--sp-3); min-height: 44px; cursor: pointer;
+  font: inherit; font-size: var(--fs-sm);
+}
+.labkit-chal:hover { border-color: var(--border-strong); }
+.labkit-chal[aria-pressed="true"] { border-color: var(--accent-line); background: var(--accent-dim); }
+.labkit-chal.solved { border-left: 3px solid var(--success); }
+.labkit-chal__mark { font-family: var(--font-mono); flex: none; color: var(--success); width: 1.1em; }
+.labkit-feedback { margin-top: var(--sp-3); font-size: var(--fs-sm); border-radius: var(--radius); padding: var(--sp-3); }
+.labkit-feedback--ok  { border: 1px solid var(--accent-line); background: var(--accent-dim); color: var(--text); }
+.labkit-feedback--no  { border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text-muted); }
+
+/* --- terminal --- */
+.labkit-term {
+  background: var(--code-bg); border: 1px solid var(--code-border);
+  border-radius: var(--radius); padding: var(--sp-3);
+  font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--code-text);
+  height: clamp(240px, 46vh, 400px); overflow: auto; max-width: 100%;
+}
+.labkit-term__line { white-space: pre; margin: 0; }
+.labkit-term__wrap { white-space: pre-wrap; word-break: break-word; }
+.labkit-term__echo { color: var(--accent-strong); margin-top: .5rem; }
+.labkit-term__muted { color: var(--text-faint); }
+.labkit-term__err { color: var(--danger); }
+.labkit-term__why { color: var(--text-faint); white-space: pre-wrap; margin: .2rem 0 .1rem; }
+.labkit-inputrow { display: flex; gap: var(--sp-2); margin-top: var(--sp-2); }
+.labkit-inputrow .labkit-text { background: var(--code-bg); color: var(--code-text); border-color: var(--code-border); }
+.labkit-suggest { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: var(--sp-2); }
+.labkit-suggest button {
+  font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-muted);
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 999px; padding: .35rem .7rem; min-height: 32px; cursor: pointer;
+}
+.labkit-suggest button:hover { color: var(--text); border-color: var(--accent-line); }
+
+.labkit-tag {
+  display: inline-block; font-family: var(--font-mono); font-size: var(--fs-xs);
+  border-radius: 4px; padding: .05rem .4rem; margin-right: .4rem;
+  border: 1px solid currentColor;
+}
+.labkit-tag--passive { color: var(--cyan); }
+.labkit-tag--active  { color: var(--amber); }
+
+/* --- objectives --- */
+.labkit-obj { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-2); }
+.labkit-obj li {
+  display: flex; gap: .55rem; align-items: flex-start;
+  font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.45;
+}
+.labkit-obj li.done { color: var(--text); }
+.labkit-obj__box {
+  flex: none; width: 1.15em; font-family: var(--font-mono); color: var(--text-faint);
+}
+.labkit-obj li.done .labkit-obj__box { color: var(--success); }
+.labkit-count { font-size: var(--fs-xs); color: var(--text-muted); margin: var(--sp-2) 0 0; }
+
+@media print {
+  .labkit-inputrow, .labkit-suggest, .labkit-actions { display: none !important; }
+  .labkit-term { height: auto; overflow: visible; }
+  .labkit { break-inside: avoid; }
 }
 
 </style>
@@ -936,6 +1091,7 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <button class="nav-btn" role="tab" id="tab-access-auth" data-target="access-auth" aria-controls="access-auth" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🔓 Access & Auth</button>
         <button class="nav-btn" role="tab" id="tab-tools" data-target="tools" aria-controls="tools" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🛠️ Tools</button>
         <button class="nav-btn" role="tab" id="tab-countermeasures" data-target="countermeasures" aria-controls="countermeasures" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🛡️ Countermeasures</button>
+        <button class="nav-btn" role="tab" id="tab-lab" data-target="lab" aria-controls="lab" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🧪 Lab</button>
         <button class="nav-btn" role="tab" id="tab-quiz" data-target="quiz" aria-controls="quiz" aria-selected="false" tabindex="-1"><span class="nav-btn__done" aria-hidden="true"></span> 🎯 Assessment</button>
     </nav>
 
@@ -944,19 +1100,12 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
              aria-label="Module progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <div class="progress-fill" id="progressFill"></div>
         </div>
-        <span class="progress-text" id="progressText">0 of 8 sections · 0%</span>
+        <span class="progress-text" id="progressText">0 of 9 sections · 0%</span>
     </div>
 
     <main id="main">
 <section id="overview" class="module-section active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
             <h2 class="section-title">🕸️ Overview</h2>
-
-            <aside class="analogy" role="note" aria-label="Analogy">
-                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
-                <p class="analogy__hook">If the web server is the shop front, the application is everything the staff do — and it was built to order.</p>
-                <p>Server software is written by vendors and patched by vendors. Your application is written by your developers, which means its bugs are unique to you, carry no CVE number, and will never be found by a version scanner. That is why this is the largest attack surface most organizations have.</p>
-                <p class="analogy__limit"><b>Where the analogy breaks down:</b> “Custom means unfindable” is wrong. The flaw classes are highly repetitive, so scanners and experienced testers find the same broken access control patterns in application after application.</p>
-            </aside>
 
             <div class="card">
                 <h3>The largest attack surface in the course</h3>
@@ -988,13 +1137,6 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="architecture" class="module-section" role="tabpanel" aria-labelledby="tab-architecture" tabindex="0" hidden="">
             <h2 class="section-title">🏗️ Architecture &amp; Methodology</h2>
-
-            <aside class="analogy" role="note" aria-label="Analogy">
-                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
-                <p class="analogy__hook">You cannot test a building you have not walked, so mapping comes before attacking.</p>
-                <p>Enumerate every entry point: pages, parameters, APIs, headers, cookies, file uploads. Understand the roles and where the trust boundaries actually sit. Most serious findings come from noticing that some value the client controls is trusted by the server, and you only see that once the map is complete.</p>
-                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The map is never complete. Single-page apps and mobile clients call endpoints that appear in no HTML, so mapping means reading JavaScript bundles and proxying the real client rather than crawling links.</p>
-            </aside>
 
             <div class="card">
                 <h3>How a web application is built</h3>
@@ -1032,13 +1174,6 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="owasp" class="module-section" role="tabpanel" aria-labelledby="tab-owasp" tabindex="0" hidden="">
             <h2 class="section-title">🔟 The OWASP Top 10</h2>
-
-            <aside class="analogy" role="note" aria-label="Analogy">
-                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
-                <p class="analogy__hook">The OWASP Top 10 is the “most common causes of house fires” list.</p>
-                <p>It is not a standard, and not a catalogue of every flaw. It is a consensus ranking of what actually goes wrong most often, refreshed as the field changes. Broken Access Control rising to first place reflects real breach data rather than fashion. Its value is directing scarce attention to where it pays.</p>
-                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Passing the Top 10 is a floor, not a ceiling. Treating it as a compliance checklist is how applications get certified secure while a business logic flaw lets anybody refund themselves indefinitely.</p>
-            </aside>
 
             <div class="card">
                 <h3>The industry's shared map of risk</h3>
@@ -1108,13 +1243,6 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <section id="injection-xss" class="module-section" role="tabpanel" aria-labelledby="tab-injection-xss" tabindex="0" hidden="">
             <h2 class="section-title">💉 Injection &amp; XSS</h2>
 
-            <aside class="analogy" role="note" aria-label="Analogy">
-                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
-                <p class="analogy__hook">Both are the same mistake: the machine cannot tell your data from its instructions.</p>
-                <p>Injection happens when input is concatenated into something that will be interpreted — a SQL query, a shell command, an LDAP filter. XSS is that same failure aimed at the browser: attacker text arrives inside your page and executes with your site's privileges. Stored XSS simply waits in the database for the next reader.</p>
-                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The shared root implies a shared fix, and the fixes differ. Injection is solved by parameterization, separating code from data before it is sent. XSS is solved by context-aware output encoding, since correct escaping differs in HTML, in attributes and in JavaScript.</p>
-            </aside>
-
             <div class="card">
                 <h3>The oldest and most dangerous idea in web security</h3>
                 <p><strong>Injection</strong> (OWASP A05) is the class of flaw where an application sends untrusted data to an interpreter as part of a command or query — and the interpreter, unable to tell the attacker's data from the developer's code, executes it. That single sentence captures a whole family of attacks: SQL injection, cross-site scripting, command injection, LDAP and NoSQL injection, and more. They differ only in <em>which</em> interpreter is targeted (a database, a browser, an OS shell), but they share one root cause: <strong>the failure to keep code and data separate.</strong> Understand that root cause and every injection variant becomes recognizable as the same mistake wearing different clothes.</p>
@@ -1160,13 +1288,6 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 
         <section id="access-auth" class="module-section" role="tabpanel" aria-labelledby="tab-access-auth" tabindex="0" hidden="">
             <h2 class="section-title">🔓 Access &amp; Authentication</h2>
-
-            <aside class="analogy" role="note" aria-label="Analogy">
-                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
-                <p class="analogy__hook">Authentication asks who you are; authorization asks whether you're allowed. Most breaches are the second.</p>
-                <p>Logging in is the easy part to get right. The hard part is checking, on every single request, that this user may do this thing to this object. Change the identifier in a URL and see somebody else's invoice — that is IDOR, and it happens because the check lived on the page that generated the link rather than the endpoint serving the data.</p>
-                <p class="analogy__limit"><b>Where the analogy breaks down:</b> The lesson is not “hide the identifiers.” UUIDs make guessing harder and are not access control; the check has to happen server-side, per request, no matter how unguessable the identifier looks.</p>
-            </aside>
 
             <div class="card">
                 <h3>The #1 risk, and its close relatives</h3>
@@ -1218,13 +1339,6 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <section id="tools" class="module-section" role="tabpanel" aria-labelledby="tab-tools" tabindex="0" hidden="">
             <h2 class="section-title">🛠️ Tools</h2>
 
-            <aside class="analogy" role="note" aria-label="Analogy">
-                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
-                <p class="analogy__hook">Scanners cover the ground; a human notices the thing that shouldn't be there.</p>
-                <p>Burp and OWASP ZAP crawl, fuzz and flag the mechanical classes reliably and quickly. What they cannot do is understand your business — that a discount code applied twice, or a workflow step skipped, produces free goods. There is no signature for a logic flaw.</p>
-                <p class="analogy__limit"><b>Where the analogy breaks down:</b> Automated scanning is not consequence-free. Active scanners submit forms, so they can create thousands of records, send real emails or trigger production workflows, which is why they belong in staging under explicit authorization.</p>
-            </aside>
-
             <div class="card">
                 <h3>The intercepting proxy at the center</h3>
                 <p>Web application testing revolves around one category of tool above all: the <strong>intercepting proxy</strong>. Because the browser is the client and the attacker controls it, the essential capability is to sit between browser and server and see, modify, and replay every request. This is how a tester bypasses client-side controls, tampers with parameters, and probes inputs the interface never meant to expose. Two proxies dominate the field, and knowing them is the core practical skill of this module.</p>
@@ -1270,13 +1384,6 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <section id="countermeasures" class="module-section" role="tabpanel" aria-labelledby="tab-countermeasures" tabindex="0" hidden="">
             <h2 class="section-title">🛡️ Countermeasures</h2>
 
-            <aside class="analogy" role="note" aria-label="Analogy">
-                <p class="analogy__label"><span aria-hidden="true">💡</span>Think of it like this</p>
-                <p class="analogy__hook">Every fix here restates one rule: never trust the client.</p>
-                <p>Validate on the server using allowlists. Parameterize queries. Encode output for its specific context. Check authorization on every request against the session, never against a submitted parameter. Add CSRF tokens, security headers and rate limits. Treat client-side validation as a convenience for honest users and nothing more.</p>
-                <p class="analogy__limit"><b>Where the analogy breaks down:</b> These prevent the mechanical classes and not the logical ones. No amount of input validation stops a workflow that permits a user to approve their own expense claim — that needs somebody reasoning about the business rules.</p>
-            </aside>
-
             <div class="card">
                 <h3>Security has to be built in, not bolted on</h3>
                 <p>The defining lesson of web application defense is that, unlike a web server you can patch, an application's security lives in <em>how it was written</em>. You cannot buy a patch for a logic flaw or an authorization mistake in bespoke code — it has to be prevented in development or fixed in the source. This makes <strong>secure coding</strong> the foundation of everything here, with other controls as reinforcing layers. The good news is that the vast, varied attack surface of web applications is defended by a surprisingly small set of durable principles, each of which counters whole categories of the OWASP Top 10 at once.</p>
@@ -1319,7 +1426,33 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
                 <p>Step back and the sprawling world of web application security reduces to a few ideas: don't trust the client, keep code and data separate, enforce access on the server, handle identity and sessions properly, and build security in throughout the lifecycle rather than bolting it on at the end. Every item in the OWASP Top 10 is, at root, a violation of one of these; every countermeasure is an application of one. That is the coherence beneath the complexity, and internalizing it is what lets an ethical hacker both find the flaws in a running application and help developers build applications that don't have them. With the application layer covered, the course turns to the single most consequential application vulnerability of all, in its own dedicated module: SQL injection.</p>
             </div>
 
-            <button class="btn btn-success" data-action="showSection" data-args='["quiz"]'>Next → Test Your Knowledge</button>
+            <button class="btn btn-success" data-action="showSection" data-args='["lab"]'>Next → 🧪 Web App Defence Lab</button>
+        </section>
+
+
+        <section id="lab" class="module-section" role="tabpanel" aria-labelledby="tab-lab" tabindex="0" hidden="">
+            <h2 class="section-title">🧪 Web App Defence Lab</h2>
+
+            <div class="card">
+                <h3>Two root causes behind the whole OWASP Top 10</h3>
+                <p>This lab is built around the module's central claim: nearly every web-app vulnerability is one of two mistakes wearing different clothes. <strong>Injection</strong> is a failure to keep code and data separate; <strong>broken access control</strong> is a failure to distrust the client. The <strong>Vulnerability Analyzer</strong> classifies a request against AcmeCMS by which class it targets and how to fix it. The <strong>Triage Console</strong> then walks the OWASP-style findings from the defender's seat.</p>
+                <p>Everything is simulated in your browser and payloads are defanged. There are no runnable exploits here — only patterns, root causes, and the countermeasures that close them.</p>
+            </div>
+
+            <div class="labkit" data-labkit="builder">
+                <p class="labkit__intro">Loading…</p>
+            </div>
+
+            <div class="labkit" data-labkit="terminal">
+                <p class="labkit__intro">Loading…</p>
+            </div>
+
+            <div class="card">
+                <h3>The through-line</h3>
+                <p>Two ideas organize the entire OWASP landscape. Injection — SQLi, XSS, command injection — is always the same root cause: untrusted data reaching an interpreter that cannot tell the attacker's data from the developer's code; the fix is to separate the two (parameterized queries, output encoding, safe no-shell APIs). Broken access control — IDOR, SSRF, privilege escalation — is always a server trusting the client to stay in bounds; the fix is to enforce authorization on the server for every request, verify ownership and role, and deny by default. Injection is found by pattern; access flaws only by knowing the rules.</p>
+                <button class="btn btn-success" data-action="showSection" data-args='["quiz"]'>Next → Test Your Knowledge</button>
+            </div>
+
         </section>
 
         <section id="quiz" class="module-section" role="tabpanel" aria-labelledby="tab-quiz" tabindex="0" hidden="">
@@ -1386,19 +1519,21 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
         <textarea id="notesArea" class="notes-area" aria-label="Note text"
                   spellcheck="true"></textarea>
     </div>
+    <div id="notesImages" class="notes-images" role="list" aria-label="Attached images"></div>
+    <input id="notesImageInput" type="file" accept="image/*" multiple hidden>
     <div class="notes-panel__foot">
         <span class="notes-hint">Saved automatically</span>
+        <button id="notesAddImage" class="notes-mini" type="button">📎 Image</button>
         <button id="notesClear" class="notes-mini is-danger" type="button">Clear</button>
-        <span class="notes-export">
+        <span class="notes-exportwrap">
             <button id="notesExport" class="notes-mini" type="button"
-                    aria-haspopup="true" aria-expanded="false" aria-controls="notesExportMenu">Download<span class="notes-mini__caret" aria-hidden="true">▾</span></button>
-            <div id="notesExportMenu" class="notes-menu" role="menu" aria-label="Download format">
-                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="doc"><span class="notes-menu__check" aria-hidden="true">✓</span>Word (.doc)</button>
-                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="txt"><span class="notes-menu__check" aria-hidden="true">✓</span>Plain text (.txt)</button>
-                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="pdf"><span class="notes-menu__check" aria-hidden="true">✓</span>Print / Save as PDF</button>
-                <div class="notes-menu__sep" role="none"></div>
-                <button class="notes-menu__item" type="button" role="menuitemradio" aria-checked="false" data-format="md"><span class="notes-menu__check" aria-hidden="true">✓</span>Markdown (.md)</button>
-            </div>
+                    aria-haspopup="true" aria-expanded="false" aria-controls="notesExportMenu">Export ▾</button>
+            <span id="notesExportMenu" class="notes-menu" role="menu" aria-label="Export format">
+                <button type="button" role="menuitem" data-fmt="md">Markdown<span class="notes-menu__k">.md</span></button>
+                <button type="button" role="menuitem" data-fmt="html">Web page<span class="notes-menu__k">.html</span></button>
+                <button type="button" role="menuitem" data-fmt="doc">Word<span class="notes-menu__k">.doc</span></button>
+                <button type="button" role="menuitem" data-fmt="pdf">PDF<span class="notes-menu__k">print</span></button>
+            </span>
         </span>
     </div>
 </div>
@@ -1634,20 +1769,27 @@ var CEH = (function () {
 
   /* ---------- notes ----------
      Two scopes stored under one per-module key:
-       notes.scratch          = module-wide scratchpad
-       notes.sections[sectionId] = per-section note
-     The popup shows a tab for the current section and a tab for the scratchpad,
-     auto-saving on input (debounced). Downloads offer .doc/.txt/PDF/.md. */
+       notes.scratch             = module-wide scratchpad text
+       notes.sections[sectionId] = per-section note text
+       notes.images.scratch      = [ {id, name, data} ] for the scratchpad
+       notes.images.sections[id] = [ {id, name, data} ] per section
+     Text auto-saves (debounced); images are data-URLs saved immediately.
+     Export offers Markdown, self-contained HTML, Word (.doc), and PDF
+     (via a styled print window). CSP-safe; no external libraries. */
   var notes = null;
   var notesScope = 'section';       // 'section' | 'scratch'
   var notesSaveTimer = null;
   var notesLastFocus = null;
+  var NOTES_IMG_BYTES_CAP = 4 * 1024 * 1024;   // ~4MB of image data per module
 
   function loadNotes() {
     if (notes) return notes;
-    notes = read(NOTES_KEY, { scratch: '', sections: {} });
+    notes = read(NOTES_KEY, { scratch: '', sections: {}, images: { scratch: [], sections: {} } });
     if (!notes.sections) notes.sections = {};
     if (typeof notes.scratch !== 'string') notes.scratch = '';
+    if (!notes.images) notes.images = { scratch: [], sections: {} };
+    if (!Array.isArray(notes.images.scratch)) notes.images.scratch = [];
+    if (!notes.images.sections) notes.images.sections = {};
     return notes;
   }
 
@@ -1667,9 +1809,16 @@ var CEH = (function () {
     else n.sections[current] = v;
   }
 
+  function currentImages() {
+    var n = loadNotes();
+    if (notesScope === 'scratch') return n.images.scratch;
+    if (!n.images.sections[current]) n.images.sections[current] = [];
+    return n.images.sections[current];
+  }
+
   function sectionTitle(id) {
     var tab = document.querySelector('.nav-btn[data-target="' + id + '"]');
-    if (tab) return tab.textContent.replace(/[✓]/g, '').trim();
+    if (tab) return tab.textContent.replace(/[\u2713]/g, '').trim();
     return id;
   }
 
@@ -1677,12 +1826,96 @@ var CEH = (function () {
     var n = loadNotes();
     if (n.scratch && n.scratch.trim()) return true;
     for (var k in n.sections) if (n.sections[k] && n.sections[k].trim()) return true;
+    if (n.images.scratch && n.images.scratch.length) return true;
+    for (var s in n.images.sections) if (n.images.sections[s] && n.images.sections[s].length) return true;
     return false;
   }
 
   function updateNotesIndicator() {
     var dot = document.getElementById('notesDot');
     if (dot) dot.hidden = !hasAnyNotes();
+  }
+
+  function notesImageBytes() {
+    var n = loadNotes(), total = 0, i, s;
+    for (i = 0; i < n.images.scratch.length; i++) total += (n.images.scratch[i].data || '').length;
+    for (s in n.images.sections) {
+      var arr = n.images.sections[s] || [];
+      for (i = 0; i < arr.length; i++) total += (arr[i].data || '').length;
+    }
+    return total;
+  }
+
+  function renderNotesImages() {
+    var wrap = document.getElementById('notesImages');
+    if (!wrap) return;
+    var imgs = currentImages();
+    wrap.innerHTML = '';
+    imgs.forEach(function (im) {
+      var cell = document.createElement('div');
+      cell.className = 'notes-thumb';
+      cell.setAttribute('role', 'listitem');
+      var img = document.createElement('img');
+      img.src = im.data;
+      img.alt = im.name || 'attached image';
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'notes-thumb__del';
+      del.setAttribute('aria-label', 'Remove ' + (im.name || 'image'));
+      del.textContent = '\u00D7';
+      del.addEventListener('click', function () { removeNotesImage(im.id); });
+      cell.appendChild(img);
+      cell.appendChild(del);
+      wrap.appendChild(cell);
+    });
+  }
+
+  function addNotesImageFiles(fileList) {
+    var files = Array.prototype.slice.call(fileList || []);
+    if (!files.length) return;
+    var existing = notesImageBytes();
+    var pending = 0, added = 0, processed = 0;
+
+    files.forEach(function (file) {
+      if (!file.type || file.type.indexOf('image/') !== 0) { processed++; return; }
+      pending++;
+      var reader = new FileReader();
+      reader.onload = function () {
+        processed++;
+        var data = String(reader.result || '');
+        if (existing + data.length > NOTES_IMG_BYTES_CAP) {
+          notify('Image too large to store — notes are kept in the browser and space is limited.', 'warning');
+        } else {
+          existing += data.length;
+          currentImages().push({
+            id: 'img-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+            name: file.name || 'image',
+            data: data
+          });
+          added++;
+        }
+        if (processed >= files.length) finishAdd();
+      };
+      reader.onerror = function () { processed++; if (processed >= files.length) finishAdd(); };
+      reader.readAsDataURL(file);
+    });
+    if (pending === 0) notify('No images found in that selection.', 'warning');
+
+    function finishAdd() {
+      if (!added) return;
+      saveNotes();
+      renderNotesImages();
+      notify(added === 1 ? 'Image added.' : added + ' images added.');
+    }
+  }
+
+  function removeNotesImage(id) {
+    var arr = currentImages();
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i].id === id) { arr.splice(i, 1); break; }
+    }
+    saveNotes();
+    renderNotesImages();
   }
 
   function renderNotesPanel() {
@@ -1702,6 +1935,7 @@ var CEH = (function () {
     area.placeholder = notesScope === 'scratch'
       ? 'A scratchpad for the whole module — anything not tied to one section.'
       : 'Notes for this section. They reappear whenever you return to this tab.';
+    renderNotesImages();
   }
 
   function openNotes() {
@@ -1722,6 +1956,7 @@ var CEH = (function () {
     var panel = document.getElementById('notesPanel');
     if (!panel) return;
     flushNotes();
+    closeExportMenu();
     panel.classList.remove('open');
     panel.setAttribute('aria-hidden', 'true');
     var toggle = document.getElementById('notesToggle');
@@ -1757,263 +1992,152 @@ var CEH = (function () {
     saveNotes();
   }
 
-  /* ---------- notes export ----------
-     Four output formats share one collector. The chosen format is remembered
-     in shared prefs and shown with a check in the Download menu.
-       md  -> Markdown source
-       txt -> plain text with underlined headings
-       doc -> Word-readable HTML (opens natively in Word/Pages/LibreOffice)
-       pdf -> styled print view; the browser's own dialog saves the PDF   */
-  var NOTES_FORMATS = ['doc', 'txt', 'pdf', 'md'];
-
-  function notesFormat() {
-    return NOTES_FORMATS.indexOf(prefs.notesFormat) !== -1 ? prefs.notesFormat : 'md';
+  /* ----- export helpers ----- */
+  function notesTitle() {
+    var t = (document.querySelector('.header h1') || {}).textContent;
+    return (t || ('Module ' + MODULE_ID)).trim();
   }
 
   function escHtml(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  function notesDocTitle() {
-    var h = document.querySelector('.header h1');
-    return ((h && h.textContent) || ('Module ' + MODULE_ID)).trim();
-  }
-
-  /* [{title, body}] in section order, scratchpad last. Empty notes omitted. */
+  // Collect notes as an ordered list of { title, text, images } blocks.
   function collectNotes() {
-    var n = loadNotes(), out = [];
+    var n = loadNotes(), blocks = [];
     sectionOrder.forEach(function (id) {
-      var v = n.sections[id];
-      if (v && v.trim()) out.push({ title: sectionTitle(id), body: v.trim() });
+      var text = (n.sections[id] || '').trim();
+      var imgs = n.images.sections[id] || [];
+      if (text || imgs.length) blocks.push({ title: sectionTitle(id), text: text, images: imgs });
     });
-    if (n.scratch && n.scratch.trim()) out.push({ title: 'Scratchpad', body: n.scratch.trim() });
-    return out;
-  }
-
-  function notesAsMarkdown(entries, title, stamp) {
-    var lines = ['# Notes — ' + title, '', '_Exported ' + stamp + '_', ''];
-    entries.forEach(function (e) { lines.push('## ' + e.title, '', e.body, ''); });
-    return lines.join('\n');
-  }
-
-  function notesAsText(entries, title, stamp) {
-    var head = 'NOTES — ' + title;
-    var lines = [head, new Array(head.length + 1).join('='), 'Exported ' + stamp, ''];
-    entries.forEach(function (e) {
-      lines.push(e.title, new Array(e.title.length + 1).join('-'),
-                 e.body.replace(/\r\n?/g, '\n').replace(/\n/g, '\r\n'), '');
-    });
-    return lines.join('\r\n');
-  }
-
-  /* Shared body markup for the .doc and print/PDF outputs. */
-  function notesAsHtmlBody(entries, title, stamp) {
-    var html = '<h1>' + escHtml(title) + '</h1>\n' +
-               '<p class="meta">Notes exported ' + escHtml(stamp) + '</p>\n';
-    entries.forEach(function (e) {
-      html += '<h2>' + escHtml(e.title) + '</h2>\n';
-      e.body.split(/\n{2,}/).forEach(function (para) {
-        if (para.trim()) html += '<p>' + escHtml(para.trim()).replace(/\n/g, '<br>') + '</p>\n';
-      });
-    });
-    return html;
-  }
-
-  function notesAsWord(entries, title, stamp) {
-    return '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
-           'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
-           'xmlns="http://www.w3.org/TR/REC-html40"><head>' +
-           '<meta charset="utf-8">' +
-           '<title>' + escHtml(title) + '</title>' +
-           '<style>' +
-           '@page { size: A4; margin: 2cm; }' +
-           'body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #111; line-height: 1.5; }' +
-           'h1 { font-size: 18pt; margin: 0 0 4pt; }' +
-           'h2 { font-size: 13pt; margin: 18pt 0 4pt; border-bottom: 1px solid #bbb; padding-bottom: 2pt; }' +
-           'p { margin: 0 0 8pt; }' +
-           '.meta { color: #666; font-size: 9pt; margin-bottom: 16pt; }' +
-           '</style></head><body>' +
-           notesAsHtmlBody(entries, title, stamp) +
-           '</body></html>';
-  }
-
-  function notesAsPrintable(entries, title, stamp) {
-    return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
-           '<title>' + escHtml(title) + '</title>' +
-           '<style>' +
-           '@page { margin: 18mm; }' +
-           'body { font-family: Georgia, "Times New Roman", serif; font-size: 11.5pt; color: #111; line-height: 1.55; margin: 0; }' +
-           'h1 { font-size: 20pt; margin: 0 0 4pt; font-family: Helvetica, Arial, sans-serif; }' +
-           'h2 { font-size: 13pt; margin: 20pt 0 6pt; font-family: Helvetica, Arial, sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 3pt; page-break-after: avoid; }' +
-           'p { margin: 0 0 9pt; orphans: 3; widows: 3; }' +
-           '.meta { color: #666; font-size: 9pt; font-family: Helvetica, Arial, sans-serif; margin-bottom: 18pt; }' +
-           '</style></head><body>' +
-           notesAsHtmlBody(entries, title, stamp) +
-           '</body></html>';
-  }
-
-  function downloadBlob(text, mime, filename) {
-    var blob = new Blob([text], { type: mime });
-    if (window.navigator && window.navigator.msSaveOrOpenBlob) {   // legacy Edge/IE
-      window.navigator.msSaveOrOpenBlob(blob, filename);
-      return;
+    var st = (n.scratch || '').trim();
+    if (st || (n.images.scratch && n.images.scratch.length)) {
+      blocks.push({ title: 'Scratchpad', text: st, images: n.images.scratch || [] });
     }
+    return blocks;
+  }
+
+  function triggerDownload(blob, filename) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.rel = 'noopener';
+    a.href = url; a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
 
-  /* Prints via a hidden iframe so no popup blocker is involved. */
-  function printHtml(html) {
-    var frame = document.createElement('iframe');
-    frame.setAttribute('aria-hidden', 'true');
-    frame.setAttribute('title', 'Notes print view');
-    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
-    document.body.appendChild(frame);
-
-    var fired = false;
-    function go() {
-      if (fired) return;
-      fired = true;
-      try {
-        frame.contentWindow.focus();
-        frame.contentWindow.print();
-      } catch (e) {
-        notify('Your browser blocked the print dialog.', 'warning');
-      }
-      setTimeout(function () {
-        if (frame.parentNode) frame.parentNode.removeChild(frame);
-      }, 60000);
-    }
-
-    try {
-      var doc = frame.contentWindow.document;
-      doc.open();
-      doc.write(html);
-      doc.close();
-    } catch (e) {
-      if (frame.parentNode) frame.parentNode.removeChild(frame);
-      notify('Could not build the print view.', 'warning');
-      return;
-    }
-    frame.onload = go;
-    setTimeout(go, 500);   // fallback if onload already passed
-  }
-
-  function exportNotes(format) {
-    var fmt = NOTES_FORMATS.indexOf(format) !== -1 ? format : notesFormat();
-    flushNotes();
-
-    var entries = collectNotes();
-    if (!entries.length) {
-      notify('No notes to download yet.', 'warning');
-      return;
-    }
-
-    var title = notesDocTitle();
-    var stamp = new Date().toLocaleString();
-    var base  = 'ceh-' + MODULE_ID + '-notes';
-
-    if (fmt === 'pdf') {
-      printHtml(notesAsPrintable(entries, title, stamp));
-      notify('Print view opened — choose “Save as PDF”.');
-      return;
-    }
-    if (fmt === 'doc') {
-      downloadBlob(notesAsWord(entries, title, stamp),
-                   'application/msword', base + '.doc');
-      notify('Notes downloaded as Word (.doc).');
-      return;
-    }
-    if (fmt === 'txt') {
-      downloadBlob(notesAsText(entries, title, stamp),
-                   'text/plain;charset=utf-8', base + '.txt');
-      notify('Notes downloaded as plain text (.txt).');
-      return;
-    }
-    downloadBlob(notesAsMarkdown(entries, title, stamp),
-                 'text/markdown;charset=utf-8', base + '.md');
-    notify('Notes downloaded as Markdown (.md).');
-  }
-
-  /* ---------- export format menu ---------- */
-  function syncExportMenu() {
-    var cur = notesFormat();
-    var items = document.querySelectorAll('#notesExportMenu .notes-menu__item');
-    Array.prototype.forEach.call(items, function (btn) {
-      btn.setAttribute('aria-checked', String(btn.getAttribute('data-format') === cur));
+  function exportMarkdown(blocks) {
+    var lines = ['# Notes \u2014 ' + notesTitle(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
+    blocks.forEach(function (b) {
+      lines.push('## ' + b.title, '');
+      if (b.text) lines.push(b.text, '');
+      b.images.forEach(function (im) { lines.push('![' + (im.name || 'image') + '](' + im.data + ')', ''); });
     });
+    triggerDownload(new Blob([lines.join('\n')], { type: 'text/markdown' }), 'ceh-' + MODULE_ID + '-notes.md');
+    notify('Notes exported as Markdown.');
   }
 
-  function exportMenuOpen() {
-    var menu = document.getElementById('notesExportMenu');
-    return !!(menu && menu.classList.contains('open'));
+  // Shared HTML body for the .html, .doc, and print(PDF) paths.
+  function notesHtmlBody(blocks) {
+    var out = ['<h1>' + escHtml('Notes \u2014 ' + notesTitle()) + '</h1>',
+               '<p class="meta">Exported ' + escHtml(new Date().toLocaleString()) + '</p>'];
+    blocks.forEach(function (b) {
+      out.push('<h2>' + escHtml(b.title) + '</h2>');
+      if (b.text) {
+        b.text.split(/\n{2,}/).forEach(function (para) {
+          out.push('<p>' + escHtml(para).replace(/\n/g, '<br>') + '</p>');
+        });
+      }
+      b.images.forEach(function (im) {
+        out.push('<figure><img src="' + im.data + '" alt="' + escHtml(im.name || 'image') + '">' +
+                 '<figcaption>' + escHtml(im.name || '') + '</figcaption></figure>');
+      });
+    });
+    return out.join('\n');
   }
 
-  function openExportMenu() {
-    var menu = document.getElementById('notesExportMenu');
-    var btn = document.getElementById('notesExport');
-    if (!menu) return;
-    syncExportMenu();
-    menu.classList.add('open');
-    if (btn) btn.setAttribute('aria-expanded', 'true');
-    var first = menu.querySelector('.notes-menu__item[aria-checked="true"]') ||
-                menu.querySelector('.notes-menu__item');
-    if (first) first.focus();
+  function notesStyle() {
+    return 'body{font-family:Georgia,\'Times New Roman\',serif;max-width:760px;margin:32px auto;padding:0 20px;color:#1a1a1a;line-height:1.55}' +
+           'h1{font-size:24px;border-bottom:2px solid #333;padding-bottom:8px}' +
+           'h2{font-size:18px;margin-top:26px;color:#003366}' +
+           '.meta{color:#666;font-style:italic;font-size:13px}' +
+           'figure{margin:14px 0}img{max-width:100%;height:auto;border:1px solid #ccc}' +
+           'figcaption{font-size:12px;color:#666;margin-top:4px}';
   }
 
-  function closeExportMenu(refocus) {
-    var menu = document.getElementById('notesExportMenu');
-    var btn = document.getElementById('notesExport');
-    if (!menu) return;
-    menu.classList.remove('open');
-    if (btn) {
-      btn.setAttribute('aria-expanded', 'false');
-      if (refocus) btn.focus();
+  function fullNotesDocument(blocks) {
+    return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+           '<title>' + escHtml('Notes \u2014 ' + notesTitle()) + '</title>' +
+           '<style>' + notesStyle() + '</style></head><body>' +
+           notesHtmlBody(blocks) + '</body></html>';
+  }
+
+  function exportHtml(blocks) {
+    triggerDownload(new Blob([fullNotesDocument(blocks)], { type: 'text/html' }),
+                    'ceh-' + MODULE_ID + '-notes.html');
+    notify('Notes exported as a web page.');
+  }
+
+  function exportDoc(blocks) {
+    // Word opens HTML with a .doc extension; a Word MIME nudges it to do so.
+    triggerDownload(new Blob([fullNotesDocument(blocks)], { type: 'application/msword' }),
+                    'ceh-' + MODULE_ID + '-notes.doc');
+    notify('Notes exported for Word.');
+  }
+
+  function exportPdf(blocks) {
+    // No PDF library is bundled (offline, CSP-safe), so open a styled window
+    // and let the browser's "Save as PDF" handle it. Reliable and dependency-free.
+    var win = window.open('', '_blank');
+    if (!win) { notify('Allow pop-ups to export as PDF, or use the Web page format.', 'warning'); return; }
+    win.document.open();
+    win.document.write(fullNotesDocument(blocks));
+    win.document.close();
+    var done = false;
+    function go() {
+      if (done) return; done = true;
+      win.focus();
+      win.print();   // user chooses "Save as PDF" in the print dialog
     }
+    if (win.document.readyState === 'complete') setTimeout(go, 300);
+    else win.onload = function () { setTimeout(go, 300); };
+    notify('Opening the print dialog \u2014 choose \u201CSave as PDF\u201D.');
   }
 
-  function toggleExportMenu() {
-    if (exportMenuOpen()) closeExportMenu(true);
-    else openExportMenu();
+  function exportNotes(fmt) {
+    var blocks = collectNotes();
+    if (!blocks.length) { notify('No notes to export yet.', 'warning'); return; }
+    if (fmt === 'html') exportHtml(blocks);
+    else if (fmt === 'doc') exportDoc(blocks);
+    else if (fmt === 'pdf') exportPdf(blocks);
+    else exportMarkdown(blocks);
   }
 
-  function chooseExportFormat(fmt) {
-    if (NOTES_FORMATS.indexOf(fmt) === -1) return;
-    prefs.notesFormat = fmt;
-    write(PREFS_KEY, prefs);
-    syncExportMenu();
-    closeExportMenu(true);
-    exportNotes(fmt);
+  function toggleExportMenu(force) {
+    var menu = document.getElementById('notesExportMenu');
+    var btn = document.getElementById('notesExport');
+    if (!menu) return;
+    var open = (typeof force === 'boolean') ? force : !menu.classList.contains('open');
+    menu.classList.toggle('open', open);
+    if (btn) btn.setAttribute('aria-expanded', String(open));
   }
-
-  /* Roving arrow-key navigation inside the menu. */
-  function exportMenuKeydown(e) {
-    var items = Array.prototype.slice.call(
-      document.querySelectorAll('#notesExportMenu .notes-menu__item'));
-    if (!items.length) return;
-    var i = items.indexOf(document.activeElement);
-    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1 + items.length) % items.length].focus(); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
-    else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
-    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
-    else if (e.key === 'Escape') { e.preventDefault(); closeExportMenu(true); }
-  }
+  function closeExportMenu() { toggleExportMenu(false); }
 
   function clearScopeNotes() {
+    var hasImgs = currentImages().length > 0;
     var what = notesScope === 'scratch' ? 'the scratchpad' : 'notes for this section';
-    if (!window.confirm('Clear ' + what + '? This cannot be undone.')) return;
+    var extra = hasImgs ? ' (including attached images)' : '';
+    if (!window.confirm('Clear ' + what + extra + '? This cannot be undone.')) return;
     setCurrentNoteValue('');
+    if (notesScope === 'scratch') loadNotes().images.scratch = [];
+    else loadNotes().images.sections[current] = [];
     var area = document.getElementById('notesArea');
     if (area) area.value = '';
     saveNotes();
+    renderNotesImages();
     notify('Cleared ' + what + '.', 'warning');
   }
 
@@ -2343,26 +2467,40 @@ var CEH = (function () {
     var tabScr = document.getElementById('notesTabScratch');
     if (tabScr) tabScr.addEventListener('click', function () { setNotesScope('scratch'); });
     var notesExport = document.getElementById('notesExport');
-    if (notesExport) notesExport.addEventListener('click', function (e) {
-      e.stopPropagation();
-      toggleExportMenu();
-    });
+    if (notesExport) notesExport.addEventListener('click', function (e) { e.stopPropagation(); toggleExportMenu(); });
     var notesExportMenu = document.getElementById('notesExportMenu');
-    if (notesExportMenu) {
-      notesExportMenu.addEventListener('click', function (e) {
-        var item = e.target.closest ? e.target.closest('.notes-menu__item') : null;
-        if (!item) return;
-        e.stopPropagation();
-        chooseExportFormat(item.getAttribute('data-format'));
-      });
-      notesExportMenu.addEventListener('keydown', exportMenuKeydown);
-    }
-    document.addEventListener('click', function (e) {
-      if (!exportMenuOpen()) return;
-      var wrap = e.target.closest ? e.target.closest('.notes-export') : null;
-      if (!wrap) closeExportMenu(false);
+    if (notesExportMenu) notesExportMenu.addEventListener('click', function (e) {
+      var item = e.target.closest('[data-fmt]');
+      if (!item) return;
+      closeExportMenu();
+      exportNotes(item.getAttribute('data-fmt'));
     });
-    syncExportMenu();
+    var notesAddImage = document.getElementById('notesAddImage');
+    var notesImageInput = document.getElementById('notesImageInput');
+    if (notesAddImage && notesImageInput) {
+      notesAddImage.addEventListener('click', function () { notesImageInput.click(); });
+      notesImageInput.addEventListener('change', function () {
+        addNotesImageFiles(notesImageInput.files);
+        notesImageInput.value = '';
+      });
+    }
+    // paste an image straight into the note text area
+    var notesAreaEl = document.getElementById('notesArea');
+    if (notesAreaEl) notesAreaEl.addEventListener('paste', function (e) {
+      var items = (e.clipboardData && e.clipboardData.items) || [];
+      var imgs = [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type && items[i].type.indexOf('image/') === 0) {
+          var f = items[i].getAsFile(); if (f) imgs.push(f);
+        }
+      }
+      if (imgs.length) { e.preventDefault(); addNotesImageFiles(imgs); }
+    });
+    // close the export menu on outside click
+    document.addEventListener('click', function (e) {
+      var menu = document.getElementById('notesExportMenu');
+      if (menu && menu.classList.contains('open') && !e.target.closest('.notes-exportwrap')) closeExportMenu();
+    });
     var notesClear = document.getElementById('notesClear');
     if (notesClear) notesClear.addEventListener('click', clearScopeNotes);
 
@@ -2609,8 +2747,939 @@ function resetQuiz() {
       submitQuiz: submitQuiz
   });
 
-  CEH.init({ sections: ["overview", "architecture", "owasp", "injection-xss", "access-auth", "tools", "countermeasures", "quiz"], onReady: moduleReady });
+  CEH.init({ sections: ["overview", "architecture", "owasp", "injection-xss", "access-auth", "tools", "countermeasures", "lab", "quiz"], onReady: moduleReady });
 })();
+</script>
+
+<script>
+/* ============================================================
+   CEH LAB KIT  v1.2  — portable interactive components
+   ------------------------------------------------------------
+   Two data-driven widgets that mount themselves into any module
+   built on the CEH chassis:
+
+     <div class="labkit" data-labkit="builder"></div>   (alias: "dorks")
+     <div class="labkit" data-labkit="terminal"></div>
+
+   v1.1 generalised the builder from search operators to any composed
+   command: operators can be text fields, dropdowns, or bare toggles, and
+   emit either "key:value" (dorks) or "-flag value" (nmap, sqlmap, hydra…).
+   Rules may return result cards, raw terminal output, or both.
+
+   The engine below is IDENTICAL in every module. Only
+   window.CEH_LAB_CONFIG changes — swap the config and the same
+   code runs a scanning lab, an enumeration lab, a SQLi lab, etc.
+
+   CSP-safe: every handler bound with addEventListener, no eval,
+   no inline attributes, no network access. Progress persists via
+   the chassis (CEH.getState / CEH.setState) when it is present.
+   ============================================================ */
+var CEHLabKit = (function () {
+  'use strict';
+
+  var CFG = {};
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function el(html) {
+    var d = document.createElement('div');
+    d.innerHTML = html;
+    return d.firstElementChild;
+  }
+  function notify(msg, kind) {
+    if (window.CEH && typeof CEH.notify === 'function') CEH.notify(msg, kind);
+  }
+  function announce(msg) {
+    if (window.CEH && typeof CEH.announce === 'function') CEH.announce(msg);
+  }
+  function stateGet(key, fallback) {
+    if (window.CEH && typeof CEH.getState === 'function') {
+      var s = CEH.getState() || {};
+      return typeof s[key] === 'undefined' ? fallback : s[key];
+    }
+    return fallback;
+  }
+  function stateSet(key, value) {
+    if (window.CEH && typeof CEH.setState === 'function') {
+      var patch = {};
+      patch[key] = value;
+      CEH.setState(patch);
+    }
+  }
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        notify('Copied to clipboard.');
+      }, function () {
+        notify('Copy failed — select the text and copy manually.', 'warning');
+      });
+    } else {
+      notify('Clipboard unavailable here — select the text and copy manually.', 'warning');
+    }
+  }
+
+  /* ============================================================
+     WIDGET 1 — SEARCH OPERATOR (DORK) BUILDER
+     ============================================================ */
+  function mountDorks(root, cfg) {
+    if (!cfg) return;
+    var ops = cfg.operators || [];
+    var solved = stateGet('dorksSolved', []) || [];
+    var activeChallenge = null;
+
+    var opFields = ops.map(function (op, i) {
+      var id = 'lk-op-' + i;
+      var control;
+      if (op.type === 'toggle') {
+        // The checkbox IS the control; a hidden field keeps parse() uniform.
+        control = '<input type="hidden" data-opvalue="' + esc(op.key) + '" value="on">';
+      } else if (op.type === 'select') {
+        control =
+          '<label class="labkit-field">' +
+            '<span class="visually-hidden">Value for ' + esc(op.label) + '</span>' +
+            '<select class="labkit-text" data-opvalue="' + esc(op.key) + '">' +
+              // Without an explicit default the first choice would be pre-selected and
+              // silently applied the moment the operator is switched on.
+              (op.value ? '' : '<option value="">' + esc(op.placeholder || '— choose —') + '</option>') +
+              (op.choices || []).map(function (c) {
+                return '<option value="' + esc(c.v) + '"' +
+                  (c.v === op.value ? ' selected' : '') + '>' + esc(c.t || c.v) + '</option>';
+              }).join('') +
+            '</select>' +
+          '</label>';
+      } else {
+        control =
+          '<label class="labkit-field">' +
+            '<span class="visually-hidden">Value for ' + esc(op.label) + '</span>' +
+            '<input type="text" class="labkit-text" data-opvalue="' + esc(op.key) + '" ' +
+              'placeholder="' + esc(op.placeholder || '') + '" value="' + esc(op.value || '') + '">' +
+          '</label>';
+      }
+      return '' +
+        '<div class="labkit-op" data-op="' + esc(op.key) + '" data-optype="' + esc(op.type || 'text') + '">' +
+          '<div class="labkit-op__top">' +
+            '<input type="checkbox" id="' + id + '"' + (op.on ? ' checked' : '') + '>' +
+            '<label for="' + id + '">' + esc(op.label) + '</label>' +
+          '</div>' +
+          (op.hint ? '<span class="labkit-op__hint">' + esc(op.hint) + '</span>' : '') +
+          control +
+        '</div>';
+    }).join('');
+
+    root.innerHTML = '' +
+      '<div class="labkit__head">' +
+        '<h3 class="labkit__title">🔎 ' + esc(cfg.title) + '</h3>' +
+        '<span class="labkit__badge">SIMULATED</span>' +
+      '</div>' +
+      '<p class="labkit__intro">' + cfg.intro + '</p>' +
+      (cfg.message ? (
+        '<div class="labkit-msg">' +
+          '<div class="labkit-msg__row"><span class="labkit-msg__k">From:</span> ' + esc(cfg.message.from) + '</div>' +
+          '<div class="labkit-msg__row"><span class="labkit-msg__k">Subject:</span> ' + esc(cfg.message.subject) + '</div>' +
+          '<div class="labkit-msg__body">' + esc(cfg.message.body) + '</div>' +
+        '</div>'
+      ) : '') +
+      '<div class="labkit__cols">' +
+        '<div>' +
+          '<p class="labkit__sub" id="dorkOpsLabel">' + esc(cfg.opsLabel || 'Operators') + '</p>' +
+          '<div class="labkit-ops" role="group" aria-labelledby="dorkOpsLabel">' + opFields + '</div>' +
+          '<p class="labkit__sub">' + esc(cfg.assembledLabel || 'Assembled query') + '</p>' +
+          '<div class="labkit-query labkit-query--empty" id="dorkQuery" role="status" aria-live="polite">' +
+            esc(cfg.emptyQuery || 'Select an operator to build a query.') +
+          '</div>' +
+          '<div class="labkit-actions">' +
+            '<button type="button" class="btn btn-success" data-dork="run">' + esc(cfg.runLabel || 'Run search (simulated)') + '</button>' +
+            '<button type="button" class="btn" data-dork="copy">' + esc(cfg.copyLabel || 'Copy query') + '</button>' +
+            '<button type="button" class="btn btn-warning" data-dork="reset">Clear</button>' +
+          '</div>' +
+          '<div id="dorkResults" aria-live="polite"></div>' +
+        '</div>' +
+        '<div>' +
+          '<p class="labkit__sub" id="dorkChalLabel">Challenges</p>' +
+          '<div class="labkit-challenges" role="group" aria-labelledby="dorkChalLabel" id="dorkChallenges"></div>' +
+          '<p class="labkit-count" id="dorkCount"></p>' +
+          '<div id="dorkFeedback"></div>' +
+        '</div>' +
+      '</div>';
+
+    var qOut = root.querySelector('#dorkQuery');
+    var resultsOut = root.querySelector('#dorkResults');
+    var chalOut = root.querySelector('#dorkChallenges');
+    var fbOut = root.querySelector('#dorkFeedback');
+    var countOut = root.querySelector('#dorkCount');
+
+    function parse() {
+      var p = {};
+      root.querySelectorAll('.labkit-op').forEach(function (box) {
+        var key = box.getAttribute('data-op');
+        var on = box.querySelector('input[type="checkbox"]').checked;
+        var val = (box.querySelector('[data-opvalue]').value || '').trim();
+        box.classList.toggle('on', on);
+        p[key] = on ? val : '';
+      });
+      return p;
+    }
+
+    function buildQuery(p) {
+      var head = cfg.prefix ? [cfg.prefix] : [];
+      // Operators emit in config order, except those with order:'last' (a bare
+      // target that must trail the flags). Everything else keeps its position.
+      var body = [], tail = [];
+      ops.forEach(function (op) {
+        var v = p[op.key];
+        if (!v) return;
+        var token;
+        if (op.type === 'toggle') token = (op.flag || op.key);
+        else if (op.bare) token = v;
+        else if (op.flag) token = op.flag + (op.flagJoin === '' ? '' : ' ') + v;
+        else if (op.key === 'kw') token = v;
+        else { if (/\s/.test(v) && op.quote !== false) v = '"' + v + '"'; token = op.key + ':' + v; }
+        (op.order === 'last' ? tail : body).push(token);
+      });
+      var parts = head.concat(body, tail);
+      // A lone prefix is not a command worth running.
+      return (cfg.prefix && parts.length === head.length) ? '' : parts.join(' ');
+    }
+
+    function render() {
+      var q = buildQuery(parse());
+      qOut.textContent = q || (cfg.emptyQuery || 'Select an operator to build a query.');
+      qOut.classList.toggle('labkit-query--empty', !q);
+      return q;
+    }
+
+    function fileExt(p) {
+      return (p.filetype || p.ext || '').toLowerCase().replace(/^\./, '');
+    }
+
+    /* Generic matcher. A match/requires entry maps an operator key to:
+         true      operator must be set
+         false     operator must NOT be set
+         [a, b]    value must equal one of these
+         'text'    value must contain this substring
+       Plus three dork-specific helpers kept for module 2:
+         noSite / noFile (negations) and fileext (filetype OR ext). */
+    function specMatches(m, p) {
+      if (!m) return true;
+      if (m.noSite && p.site) return false;
+      if (m.noFile && fileExt(p)) return false;
+      if (m.fileext && m.fileext.indexOf(fileExt(p)) === -1) return false;
+      for (var k in m) {
+        if (!Object.prototype.hasOwnProperty.call(m, k)) continue;
+        if (k === 'noSite' || k === 'noFile' || k === 'fileext') continue;
+        var want = m[k], got = String(p[k] == null ? '' : p[k]).toLowerCase();
+        if (want === true) { if (!got) return false; }
+        else if (want === false) { if (got) return false; }
+        else if (Object.prototype.toString.call(want) === '[object Array]') {
+          var hit = want.some(function (w) { return got === String(w).toLowerCase(); });
+          if (!hit) return false;
+        } else if (got.indexOf(String(want).toLowerCase()) === -1) return false;
+      }
+      return true;
+    }
+    function ruleMatches(rule, p) { return specMatches(rule.match, p); }
+
+    function renderResults(rule, q) {
+      if (!rule) {
+        resultsOut.innerHTML = '<div class="labkit-empty">' +
+          esc(cfg.noResults || 'No simulated results for that combination. Try adding site: plus a filetype, inurl, or intitle operator.') +
+          '</div>';
+        return;
+      }
+      var block = rule.output
+        ? '<div class="labkit-out" tabindex="0" role="region" aria-label="Simulated output">' +
+            esc(rule.output.join('\n')) + '</div>'
+        : '';
+      var cards = (rule.results || []).map(function (r) {
+        return '<div class="labkit-result">' +
+          '<div class="labkit-result__title">' + esc(r.title) + '</div>' +
+          '<div class="labkit-result__url">' + esc(r.url) + '</div>' +
+          '<p class="labkit-result__snip">' + esc(r.snippet) + '</p>' +
+          (r.risk ? '<p class="labkit-result__risk">⚠️ ' + esc(r.risk) + '</p>' : '') +
+        '</div>';
+      }).join('');
+      resultsOut.innerHTML =
+        '<p class="labkit__sub">' + esc(cfg.resultsLabel || 'Simulated results for') + ' <code>' + esc(q) + '</code></p>' +
+        block +
+        (cards ? '<div class="labkit-results">' + cards + '</div>' : '') +
+        (rule.note ? '<div class="labkit-note">' + rule.note + '</div>' : '');
+    }
+
+    function renderChallenges() {
+      chalOut.innerHTML = (cfg.challenges || []).map(function (c) {
+        var done = solved.indexOf(c.id) !== -1;
+        return '<button type="button" class="labkit-chal' + (done ? ' solved' : '') + '" ' +
+          'data-chal="' + esc(c.id) + '" aria-pressed="' + (activeChallenge === c.id) + '">' +
+          '<span class="labkit-chal__mark" aria-hidden="true">' + (done ? '✓' : '·') + '</span>' +
+          '<span>' + (done ? '<span class="visually-hidden">Solved. </span>' : '') + esc(c.prompt) + '</span>' +
+        '</button>';
+      }).join('');
+      countOut.textContent = solved.length + ' of ' + (cfg.challenges || []).length + ' challenges solved';
+    }
+
+    function challengeMet(c, p) { return specMatches(c.requires, p); }
+
+    function run() {
+      var p = parse();
+      var q = render();
+
+      var blank = [];
+      root.querySelectorAll('.labkit-op').forEach(function (box) {
+        if (box.getAttribute('data-optype') === 'toggle') return;
+        var on = box.querySelector('input[type="checkbox"]').checked;
+        var v = (box.querySelector('[data-opvalue]').value || '').trim();
+        if (on && !v) blank.push(box.getAttribute('data-op'));
+      });
+
+      if (!q) {
+        resultsOut.innerHTML = '<div class="labkit-empty">Nothing to search yet. Type a value into one of the operator ' +
+          'fields above — <code>site:</code> with the target domain is the usual starting point — then run it again.</div>';
+        return;
+      }
+      if (blank.length) {
+        resultsOut.innerHTML = '<div class="labkit-empty">' +
+          (blank.length === 1 ? 'The operator <code>' + esc(blank[0]) + ':</code> is switched on but has no value, so it was left out of the query.'
+                              : 'Some operators are switched on with no value, so they were left out of the query.') +
+          ' Fill it in or switch it off.</div>';
+      }
+      var rule = null;
+      (cfg.rules || []).some(function (r) {
+        if (ruleMatches(r, p)) { rule = r; return true; }
+        return false;
+      });
+      if (!blank.length) renderResults(rule, q);
+
+      if (activeChallenge) {
+        var c = (cfg.challenges || []).filter(function (x) { return x.id === activeChallenge; })[0];
+        if (c && challengeMet(c, p)) {
+          if (solved.indexOf(c.id) === -1) {
+            solved.push(c.id);
+            stateSet('dorksSolved', solved);
+            notify('Challenge solved: ' + c.short);
+          }
+          fbOut.innerHTML = '<div class="labkit-feedback labkit-feedback--ok"><strong>✓ Solved.</strong> ' + c.explain + '</div>';
+          renderChallenges();
+        } else if (c) {
+          fbOut.innerHTML = '<div class="labkit-feedback labkit-feedback--no"><strong>Not yet.</strong> ' + c.hint + '</div>';
+        }
+      }
+      announce('Simulated search complete.');
+    }
+
+    root.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-dork]');
+      if (btn) {
+        var what = btn.getAttribute('data-dork');
+        if (what === 'run') run();
+        if (what === 'copy') copyText(buildQuery(parse()));
+        if (what === 'reset') {
+          root.querySelectorAll('.labkit-op').forEach(function (box, i) {
+            var def = ops[i] || {};
+            var val = box.querySelector('[data-opvalue]');
+            if (val && def.type !== 'toggle') val.value = def.value || '';
+            box.querySelector('input[type="checkbox"]').checked = !!def.on;
+          });
+          resultsOut.innerHTML = '';
+          fbOut.innerHTML = '';
+          render();
+        }
+        return;
+      }
+      var chal = e.target.closest('[data-chal]');
+      if (chal) {
+        var id = chal.getAttribute('data-chal');
+        activeChallenge = (activeChallenge === id) ? null : id;
+        var c = (cfg.challenges || []).filter(function (x) { return x.id === id; })[0];
+        renderChallenges();
+        fbOut.innerHTML = activeChallenge && c
+          ? '<div class="labkit-feedback labkit-feedback--no"><strong>Goal:</strong> ' + esc(c.goal) + '</div>'
+          : '';
+      }
+    });
+
+    // Typing into an operator's value field turns that operator on, and emptying
+    // it turns it back off. Requiring a separate checkbox click made the builder
+    // look broken: you typed a value, pressed Run, and nothing happened.
+    root.addEventListener('input', function (e) {
+      if (e.target.matches('[data-opvalue]')) {
+        var box = e.target.closest('.labkit-op');
+        if (box) box.querySelector('input[type="checkbox"]').checked = !!e.target.value.trim();
+      }
+      render();
+    });
+
+    root.addEventListener('change', function (e) {
+      if (e.target.matches('select[data-opvalue]')) {
+        var sbox = e.target.closest('.labkit-op');
+        if (sbox) sbox.querySelector('input[type="checkbox"]').checked = !!e.target.value;
+      }
+      if (e.target.matches('.labkit-op input[type="checkbox"]') && e.target.checked) {
+        var box = e.target.closest('.labkit-op');
+        var val = box && box.querySelector('[data-opvalue]');
+        if (val && !val.value.trim()) val.focus();
+      }
+      render();
+    });
+    root.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && e.target.matches('[data-opvalue]')) { e.preventDefault(); run(); }
+    });
+
+    renderChallenges();
+    render();
+  }
+
+  /* ============================================================
+     WIDGET 2 — SIMULATED RECON TERMINAL
+     ============================================================ */
+  function mountTerminal(root, cfg) {
+    if (!cfg) return;
+    var done = stateGet('labObjectives', []) || [];
+    var history = [];
+    var histPos = -1;
+
+    root.innerHTML = '' +
+      '<div class="labkit__head">' +
+        '<h3 class="labkit__title">🖥️ ' + esc(cfg.title) + '</h3>' +
+        '<span class="labkit__badge">SIMULATED · NO PACKETS SENT</span>' +
+      '</div>' +
+      '<p class="labkit__intro">' + cfg.intro + '</p>' +
+      '<div class="labkit__cols">' +
+        '<div>' +
+          '<div class="labkit-term" id="termOut" role="log" aria-live="polite" aria-label="Terminal output" tabindex="0"></div>' +
+          '<div class="labkit-inputrow">' +
+            '<label class="visually-hidden" for="termInput">Command</label>' +
+            '<input type="text" class="labkit-text" id="termInput" autocomplete="off" autocapitalize="off" ' +
+              'spellcheck="false" placeholder="type a command, or help">' +
+            '<button type="button" class="btn btn-success" data-term="run">Run</button>' +
+          '</div>' +
+          '<div class="labkit-suggest" id="termSuggest"></div>' +
+        '</div>' +
+        '<div>' +
+          '<p class="labkit__sub" id="termObjLabel">Objectives</p>' +
+          '<ul class="labkit-obj" id="termObjectives" aria-labelledby="termObjLabel"></ul>' +
+          '<p class="labkit-count" id="termCount"></p>' +
+          '<div class="labkit-actions">' +
+            '<button type="button" class="btn" data-term="findings">Show findings</button>' +
+            '<button type="button" class="btn btn-warning" data-term="reset">Reset lab</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    var out = root.querySelector('#termOut');
+    var input = root.querySelector('#termInput');
+    var objOut = root.querySelector('#termObjectives');
+    var countOut = root.querySelector('#termCount');
+
+    root.querySelector('#termSuggest').innerHTML = (cfg.suggest || []).map(function (s) {
+      return '<button type="button" data-cmd="' + esc(s) + '">' + esc(s) + '</button>';
+    }).join('');
+
+    function line(text, cls) {
+      var p = document.createElement('p');
+      p.className = 'labkit-term__line' + (cls ? ' ' + cls : '');
+      p.textContent = text;
+      out.appendChild(p);
+    }
+    function lineHTML(html, cls) {
+      var p = document.createElement('p');
+      p.className = 'labkit-term__line' + (cls ? ' ' + cls : '');
+      p.innerHTML = html;
+      out.appendChild(p);
+    }
+    function scrollEnd() { out.scrollTop = out.scrollHeight; }
+
+    function renderObjectives() {
+      objOut.innerHTML = (cfg.objectives || []).map(function (o) {
+        var ok = done.indexOf(o.id) !== -1;
+        return '<li class="' + (ok ? 'done' : '') + '">' +
+          '<span class="labkit-obj__box" aria-hidden="true">' + (ok ? '✓' : '☐') + '</span>' +
+          '<span>' + (ok ? '<span class="visually-hidden">Complete. </span>' : '<span class="visually-hidden">Incomplete. </span>') +
+          esc(o.label) + '</span></li>';
+      }).join('');
+      countOut.textContent = done.length + ' of ' + (cfg.objectives || []).length + ' objectives complete';
+    }
+
+    function markObjective(id) {
+      if (!id || done.indexOf(id) !== -1) return;
+      done.push(id);
+      stateSet('labObjectives', done);
+      renderObjectives();
+      var total = (cfg.objectives || []).length;
+      if (done.length === total) {
+        stateSet('labComplete', true);
+        notify('Recon lab complete — all ' + total + ' objectives met.');
+      } else {
+        notify('Objective complete (' + done.length + '/' + total + ').');
+      }
+    }
+
+    function findingsText() {
+      var lines = [cfg.findingsTitle || 'Reconnaissance findings', ''];
+      (cfg.objectives || []).forEach(function (o) {
+        if (done.indexOf(o.id) !== -1 && o.finding) lines.push('• ' + o.finding);
+      });
+      if (lines.length === 2) lines.push('(No findings yet — run some commands.)');
+      return lines.join('\n');
+    }
+
+    function emit(cmd) {
+      lineHTML('<span class="labkit-term__echo">' + esc((cfg.prompt || '$ ') + cmd) + '</span>');
+
+      var raw = cmd.trim().replace(/\s+/g, ' ');
+      if (!raw) { scrollEnd(); return; }
+
+      if (/^clear$/i.test(raw)) { out.innerHTML = ''; return; }
+      if (/^help$/i.test(raw)) {
+        (cfg.help || []).forEach(function (l) { line(l, 'labkit-term__muted'); });
+        scrollEnd(); return;
+      }
+      if (/^findings$/i.test(raw)) {
+        findingsText().split('\n').forEach(function (l) { line(l, 'labkit-term__wrap'); });
+        scrollEnd(); return;
+      }
+
+      var hit = null;
+      (cfg.commands || []).some(function (c) {
+        if (c.re.test(raw)) { hit = c; return true; }
+        return false;
+      });
+
+      if (!hit) {
+        line(cfg.unknown || ('command not found: ' + raw.split(' ')[0]), 'labkit-term__err labkit-term__wrap');
+        line('Type "help" to list the commands this lab simulates.', 'labkit-term__muted labkit-term__wrap');
+        scrollEnd(); return;
+      }
+
+      // Default vocabulary is passive/active (recon). Modules can supply their own
+      // axis via cfg.tags, e.g. { quiet: {text:'LOW NOISE'}, loud: {text:'NOISY', cls:'active'} }.
+      var tags = cfg.tags || { passive: { text: 'PASSIVE', cls: 'passive' }, active: { text: 'ACTIVE', cls: 'active' } };
+      var tag = tags[hit.mode] || { text: String(hit.mode || '').toUpperCase(), cls: 'active' };
+      var tagCls = 'labkit-tag--' + (tag.cls || 'active');
+      var tagTxt = tag.text;
+      lineHTML('<span class="labkit-tag ' + tagCls + '">' + tagTxt + '</span>' +
+               '<span class="labkit-term__why">' + esc(hit.why) + '</span>');
+      (hit.out || []).forEach(function (l) { line(l); });
+      if (hit.note) lineHTML('<span class="labkit-term__muted">' + esc('→ ' + hit.note) + '</span>', 'labkit-term__wrap');
+      var objs = hit.obj == null ? [] : (Object.prototype.toString.call(hit.obj) === '[object Array]' ? hit.obj : [hit.obj]);
+      objs.forEach(markObjective);
+      scrollEnd();
+    }
+
+    function submit() {
+      var v = input.value;
+      if (!v.trim()) return;
+      history.push(v);
+      histPos = history.length;
+      input.value = '';
+      emit(v);
+    }
+
+    root.addEventListener('click', function (e) {
+      var chip = e.target.closest('[data-cmd]');
+      if (chip) { input.value = chip.getAttribute('data-cmd'); input.focus(); return; }
+      var btn = e.target.closest('[data-term]');
+      if (!btn) return;
+      var what = btn.getAttribute('data-term');
+      if (what === 'run') submit();
+      if (what === 'findings') {
+        var txt = findingsText();
+        txt.split('\n').forEach(function (l) { line(l, 'labkit-term__wrap'); });
+        scrollEnd();
+        copyText(txt);
+      }
+      if (what === 'reset') {
+        done = [];
+        stateSet('labObjectives', []);
+        stateSet('labComplete', false);
+        out.innerHTML = '';
+        (cfg.banner || []).forEach(function (l) { line(l, 'labkit-term__muted labkit-term__wrap'); });
+        renderObjectives();
+        notify('Lab reset.', 'warning');
+      }
+    });
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); submit(); return; }
+      if (e.key === 'ArrowUp' && history.length) {
+        e.preventDefault();
+        histPos = Math.max(0, histPos - 1);
+        input.value = history[histPos] || '';
+      }
+      if (e.key === 'ArrowDown' && history.length) {
+        e.preventDefault();
+        histPos = Math.min(history.length, histPos + 1);
+        input.value = history[histPos] || '';
+      }
+    });
+
+    (cfg.banner || []).forEach(function (l) { line(l, 'labkit-term__muted labkit-term__wrap'); });
+    renderObjectives();
+  }
+
+  /* ---------- mount ---------- */
+  function init(config) {
+    CFG = config || window.CEH_LAB_CONFIG || {};
+    document.querySelectorAll('[data-labkit]').forEach(function (root) {
+      var kind = root.getAttribute('data-labkit');
+      try {
+        if (kind === 'dorks' || kind === 'builder') mountDorks(root, CFG.builder || CFG.dorks);
+        else if (kind === 'terminal') mountTerminal(root, CFG.terminal);
+      } catch (err) {
+        console.error('[LabKit] mount failed for "' + kind + '":', err);
+        root.innerHTML = '<p class="labkit__intro">This interactive component could not load. ' +
+          'The surrounding material stands on its own — see the browser console for details.</p>';
+      }
+    });
+  }
+
+  return { init: init };
+})();
+
+/* ============================================================
+   MODULE 14 LAB DATA — Hacking Web Applications
+   ------------------------------------------------------------
+   A DEFENDER'S lab. Targets the web APPLICATION (its logic), not
+   the server. Framed for defence: classify a request by the
+   vulnerability class it exploits and its fix, then triage the
+   OWASP-style findings from the analyst console. No runnable
+   exploits \u2014 payloads are shown illustratively and defanged, with
+   the countermeasure on every note.
+
+   Continues the Acme scenario: AcmeCMS on the acme web host. The
+   organizing idea: injection = failure to separate code from data;
+   access control = never trust the client. RFC 5737 addresses.
+   ============================================================ */
+window.CEH_LAB_CONFIG = {
+
+  /* ---------------- WIDGET 1: web app vulnerability analyzer ---------------- */
+  builder: {
+    title: 'Web App Vulnerability Analyzer',
+    assembledLabel: 'Selected vulnerability',
+    runLabel: 'Analyze request',
+    copyLabel: 'Copy',
+    resultsLabel: 'Analysis of',
+    intro: 'A request hit the AcmeCMS application. Classify the vulnerability class it targets: pick the type, and the analyzer shows the ' +
+           'pattern, its root cause, and the fix. Choosing a value switches it on. The challenge asks you to identify a class from its ' +
+           'behaviour. The unifying ideas: injection is a failure to separate code from data; access control is a failure to distrust the client.',
+    emptyQuery: 'Choose a vulnerability class to analyze.',
+    noResults: 'No analysis for that combination. This lab models the OWASP-style classes from the module \u2014 try SQL injection, XSS, command injection, IDOR, or SSRF.',
+
+    operators: [
+      { key: 'vuln', label: 'Vulnerability class', type: 'select', bare: true, on: true, value: 'sqli',
+        hint: 'The web-app flaw in play.',
+        choices: [
+          { v: 'sqli', t: 'SQL injection       untrusted data reaches the database' },
+          { v: 'xss', t: 'Cross-site scripting injected JS runs in other users\u2019 browsers' },
+          { v: 'cmdi', t: 'Command injection    untrusted data reaches the OS shell' },
+          { v: 'idor', t: 'IDOR                 reach another user\u2019s object by ID' },
+          { v: 'ssrf', t: 'SSRF                 make the server request internal systems' },
+          { v: 'privesc', t: 'Privilege escalation reach admin functions as a normal user' }
+        ] },
+      { key: 'xsstype', label: 'XSS form', type: 'select', bare: false, flag: '--form',
+        hint: 'Which XSS variant (XSS only).',
+        choices: [
+          { v: '', t: '(not applicable)' },
+          { v: 'stored', t: 'Stored (persistent)' },
+          { v: 'reflected', t: 'Reflected (via a link)' },
+          { v: 'dom', t: 'DOM-based (client-side)' }
+        ] },
+      { key: 'target', label: 'Target', type: 'text', bare: true, on: true, order: 'last',
+        hint: 'The AcmeCMS app on the acme web host.', placeholder: '198.51.100.20/app', value: '198.51.100.20/app' }
+    ],
+
+    challenges: [
+      {
+        id: 'injection', short: 'Code vs data',
+        prompt: 'A search box sends user input straight into a database query. Identify the class \u2014 and its root cause.',
+        goal: 'Select SQL injection.',
+        hint: 'Untrusted data reaching a database interpreter as part of the query is SQL injection \u2014 a failure to separate code from data.',
+        explain: 'Correct \u2014 SQL injection is the database member of the injection family. The root cause is universal: the app sends untrusted data to an interpreter that cannot tell the attacker\u2019s data from the developer\u2019s code. The fix is parameterized queries (prepared statements), which keep code and data in separate channels so input can never be executed as query structure.',
+        requires: { vuln: ['sqli'] }
+      },
+      {
+        id: 'clienttrust', short: 'Never trust the client',
+        prompt: 'A user changes ?id=1001 to ?id=1002 and reads another user\u2019s record. Identify the class.',
+        goal: 'Select IDOR.',
+        hint: 'Reaching another user\u2019s object just by changing an ID is IDOR \u2014 the server trusted the client to stay in bounds instead of enforcing them.',
+        explain: 'Right \u2014 IDOR (insecure direct object reference) is broken access control: the server exposed an object by ID and trusted the client not to change it. Unlike injection, this cannot be found by pattern-matching \u2014 only by knowing what the rules should be. The fix is server-side authorization on every request: verify ownership and role before returning the object, deny by default.',
+        requires: { vuln: ['idor'] }
+      },
+      {
+        id: 'browservictim', short: 'Attack the other users',
+        prompt: 'Injected JavaScript runs in the browsers of everyone who views a page. Identify the class.',
+        goal: 'Select cross-site scripting.',
+        hint: 'Malicious JavaScript executing in other users\u2019 browsers \u2014 stealing their sessions \u2014 is cross-site scripting (XSS).',
+        explain: 'Correct \u2014 XSS is injection where the interpreter is the browser and the target is the application\u2019s other users, not the server. The injected script runs with the victim\u2019s session (tying to Module 11\u2019s session theft). The fix is context-appropriate output encoding so user data renders as inert text, reinforced by a Content-Security-Policy and the HttpOnly cookie flag.',
+        requires: { vuln: ['xss'] }
+      }
+    ],
+
+    rules: [
+      {
+        match: { vuln: ['sqli'] },
+        output: [
+          'VULN \u2014 SQL injection (injection family; OWASP A03)',
+          "  Pattern : search=acme' OR '1'='1     (input alters the query structure)",
+          '  Root cause: untrusted data sent to the DB interpreter \u2014 code/data not separated',
+          '  Interpreter: the database',
+          '  Fix     : parameterized queries / prepared statements; least-privilege DB account',
+          ''
+        ],
+        note: '<strong>SQL injection is one member of the injection family \u2014 same root cause, different interpreter.</strong> The app hands the database attacker data it executes as query structure. <strong>Defence:</strong> parameterized queries keep code and data in separate channels so input can never become query logic; add a least-privilege DB account so even a successful injection is contained. AcmeCMS 4.2\u2019s SQLi flagged in Module 5 is exactly this.'
+      },
+      {
+        match: { vuln: ['xss'], xsstype: ['stored'] },
+        output: [
+          'VULN \u2014 stored (persistent) XSS',
+          '  Pattern : a comment/profile field stores <script>\u2026<\/script>; it runs for every viewer',
+          '  Target  : the application\u2019s other users (runs with their session)',
+          '  Fix     : output-encode on render; Content-Security-Policy; HttpOnly cookies',
+          ''
+        ],
+        note: '<strong>Stored XSS is the most dangerous form: the payload is saved and runs for every user who views it, no lure needed.</strong> It runs with the victim\u2019s session \u2014 the direct link to Module 11\u2019s session theft. <strong>Defence:</strong> context-appropriate output encoding renders stored input as inert text; CSP limits what injected script can do; HttpOnly keeps the session cookie out of JavaScript\u2019s reach.'
+      },
+      {
+        match: { vuln: ['xss'], xsstype: ['reflected'] },
+        output: [
+          'VULN \u2014 reflected XSS',
+          '  Pattern : a search query is echoed into the response unencoded; runs when the victim clicks a crafted link',
+          '  Fix     : output-encode the reflected value; CSP; HttpOnly cookies',
+          ''
+        ],
+        note: '<strong>Reflected XSS bounces off a single request \u2014 the classic case is a search page echoing the query unencoded.</strong> It needs a lure (a crafted link). <strong>Defence:</strong> encode user data for the exact context it is rendered in so <code>&lt;script&gt;</code> becomes inert text, backed by CSP. The example in the module \u2014 a search box reflecting <code>&lt;script&gt;</code> \u2014 is this class.'
+      },
+      {
+        match: { vuln: ['xss'], xsstype: ['dom'] },
+        output: [
+          'VULN \u2014 DOM-based XSS',
+          '  Pattern : client-side JS writes attacker-controlled input into the DOM; server never involved',
+          '  Fix     : safe DOM APIs (textContent, not innerHTML); encode in JS; CSP',
+          ''
+        ],
+        note: '<strong>DOM-based XSS is entirely client-side \u2014 the server never sees the payload.</strong> Vulnerable JavaScript writes attacker input into the page. Increasingly common in single-page apps. <strong>Defence:</strong> use safe DOM APIs (assign to <code>textContent</code>, never build HTML with <code>innerHTML</code> from input), encode in JavaScript, and apply CSP. Server-side fixes cannot help a flaw that lives only in the browser.'
+      },
+      {
+        match: { vuln: ['xss'], xsstype: [''] },
+        output: [
+          'VULN \u2014 cross-site scripting (choose a form)',
+          '  XSS injects JavaScript that runs in other users\u2019 browsers.',
+          '  Pick a form \u2014 stored, reflected, or DOM-based \u2014 to see how each works and is defended.',
+          ''
+        ],
+        note: 'XSS comes in three forms distinguished by where the flaw lives. Select stored, reflected, or DOM-based above to see the specific mechanism \u2014 all three share the same fix (output encoding + CSP + HttpOnly), applied at different points.'
+      },
+      {
+        match: { vuln: ['cmdi'] },
+        output: [
+          'VULN \u2014 command injection (injection family)',
+          '  Pattern : a diagnostic runs ping <input>; attacker submits 8.8.8.8; cat /etc/passwd',
+          '  Interpreter: the OS shell \u2014 yields direct execution on the server',
+          '  Fix     : never pass input to a shell; use safe APIs; strict input validation',
+          ''
+        ],
+        note: '<strong>Command injection is the injection family\u2019s most dangerous member: the interpreter is the OS shell, so success is direct code execution on the server \u2014 often a straight path to a web shell and full compromise.</strong> <strong>Defence:</strong> never pass untrusted input to a shell; use APIs that invoke the target program directly without a shell; validate strictly. Same root cause as SQLi and XSS \u2014 keep code and data apart.'
+      },
+      {
+        match: { vuln: ['idor'] },
+        output: [
+          'VULN \u2014 IDOR (broken access control; OWASP A01)',
+          '  Pattern : /account?id=1001 \u2192 change to id=1002 \u2192 read another user\u2019s data',
+          '  Root cause: the server trusts the client to stay in bounds (never trust the client)',
+          '  Fix     : server-side authorization on every request; verify ownership; deny by default',
+          ''
+        ],
+        note: '<strong>Broken access control is the most prevalent web risk \u2014 #1 in the OWASP Top 10 for 2021 and 2025.</strong> IDOR exposes an object by ID and trusts the client not to tamper. It cannot be pattern-matched \u2014 only understood against the app\u2019s rules. <strong>Defence:</strong> enforce authorization on the server for every request, verify ownership and role on every sensitive action, and deny by default.'
+      },
+      {
+        match: { vuln: ['ssrf'] },
+        output: [
+          'VULN \u2014 SSRF (server-side request forgery; access control in 2025 Top 10)',
+          '  Pattern : an app fetches a user-supplied URL \u2192 attacker points it at internal systems',
+          '  Payoff  : reach internal services or cloud metadata the attacker cannot reach directly',
+          '  Fix     : allowlist destinations; block internal ranges + metadata IP; validate URLs',
+          ''
+        ],
+        note: '<strong>SSRF tricks the server into being the attacker\u2019s proxy into the internal network \u2014 including cloud metadata endpoints that leak credentials.</strong> The 2025 Top 10 folds it into broken access control, because it is fundamentally an access failure. <strong>Defence:</strong> allowlist the destinations the server may fetch, block internal ranges and the cloud metadata IP, and validate the URL \u2014 never let user input choose an arbitrary internal target.'
+      },
+      {
+        match: { vuln: ['privesc'] },
+        output: [
+          'VULN \u2014 privilege escalation (vertical, broken access control)',
+          '  Pattern : a normal user reaches /admin functions the UI merely hid from them',
+          '  Root cause: authorization enforced in the UI, not on the server',
+          '  Fix     : check role on the server for every privileged action; deny by default',
+          ''
+        ],
+        note: '<strong>Vertical privilege escalation: a normal user performs admin actions because the server never re-checked their role.</strong> Hiding a button is not access control. <strong>Defence:</strong> every privileged action must verify the caller\u2019s role on the server, every time \u2014 authentication (who you are) and authorization (what you may do) are distinct, and a perfectly authenticated user can still be unauthorized.'
+      }
+    ]
+  },
+
+  /* ---------------- WIDGET 2: OWASP triage console ---------------- */
+  terminal: {
+    title: 'Web App Security Triage \u2014 AcmeCMS',
+    prompt: 'appsec@acme:~$ ',
+    intro: 'You are triaging the AcmeCMS application against the OWASP Top 10. Review each finding, its root cause, and its fix. Every ' +
+           'command runs in your browser and describes a class for review \u2014 payloads are illustrative and defanged. Type <code>help</code> for the ' +
+           'list, <code>findings</code> for the summary, or use the chips. Results are tagged ' +
+           '<span class="labkit-tag labkit-tag--active">INJECTION</span> (code/data failure) or ' +
+           '<span class="labkit-tag labkit-tag--passive">ACCESS</span> (trust-the-client failure).',
+    findingsTitle: 'WEB APP TRIAGE \u2014 OWASP findings and fixes',
+    unknown: 'no such item',
+
+    tags: {
+      inject: { text: 'INJECTION', cls: 'active'  },
+      access: { text: 'ACCESS',    cls: 'passive' }
+    },
+
+    banner: [
+      'Web app security triage \u2014 AcmeCMS. Review only; payloads defanged.',
+      'Two organizing ideas: INJECTION = failure to separate code from data;',
+      'ACCESS CONTROL = the server trusting the client instead of enforcing bounds.',
+      'Type "help" to begin.',
+      ''
+    ],
+
+    help: [
+      'Findings to review:',
+      '',
+      '  INJECTION FAMILY (code/data not separated)',
+      '    review sqli            untrusted data \u2192 database',
+      '    review xss             injected JS \u2192 other users\u2019 browsers',
+      '    review cmdi            untrusted data \u2192 OS shell',
+      '  BROKEN ACCESS CONTROL (never trust the client)',
+      '    review idor            reach another user\u2019s object by ID',
+      '    review ssrf            make the server request internal systems',
+      '    review authz           authorization enforced in the UI, not the server',
+      '',
+      '  defend                 the OWASP defence summary',
+      '  findings               print the triage report',
+      '  clear                  clear the screen',
+      ''
+    ],
+
+    suggest: [
+      'help',
+      'review sqli',
+      'review xss',
+      'review cmdi',
+      'review idor',
+      'review ssrf',
+      'defend'
+    ],
+
+    objectives: [
+      { id: 'sqli', label: 'Review SQL injection and its fix.',
+        finding: 'SQLi (A03): untrusted data reaches the DB interpreter. Fix: parameterized queries + least-privilege DB account.' },
+      { id: 'xss', label: 'Review XSS and its fix.',
+        finding: 'XSS: injected JS runs in other users\u2019 browsers with their session. Fix: output encoding + CSP + HttpOnly (ties to Module 11).' },
+      { id: 'cmdi', label: 'Review command injection and its fix.',
+        finding: 'Command injection: untrusted data reaches the OS shell \u2192 server code execution. Fix: safe APIs, no shell, strict validation.' },
+      { id: 'idor', label: 'Review IDOR and its fix.',
+        finding: 'IDOR (A01): reach another user\u2019s object by changing an ID. Fix: server-side authorization, verify ownership, deny by default.' },
+      { id: 'ssrf', label: 'Review SSRF and its fix.',
+        finding: 'SSRF: server fetches an attacker-chosen URL to internal systems/metadata. Fix: allowlist destinations, block internal ranges + metadata IP.' },
+      { id: 'authz', label: 'Review authorization enforcement.',
+        finding: 'Vertical privesc: role checked in UI not server. Fix: enforce role on the server for every privileged action; authn \u2260 authz.' }
+    ],
+
+    commands: [
+      {
+        re: /^review\s+sqli$/i,
+        mode: 'inject', obj: 'sqli',
+        why: 'Reviewing an injection-family finding.',
+        out: [
+          'INJECTION \u2014 SQL injection (A03)',
+          "  Illustrative: search=acme' OR '1'='1  changes the query\u2019s meaning (defanged).",
+          '  Interpreter : the database. Root cause: code and data not separated.',
+          ''
+        ],
+        note: 'FIX: parameterized queries / prepared statements keep the developer\u2019s SQL and the user\u2019s data in separate channels, so input can never become query logic. Add a least-privilege DB account so a successful injection is contained. This is the AcmeCMS 4.2 SQLi that analysis flagged in Module 5.'
+      },
+      {
+        re: /^review\s+xss$/i,
+        mode: 'inject', obj: 'xss',
+        why: 'Reviewing an injection-family finding whose interpreter is the browser.',
+        out: [
+          'INJECTION \u2014 cross-site scripting',
+          '  Illustrative: an unencoded field renders <script> (defanged); it runs for viewers.',
+          '  Interpreter : the browser. Target: the application\u2019s other users.',
+          ''
+        ],
+        note: 'FIX: context-appropriate output encoding renders user data as inert text, backed by a Content-Security-Policy and the HttpOnly cookie flag from Module 11 (so injected script cannot read the session cookie). XSS is injection aimed at users rather than the server \u2014 same root cause, different victim.'
+      },
+      {
+        re: /^review\s+cmdi$/i,
+        mode: 'inject', obj: 'cmdi',
+        why: 'Reviewing the most dangerous injection variant.',
+        out: [
+          'INJECTION \u2014 command injection',
+          '  Illustrative: ping 8.8.8.8; cat /etc/passwd  (defanged) \u2014 shell executes both.',
+          '  Interpreter : the OS shell \u2192 direct server code execution.',
+          ''
+        ],
+        note: 'FIX: never pass untrusted input to a shell; use APIs that call the target program directly without a shell, and validate strictly. Command injection yields execution on the server \u2014 a common path to a web shell \u2014 which is why it is the injection family\u2019s worst case. Same fix philosophy as SQLi: keep code and data apart.'
+      },
+      {
+        re: /^review\s+idor$/i,
+        mode: 'access', obj: 'idor',
+        why: 'Reviewing a broken-access-control finding.',
+        out: [
+          'ACCESS \u2014 IDOR (A01, most prevalent web risk)',
+          '  Illustrative: /account?id=1001 \u2192 id=1002 returns another user\u2019s data.',
+          '  Root cause: the server trusted the client to stay in bounds.',
+          ''
+        ],
+        note: 'FIX: enforce authorization on the server for every request \u2014 verify the caller owns the object and has the role, deny by default. Broken access control is #1 in the OWASP Top 10 (2021 and 2025) and cannot be pattern-matched; it is found only by knowing the app\u2019s rules. "Never trust the client" is the whole lesson.'
+      },
+      {
+        re: /^review\s+ssrf$/i,
+        mode: 'access', obj: 'ssrf',
+        why: 'Reviewing an access-control finding (SSRF).',
+        out: [
+          'ACCESS \u2014 SSRF (folded into A01 in 2025)',
+          '  Illustrative: url=http://169.254.169.254/  \u2192 server fetches cloud metadata (defanged).',
+          '  Root cause: the server makes an attacker-chosen request as itself.',
+          ''
+        ],
+        note: 'FIX: allowlist the destinations the server may fetch, block internal IP ranges and the cloud metadata address, and validate the URL. SSRF turns the server into the attacker\u2019s proxy into the internal network \u2014 the 2025 Top 10 treats it as access control because that is exactly what it breaks.'
+      },
+      {
+        re: /^review\s+authz$/i,
+        mode: 'access', obj: 'authz',
+        why: 'Reviewing an authorization-enforcement finding.',
+        out: [
+          'ACCESS \u2014 vertical privilege escalation',
+          '  Illustrative: a normal user POSTs to /admin/deleteUser \u2014 the UI hid the button, the server allowed it.',
+          '  Root cause: authorization enforced in the UI, not on the server.',
+          ''
+        ],
+        note: 'FIX: check the caller\u2019s role on the server for every privileged action, every time; deny by default. Authentication (who you are) and authorization (what you may do) are distinct \u2014 a fully logged-in user can still be unauthorized \u2014 and hiding a control is never a substitute for enforcing the rule.'
+      },
+      {
+        re: /^defend$/i,
+        mode: 'access', obj: null,
+        why: 'The OWASP defence summary \u2014 the point of the module.',
+        out: [
+          'DEFENCE \u2014 web application security:',
+          '  Injection : separate code from data \u2014 parameterized queries (SQLi), output encoding',
+          '              + CSP + HttpOnly (XSS), safe no-shell APIs (command injection).',
+          '  Access    : never trust the client \u2014 server-side authorization on every request,',
+          '              verify ownership + role, deny by default (IDOR, SSRF, privesc).',
+          '  Both      : strict input validation, a WAF as defence-in-depth, security testing (DAST/SAST).',
+          ''
+        ],
+        note: 'Two root causes organize the whole OWASP landscape: injection is a failure to separate code from data, and broken access control is a failure to distrust the client. Injection flaws are found by pattern; access flaws only by understanding the rules. Get those two ideas and every variant becomes the same mistake in different clothes \u2014 which is the module\u2019s central claim.'
+      }
+    ]
+  }
+};
+
+CEHLabKit.init(window.CEH_LAB_CONFIG);
 </script>
 </body>
 </html>
