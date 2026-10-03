@@ -1038,6 +1038,61 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
   .labkit { break-inside: avoid; }
 }
 
+
+/* ---------- 23. THEME-SAFETY PATCH (Oct 2026) ----------
+   Fixes found by the light/dark audit. Shared by every module. */
+
+/* Violet tone for legacy purple callouts; footer/faint text darkened to meet 4.5:1. */
+:root { --violet: #b794f6; --text-faint: #7d8f9e; }
+[data-theme="light"] { --violet: #6d28d9; --text-faint: #5d6e7e; }
+
+/* Legacy variables referenced by older modules but never defined. */
+:root, [data-theme="light"] {
+  --gradient-primary: color-mix(in srgb, var(--cyan) 14%, var(--surface));
+  --gradient-success: color-mix(in srgb, var(--success) 14%, var(--surface));
+  --gradient-danger:  color-mix(in srgb, var(--danger) 14%, var(--surface));
+  --gradient-warning: color-mix(in srgb, var(--amber) 14%, var(--surface));
+  --database-color:   var(--violet);
+}
+
+/* Native controls (selects, checkboxes, scrollbars) follow the theme. */
+:root { color-scheme: dark; }
+[data-theme="light"] { color-scheme: light; }
+select:not([class]) {
+  font: inherit; color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--border-strong); border-radius: 6px;
+  padding: .35rem .5rem; min-height: 36px; max-width: 100%;
+}
+select:not([class]):focus-visible { outline: none; box-shadow: var(--ring); }
+
+/* Dark islands: code, terminal and simulated-output surfaces stay dark in the
+   light theme, so the text and accent colours inside them must stay dark-theme
+   colours too. Without this, terminal text was near-black on near-black. */
+@media screen {
+  [data-theme="light"] :is(.code-block, .terminal, .demo-output, .azure-output,
+      .gcp-output, .labkit-query, .labkit-out, .labkit-term) {
+    --text: #e8eef2; --text-muted: #9fb0bd; --text-faint: #8a9bab;
+    --accent: #35e05f; --accent-strong: #6dff96;
+    --accent-dim: rgba(53,224,95,.14); --accent-line: rgba(53,224,95,.34);
+    --cyan: #43d9d4; --amber: #f0b429; --danger: #ff6b6b; --success: #35e05f; --violet: #b794f6;
+    --surface: #141a20; --surface-2: #1b232b; --border: #26313b; --border-strong: #37444f;
+    --primary-color: var(--accent); --secondary-color: var(--cyan); --accent-color: var(--accent);
+    --success-color: var(--success); --warning-color: var(--amber); --danger-color: var(--danger);
+    --error-color: var(--danger); --text-light: var(--text-muted); --text-dark: var(--text);
+  }
+}
+
+/* Clickable non-button elements (quiz options, lab cards) get a visible focus ring. */
+[data-action][tabindex="0"]:focus-visible { outline: none; box-shadow: var(--ring); }
+
+/* Empty prompt lines in legacy terminals show a prompt instead of a blank gap. */
+.terminal-line.prompt:empty::before { content: "┌──(student㉿kali)-[~]"; }
+
+/* White on the dark-theme danger red was 2.8:1; use dark text there. */
+.btn-danger { color: #1a0505; }
+[data-theme="light"] .btn-danger { color: #fff; }
+/* Headings inside the accent-filled badge inherit its on-accent text colour. */
+.completion-badge :is(h1,h2,h3,h4,p), .certification-badge :is(h1,h2,h3,h4,p) { color: inherit; }
 </style>
 </head>
 <body>
@@ -2440,6 +2495,50 @@ var CEH = (function () {
     }) : [];
 
     document.addEventListener('click', onClick);
+    // CSP-safe dispatch for form controls: <select data-change="fnName">
+    function onControl(e) {
+      var attr = e.type === 'change' ? 'data-change' : 'data-input';
+      var c = el_closest(e.target, '[' + attr + ']');
+      if (!c) return;
+      var fn = actions[c.getAttribute(attr)];
+      if (typeof fn === 'function') {
+        try { fn.call(c, e); }
+        catch (err) { console.error('[CEH] ' + attr + ' handler failed:', err); }
+      } else {
+        console.warn('[CEH] no handler registered for ' + attr + ':', c.getAttribute(attr));
+      }
+    }
+    document.addEventListener('change', onControl);
+    document.addEventListener('input', onControl);
+    // Keyboard access: non-button [data-action] elements (quiz options, lab
+    // cards) become focusable buttons that respond to Enter and Space.
+    function enhanceActionables(root) {
+      (root || document).querySelectorAll('[data-action]').forEach(function (n) {
+        var tag = n.tagName.toLowerCase();
+        if (tag === 'button' || tag === 'a' || tag === 'input' || tag === 'select') return;
+        if (!n.hasAttribute('tabindex')) n.setAttribute('tabindex', '0');
+        if (!n.hasAttribute('role')) n.setAttribute('role', 'button');
+      });
+    }
+    enhanceActionables(document);
+    if (window.MutationObserver) {
+      var enhancePending = false;
+      new MutationObserver(function () {
+        if (enhancePending) return;
+        enhancePending = true;
+        (window.requestAnimationFrame || setTimeout)(function () { enhancePending = false; enhanceActionables(document); });
+      })
+        .observe(document.body, { childList: true, subtree: true });
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var n = e.target;
+      if (!n || !n.getAttribute || !n.hasAttribute('data-action')) return;
+      var tag = n.tagName.toLowerCase();
+      if (tag === 'button' || tag === 'a' || tag === 'input' || tag === 'select' || tag === 'textarea') return;
+      e.preventDefault();
+      n.click();
+    });
     document.addEventListener('keydown', onGlobalKey);
     var nav = document.querySelector('.navigation');
     if (nav) nav.addEventListener('keydown', onNavKey);
@@ -2523,8 +2622,37 @@ var CEH = (function () {
     if (typeof config.onReady === 'function') config.onReady();
   }
 
+  /* ---------- print one element (certificates) ----------
+     Prints just the given element through a hidden iframe, using this page's
+     own stylesheet in the light theme, so "Save as PDF" gives a clean page. */
+  function printElement(node, title) {
+    if (!node) { notify('Nothing to print yet.', 'warning'); return; }
+    var css = Array.prototype.map.call(document.querySelectorAll('head style'), function (s) {
+      return s.textContent;
+    }).join('\n');
+    var frame = document.createElement('iframe');
+    frame.setAttribute('aria-hidden', 'true');
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+    document.body.appendChild(frame);
+    var clone = node.cloneNode(true);
+    clone.style.display = 'block';
+    clone.querySelectorAll('button, .btn').forEach(function (b) { b.remove(); });
+    var d = frame.contentDocument;
+    d.open();
+    d.write('<!DOCTYPE html><html data-theme="light"><head><meta charset="utf-8"><title>' +
+      String(title || document.title).replace(/</g, '&lt;') + '</title><style>' + css +
+      ' body{background:#fff;padding:24px;} .matrix-bg{display:none}</style></head><body>' +
+      clone.outerHTML + '</body></html>');
+    d.close();
+    setTimeout(function () {
+      try { frame.contentWindow.focus(); frame.contentWindow.print(); }
+      catch (e) { notify('Printing is blocked in this browser. Use your browser\u2019s Print command instead.', 'warning'); }
+      setTimeout(function () { frame.remove(); }, 60000);
+    }, 250);
+  }
+
   return {
-    init: init, register: register,
+    init: init, register: register, printElement: printElement,
     showSection: showSection, step: step,
     openModal: openModal, showModal: showModal, closeModal: closeModal,
     notify: notify, announce: announce,
@@ -3053,20 +3181,26 @@ var CEHLabKit = (function () {
       });
       if (!blank.length) renderResults(rule, q);
 
-      if (activeChallenge) {
-        var c = (cfg.challenges || []).filter(function (x) { return x.id === activeChallenge; })[0];
-        if (c && challengeMet(c, p)) {
-          if (solved.indexOf(c.id) === -1) {
-            solved.push(c.id);
-            stateSet('dorksSolved', solved);
-            notify('Challenge solved: ' + c.short);
-          }
-          fbOut.innerHTML = '<div class="labkit-feedback labkit-feedback--ok"><strong>✓ Solved.</strong> ' + c.explain + '</div>';
-          renderChallenges();
-        } else if (c) {
-          fbOut.innerHTML = '<div class="labkit-feedback labkit-feedback--no"><strong>Not yet.</strong> ' + c.hint + '</div>';
-        }
+      // Credit every unsolved challenge this command satisfies, whether or not
+      // the student clicked that challenge first. Previously only the selected
+      // challenge could be solved, so a correct command run without selecting
+      // a challenge looked like it "didn't work".
+      var chals = cfg.challenges || [];
+      var newly = chals.filter(function (x) { return solved.indexOf(x.id) === -1 && challengeMet(x, p); });
+      newly.forEach(function (x) { solved.push(x.id); });
+      if (newly.length) {
+        stateSet('dorksSolved', solved);
+        notify('Challenge solved: ' + newly.map(function (x) { return x.short; }).join(', '));
       }
+      var c = activeChallenge ? chals.filter(function (x) { return x.id === activeChallenge; })[0] : null;
+      var show = (c && challengeMet(c, p)) ? c : (newly[0] || null);
+      if (show) {
+        fbOut.innerHTML = '<div class="labkit-feedback labkit-feedback--ok"><strong>✓ Solved' +
+          (show !== c && c ? ' a different challenge' : '') + ':</strong> ' + esc(show.short) + '. ' + show.explain + '</div>';
+      } else if (c) {
+        fbOut.innerHTML = '<div class="labkit-feedback labkit-feedback--no"><strong>Not yet.</strong> ' + c.hint + '</div>';
+      }
+      if (newly.length) renderChallenges();
       announce('Simulated search complete.');
     }
 
