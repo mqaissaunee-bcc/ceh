@@ -899,6 +899,37 @@ a.mod-card:focus-visible { border-color: var(--accent); }
 .study-aids { margin: 0 0 var(--sp-4); font-size: var(--fs-sm); color: var(--text-muted); }
 .study-aids a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-line); }
 .study-aids a:hover { border-bottom-color: var(--accent); }
+
+/* ---------- CAREER LANGUAGE (enrichment) ---------- */
+.career-map { margin-top: var(--sp-5); scroll-margin-top: 88px; }
+.career-map__badge {
+  display: inline-block; font-size: var(--fs-xs); font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--cyan); border: 1px solid currentColor;
+  border-radius: 999px; padding: .1rem .6rem; margin-bottom: var(--sp-2);
+}
+.career-map__scroll { overflow-x: auto; margin: var(--sp-3) 0; }
+.career-map table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); min-width: 520px; }
+.career-map th, .career-map td {
+  text-align: left; vertical-align: top; padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+.career-map thead th { color: var(--text); background: var(--surface-2); border-bottom: 2px solid var(--border-strong); }
+.career-map td:first-child { color: var(--text); width: 48%; }
+.career-map td:last-child { color: var(--text-muted); }
+.career-map td q { color: var(--text); quotes: "\201C" "\201D"; }
+.career-map__cert { border-left: 4px solid var(--accent); padding-left: var(--sp-3); margin-bottom: 0; }
+@media (max-width: 600px) {
+  .career-map table { min-width: 0; }
+  .career-map thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .career-map tr { display: block; border-bottom: 1px solid var(--border); padding: var(--sp-2) 0; }
+  .career-map td { display: block; width: auto !important; border: 0; padding: .2rem 0; }
+  .career-map td::before {
+    content: attr(data-label); display: block; font-size: var(--fs-xs); font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase; color: var(--cyan); margin-bottom: .1rem;
+  }
+}
+/* Footer/faint text met only 3.97:1 in light mode; matches the module fix. */
+[data-theme="light"] { --text-faint: #5d6e7e; }
 </style>
 </head>
 <body>
@@ -955,6 +986,7 @@ a.mod-card:focus-visible { border-color: var(--accent); }
         </div>
         <p class="study-aids">Study aids:
             <a href="glossary.html" target="_blank" rel="noopener">Course glossary</a> ·
+            <a href="#career-language">Speaking the employer's language</a> ·
             each module has a printable <strong>cheat sheet</strong> linked in its navigation.
         </p>
         <h2 class="section-title">Modules</h2>
@@ -1140,6 +1172,49 @@ a.mod-card:focus-visible { border-color: var(--accent); }
 <div class="mod-card__progress"><div class="progress-bar"><div class="progress-fill" data-progress-for="crypto"></div></div><span class="progress-text" data-progress-label="crypto">Not started</span></div>
             </a>
         </div>
+
+        <section class="card career-map" id="career-language" aria-labelledby="careerTitle">
+            <span class="career-map__badge">Enrichment</span>
+            <h2 class="section-title" id="careerTitle">Speaking the Employer's Language</h2>
+            <p>The skills you practiced in this course appear in real security job postings, just worded
+            differently. The specific tools you used, such as Nmap, Nessus, Wireshark and hashcat, stand in
+            for whole categories of tools. Knowing one well means you can pick up its competitors quickly,
+            so name the category alongside the tool.</p>
+
+            <div class="career-map__scroll" tabindex="0" role="region" aria-label="Skills translated into job-posting language">
+                <table>
+                    <thead>
+                        <tr><th scope="col">What you practiced</th><th scope="col">How a job posting might phrase it</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td data-label="What you practiced">Gathering public information about a target organization with search operators, WHOIS and DNS lookups</td>
+                            <td data-label="How a job posting might phrase it"><q>Conduct open-source intelligence (OSINT) gathering</q>; <q>Perform external attack surface reconnaissance</q></td></tr>
+                        <tr><td data-label="What you practiced">Discovering hosts, open ports and running services with Nmap</td>
+                            <td data-label="How a job posting might phrase it"><q>Network discovery and port scanning (Nmap or similar)</q>; <q>Identify exposed services and assets</q></td></tr>
+                        <tr><td data-label="What you practiced">Pulling user, share and service details from systems such as SMB, SNMP and LDAP</td>
+                            <td data-label="How a job posting might phrase it"><q>Perform service and directory enumeration</q>; <q>Familiarity with Active Directory and common network protocols</q></td></tr>
+                        <tr><td data-label="What you practiced">Running vulnerability scans and ranking findings by CVSS, EPSS and the KEV catalog</td>
+                            <td data-label="How a job posting might phrase it"><q>Conduct vulnerability assessments using tools such as Nessus, Qualys or OpenVAS</q>; <q>Prioritize remediation based on risk and exploitability</q></td></tr>
+                        <tr><td data-label="What you practiced">Separating real findings from scanner false positives</td>
+                            <td data-label="How a job posting might phrase it"><q>Validate and triage scan results</q>; <q>Reduce false positives through authenticated scanning</q></td></tr>
+                        <tr><td data-label="What you practiced">Capturing and reading network traffic to spot attacks such as ARP and DNS spoofing</td>
+                            <td data-label="How a job posting might phrase it"><q>Packet capture and analysis (Wireshark, tcpdump)</q>; <q>Detect anomalous network activity</q></td></tr>
+                        <tr><td data-label="What you practiced">Examining suspicious files with static and dynamic analysis</td>
+                            <td data-label="How a job posting might phrase it"><q>Basic malware triage and analysis</q>; <q>Identify indicators of compromise (IOCs)</q></td></tr>
+                        <tr><td data-label="What you practiced">Testing password strength and explaining why some hashes resist cracking</td>
+                            <td data-label="How a job posting might phrase it"><q>Assess credential and password-policy weaknesses</q>; <q>Understanding of hashing and authentication mechanisms</q></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Describe your experience accurately. Most of this course's labs ran in a simulated environment,
+            so "hands-on practice in lab simulations" is the honest wording. Hiring managers respect that more
+            than claims of production experience you can't back up in an interview.</p>
+
+            <p class="career-map__cert"><strong>Back it up:</strong> this course prepares you for EC-Council's
+            Certified Ethical Hacker (CEH v13) exam. CEH is named directly in many security job postings, and
+            earning it gives employers independent proof of the skills in the left column.</p>
+        </section>
     </main>
 
     <footer class="module-footer">
