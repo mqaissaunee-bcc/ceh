@@ -697,46 +697,6 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
   background: var(--amber); border: 2px solid var(--bg);
 }
 
-/* --- notes: image attachments --- */
-.notes-images {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  padding: var(--sp-2) var(--sp-3) 0;
-  max-height: 148px; overflow-y: auto;
-}
-.notes-images:empty { display: none; }
-.notes-thumb {
-  position: relative; width: 84px; height: 64px; flex: none;
-  border: 1px solid var(--border-strong); border-radius: var(--radius);
-  overflow: hidden; background: var(--surface-2);
-}
-.notes-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.notes-thumb__del {
-  position: absolute; top: 2px; right: 2px;
-  width: 20px; height: 20px; line-height: 18px; text-align: center;
-  font-size: 13px; color: #fff; background: rgba(0,0,0,.62);
-  border: 0; border-radius: 50%; cursor: pointer; padding: 0;
-}
-.notes-thumb__del:hover { background: var(--danger); }
-
-/* --- notes: export menu --- */
-.notes-exportwrap { position: relative; }
-.notes-menu {
-  position: absolute; right: 0; bottom: calc(100% + 6px);
-  min-width: 168px; z-index: 5;
-  background: var(--bg-elev); border: 1px solid var(--border-strong);
-  border-radius: var(--radius); box-shadow: var(--shadow-lg);
-  padding: 4px; display: none;
-}
-.notes-menu.open { display: block; animation: fade-in .12s ease; }
-.notes-menu button {
-  display: flex; width: 100%; align-items: center; gap: 8px;
-  min-height: 38px; padding: 0 10px; text-align: left;
-  font: inherit; font-size: var(--fs-sm); color: var(--text);
-  background: transparent; border: 0; border-radius: 6px; cursor: pointer;
-}
-.notes-menu button:hover { background: var(--surface-2); color: var(--accent); }
-.notes-menu__k { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-faint); margin-left: auto; }
-
 .notes-panel {
   position: fixed; right: var(--sp-4); bottom: calc(var(--sp-4) + 68px);
   z-index: 95;
@@ -1028,60 +988,63 @@ a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); backgro
 }
 
 
-/* ---------- 23. THEME-SAFETY PATCH (Oct 2026) ----------
-   Fixes found by the light/dark audit. Shared by every module. */
-
-/* Violet tone for legacy purple callouts; footer/faint text darkened to meet 4.5:1. */
-:root { --violet: #b794f6; --text-faint: #7d8f9e; }
-[data-theme="light"] { --violet: #6d28d9; --text-faint: #5d6e7e; }
-
-/* Legacy variables referenced by older modules but never defined. */
-:root, [data-theme="light"] {
-  --gradient-primary: color-mix(in srgb, var(--cyan) 14%, var(--surface));
-  --gradient-success: color-mix(in srgb, var(--success) 14%, var(--surface));
-  --gradient-danger:  color-mix(in srgb, var(--danger) 14%, var(--surface));
-  --gradient-warning: color-mix(in srgb, var(--amber) 14%, var(--surface));
-  --database-color:   var(--violet);
+/* ===== Net 101 just-in-time chip + slide-over panel ===== */
+.net-chip {
+  display: inline-flex; align-items: center; gap: .25em; vertical-align: baseline;
+  margin-left: .3em; padding: .05em .45em; font-size: .72em; font-weight: 700;
+  line-height: 1.4; letter-spacing: .03em; text-transform: uppercase;
+  color: var(--cyan); background: transparent; border: 1px solid var(--cyan);
+  border-radius: 4px; cursor: pointer; white-space: nowrap; font-family: var(--font-body);
 }
+.net-chip:hover, .net-chip:focus-visible { background: var(--surface-2); }
+.net-chip::before { content: "\2295"; font-weight: 700; }
+@media print { .net-chip { display: none; } }
 
-/* Native controls (selects, checkboxes, scrollbars) follow the theme. */
-:root { color-scheme: dark; }
-[data-theme="light"] { color-scheme: light; }
-select:not([class]) {
-  font: inherit; color: var(--text); background: var(--surface-2);
-  border: 1px solid var(--border-strong); border-radius: 6px;
-  padding: .35rem .5rem; min-height: 36px; max-width: 100%;
+.net-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55);
+  opacity: 0; visibility: hidden; transition: opacity .18s ease; z-index: 1000;
 }
-select:not([class]):focus-visible { outline: none; box-shadow: var(--ring); }
-
-/* Dark islands: code, terminal and simulated-output surfaces stay dark in the
-   light theme, so the text and accent colours inside them must stay dark-theme
-   colours too. Without this, terminal text was near-black on near-black. */
-@media screen {
-  [data-theme="light"] :is(.code-block, .terminal, .demo-output, .azure-output,
-      .gcp-output, .labkit-query, .labkit-out, .labkit-term) {
-    --text: #e8eef2; --text-muted: #9fb0bd; --text-faint: #8a9bab;
-    --accent: #35e05f; --accent-strong: #6dff96;
-    --accent-dim: rgba(53,224,95,.14); --accent-line: rgba(53,224,95,.34);
-    --cyan: #43d9d4; --amber: #f0b429; --danger: #ff6b6b; --success: #35e05f; --violet: #b794f6;
-    --surface: #141a20; --surface-2: #1b232b; --border: #26313b; --border-strong: #37444f;
-    --primary-color: var(--accent); --secondary-color: var(--cyan); --accent-color: var(--accent);
-    --success-color: var(--success); --warning-color: var(--amber); --danger-color: var(--danger);
-    --error-color: var(--danger); --text-light: var(--text-muted); --text-dark: var(--text);
-  }
+.net-overlay.is-open { opacity: 1; visibility: visible; }
+.net-panel {
+  position: fixed; top: 0; right: 0; height: 100%; width: min(460px, 92vw);
+  background: var(--bg-elev); border-left: 1px solid var(--border);
+  box-shadow: -12px 0 40px rgba(0,0,0,.45); transform: translateX(100%);
+  transition: transform .22s ease; z-index: 1001; display: flex; flex-direction: column;
+  overflow-y: auto;
 }
+.net-overlay.is-open .net-panel { transform: translateX(0); }
+.net-panel__head {
+  position: sticky; top: 0; background: var(--bg-elev); padding: 1.1rem 1.3rem .8rem;
+  border-bottom: 1px solid var(--border); display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 1rem;
+}
+.net-panel__badge {
+  font-size: var(--fs-xs); font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--cyan); border: 1px solid var(--cyan); border-radius: 4px; padding: .05rem .4rem;
+}
+.net-panel__title { margin: .4rem 0 0; font-size: var(--fs-lg); color: var(--text); }
+.net-panel__close {
+  flex: none; background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; width: 2rem; height: 2rem; font-size: 1.1rem; line-height: 1; cursor: pointer;
+}
+.net-panel__close:hover, .net-panel__close:focus-visible { border-color: var(--cyan); }
+.net-panel__body { padding: 1rem 1.3rem 1.6rem; }
+.net-panel__body .short { font-style: italic; color: var(--text-muted); margin: 0 0 1rem; }
+.net-panel__body p { line-height: 1.65; margin: 0 0 .9rem; }
+.net-panel__ceh {
+  margin: 1rem 0; padding: .8rem 1rem; background: var(--accent-dim);
+  border: 1px solid var(--accent-line); border-radius: 8px;
+}
+.net-panel__ceh strong { color: var(--accent); }
+.net-panel__check { margin-top: 1rem; border-top: 1px dashed var(--border); padding-top: .9rem; }
+.net-panel__check summary { cursor: pointer; color: var(--cyan); font-weight: 600; font-size: var(--fs-sm); }
+.net-panel__check .q { font-style: italic; color: var(--text-muted); margin: .6rem 0 .4rem; }
+.net-panel__full {
+  display: inline-block; margin-top: 1.2rem; font-size: var(--fs-sm);
+  color: var(--cyan); text-decoration: none; border-bottom: 1px solid var(--accent-line);
+}
+.net-panel__full:hover { border-bottom-color: var(--cyan); }
 
-/* Clickable non-button elements (quiz options, lab cards) get a visible focus ring. */
-[data-action][tabindex="0"]:focus-visible { outline: none; box-shadow: var(--ring); }
-
-/* Empty prompt lines in legacy terminals show a prompt instead of a blank gap. */
-.terminal-line.prompt:empty::before { content: "┌──(student㉿kali)-[~]"; }
-
-/* White on the dark-theme danger red was 2.8:1; use dark text there. */
-.btn-danger { color: #1a0505; }
-[data-theme="light"] .btn-danger { color: #fff; }
-/* Headings inside the accent-filled badge inherit its on-accent text colour. */
-.completion-badge :is(h1,h2,h3,h4,p), .certification-badge :is(h1,h2,h3,h4,p) { color: inherit; }
 </style>
 </head>
 <body>
@@ -1163,11 +1126,11 @@ select:not([class]):focus-visible { outline: none; box-shadow: var(--ring); }
                 <div class="grid-3">
                     <div class="feature-card">
                         <h4>🌐 Network scanning</h4>
-                        <p>Discovering which <em>hosts</em> are live on a network — the "host discovery" or "ping sweep" step. Before probing ports, you need to know which addresses actually respond, so you don't waste effort scanning empty space.</p>
+                        <p>Discovering which <em>hosts</em> are live on a network — the "host discovery" or "ping sweep" step<button type="button" class="net-chip" data-net="icmp" aria-label="Networking explainer: ICMP / Ping">Net 101</button>. Before probing ports, you need to know which addresses actually respond, so you don't waste effort scanning empty space.</p>
                     </div>
                     <div class="feature-card">
                         <h4>🚪 Port scanning</h4>
-                        <p>Discovering which <em>ports</em> are open on a live host, and therefore which services it exposes. The heart of the phase — an open port is a potential entry point, and the pattern of open ports characterizes the host.</p>
+                        <p>Discovering which <em>ports</em> are open on a live host, and therefore which services it exposes. The heart of the phase — an open port is a potential entry point<button type="button" class="net-chip" data-net="ports" aria-label="Networking explainer: Ports &amp; Services">Net 101</button>, and the pattern of open ports characterizes the host.</p>
                     </div>
                     <div class="feature-card">
                         <h4>🐞 Vulnerability scanning</h4>
@@ -1183,7 +1146,7 @@ select:not([class]):focus-visible { outline: none; box-shadow: var(--ring); }
 
             <div class="card">
                 <h3>What this module covers</h3>
-                <p>We start with the <strong>methodology</strong> — the disciplined scanning process and where it fits after reconnaissance. Then the technical core: <strong>port scanning</strong> (the TCP three-way handshake and the family of scan types built on it), and <strong>discovery and fingerprinting</strong> (finding live hosts, then identifying their operating systems and service versions). We cover <strong>evasion</strong> — how scans are crafted to slip past firewalls and intrusion-detection systems — before surveying the <strong>tools</strong>, centered on Nmap, and closing with the <strong>countermeasures</strong> defenders use to detect and blunt scanning. The output of this module is a detailed inventory of live hosts, open ports, and identified services — precisely what the <span class="term" data-term="enumeration">enumeration</span> phase in <a href="ceh_module4.html" target="_blank" rel="noopener" class="xref">Module 4</a> needs to dig deeper.</p>
+                <p>We start with the <strong>methodology</strong> — the disciplined scanning process and where it fits after reconnaissance. Then the technical core: <strong>port scanning</strong> (the TCP three-way handshake<button type="button" class="net-chip" data-net="tcp-handshake" aria-label="Networking explainer: TCP Three-Way Handshake">Net 101</button> and the family of scan types built on it), and <strong>discovery and fingerprinting</strong> (finding live hosts, then identifying their operating systems and service versions). We cover <strong>evasion</strong> — how scans are crafted to slip past firewalls and intrusion-detection systems — before surveying the <strong>tools</strong>, centered on Nmap, and closing with the <strong>countermeasures</strong> defenders use to detect and blunt scanning. The output of this module is a detailed inventory of live hosts, open ports, and identified services — precisely what the <span class="term" data-term="enumeration">enumeration</span> phase in <a href="ceh_module4.html" target="_blank" rel="noopener" class="xref">Module 4</a> needs to dig deeper.</p>
             </div>
 
             <div class="warning-box">
@@ -1213,7 +1176,7 @@ select:not([class]):focus-visible { outline: none; box-shadow: var(--ring); }
 
             <div class="card">
                 <h3>Understanding ports and services</h3>
-                <p>To make sense of port scanning, you need a clear mental model of what a port <em>is</em>. A network host runs many services simultaneously — a web server, a mail server, a database — and <strong>ports</strong> are the numbered channels (0–65535) that let a single IP address distinguish between them. Certain "well-known" ports conventionally host certain services: 80 and 443 for web (HTTP/HTTPS), 22 for SSH, 25 for mail (SMTP), 53 for DNS, 3389 for Windows Remote Desktop. When a scanner reports that port 22 is open, it is inferring that the host is probably running SSH and is willing to accept connections there. This is why open ports matter so much: each one represents a running service that can be interrogated, and potentially exploited.</p>
+                <p>To make sense of port scanning, you need a clear mental model of what a port <em>is</em>. A network host runs many services simultaneously — a web server, a mail server, a database — and <strong>ports</strong> are the numbered channels (0–65535) that let a single IP address distinguish<button type="button" class="net-chip" data-net="ip-addressing" aria-label="Networking explainer: IP Addressing">Net 101</button> between them. Certain "well-known" ports conventionally host certain services: 80 and 443 for web (HTTP/HTTPS), 22 for SSH, 25 for mail (SMTP), 53 for DNS<button type="button" class="net-chip" data-net="dns" aria-label="Networking explainer: DNS (Domain Name System)">Net 101</button>, 3389 for Windows Remote Desktop. When a scanner reports that port 22 is open, it is inferring that the host is probably running SSH and is willing to accept connections there. This is why open ports matter so much: each one represents a running service that can be interrogated, and potentially exploited.</p>
                 <p>A scanner classifies each probed port into a state. <strong>Open</strong> means a service is actively accepting connections. <strong>Closed</strong> means the port is reachable but no service is listening. <strong>Filtered</strong> means a firewall or filter is blocking the probe, so the scanner cannot tell whether the port is open — an important distinction, because "filtered" often signals a firewall's presence.</p>
             </div>
 
@@ -1253,7 +1216,7 @@ Client  ──  ACK     ──▶  Server     (3) "Great, connection established
             </div>
 
             <div class="card">
-                <h3>The stealth scans: FIN, NULL, and Xmas</h3>
+                <h3>The stealth scans: FIN, NULL, and Xmas<button type="button" class="net-chip" data-net="tcp-flags" aria-label="Networking explainer: TCP Flags">Net 101</button></h3>
                 <p>A cleverer family exploits a subtle rule in the TCP specification (RFC 793) to probe ports while evading rules that only watch for SYN packets. These scans send packets with <em>unusual</em> flag combinations:</p>
                 <div class="code-block">nmap -sF target     # FIN scan  — only the FIN flag set
 nmap -sN target     # NULL scan — no flags set at all
@@ -1262,7 +1225,7 @@ nmap -sX target     # Xmas scan — FIN, PSH, and URG flags set ("lit up like a 
             </div>
 
             <div class="card">
-                <h3>ACK scan and UDP scan</h3>
+                <h3>ACK scan and UDP scan<button type="button" class="net-chip" data-net="tcp-vs-udp" aria-label="Networking explainer: TCP vs. UDP">Net 101</button></h3>
                 <div class="grid-2">
                     <div class="feature-card">
                         <h4>🧱 ACK scan (-sA)</h4>
@@ -1302,7 +1265,7 @@ nmap -sX target     # Xmas scan — FIN, PSH, and URG flags set ("lit up like a 
                 <p>Before scanning ports, a tester finds which hosts in the target range are actually up — the "ping sweep" or host-discovery step — so effort isn't wasted probing dead addresses. Nmap does this automatically, and understanding its default behavior is worth knowing precisely (it's a common exam detail):</p>
                 <div class="code-block">nmap -sn 10.10.1.0/24     # host discovery only, no port scan (ping sweep)
 nmap -Pn 10.10.1.5        # skip discovery, treat host as up (for hosts that block pings)</div>
-                <p>On a <strong>local network</strong>, Nmap uses <strong>ARP</strong> requests, which are fast and reliable because hosts must answer ARP to function. On a <strong>remote network</strong>, it sends a combination of probes — an ICMP echo request, a TCP SYN to port 443, a TCP ACK to port 80, and an ICMP timestamp request — casting a wide enough net that most hosts respond to at least one, even if some block plain pings. The <code>-Pn</code> option is the important counterpart: it skips discovery entirely and assumes the host is up, which is how you scan a host that silently drops ping probes (as many firewalled systems do) but is nonetheless online.</p>
+                <p>On a <strong>local network</strong>, Nmap uses <strong>ARP</strong> requests<button type="button" class="net-chip" data-net="arp" aria-label="Networking explainer: ARP (Address Resolution Protocol)">Net 101</button>, which are fast and reliable because hosts must answer ARP to function. On a <strong>remote network</strong>, it sends a combination of probes — an ICMP echo request, a TCP SYN to port 443, a TCP ACK to port 80, and an ICMP timestamp request — casting a wide enough net that most hosts respond to at least one, even if some block plain pings. The <code>-Pn</code> option is the important counterpart: it skips discovery entirely and assumes the host is up, which is how you scan a host that silently drops ping probes (as many firewalled systems do) but is nonetheless online.</p>
             </div>
 
             <div class="card">
@@ -1344,7 +1307,7 @@ nmap --script http-enum 10.10.1.5 # enumerate web server paths</div>
                 <h3>The core evasion techniques</h3>
                 <div class="grid-2">
                     <div class="feature-card">
-                        <h4>🧩 Packet fragmentation (-f)</h4>
+                        <h4>🧩 Packet fragmentation<button type="button" class="net-chip" data-net="ttl-fragmentation" aria-label="Networking explainer: TTL &amp; Fragmentation">Net 101</button> (-f)</h4>
                         <p>Splits scan probes into tiny fragments so that a firewall or IDS inspecting individual packets can't recognize the probe's signature. The target's stack reassembles the fragments, but a filter that doesn't reassemble may let them through.</p>
                     </div>
                     <div class="feature-card">
@@ -1580,22 +1543,10 @@ nmap --script http-enum 10.10.1.5 # enumerate web server paths</div>
         <textarea id="notesArea" class="notes-area" aria-label="Note text"
                   spellcheck="true"></textarea>
     </div>
-    <div id="notesImages" class="notes-images" role="list" aria-label="Attached images"></div>
-    <input id="notesImageInput" type="file" accept="image/*" multiple hidden>
     <div class="notes-panel__foot">
         <span class="notes-hint">Saved automatically</span>
-        <button id="notesAddImage" class="notes-mini" type="button">📎 Image</button>
         <button id="notesClear" class="notes-mini is-danger" type="button">Clear</button>
-        <span class="notes-exportwrap">
-            <button id="notesExport" class="notes-mini" type="button"
-                    aria-haspopup="true" aria-expanded="false" aria-controls="notesExportMenu">Export ▾</button>
-            <span id="notesExportMenu" class="notes-menu" role="menu" aria-label="Export format">
-                <button type="button" role="menuitem" data-fmt="md">Markdown<span class="notes-menu__k">.md</span></button>
-                <button type="button" role="menuitem" data-fmt="html">Web page<span class="notes-menu__k">.html</span></button>
-                <button type="button" role="menuitem" data-fmt="doc">Word<span class="notes-menu__k">.doc</span></button>
-                <button type="button" role="menuitem" data-fmt="pdf">PDF<span class="notes-menu__k">print</span></button>
-            </span>
-        </span>
+        <button id="notesExport" class="notes-mini" type="button">Export .md</button>
     </div>
 </div>
 
@@ -1830,27 +1781,20 @@ var CEH = (function () {
 
   /* ---------- notes ----------
      Two scopes stored under one per-module key:
-       notes.scratch             = module-wide scratchpad text
-       notes.sections[sectionId] = per-section note text
-       notes.images.scratch      = [ {id, name, data} ] for the scratchpad
-       notes.images.sections[id] = [ {id, name, data} ] per section
-     Text auto-saves (debounced); images are data-URLs saved immediately.
-     Export offers Markdown, self-contained HTML, Word (.doc), and PDF
-     (via a styled print window). CSP-safe; no external libraries. */
+       notes.scratch          = module-wide scratchpad
+       notes.sections[sectionId] = per-section note
+     The popup shows a tab for the current section and a tab for the scratchpad,
+     auto-saving on input (debounced). Export produces a Markdown file. */
   var notes = null;
   var notesScope = 'section';       // 'section' | 'scratch'
   var notesSaveTimer = null;
   var notesLastFocus = null;
-  var NOTES_IMG_BYTES_CAP = 4 * 1024 * 1024;   // ~4MB of image data per module
 
   function loadNotes() {
     if (notes) return notes;
-    notes = read(NOTES_KEY, { scratch: '', sections: {}, images: { scratch: [], sections: {} } });
+    notes = read(NOTES_KEY, { scratch: '', sections: {} });
     if (!notes.sections) notes.sections = {};
     if (typeof notes.scratch !== 'string') notes.scratch = '';
-    if (!notes.images) notes.images = { scratch: [], sections: {} };
-    if (!Array.isArray(notes.images.scratch)) notes.images.scratch = [];
-    if (!notes.images.sections) notes.images.sections = {};
     return notes;
   }
 
@@ -1870,16 +1814,9 @@ var CEH = (function () {
     else n.sections[current] = v;
   }
 
-  function currentImages() {
-    var n = loadNotes();
-    if (notesScope === 'scratch') return n.images.scratch;
-    if (!n.images.sections[current]) n.images.sections[current] = [];
-    return n.images.sections[current];
-  }
-
   function sectionTitle(id) {
     var tab = document.querySelector('.nav-btn[data-target="' + id + '"]');
-    if (tab) return tab.textContent.replace(/[\u2713]/g, '').trim();
+    if (tab) return tab.textContent.replace(/[✓]/g, '').trim();
     return id;
   }
 
@@ -1887,96 +1824,12 @@ var CEH = (function () {
     var n = loadNotes();
     if (n.scratch && n.scratch.trim()) return true;
     for (var k in n.sections) if (n.sections[k] && n.sections[k].trim()) return true;
-    if (n.images.scratch && n.images.scratch.length) return true;
-    for (var s in n.images.sections) if (n.images.sections[s] && n.images.sections[s].length) return true;
     return false;
   }
 
   function updateNotesIndicator() {
     var dot = document.getElementById('notesDot');
     if (dot) dot.hidden = !hasAnyNotes();
-  }
-
-  function notesImageBytes() {
-    var n = loadNotes(), total = 0, i, s;
-    for (i = 0; i < n.images.scratch.length; i++) total += (n.images.scratch[i].data || '').length;
-    for (s in n.images.sections) {
-      var arr = n.images.sections[s] || [];
-      for (i = 0; i < arr.length; i++) total += (arr[i].data || '').length;
-    }
-    return total;
-  }
-
-  function renderNotesImages() {
-    var wrap = document.getElementById('notesImages');
-    if (!wrap) return;
-    var imgs = currentImages();
-    wrap.innerHTML = '';
-    imgs.forEach(function (im) {
-      var cell = document.createElement('div');
-      cell.className = 'notes-thumb';
-      cell.setAttribute('role', 'listitem');
-      var img = document.createElement('img');
-      img.src = im.data;
-      img.alt = im.name || 'attached image';
-      var del = document.createElement('button');
-      del.type = 'button';
-      del.className = 'notes-thumb__del';
-      del.setAttribute('aria-label', 'Remove ' + (im.name || 'image'));
-      del.textContent = '\u00D7';
-      del.addEventListener('click', function () { removeNotesImage(im.id); });
-      cell.appendChild(img);
-      cell.appendChild(del);
-      wrap.appendChild(cell);
-    });
-  }
-
-  function addNotesImageFiles(fileList) {
-    var files = Array.prototype.slice.call(fileList || []);
-    if (!files.length) return;
-    var existing = notesImageBytes();
-    var pending = 0, added = 0, processed = 0;
-
-    files.forEach(function (file) {
-      if (!file.type || file.type.indexOf('image/') !== 0) { processed++; return; }
-      pending++;
-      var reader = new FileReader();
-      reader.onload = function () {
-        processed++;
-        var data = String(reader.result || '');
-        if (existing + data.length > NOTES_IMG_BYTES_CAP) {
-          notify('Image too large to store — notes are kept in the browser and space is limited.', 'warning');
-        } else {
-          existing += data.length;
-          currentImages().push({
-            id: 'img-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
-            name: file.name || 'image',
-            data: data
-          });
-          added++;
-        }
-        if (processed >= files.length) finishAdd();
-      };
-      reader.onerror = function () { processed++; if (processed >= files.length) finishAdd(); };
-      reader.readAsDataURL(file);
-    });
-    if (pending === 0) notify('No images found in that selection.', 'warning');
-
-    function finishAdd() {
-      if (!added) return;
-      saveNotes();
-      renderNotesImages();
-      notify(added === 1 ? 'Image added.' : added + ' images added.');
-    }
-  }
-
-  function removeNotesImage(id) {
-    var arr = currentImages();
-    for (var i = 0; i < arr.length; i++) {
-      if (arr[i].id === id) { arr.splice(i, 1); break; }
-    }
-    saveNotes();
-    renderNotesImages();
   }
 
   function renderNotesPanel() {
@@ -1996,7 +1849,6 @@ var CEH = (function () {
     area.placeholder = notesScope === 'scratch'
       ? 'A scratchpad for the whole module — anything not tied to one section.'
       : 'Notes for this section. They reappear whenever you return to this tab.';
-    renderNotesImages();
   }
 
   function openNotes() {
@@ -2017,7 +1869,6 @@ var CEH = (function () {
     var panel = document.getElementById('notesPanel');
     if (!panel) return;
     flushNotes();
-    closeExportMenu();
     panel.classList.remove('open');
     panel.setAttribute('aria-hidden', 'true');
     var toggle = document.getElementById('notesToggle');
@@ -2053,152 +1904,42 @@ var CEH = (function () {
     saveNotes();
   }
 
-  /* ----- export helpers ----- */
-  function notesTitle() {
-    var t = (document.querySelector('.header h1') || {}).textContent;
-    return (t || ('Module ' + MODULE_ID)).trim();
-  }
-
-  function escHtml(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  // Collect notes as an ordered list of { title, text, images } blocks.
-  function collectNotes() {
-    var n = loadNotes(), blocks = [];
+  function exportNotes() {
+    var n = loadNotes();
+    var title = (document.querySelector('.header h1') || {}).textContent || ('Module ' + MODULE_ID);
+    var lines = ['# Notes — ' + title.trim(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
     sectionOrder.forEach(function (id) {
-      var text = (n.sections[id] || '').trim();
-      var imgs = n.images.sections[id] || [];
-      if (text || imgs.length) blocks.push({ title: sectionTitle(id), text: text, images: imgs });
+      var v = n.sections[id];
+      if (v && v.trim()) {
+        lines.push('## ' + sectionTitle(id), '', v.trim(), '');
+      }
     });
-    var st = (n.scratch || '').trim();
-    if (st || (n.images.scratch && n.images.scratch.length)) {
-      blocks.push({ title: 'Scratchpad', text: st, images: n.images.scratch || [] });
+    if (n.scratch && n.scratch.trim()) {
+      lines.push('## Scratchpad', '', n.scratch.trim(), '');
     }
-    return blocks;
-  }
-
-  function triggerDownload(blob, filename) {
+    if (lines.length <= 4) {
+      notify('No notes to export yet.', 'warning');
+      return;
+    }
+    var blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = url; a.download = filename;
+    a.href = url;
+    a.download = 'ceh-' + MODULE_ID + '-notes.md';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    notify('Notes exported.');
   }
-
-  function exportMarkdown(blocks) {
-    var lines = ['# Notes \u2014 ' + notesTitle(), '', '_Exported ' + new Date().toLocaleString() + '_', ''];
-    blocks.forEach(function (b) {
-      lines.push('## ' + b.title, '');
-      if (b.text) lines.push(b.text, '');
-      b.images.forEach(function (im) { lines.push('![' + (im.name || 'image') + '](' + im.data + ')', ''); });
-    });
-    triggerDownload(new Blob([lines.join('\n')], { type: 'text/markdown' }), 'ceh-' + MODULE_ID + '-notes.md');
-    notify('Notes exported as Markdown.');
-  }
-
-  // Shared HTML body for the .html, .doc, and print(PDF) paths.
-  function notesHtmlBody(blocks) {
-    var out = ['<h1>' + escHtml('Notes \u2014 ' + notesTitle()) + '</h1>',
-               '<p class="meta">Exported ' + escHtml(new Date().toLocaleString()) + '</p>'];
-    blocks.forEach(function (b) {
-      out.push('<h2>' + escHtml(b.title) + '</h2>');
-      if (b.text) {
-        b.text.split(/\n{2,}/).forEach(function (para) {
-          out.push('<p>' + escHtml(para).replace(/\n/g, '<br>') + '</p>');
-        });
-      }
-      b.images.forEach(function (im) {
-        out.push('<figure><img src="' + im.data + '" alt="' + escHtml(im.name || 'image') + '">' +
-                 '<figcaption>' + escHtml(im.name || '') + '</figcaption></figure>');
-      });
-    });
-    return out.join('\n');
-  }
-
-  function notesStyle() {
-    return 'body{font-family:Georgia,\'Times New Roman\',serif;max-width:760px;margin:32px auto;padding:0 20px;color:#1a1a1a;line-height:1.55}' +
-           'h1{font-size:24px;border-bottom:2px solid #333;padding-bottom:8px}' +
-           'h2{font-size:18px;margin-top:26px;color:#003366}' +
-           '.meta{color:#666;font-style:italic;font-size:13px}' +
-           'figure{margin:14px 0}img{max-width:100%;height:auto;border:1px solid #ccc}' +
-           'figcaption{font-size:12px;color:#666;margin-top:4px}';
-  }
-
-  function fullNotesDocument(blocks) {
-    return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
-           '<title>' + escHtml('Notes \u2014 ' + notesTitle()) + '</title>' +
-           '<style>' + notesStyle() + '</style></head><body>' +
-           notesHtmlBody(blocks) + '</body></html>';
-  }
-
-  function exportHtml(blocks) {
-    triggerDownload(new Blob([fullNotesDocument(blocks)], { type: 'text/html' }),
-                    'ceh-' + MODULE_ID + '-notes.html');
-    notify('Notes exported as a web page.');
-  }
-
-  function exportDoc(blocks) {
-    // Word opens HTML with a .doc extension; a Word MIME nudges it to do so.
-    triggerDownload(new Blob([fullNotesDocument(blocks)], { type: 'application/msword' }),
-                    'ceh-' + MODULE_ID + '-notes.doc');
-    notify('Notes exported for Word.');
-  }
-
-  function exportPdf(blocks) {
-    // No PDF library is bundled (offline, CSP-safe), so open a styled window
-    // and let the browser's "Save as PDF" handle it. Reliable and dependency-free.
-    var win = window.open('', '_blank');
-    if (!win) { notify('Allow pop-ups to export as PDF, or use the Web page format.', 'warning'); return; }
-    win.document.open();
-    win.document.write(fullNotesDocument(blocks));
-    win.document.close();
-    var done = false;
-    function go() {
-      if (done) return; done = true;
-      win.focus();
-      win.print();   // user chooses "Save as PDF" in the print dialog
-    }
-    if (win.document.readyState === 'complete') setTimeout(go, 300);
-    else win.onload = function () { setTimeout(go, 300); };
-    notify('Opening the print dialog \u2014 choose \u201CSave as PDF\u201D.');
-  }
-
-  function exportNotes(fmt) {
-    var blocks = collectNotes();
-    if (!blocks.length) { notify('No notes to export yet.', 'warning'); return; }
-    if (fmt === 'html') exportHtml(blocks);
-    else if (fmt === 'doc') exportDoc(blocks);
-    else if (fmt === 'pdf') exportPdf(blocks);
-    else exportMarkdown(blocks);
-  }
-
-  function toggleExportMenu(force) {
-    var menu = document.getElementById('notesExportMenu');
-    var btn = document.getElementById('notesExport');
-    if (!menu) return;
-    var open = (typeof force === 'boolean') ? force : !menu.classList.contains('open');
-    menu.classList.toggle('open', open);
-    if (btn) btn.setAttribute('aria-expanded', String(open));
-  }
-  function closeExportMenu() { toggleExportMenu(false); }
 
   function clearScopeNotes() {
-    var hasImgs = currentImages().length > 0;
     var what = notesScope === 'scratch' ? 'the scratchpad' : 'notes for this section';
-    var extra = hasImgs ? ' (including attached images)' : '';
-    if (!window.confirm('Clear ' + what + extra + '? This cannot be undone.')) return;
+    if (!window.confirm('Clear ' + what + '? This cannot be undone.')) return;
     setCurrentNoteValue('');
-    if (notesScope === 'scratch') loadNotes().images.scratch = [];
-    else loadNotes().images.sections[current] = [];
     var area = document.getElementById('notesArea');
     if (area) area.value = '';
     saveNotes();
-    renderNotesImages();
     notify('Cleared ' + what + '.', 'warning');
   }
 
@@ -2501,50 +2242,6 @@ var CEH = (function () {
     }) : [];
 
     document.addEventListener('click', onClick);
-    // CSP-safe dispatch for form controls: <select data-change="fnName">
-    function onControl(e) {
-      var attr = e.type === 'change' ? 'data-change' : 'data-input';
-      var c = el_closest(e.target, '[' + attr + ']');
-      if (!c) return;
-      var fn = actions[c.getAttribute(attr)];
-      if (typeof fn === 'function') {
-        try { fn.call(c, e); }
-        catch (err) { console.error('[CEH] ' + attr + ' handler failed:', err); }
-      } else {
-        console.warn('[CEH] no handler registered for ' + attr + ':', c.getAttribute(attr));
-      }
-    }
-    document.addEventListener('change', onControl);
-    document.addEventListener('input', onControl);
-    // Keyboard access: non-button [data-action] elements (quiz options, lab
-    // cards) become focusable buttons that respond to Enter and Space.
-    function enhanceActionables(root) {
-      (root || document).querySelectorAll('[data-action]').forEach(function (n) {
-        var tag = n.tagName.toLowerCase();
-        if (tag === 'button' || tag === 'a' || tag === 'input' || tag === 'select') return;
-        if (!n.hasAttribute('tabindex')) n.setAttribute('tabindex', '0');
-        if (!n.hasAttribute('role')) n.setAttribute('role', 'button');
-      });
-    }
-    enhanceActionables(document);
-    if (window.MutationObserver) {
-      var enhancePending = false;
-      new MutationObserver(function () {
-        if (enhancePending) return;
-        enhancePending = true;
-        (window.requestAnimationFrame || setTimeout)(function () { enhancePending = false; enhanceActionables(document); });
-      })
-        .observe(document.body, { childList: true, subtree: true });
-    }
-    document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      var n = e.target;
-      if (!n || !n.getAttribute || !n.hasAttribute('data-action')) return;
-      var tag = n.tagName.toLowerCase();
-      if (tag === 'button' || tag === 'a' || tag === 'input' || tag === 'select' || tag === 'textarea') return;
-      e.preventDefault();
-      n.click();
-    });
     document.addEventListener('keydown', onGlobalKey);
     var nav = document.querySelector('.navigation');
     if (nav) nav.addEventListener('keydown', onNavKey);
@@ -2572,40 +2269,7 @@ var CEH = (function () {
     var tabScr = document.getElementById('notesTabScratch');
     if (tabScr) tabScr.addEventListener('click', function () { setNotesScope('scratch'); });
     var notesExport = document.getElementById('notesExport');
-    if (notesExport) notesExport.addEventListener('click', function (e) { e.stopPropagation(); toggleExportMenu(); });
-    var notesExportMenu = document.getElementById('notesExportMenu');
-    if (notesExportMenu) notesExportMenu.addEventListener('click', function (e) {
-      var item = e.target.closest('[data-fmt]');
-      if (!item) return;
-      closeExportMenu();
-      exportNotes(item.getAttribute('data-fmt'));
-    });
-    var notesAddImage = document.getElementById('notesAddImage');
-    var notesImageInput = document.getElementById('notesImageInput');
-    if (notesAddImage && notesImageInput) {
-      notesAddImage.addEventListener('click', function () { notesImageInput.click(); });
-      notesImageInput.addEventListener('change', function () {
-        addNotesImageFiles(notesImageInput.files);
-        notesImageInput.value = '';
-      });
-    }
-    // paste an image straight into the note text area
-    var notesAreaEl = document.getElementById('notesArea');
-    if (notesAreaEl) notesAreaEl.addEventListener('paste', function (e) {
-      var items = (e.clipboardData && e.clipboardData.items) || [];
-      var imgs = [];
-      for (var i = 0; i < items.length; i++) {
-        if (items[i].type && items[i].type.indexOf('image/') === 0) {
-          var f = items[i].getAsFile(); if (f) imgs.push(f);
-        }
-      }
-      if (imgs.length) { e.preventDefault(); addNotesImageFiles(imgs); }
-    });
-    // close the export menu on outside click
-    document.addEventListener('click', function (e) {
-      var menu = document.getElementById('notesExportMenu');
-      if (menu && menu.classList.contains('open') && !e.target.closest('.notes-exportwrap')) closeExportMenu();
-    });
+    if (notesExport) notesExport.addEventListener('click', exportNotes);
     var notesClear = document.getElementById('notesClear');
     if (notesClear) notesClear.addEventListener('click', clearScopeNotes);
 
@@ -2628,37 +2292,8 @@ var CEH = (function () {
     if (typeof config.onReady === 'function') config.onReady();
   }
 
-  /* ---------- print one element (certificates) ----------
-     Prints just the given element through a hidden iframe, using this page's
-     own stylesheet in the light theme, so "Save as PDF" gives a clean page. */
-  function printElement(node, title) {
-    if (!node) { notify('Nothing to print yet.', 'warning'); return; }
-    var css = Array.prototype.map.call(document.querySelectorAll('head style'), function (s) {
-      return s.textContent;
-    }).join('\n');
-    var frame = document.createElement('iframe');
-    frame.setAttribute('aria-hidden', 'true');
-    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
-    document.body.appendChild(frame);
-    var clone = node.cloneNode(true);
-    clone.style.display = 'block';
-    clone.querySelectorAll('button, .btn').forEach(function (b) { b.remove(); });
-    var d = frame.contentDocument;
-    d.open();
-    d.write('<!DOCTYPE html><html data-theme="light"><head><meta charset="utf-8"><title>' +
-      String(title || document.title).replace(/</g, '&lt;') + '</title><style>' + css +
-      ' body{background:#fff;padding:24px;} .matrix-bg{display:none}</style></head><body>' +
-      clone.outerHTML + '</body></html>');
-    d.close();
-    setTimeout(function () {
-      try { frame.contentWindow.focus(); frame.contentWindow.print(); }
-      catch (e) { notify('Printing is blocked in this browser. Use your browser\u2019s Print command instead.', 'warning'); }
-      setTimeout(function () { frame.remove(); }, 60000);
-    }, 250);
-  }
-
   return {
-    init: init, register: register, printElement: printElement,
+    init: init, register: register,
     showSection: showSection, step: step,
     openModal: openModal, showModal: showModal, closeModal: closeModal,
     notify: notify, announce: announce,
@@ -2887,7 +2522,7 @@ function resetQuiz() {
 
 <script>
 /* ============================================================
-   CEH LAB KIT  v1.2  — portable interactive components
+   CEH LAB KIT  v1.1  — portable interactive components
    ------------------------------------------------------------
    Two data-driven widgets that mount themselves into any module
    built on the CEH chassis:
@@ -3010,16 +2645,9 @@ var CEHLabKit = (function () {
         '<span class="labkit__badge">SIMULATED</span>' +
       '</div>' +
       '<p class="labkit__intro">' + cfg.intro + '</p>' +
-      (cfg.message ? (
-        '<div class="labkit-msg">' +
-          '<div class="labkit-msg__row"><span class="labkit-msg__k">From:</span> ' + esc(cfg.message.from) + '</div>' +
-          '<div class="labkit-msg__row"><span class="labkit-msg__k">Subject:</span> ' + esc(cfg.message.subject) + '</div>' +
-          '<div class="labkit-msg__body">' + esc(cfg.message.body) + '</div>' +
-        '</div>'
-      ) : '') +
       '<div class="labkit__cols">' +
         '<div>' +
-          '<p class="labkit__sub" id="dorkOpsLabel">' + esc(cfg.opsLabel || 'Operators') + '</p>' +
+          '<p class="labkit__sub" id="dorkOpsLabel">Operators</p>' +
           '<div class="labkit-ops" role="group" aria-labelledby="dorkOpsLabel">' + opFields + '</div>' +
           '<p class="labkit__sub">' + esc(cfg.assembledLabel || 'Assembled query') + '</p>' +
           '<div class="labkit-query labkit-query--empty" id="dorkQuery" role="status" aria-live="polite">' +
@@ -3059,24 +2687,19 @@ var CEHLabKit = (function () {
     }
 
     function buildQuery(p) {
-      var head = cfg.prefix ? [cfg.prefix] : [];
-      // Operators emit in config order, except those with order:'last' (a bare
-      // target that must trail the flags). Everything else keeps its position.
-      var body = [], tail = [];
+      var parts = cfg.prefix ? [cfg.prefix] : [];
       ops.forEach(function (op) {
         var v = p[op.key];
         if (!v) return;
-        var token;
-        if (op.type === 'toggle') token = (op.flag || op.key);
-        else if (op.bare) token = v;
-        else if (op.flag) token = op.flag + (op.flagJoin === '' ? '' : ' ') + v;
-        else if (op.key === 'kw') token = v;
-        else { if (/\s/.test(v) && op.quote !== false) v = '"' + v + '"'; token = op.key + ':' + v; }
-        (op.order === 'last' ? tail : body).push(token);
+        if (op.type === 'toggle') { parts.push(op.flag || op.key); return; }
+        if (op.bare) { parts.push(v); return; }
+        if (op.flag) { parts.push(op.flag + (op.flagJoin === '' ? '' : ' ') + v); return; }
+        if (op.key === 'kw') { parts.push(v); return; }
+        if (/\s/.test(v) && op.quote !== false) v = '"' + v + '"';
+        parts.push(op.key + ':' + v);
       });
-      var parts = head.concat(body, tail);
       // A lone prefix is not a command worth running.
-      return (cfg.prefix && parts.length === head.length) ? '' : parts.join(' ');
+      return (cfg.prefix && parts.length === 1) ? '' : parts.join(' ');
     }
 
     function render() {
@@ -3187,26 +2810,20 @@ var CEHLabKit = (function () {
       });
       if (!blank.length) renderResults(rule, q);
 
-      // Credit every unsolved challenge this command satisfies, whether or not
-      // the student clicked that challenge first. Previously only the selected
-      // challenge could be solved, so a correct command run without selecting
-      // a challenge looked like it "didn't work".
-      var chals = cfg.challenges || [];
-      var newly = chals.filter(function (x) { return solved.indexOf(x.id) === -1 && challengeMet(x, p); });
-      newly.forEach(function (x) { solved.push(x.id); });
-      if (newly.length) {
-        stateSet('dorksSolved', solved);
-        notify('Challenge solved: ' + newly.map(function (x) { return x.short; }).join(', '));
+      if (activeChallenge) {
+        var c = (cfg.challenges || []).filter(function (x) { return x.id === activeChallenge; })[0];
+        if (c && challengeMet(c, p)) {
+          if (solved.indexOf(c.id) === -1) {
+            solved.push(c.id);
+            stateSet('dorksSolved', solved);
+            notify('Challenge solved: ' + c.short);
+          }
+          fbOut.innerHTML = '<div class="labkit-feedback labkit-feedback--ok"><strong>✓ Solved.</strong> ' + c.explain + '</div>';
+          renderChallenges();
+        } else if (c) {
+          fbOut.innerHTML = '<div class="labkit-feedback labkit-feedback--no"><strong>Not yet.</strong> ' + c.hint + '</div>';
+        }
       }
-      var c = activeChallenge ? chals.filter(function (x) { return x.id === activeChallenge; })[0] : null;
-      var show = (c && challengeMet(c, p)) ? c : (newly[0] || null);
-      if (show) {
-        fbOut.innerHTML = '<div class="labkit-feedback labkit-feedback--ok"><strong>✓ Solved' +
-          (show !== c && c ? ' a different challenge' : '') + ':</strong> ' + esc(show.short) + '. ' + show.explain + '</div>';
-      } else if (c) {
-        fbOut.innerHTML = '<div class="labkit-feedback labkit-feedback--no"><strong>Not yet.</strong> ' + c.hint + '</div>';
-      }
-      if (newly.length) renderChallenges();
       announce('Simulated search complete.');
     }
 
@@ -3404,8 +3021,7 @@ var CEHLabKit = (function () {
                '<span class="labkit-term__why">' + esc(hit.why) + '</span>');
       (hit.out || []).forEach(function (l) { line(l); });
       if (hit.note) lineHTML('<span class="labkit-term__muted">' + esc('→ ' + hit.note) + '</span>', 'labkit-term__wrap');
-      var objs = hit.obj == null ? [] : (Object.prototype.toString.call(hit.obj) === '[object Array]' ? hit.obj : [hit.obj]);
-      objs.forEach(markObjective);
+      markObjective(hit.obj);
       scrollEnd();
     }
 
@@ -4150,6 +3766,87 @@ window.CEH_LAB_CONFIG = {
 
 CEHLabKit.init(window.CEH_LAB_CONFIG);
 </script>
-<script src="assistant.js" defer></script>
+
+<!-- Net 101 slide-over panel -->
+<div class="net-overlay" id="netOverlay" hidden>
+  <div class="net-panel" role="dialog" aria-modal="true" aria-labelledby="netPanelTitle" id="netPanel">
+    <div class="net-panel__head">
+      <div>
+        <span class="net-panel__badge">Net 101</span>
+        <h2 class="net-panel__title" id="netPanelTitle"></h2>
+      </div>
+      <button type="button" class="net-panel__close" id="netPanelClose" aria-label="Close explainer">&times;</button>
+    </div>
+    <div class="net-panel__body" id="netPanelBody"></div>
+  </div>
+</div>
+
+<script id="net101-data" type="application/json">{"osi-model": {"label": "OSI Model", "short": "A seven-layer reference model that splits networking into independent jobs: Physical, Data Link, Network, Transport, Session, Presentation, Application (layers 1\u20137).", "body": ["The OSI model is a mental filing system for networking. Each layer does one job and hands its result to the layer above or below. Layer 1 (Physical) is cables and radio; Layer 2 (Data Link) moves frames between devices on the same local network using MAC addresses; Layer 3 (Network) moves packets between networks using IP addresses; Layer 4 (Transport) handles end-to-end delivery with TCP or UDP and port numbers; Layers 5\u20137 handle sessions, data formatting, and the application itself.", "In practice the TCP/IP model (four layers) is what the Internet actually runs on, but CEH and most tools still describe attacks by OSI layer because it tells you *where* an attack operates."], "ceh": "Attacks are categorized by layer. ARP spoofing is Layer 2, IP spoofing and ICMP tricks are Layer 3, SYN floods and port scans are Layer 4, and SQL injection or XSS are Layer 7. Knowing the layer tells you which defense applies.", "check": "A switch forwards traffic using MAC addresses, and a router forwards using IP addresses. Which OSI layer does each operate at?", "answer": "Switch = Layer 2 (Data Link). Router = Layer 3 (Network)."}, "tcp-ip-model": {"label": "TCP/IP Model", "short": "The four-layer model the Internet really uses: Link, Internet, Transport, Application \u2014 a simplified cousin of OSI.", "body": ["The TCP/IP model collapses OSI's seven layers into four. The Link layer covers OSI 1\u20132 (Ethernet, Wi-Fi, MAC addresses). The Internet layer is OSI 3 (IP, ICMP, routing). The Transport layer is OSI 4 (TCP and UDP). The Application layer covers OSI 5\u20137 (HTTP, DNS, SSH, everything an app speaks).", "When a tool or exam says 'the transport layer,' it means the same thing in both models \u2014 TCP/UDP and ports. The two models are just different-resolution maps of the same territory."], "ceh": "Most scanning and sniffing tools let you operate at a chosen layer. Understanding the stack tells you what a captured packet contains at each level and what a scanner is actually probing.", "check": "A packet capture shows an Ethernet header, then an IP header, then a TCP header, then HTTP data. Which TCP/IP layer produced each header?", "answer": "Ethernet = Link, IP = Internet, TCP = Transport, HTTP = Application."}, "encapsulation": {"label": "Encapsulation", "short": "As data moves down the stack, each layer wraps it in its own header (and sometimes trailer), like nested envelopes.", "body": ["When your browser sends a request, the Application layer produces the data, the Transport layer wraps it in a TCP segment (adding ports and sequence numbers), the Internet layer wraps that in an IP packet (adding source/destination IP), and the Link layer wraps that in an Ethernet frame (adding MAC addresses). Each wrapper is a header. The receiving side unwraps them in reverse \u2014 decapsulation.", "This is why a single piece of data on the wire carries several addresses at once: MAC (who's the next hop), IP (who's the final destination), and port (which service)."], "ceh": "Packet crafting and sniffing both depend on this. When you read a capture in Wireshark, you are looking at the nested headers encapsulation produced. Spoofing an attack means forging a field in one of these layers.", "check": "Which address does encapsulation add at Layer 2, and does it change at every hop or stay the same end-to-end?", "answer": "The MAC address is added at Layer 2 and changes at every hop. The IP address stays the same end-to-end."}, "tcp-handshake": {"label": "TCP Three-Way Handshake", "short": "How two hosts open a reliable TCP connection: SYN \u2192 SYN/ACK \u2192 ACK.", "body": ["TCP connections start with a three-step negotiation. The client sends a SYN (synchronize) with an initial sequence number. The server replies SYN/ACK, acknowledging the client's number and sending its own. The client replies ACK. Now both sides agree on sequence numbers and the connection is 'established.' A FIN or RST tears it down.", "The sequence numbers chosen here matter: they're how TCP keeps bytes in order and how it rejects packets that don't belong."], "ceh": "A full-connect scan completes the whole handshake (noisy, logged). A SYN / 'half-open' scan sends SYN, reads the reply, then never sends the final ACK (stealthier). A SYN flood abuses step 1 to exhaust a server. Session hijacking abuses the sequence numbers set up here.", "check": "In a SYN scan, which of the three steps does the scanner deliberately skip, and why?", "answer": "It skips the final ACK, so the connection never fully opens \u2014 making the scan quieter and less likely to be logged as a real connection."}, "tcp-flags": {"label": "TCP Flags", "short": "Control bits in the TCP header \u2014 SYN, ACK, FIN, RST, PSH, URG \u2014 that signal connection state.", "body": ["Each TCP segment has a set of 1-bit flags. SYN opens a connection, ACK acknowledges received data, FIN closes gracefully, RST aborts abruptly, PSH says 'deliver this now,' URG marks urgent data. A normal connection is a predictable sequence of these flags.", "Scanners exploit the rules for how a host *must* respond to unusual flag combinations. For example, a closed port must answer certain probes with RST, while an open port may stay silent."], "ceh": "FIN, NULL, and Xmas scans send odd flag combinations to infer port state from the response (or lack of one). An RST in reply usually means 'port closed.' These scans can slip past simple filters that only watch for SYN.", "check": "A scanner sends a packet with no flags set (a NULL scan) to a port and gets no response. On most systems, what does that suggest?", "answer": "No response suggests the port is open (or filtered). A closed port would typically reply with RST."}, "tcp-vs-udp": {"label": "TCP vs. UDP", "short": "TCP is connection-oriented and reliable (handshake, ordering, retransmission). UDP is connectionless and fast (fire-and-forget).", "body": ["TCP sets up a connection, numbers every byte, acknowledges receipt, and retransmits what's lost \u2014 good for web, email, SSH. UDP just sends datagrams with no handshake and no guarantee \u2014 good for DNS queries, DHCP, VoIP, and streaming where speed beats perfection.", "The difference shapes how each is scanned: TCP gives you clear handshake signals, while UDP's silence is ambiguous (no reply could mean open *or* filtered)."], "ceh": "UDP scanning is slower and less reliable precisely because UDP doesn't answer predictably. Many high-value services (DNS 53, SNMP 161, DHCP 67/68) run over UDP, so you can't skip it.", "check": "Why is scanning a UDP port harder to interpret than scanning a TCP port?", "answer": "UDP has no handshake. An open UDP port often sends nothing back, which looks the same as a filtered port, so results are ambiguous."}, "ports": {"label": "Ports & Services", "short": "A 16-bit number (0\u201365535) that identifies which service a packet is for. Well-known services use fixed ports.", "body": ["An IP address gets you to a host; a port number gets you to the right service on that host. Ports 0\u20131023 are 'well-known' (HTTP 80, HTTPS 443, SSH 22, DNS 53, SMB 445). Ports above that are registered or ephemeral (temporary client-side ports). A service 'listening' on a port is waiting for connections there.", "Port state is the core output of scanning: open (a service is listening), closed (nothing listening but host reachable), or filtered (a firewall is blocking the probe)."], "ceh": "The whole point of port scanning is mapping which ports are open and what's behind them. An open port is a potential door; the service and version behind it tell you what exploits might apply.", "check": "A scan reports port 445 open. What common service is that, and why would an attacker care?", "answer": "Port 445 is SMB (Windows file sharing). It's a frequent target for enumeration and well-known exploits, so an open 445 is a strong lead."}, "ip-addressing": {"label": "IP Addressing", "short": "The numeric address that identifies a host on a network \u2014 IPv4 (e.g. 192.168.1.10) or IPv6. Can be public or private.", "body": ["An IPv4 address is four numbers 0\u2013255 (32 bits total). Some ranges are private (10.x, 172.16\u201331.x, 192.168.x) and only valid inside a local network; the rest are public and routable on the Internet. IPv6 is the much larger successor, written in hex groups.", "Private addresses reach the Internet through NAT, which is why many hosts can share one public IP."], "ceh": "Target selection starts with IP ranges. Recognizing private vs. public addressing tells you whether you're looking at an internal host or an Internet-facing one, which changes the whole attack path.", "check": "Is 192.168.4.20 a public or private address, and can a host on the Internet route to it directly?", "answer": "Private. The Internet can't route to it directly \u2014 it's only reachable inside the local network or via NAT/port forwarding."}, "subnetting": {"label": "Subnetting & CIDR", "short": "Dividing an IP range into smaller networks. CIDR notation (e.g. /24) says how many bits are the network portion.", "body": ["A subnet mask splits an IP address into a network part and a host part. CIDR notation writes this as a slash number: /24 means the first 24 bits are the network, leaving 8 bits (256 addresses) for hosts. So 192.168.1.0/24 covers 192.168.1.0 through 192.168.1.255.", "Smaller numbers after the slash mean bigger networks: /16 is 65,536 addresses, /24 is 256, /30 is 4."], "ceh": "When you scan '192.168.1.0/24' you're telling the scanner to sweep all 256 addresses in that subnet. Reading CIDR correctly is how you aim a scan at the right scope \u2014 too broad is noisy, too narrow misses hosts.", "check": "How many host addresses does a /24 network contain, and how many does a /16 contain?", "answer": "A /24 contains 256 addresses (254 usable); a /16 contains 65,536."}, "mac-address": {"label": "MAC Address", "short": "A 48-bit hardware address burned into a network interface, used for delivery within a local network (Layer 2).", "body": ["Every network interface has a MAC address (e.g. 00:1A:2B:3C:4D:5E). It's how devices on the same local segment find each other. Unlike an IP address, which is logical and changes as you move between networks, a MAC is tied to the hardware \u2014 though it can be spoofed in software.", "The first half identifies the manufacturer (the OUI), which can leak what kind of device you're looking at."], "ceh": "MAC spoofing defeats MAC-based access control and hides a device's identity. ARP attacks work by lying about which MAC owns which IP. On Wi-Fi, MAC addresses are visible even when traffic is encrypted.", "check": "You change your interface's MAC to match an authorized device. What kind of access control does this defeat, and does it change your IP address?", "answer": "It defeats MAC filtering (common on Wi-Fi). It does not change your IP \u2014 MAC and IP are separate addresses at different layers."}, "arp": {"label": "ARP (Address Resolution Protocol)", "short": "Maps an IP address to a MAC address on the local network so frames can actually be delivered.", "body": ["To send a packet to 192.168.1.50 on your LAN, a host needs that device's MAC address. ARP is the question: 'Who has 192.168.1.50? Tell me your MAC.' The owner replies, and the answer is cached in the ARP table. The catch: ARP has no authentication \u2014 any device can answer, truthfully or not.", "This trust-by-default design is the root of a whole family of local attacks."], "ceh": "ARP spoofing/poisoning sends forged replies so the victim's traffic is sent to the attacker instead of the gateway \u2014 the basis for man-in-the-middle attacks and local sniffing on switched networks.", "check": "Why can an attacker intercept traffic with ARP spoofing even on a switched network, where the switch normally isolates traffic?", "answer": "Because ARP has no authentication. The attacker poisons the victim's ARP cache so the victim sends frames to the attacker's MAC, bypassing the switch's normal isolation."}, "dns": {"label": "DNS (Domain Name System)", "short": "The Internet's directory \u2014 translates names like example.com into IP addresses.", "body": ["DNS turns human-friendly names into IP addresses. A resolver asks a chain of servers until it finds the authoritative answer, then caches it. Record types carry different info: A (IPv4), AAAA (IPv6), MX (mail servers), NS (name servers), TXT (arbitrary text), CNAME (aliases).", "Because almost everything starts with a DNS lookup, DNS data is a goldmine for mapping a target \u2014 and DNS traffic is a convenient channel for attackers to hide in."], "ceh": "DNS enumeration (and zone transfers, when misconfigured) reveals subdomains, mail servers, and infrastructure. DNS is also abused for tunneling/exfiltration and for spoofing victims to malicious IPs.", "check": "During reconnaissance, why are a target's MX and NS records useful even though you're not attacking email yet?", "answer": "They reveal infrastructure \u2014 mail servers and name servers \u2014 expanding your map of the target's systems and possible entry points."}, "dhcp": {"label": "DHCP", "short": "Automatically hands out IP addresses and network settings (gateway, DNS) to devices joining a network.", "body": ["When a device joins a network, it broadcasts asking for configuration. A DHCP server offers an IP address, subnet mask, default gateway, and DNS servers, on a lease. The exchange is Discover \u2192 Offer \u2192 Request \u2192 Acknowledge (DORA). Like ARP, classic DHCP has no authentication.", "Because DHCP tells a client who its gateway and DNS are, controlling DHCP means controlling where a victim's traffic goes."], "ceh": "A rogue DHCP server can hand victims a malicious gateway or DNS, steering their traffic through the attacker. DHCP starvation exhausts the pool so the rogue server wins.", "check": "If an attacker's rogue DHCP server hands a victim a malicious DNS server, what can the attacker now do?", "answer": "Redirect the victim's name lookups \u2014 sending them to attacker-controlled IPs for sites they think are legitimate."}, "icmp": {"label": "ICMP / Ping", "short": "A control-message protocol used for diagnostics \u2014 ping (echo) and traceroute ride on it.", "body": ["ICMP carries network control and error messages rather than user data. 'Ping' sends an ICMP echo request and waits for an echo reply to check if a host is alive and measure latency. Traceroute abuses TTL expiry messages to map the hops between you and a target.", "Many networks block or rate-limit ICMP, so 'no ping reply' doesn't prove a host is down."], "ceh": "Host discovery often starts with ICMP sweeps. But because ICMP is frequently filtered, scanners fall back to TCP/UDP probes to find live hosts. ICMP is also abused for tunneling and some DoS techniques.", "check": "A ping to a server times out. Can you conclude the server is offline? Why or why not?", "answer": "No. The host or a firewall may simply be dropping ICMP. You'd confirm with TCP/UDP probes to known ports."}, "http-https": {"label": "HTTP / HTTPS", "short": "The protocol of the web. HTTP is plaintext; HTTPS is HTTP wrapped in TLS encryption.", "body": ["HTTP is a request/response protocol: a client sends a method (GET, POST, etc.) to a URL with headers, and the server replies with a status code (200 OK, 404 Not Found, 500 error) and a body. HTTPS is the same thing carried inside a TLS-encrypted channel, so eavesdroppers see only ciphertext.", "Headers and status codes carry a lot of signal \u2014 server software, cookies, redirects, caching \u2014 much of it useful to an attacker."], "ceh": "Web attacks (injection, XSS, directory traversal) are crafted HTTP requests. Response headers and status codes fingerprint the server and reveal misconfigurations. Over plain HTTP, credentials and cookies travel in the clear.", "check": "Why does capturing traffic on plain HTTP expose a login, while HTTPS does not?", "answer": "HTTP sends data in plaintext, so a sniffer reads the credentials directly. HTTPS encrypts the whole exchange with TLS, so a sniffer sees only ciphertext."}, "tls-ssl": {"label": "TLS / SSL", "short": "The encryption layer that secures traffic (HTTPS, secure email, VPNs). SSL is its obsolete predecessor.", "body": ["TLS provides confidentiality (encryption), integrity (tamper detection), and authentication (certificates proving you're talking to the real server). A TLS handshake negotiates a cipher, validates the server's certificate, and establishes session keys. 'SSL' is the old name; the modern protocol is TLS 1.2/1.3.", "A certificate chains back to a trusted Certificate Authority \u2014 which is exactly what a man-in-the-middle must defeat or forge."], "ceh": "Weak ciphers, expired or self-signed certs, and old SSL/TLS versions are common findings. SSL stripping and rogue certificates are how attackers pierce HTTPS. CEH expects you to recognize these weaknesses.", "check": "What three guarantees does a correctly configured TLS connection provide?", "answer": "Confidentiality (encryption), integrity (tamper detection), and authentication (the server's identity via its certificate)."}, "switching-routing": {"label": "Switching vs. Routing", "short": "Switches move frames within a local network (Layer 2, MAC). Routers move packets between networks (Layer 3, IP).", "body": ["A switch connects devices on the same local network and forwards frames by MAC address, learning which device is on which port. A router connects different networks and forwards packets by IP address, choosing the next network hop. Your 'default gateway' is the router that leads off your local network.", "The boundary matters for attacks: Layer 2 attacks (ARP, MAC) stay within a switched segment; crossing into other networks is a Layer 3 (routing) problem."], "ceh": "Sniffing on a switched network requires defeating the switch (ARP poisoning, MAC flooding) because the switch won't just hand you other devices' traffic. Knowing where the Layer 2/3 boundary sits tells you how far an attack can reach.", "check": "Why is passive sniffing easy on an old hub but hard on a modern switch?", "answer": "A hub broadcasts every frame to all ports, so you see everything. A switch forwards frames only to the intended port, so you must actively subvert it to capture others' traffic."}, "nat": {"label": "NAT (Network Address Translation)", "short": "Lets many private hosts share one public IP by rewriting addresses at the router.", "body": ["NAT rewrites the source address of outbound packets so internal private IPs (like 192.168.x) appear to come from the router's single public IP, and it maps replies back to the right internal host using port numbers. This conserves public IPs and incidentally hides internal hosts.", "Port forwarding is the manual exception: the router sends a chosen public port to a specific internal host, deliberately exposing a service."], "ceh": "NAT hides internal addressing from outside scans \u2014 you see the public edge, not the hosts behind it. Port-forwarding rules are exactly the deliberately exposed services worth probing.", "check": "Why can't you directly scan an internal host behind NAT from the Internet unless a port-forward exists?", "answer": "NAT only maps replies to connections an internal host started, or to explicitly forwarded ports. Unsolicited inbound traffic has no mapping, so it can't reach internal hosts."}, "ttl-fragmentation": {"label": "TTL & Fragmentation", "short": "TTL limits how many hops a packet can travel; fragmentation splits a packet too big for a link.", "body": ["Every IP packet has a Time To Live (TTL) that drops by one at each router; at zero the packet is discarded (this is what traceroute exploits). Fragmentation splits a packet that exceeds a link's maximum size into pieces that are reassembled at the destination.", "Both fields are predictable enough to fingerprint systems \u2014 and malleable enough to abuse."], "ceh": "Default TTL values differ by OS, so TTL helps fingerprint a target. Fragmentation is an evasion technique: splitting an attack across fragments can slip past IDS/firewalls that don't reassemble packets the way the target does.", "check": "How can an attacker use packet fragmentation to evade an IDS?", "answer": "By splitting a malicious payload across fragments so the IDS, if it reassembles differently than the target host, fails to recognize the attack while the host still reassembles and executes it."}, "mac-arp-table": {"label": "CAM / MAC Table", "short": "The switch's memory of which MAC address lives on which port. Overflowing it can turn a switch into a hub.", "body": ["A switch builds a table mapping MAC addresses to physical ports so it can forward frames only where they belong. This table (the CAM table) is finite. If it fills up, many switches 'fail open' and start flooding all frames to every port \u2014 behaving like a hub.", "That failure mode is the whole point of a MAC flooding attack."], "ceh": "MAC flooding (e.g. with macof) overflows the CAM table so the switch floods traffic, letting an attacker passively sniff a switched network. It's the brute-force cousin of ARP poisoning.", "check": "What happens to a switch's forwarding behavior when its CAM table is overflowed, and why does that help an attacker?", "answer": "It fails open and floods frames to all ports like a hub, so the attacker can now passively capture traffic meant for other devices."}, "wifi-80211": {"label": "Wi-Fi (802.11)", "short": "The family of wireless LAN standards. Networks are named by SSID; access points are identified by BSSID (a MAC).", "body": ["802.11 is the set of standards behind Wi-Fi. An access point advertises its network name (SSID) in beacon frames; its radio has a hardware address called the BSSID. Clients associate with an AP to join. Because the medium is radio, anyone in range can hear the frames \u2014 even if the payload is encrypted.", "Management frames (beacons, authentication, deauthentication) were historically unprotected, which enables several attacks."], "ceh": "Wireless attacks exploit the open medium: capturing handshakes for offline cracking, deauth attacks to force reconnection, and evil-twin APs that imitate a real SSID. Monitor mode lets a card capture all nearby frames.", "check": "Why can an attacker capture Wi-Fi frames without connecting to the network, and what stops them from reading the contents?", "answer": "Radio is a shared medium \u2014 frames are in the air for anyone in range to capture. Encryption (WPA2/WPA3) is what keeps the payload unreadable without the key."}, "promiscuous-mode": {"label": "Promiscuous / Monitor Mode", "short": "Interface modes that capture all traffic the card can hear, not just traffic addressed to it.", "body": ["Normally a network card ignores frames not addressed to its own MAC. Promiscuous mode tells a wired card to hand every frame it receives up to the OS \u2014 essential for sniffing. On Wi-Fi, monitor mode goes further, capturing raw 802.11 frames from the air without associating to any network.", "Without these modes, a sniffer only sees its own traffic, which defeats the purpose."], "ceh": "Sniffers like Wireshark and tcpdump rely on promiscuous mode; wireless capture and handshake collection rely on monitor mode. Knowing the difference explains why some captures see 'everything' and others see almost nothing.", "check": "You run Wireshark but only see your own machine's traffic on a switched network. Name two reasons.", "answer": "The interface isn't in promiscuous mode, and/or the switch isn't flooding traffic to your port (you'd need ARP poisoning or MAC flooding to see others' traffic)."}, "proxy": {"label": "Proxy", "short": "An intermediary that forwards traffic on your behalf \u2014 forward proxies hide the client, reverse proxies front the server.", "body": ["A forward proxy sits between a client and the Internet, making requests on the client's behalf (hiding or changing the client's apparent origin). A reverse proxy sits in front of servers, receiving requests and passing them to backends (load balancing, caching, TLS termination, WAF).", "Intercepting proxies (like Burp Suite) are a special case: they sit between browser and server so you can read and modify every request."], "ceh": "An intercepting proxy is the core web-testing tool \u2014 it lets you tamper with HTTP requests. Attackers also chain proxies to obscure their origin, and reverse proxies/WAFs are defenses you must recognize and sometimes evade.", "check": "What does an intercepting proxy like Burp Suite let a tester do that a normal browser cannot?", "answer": "Pause, read, and modify each HTTP request and response before it's sent or rendered \u2014 enabling manual injection and tampering tests."}, "vpn": {"label": "VPN / Tunneling", "short": "An encrypted tunnel that carries traffic across an untrusted network as if you were on a trusted one.", "body": ["A VPN wraps your traffic in an encrypted tunnel to a remote endpoint, so intermediaries see only the encrypted outer packets, not the inner traffic. More generally, 'tunneling' means carrying one protocol inside another \u2014 which can be legitimate (secure remote access) or sneaky (smuggling data out inside DNS or HTTPS).", "The same mechanism that protects privacy can also hide an attacker's activity from network defenders."], "ceh": "VPNs defeat passive sniffing of the tunneled traffic. Attackers use tunneling (DNS, ICMP, HTTPS) to exfiltrate data and bypass egress filtering, so recognizing tunnel signatures is a defensive skill CEH tests.", "check": "Why does data exfiltration over a DNS tunnel often slip past firewalls?", "answer": "DNS is almost always allowed outbound for normal name resolution, so a tunnel disguised as DNS queries blends into traffic firewalls routinely permit."}, "vlan": {"label": "VLAN (Virtual LAN)", "short": "A way to split one physical switch into several isolated logical networks, so traffic in one VLAN can't normally reach another.", "body": ["A VLAN lets a single switch act like several separate switches. Ports are tagged with a VLAN ID, and the switch keeps each VLAN's traffic isolated \u2014 devices in VLAN 10 don't see VLAN 20's frames, even on the same hardware. Traffic between VLANs has to go through a router or Layer 3 switch. Trunk links (using 802.1Q tags) carry multiple VLANs between switches.", "The isolation is enforced by the switch's configuration, not by physical separation \u2014 which is exactly what VLAN attacks try to subvert."], "ceh": "VLAN hopping (via switch spoofing or double-tagging 802.1Q frames) lets an attacker send traffic into a VLAN they shouldn't reach, defeating the segmentation defenders rely on to contain a breach.", "check": "VLANs are often used to separate a guest network from an internal one. What does a VLAN hopping attack let an attacker do to that design?", "answer": "Reach the internal VLAN from the guest VLAN \u2014 bypassing the segmentation that was supposed to keep guests isolated from internal systems."}}</script>
+<script>
+(function(){
+  var DATA = {};
+  try { DATA = JSON.parse(document.getElementById('net101-data').textContent); } catch(e){}
+  var overlay = document.getElementById('netOverlay');
+  var panel   = document.getElementById('netPanel');
+  var titleEl = document.getElementById('netPanelTitle');
+  var bodyEl  = document.getElementById('netPanelBody');
+  var closeEl = document.getElementById('netPanelClose');
+  var lastFocus = null;
+  var PRIMER = 'net-primer.html';
+
+  function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
+
+  function render(key){
+    var c = DATA[key];
+    if(!c){ titleEl.textContent='Not found'; bodyEl.innerHTML='<p>No explainer for this concept yet.</p>'; return; }
+    titleEl.textContent = c.label;
+    var paras = (c.body||[]).map(function(p){ return '<p>'+esc(p)+'</p>'; }).join('');
+    bodyEl.innerHTML =
+      '<p class="short">'+esc(c.short)+'</p>' + paras +
+      '<div class="net-panel__ceh"><strong>Why it matters for CEH:</strong> '+esc(c.ceh)+'</div>' +
+      '<details class="net-panel__check"><summary>Quick check</summary>' +
+        '<p class="q">'+esc(c.check)+'</p>' +
+        '<p><strong>Answer:</strong> '+esc(c.answer)+'</p></details>' +
+      '<a class="net-panel__full" href="'+PRIMER+'#'+encodeURIComponent(key)+'" target="_blank" rel="noopener">Open full explainer &rarr;</a>';
+  }
+
+  function open(key, trigger){
+    lastFocus = trigger || document.activeElement;
+    render(key);
+    overlay.hidden = false;
+    // force reflow so transition runs
+    void overlay.offsetWidth;
+    overlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    closeEl.focus();
+    document.addEventListener('keydown', onKey, true);
+  }
+  function close(){
+    overlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onKey, true);
+    setTimeout(function(){ overlay.hidden = true; }, 220);
+    if(lastFocus && lastFocus.focus){ lastFocus.focus(); }
+  }
+  function onKey(e){
+    if(e.key === 'Escape'){ e.preventDefault(); close(); return; }
+    if(e.key === 'Tab'){
+      var f = panel.querySelectorAll('button, a[href], summary, [tabindex]:not([tabindex="-1"])');
+      if(!f.length) return;
+      var first=f[0], last=f[f.length-1];
+      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+    }
+  }
+
+  closeEl.addEventListener('click', close);
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) close(); });
+  document.addEventListener('click', function(e){
+    var chip = e.target.closest ? e.target.closest('.net-chip') : null;
+    if(chip){ e.preventDefault(); open(chip.getAttribute('data-net'), chip); }
+  });
+})();
+</script>
+
 </body>
 </html>

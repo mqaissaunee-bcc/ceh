@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Networking Primer — CEH v13 Self-Study</title>
+<meta name="description" content="Just-in-time networking fundamentals for CEH students without a strong networking background.">
+<style>
+/* ============================================================
+   CEH v13 COURSE CHASSIS  v1.0
+   Shared design tokens + components for every module.
+   Edit here, regenerate all modules. Do not edit per-module.
+   ============================================================ */
+
+/* ---------- 1. TOKENS : DARK (default) ---------- */
+:root {
+  /* Brand: terminal green, used as ACCENT not body text */
+  --accent:          #35e05f;
+  --accent-strong:   #6dff96;
+  --accent-dim:      rgba(53, 224, 95, 0.14);
+  --accent-line:     rgba(53, 224, 95, 0.34);
+
+  --cyan:            #43d9d4;
+  --amber:           #f0b429;
+  --danger:          #ff6b6b;
+  --success:         #35e05f;
+
+  /* Surfaces */
+  --bg:              #07090b;
+  --bg-elev:         #0e1216;
+  --surface:         #141a20;
+  --surface-2:       #1b232b;
+  --border:          #26313b;
+  --border-strong:   #37444f;
+
+  /* Text — high legibility, green reserved for accents */
+  --text:            #e8eef2;
+  --text-muted:      #9fb0bd;
+  --text-faint:      #6f8291;
+  --text-on-accent:  #04120a;
+
+  /* Code */
+  --code-bg:         #05070a;
+  --code-text:       #8ef0a8;
+  --code-border:     #1e2a33;
+
+  /* Typography */
+  --font-scale:      1;
+  --font-body:       system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:       ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --fs-base:  calc(1rem     * var(--font-scale));
+  --fs-sm:    calc(0.875rem * var(--font-scale));
+  --fs-xs:    calc(0.78rem  * var(--font-scale));
+  --fs-lg:    calc(1.125rem * var(--font-scale));
+  --fs-h1:    calc(clamp(1.6rem, 1.1rem + 2.2vw, 2.6rem) * var(--font-scale));
+  --fs-h2:    calc(clamp(1.35rem, 1rem + 1.4vw, 1.9rem) * var(--font-scale));
+  --fs-h3:    calc(clamp(1.1rem, 0.95rem + 0.6vw, 1.3rem) * var(--font-scale));
+  --fs-h4:    calc(1.02rem * var(--font-scale));
+
+  /* Space + shape */
+  --sp-1: 0.35rem; --sp-2: 0.6rem;  --sp-3: 0.9rem;
+  --sp-4: 1.3rem;  --sp-5: 1.9rem;  --sp-6: 2.6rem;
+  --radius:    10px;
+  --radius-lg: 16px;
+  --shadow:    0 2px 10px rgba(0,0,0,.42);
+  --shadow-lg: 0 10px 34px rgba(0,0,0,.5);
+  --ring:      0 0 0 3px rgba(53,224,95,.42);
+  --maxw:      1180px;
+}
+
+/* ---------- 2. TOKENS : LIGHT ---------- */
+[data-theme="light"] {
+  --accent:          #0f7a34;
+  --accent-strong:   #0a5c26;
+  --accent-dim:      rgba(15, 122, 52, 0.10);
+  --accent-line:     rgba(15, 122, 52, 0.30);
+
+  --cyan:            #0b6d78;
+  --amber:           #8a5a00;
+  --danger:          #b3261e;
+  --success:         #0f7a34;
+
+  --bg:              #f4f6f8;
+  --bg-elev:         #ffffff;
+  --surface:         #ffffff;
+  --surface-2:       #eef2f5;
+  --border:          #d3dbe2;
+  --border-strong:   #b4c0ca;
+
+  --text:            #10181f;
+  --text-muted:      #48586a;
+  --text-faint:      #6b7c8c;
+  --text-on-accent:  #ffffff;
+
+  --code-bg:         #10181f;
+  --code-text:       #a6f0be;
+  --code-border:     #26313b;
+
+  --shadow:    0 1px 3px rgba(16,24,31,.10);
+  --shadow-lg: 0 10px 30px rgba(16,24,31,.14);
+  --ring:      0 0 0 3px rgba(15,122,52,.34);
+}
+
+/* ---------- 2b. LEGACY ALIASES ----------
+   Pre-chassis modules referenced these names in inline styles and in JS
+   template literals. They are mapped onto the token system so inherited
+   markup stays theme-aware. Do not use them in new content. */
+:root, [data-theme="light"] {
+  --primary-color:   var(--accent);
+  --secondary-color: var(--cyan);
+  --accent-color:    var(--accent);
+  --success-color:   var(--success);
+  --warning-color:   var(--amber);
+  --danger-color:    var(--danger);
+  --error-color:     var(--danger);
+  --text-light:      var(--text-muted);
+  --text-dark:       var(--text);
+  --border-color:    var(--border);
+  --dark-bg:         var(--bg);
+  --card-bg:         var(--surface);
+  --light-bg:        var(--surface-2);
+
+  /* module-scoped legacy names */
+  --sniff-primary:   var(--accent);
+  --sniff-secondary: var(--cyan);
+}
+
+/* ---------- 3. RESET + BASE ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 var(--sp-3); font-weight: 700; }
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); color: var(--accent); }
+h4 { font-size: var(--fs-h4); color: var(--accent); }
+p  { margin: 0 0 var(--sp-3); }
+ul, ol { margin: 0 0 var(--sp-3); padding-left: 1.35rem; }
+li { margin-bottom: var(--sp-1); }
+strong { color: var(--text); font-weight: 700; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { color: var(--accent-strong); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: var(--ring);
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 999;
+  background: var(--accent); color: var(--text-on-accent);
+  padding: var(--sp-2) var(--sp-4); border-radius: 0 0 var(--radius) 0;
+  font-weight: 700; text-decoration: none;
+}
+.skip-link:focus { left: 0; }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- 4. AMBIENT BACKDROP ---------- */
+.matrix-bg {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 24%, var(--accent-dim) 0%, transparent 42%),
+    radial-gradient(circle at 82% 72%, var(--accent-dim) 0%, transparent 46%);
+  opacity: .85;
+}
+[data-theme="light"] .matrix-bg { opacity: .5; }
+
+.matrix-line {
+  position: absolute; color: var(--accent); font-family: var(--font-mono);
+  font-size: 12px; opacity: .18; animation: matrix-fall 9s linear infinite;
+}
+@keyframes matrix-fall {
+  from { transform: translateY(-110vh); }
+  to   { transform: translateY(110vh); }
+}
+
+/* ---------- 5. LAYOUT ---------- */
+.container { max-width: var(--maxw); margin: 0 auto; padding: var(--sp-4); }
+
+/* ---------- 6. CONTROL BAR ---------- */
+.controlbar {
+  position: sticky; top: 0; z-index: 60;
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background: color-mix(in srgb, var(--bg-elev) 92%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+.controlbar__brand {
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  color: var(--accent); letter-spacing: .09em; text-transform: uppercase;
+  font-weight: 700; margin-right: auto; white-space: nowrap;
+}
+.controlbar__group {
+  display: flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 3px; background: var(--surface);
+}
+.controlbar__label {
+  font-size: var(--fs-xs); color: var(--text-muted);
+  padding: 0 var(--sp-1); white-space: nowrap;
+}
+
+.ctl {
+  min-height: 38px; min-width: 38px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 0 var(--sp-2);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-muted); background: transparent;
+  border: 0; border-radius: 999px; cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.ctl:hover  { background: var(--surface-2); color: var(--text); }
+.ctl[aria-pressed="true"], .ctl.is-active {
+  background: var(--accent); color: var(--text-on-accent);
+}
+.ctl:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ---------- 7. HEADER ---------- */
+.header {
+  text-align: center; margin: var(--sp-5) 0 var(--sp-4);
+  padding: var(--sp-5) var(--sp-4);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+.header h1 { color: var(--text); margin-bottom: var(--sp-3); }
+.module-info { color: var(--text-muted); max-width: 70ch; margin: 0 auto; }
+.module-info h3 { color: var(--accent); }
+
+.highlight {
+  display: inline-block;
+  background: var(--accent-dim); color: var(--accent);
+  border: 1px solid var(--accent-line);
+  padding: 2px 10px; margin: 3px; border-radius: 999px;
+  font-size: var(--fs-xs); font-weight: 600; white-space: nowrap;
+}
+
+/* ---------- 8. NAV (tablist) ---------- */
+.navigation {
+  display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-2);
+  background: var(--bg-elev);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+}
+.nav-btn {
+  flex: 1 1 auto; min-height: 44px;
+  padding: var(--sp-2) var(--sp-3);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-muted); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.nav-btn:hover { color: var(--text); border-color: var(--border-strong); }
+.nav-btn[aria-selected="true"], .nav-btn.active {
+  background: var(--accent); color: var(--text-on-accent);
+  border-color: var(--accent);
+}
+.nav-btn__done { color: var(--accent); font-weight: 700; }
+.nav-btn[aria-selected="true"] .nav-btn__done { color: var(--text-on-accent); }
+
+/* ---------- 9. PROGRESS ---------- */
+.progress-wrap {
+  display: flex; align-items: center; gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.progress-bar {
+  flex: 1; height: 8px; overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px;
+}
+.progress-fill {
+  height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--cyan));
+  border-radius: 999px; transition: width .35s ease;
+}
+.progress-text {
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  color: var(--text-muted); white-space: nowrap;
+}
+
+/* ---------- 10. SECTIONS ---------- */
+.module-section { display: none; animation: fade-in .28s ease; }
+.module-section.active { display: block; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(8px);} to {opacity:1;transform:none;} }
+
+.section-title {
+  color: var(--text);
+  padding-bottom: var(--sp-2); margin-bottom: var(--sp-4);
+  border-bottom: 2px solid var(--accent-line);
+}
+.subsection {
+  margin: var(--sp-4) 0; padding-left: var(--sp-3);
+  border-left: 3px solid var(--accent-line);
+}
+
+/* ---------- 11. CARDS ---------- */
+.card, .feature-card, .tool-card, .tool-showcase, .interactive-demo, .lab-simulator {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  box-shadow: var(--shadow);
+}
+.feature-card, .tool-card { margin-bottom: 0; height: 100%; }
+.interactive-demo, .lab-simulator { border-left: 3px solid var(--accent); }
+
+.grid-2, .grid-3 { display: grid; gap: var(--sp-4); margin-bottom: var(--sp-4); }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
+
+/* ---------- 12. CODE + TERMINAL ---------- */
+.code-block, .terminal, .demo-output {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  background: var(--code-bg);
+  color: var(--code-text);
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius);
+  padding: var(--sp-3);
+  margin: var(--sp-3) 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.demo-output { min-height: 60px; color: var(--text); }
+.demo-output:empty::before {
+  content: "Output appears here after you run the demo.";
+  color: var(--text-faint); font-style: italic;
+}
+.demo-controls { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-3) 0; }
+
+/* ---------- 13. BUTTONS ---------- */
+.btn {
+  min-height: 44px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: var(--sp-2) var(--sp-4);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-on-accent); background: var(--accent);
+  border: 1px solid var(--accent); border-radius: var(--radius);
+  cursor: pointer; text-decoration: none;
+  transition: filter .15s, transform .08s;
+}
+.btn:hover { filter: brightness(1.12); }
+.btn:active { transform: translateY(1px); }
+.btn-success { background: var(--success); border-color: var(--success); }
+.btn-warning { background: var(--amber);  border-color: var(--amber);  color: var(--text-on-accent); }
+.btn-danger  { background: var(--danger); border-color: var(--danger); color: #fff; }
+[data-theme="light"] .btn-warning { color: #fff; }
+
+/* ---------- 14. FLOW DIAGRAM ---------- */
+.attack-flow {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  margin: var(--sp-4) 0;
+}
+.flow-step {
+  flex: 1 1 150px; min-width: 130px; text-align: center;
+  padding: var(--sp-3);
+  font-size: var(--fs-sm); font-weight: 600;
+  background: var(--accent-dim); color: var(--text);
+  border: 1px solid var(--accent-line); border-radius: var(--radius);
+}
+.flow-arrow { color: var(--accent); font-size: var(--fs-lg); font-weight: 700; }
+
+/* ---------- 15. QUIZ ---------- */
+.quiz-container { background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: var(--sp-4); }
+.quiz-question { margin-bottom: var(--sp-4); }
+.quiz-options { display: grid; gap: var(--sp-2); margin: var(--sp-3) 0; list-style: none; padding: 0; }
+.quiz-option {
+  width: 100%; min-height: 44px; text-align: left;
+  padding: var(--sp-3);
+  font: inherit; font-size: var(--fs-base); color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; transition: border-color .15s, background .15s;
+}
+.quiz-option:hover { border-color: var(--accent); }
+.quiz-option.selected { border-color: var(--accent); background: var(--accent-dim); }
+.quiz-option.correct::after   { content: "  ✓ Correct"; color: var(--success); font-weight: 700; }
+.quiz-option.incorrect::after { content: "  ✕ Incorrect"; color: var(--danger); font-weight: 700; }
+.quiz-option.correct   { border-color: var(--success); background: color-mix(in srgb, var(--success) 14%, transparent); }
+.quiz-option.incorrect { border-color: var(--danger);  background: color-mix(in srgb, var(--danger) 14%, transparent); }
+.quiz-navigation { display: flex; flex-wrap: wrap; gap: var(--sp-2); justify-content: space-between; margin-top: var(--sp-4); }
+
+/* ---------- 16. RESOURCES ---------- */
+.resource-link {
+  display: inline-block; margin: 3px 0;
+  color: var(--accent); text-decoration: none; font-weight: 500;
+}
+.resource-link:hover { text-decoration: underline; }
+.resource-link[target="_blank"]::after { content: " ↗"; font-size: .85em; color: var(--text-faint); }
+
+/* ---------- 17. MODAL ---------- */
+.modal {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,.72);
+  padding: var(--sp-4);
+  overflow-y: auto;
+}
+.modal.open { display: flex; align-items: flex-start; justify-content: center; }
+.modal-content {
+  position: relative;
+  width: 100%; max-width: 760px; margin: auto;
+  background: var(--bg-elev); color: var(--text);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+  padding: var(--sp-5); box-shadow: var(--shadow-lg);
+}
+.close {
+  position: absolute; top: var(--sp-2); right: var(--sp-2);
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; line-height: 1;
+  color: var(--text-muted); background: transparent;
+  border: 0; border-radius: var(--radius); cursor: pointer;
+}
+.close:hover { color: var(--danger); background: var(--surface-2); }
+
+/* ---------- 18. NOTIFICATION ---------- */
+.notification {
+  position: fixed; right: var(--sp-4); bottom: var(--sp-4); z-index: 120;
+  max-width: min(92vw, 360px);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-on-accent); background: var(--accent);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  opacity: 0; transform: translateY(14px); pointer-events: none;
+  transition: opacity .25s, transform .25s;
+}
+.notification.show { opacity: 1; transform: none; }
+.notification.error   { background: var(--danger); color: #fff; }
+.notification.warning { background: var(--amber); }
+
+/* ---------- 18a. GLOSSARY TOOLTIPS ---------- */
+.term {
+  border-bottom: 1px dotted var(--accent);
+  cursor: help;
+  color: inherit;
+  transition: background-color .12s ease, color .12s ease;
+  border-radius: 2px;
+}
+.term:hover,
+.term:focus-visible {
+  background: var(--accent-dim);
+  color: var(--accent);
+  outline: none;
+}
+.term:focus-visible { box-shadow: 0 0 0 2px var(--ring); }
+
+.tooltip-bubble {
+  position: absolute;
+  z-index: 1200;
+  max-width: min(320px, 86vw);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity .14s ease, transform .14s ease;
+  pointer-events: none;
+}
+.tooltip-bubble.is-visible { opacity: 1; transform: none; }
+.tooltip-bubble::after {
+  content: "";
+  position: absolute;
+  left: var(--tip-arrow, 50%);
+  width: 9px; height: 9px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  transform: translateX(-50%) rotate(45deg);
+}
+.tooltip-bubble[data-placement="top"]::after {
+  bottom: -5px; border-top: none; border-left: none;
+}
+.tooltip-bubble[data-placement="bottom"]::after {
+  top: -5px; border-bottom: none; border-right: none;
+}
+
+/* cross-module reference links */
+a.xref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-line);
+  white-space: nowrap;
+}
+a.xref:hover, a.xref:focus-visible { border-bottom-color: var(--accent); background: var(--accent-dim); border-radius: 2px; }
+
+/* ---------- 18b. COURSE NAV ---------- */
+.course-nav {
+  display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  align-items: center; justify-content: space-between;
+  margin-top: var(--sp-5); padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+.course-nav a {
+  min-height: 44px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  text-decoration: none;
+}
+.course-nav a:hover { border-color: var(--accent); color: var(--accent); }
+.course-nav .is-home { margin-inline-start: auto; }
+.course-nav .is-aux {
+  font-weight: 500; color: var(--text-muted);
+  background: transparent; border-color: var(--border);
+}
+.course-nav .is-aux:last-of-type { margin-inline-end: auto; }
+.course-nav .is-aux:hover { color: var(--accent); border-color: var(--accent); }
+.course-nav .is-disabled { opacity: .4; pointer-events: none; }
+
+/* ---------- 18c. LEGACY COMPONENTS ----------
+   Class names inherited from the pre-chassis modules. The old per-module
+   stylesheets are gone, so these are mapped onto the token system here.
+   New content should use .card / .grid-2 / .grid-3 / .terminal instead. */
+
+/* card family */
+.ai-tool-card, .analysis-card, .assessment-card, .attack-card, .aws-card,
+.azure-card, .cia-element, .cloud-card, .database-card, .enum-card,
+.gcp-card, .hacker-card, .kill-chain-step, .lab-card, .lab-exercise,
+.lab-scenario, .legal-card, .malware-card, .mitre-tactic, .objective-card,
+.resource-card, .technique-card, .timeline-item, .vulnerability-card,
+.webapp-card, .certification-preview, .lab-environment,
+.static-analysis, .dynamic-analysis {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-3);
+}
+.kill-chain-step, .mitre-tactic, .timeline-item { border-left: 3px solid var(--accent); }
+.lab-exercise, .lab-scenario, .lab-card { border-left: 3px solid var(--cyan); }
+
+/* attacker-hat cards keep a semantic edge colour */
+.white-hat { border-left: 4px solid var(--success); }
+.gray-hat  { border-left: 4px solid var(--amber); }
+.black-hat { border-left: 4px solid var(--danger); }
+
+/* grid family */
+.ai-tools-grid, .assessment-grid, .attack-grid, .cia-triad, .cloud-providers,
+.database-services, .enum-types, .hacker-types, .kill-chain, .labs-container,
+.legal-framework, .malware-grid, .mitre-matrix, .resources-grid,
+.stats-container, .technique-grid, .tool-grid, .tool-mastery-grid,
+.tools-grid, .vulnerability-grid, .webapp-techniques, .timeline,
+.analysis-comparison, .completion-stats {
+  display: grid;
+  gap: var(--sp-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  margin-bottom: var(--sp-4);
+}
+.timeline, .lab-container { grid-template-columns: 1fr; }
+
+.lab-header {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  justify-content: space-between; margin-bottom: var(--sp-3);
+}
+.lab-objectives, .lab-steps, .step-list { margin: var(--sp-2) 0 var(--sp-3) 1.2rem; }
+
+/* terminal output lines */
+.terminal-line { display: block; font-family: var(--font-mono); font-size: var(--fs-sm); }
+.terminal-line.prompt,  .terminal-line .prompt  { color: var(--accent); }
+.terminal-line.output,  .terminal-line .output  { color: var(--text); }
+.terminal-line.info,    .terminal-line .info    { color: var(--cyan); }
+.terminal-line.success, .terminal-line .success { color: var(--success); }
+.terminal-line.warning, .terminal-line .warning { color: var(--amber); }
+.terminal-line.error,   .terminal-line .error   { color: var(--danger); }
+.azure-output, .gcp-output {
+  font-family: var(--font-mono); font-size: var(--fs-sm);
+  background: var(--code-bg); color: var(--code-text);
+  border: 1px solid var(--code-border); border-radius: var(--radius);
+  padding: var(--sp-3); margin: var(--sp-2) 0; overflow-x: auto; white-space: pre-wrap;
+}
+
+/* callout boxes */
+.info-box, .success-box, .warning-box {
+  padding: var(--sp-3) var(--sp-4); margin: var(--sp-3) 0;
+  border: 1px solid var(--border); border-left-width: 4px;
+  border-radius: var(--radius); background: var(--surface-2);
+}
+.info-box    { border-left-color: var(--cyan); }
+.success-box { border-left-color: var(--success); }
+.warning-box { border-left-color: var(--amber); }
+
+/* CVSS severity */
+.cvss-score {
+  display: inline-block; padding: 2px 12px; border-radius: 999px;
+  font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-sm);
+  background: var(--surface-2); border: 1px solid var(--border);
+}
+.cvss-none     { color: var(--text-muted); }
+.cvss-low      { color: var(--success); border-color: var(--success); }
+.cvss-medium   { color: var(--amber);   border-color: var(--amber); }
+.cvss-high     { color: var(--danger);  border-color: var(--danger); }
+.cvss-critical { color: var(--text-on-accent); background: var(--danger); border-color: var(--danger); }
+
+/* quiz-option aliases used by some modules */
+.option {
+  display: block; width: 100%; text-align: left; min-height: 44px;
+  padding: var(--sp-3); margin-bottom: var(--sp-2);
+  font: inherit; color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer;
+}
+.option:hover { border-color: var(--accent); }
+.option.selected { border-color: var(--accent); background: var(--accent-dim); }
+.option.correct   { border-color: var(--success); background: color-mix(in srgb, var(--success) 14%, transparent); }
+.option.incorrect { border-color: var(--danger);  background: color-mix(in srgb, var(--danger) 14%, transparent); }
+.options { list-style: none; padding: 0; margin: var(--sp-3) 0; }
+.question { margin-bottom: var(--sp-4); }
+
+/* misc */
+.btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border-strong); }
+.btn-lab, .lab-btn {
+  min-height: 44px; display: inline-flex; align-items: center; gap: 6px;
+  padding: var(--sp-2) var(--sp-4); font: inherit; font-weight: 600;
+  color: var(--text-on-accent); background: var(--cyan);
+  border: 1px solid var(--cyan); border-radius: var(--radius); cursor: pointer;
+}
+.tool-icon, .enum-icon { font-size: calc(1.6rem * var(--font-scale)); line-height: 1; }
+.score-display {
+  font-family: var(--font-mono); font-size: calc(2.4rem * var(--font-scale));
+  font-weight: 700; color: var(--accent); text-align: center;
+}
+.stat-number {
+  font-family: var(--font-mono); font-size: calc(1.7rem * var(--font-scale));
+  font-weight: 700; color: var(--accent); line-height: 1.1;
+}
+.completion-badge, .certification-badge {
+  display: inline-block; padding: var(--sp-2) var(--sp-4);
+  font-weight: 700; color: var(--text-on-accent);
+  background: var(--accent); border-radius: 999px;
+}
+.certification-section { margin-top: var(--sp-5); }
+.stat-card {
+  text-align: center; padding: var(--sp-4);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.module-section .footer, main .footer {
+  margin-top: var(--sp-5); padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs); color: var(--text-faint); text-align: center;
+}
+.pulse { animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+/* ---------- 18d. NOTES ---------- */
+.notes-fab {
+  position: fixed; right: var(--sp-4); bottom: var(--sp-4); z-index: 90;
+  min-width: 56px; min-height: 56px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 0 var(--sp-4);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-on-accent); background: var(--accent);
+  border: none; border-radius: 999px; cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: filter .15s, transform .1s;
+}
+.notes-fab:hover { filter: brightness(1.1); }
+.notes-fab:active { transform: translateY(1px); }
+.notes-fab__icon { font-size: 1.3rem; line-height: 1; }
+.notes-fab__dot {
+  position: absolute; top: 6px; right: 8px;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--amber); border: 2px solid var(--bg);
+}
+
+.notes-panel {
+  position: fixed; right: var(--sp-4); bottom: calc(var(--sp-4) + 68px);
+  z-index: 95;
+  width: min(94vw, 420px); max-height: min(72vh, 560px);
+  display: none; flex-direction: column;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.notes-panel.open { display: flex; animation: fade-in .2s ease; }
+
+.notes-panel__head {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+.notes-panel__title { font-weight: 700; font-size: var(--fs-base); margin-right: auto; }
+.notes-panel__close {
+  min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; line-height: 1; color: var(--text-muted);
+  background: transparent; border: 0; border-radius: var(--radius); cursor: pointer;
+}
+.notes-panel__close:hover { color: var(--danger); background: var(--surface-2); }
+
+.notes-tabs { display: flex; gap: 4px; padding: var(--sp-2) var(--sp-3) 0; }
+.notes-tab {
+  flex: 1; min-height: 38px; padding: var(--sp-1) var(--sp-2);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text-muted); background: var(--surface);
+  border: 1px solid var(--border); border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0; cursor: pointer;
+}
+.notes-tab[aria-pressed="true"] { color: var(--accent); background: var(--surface-2); border-color: var(--border-strong); }
+
+.notes-panel__scope {
+  font-size: var(--fs-xs); color: var(--text-faint);
+  padding: var(--sp-2) var(--sp-3) 0;
+}
+.notes-panel__body { padding: var(--sp-2) var(--sp-3); flex: 1; min-height: 0; display: flex; }
+.notes-area {
+  width: 100%; min-height: 180px; resize: vertical;
+  padding: var(--sp-3);
+  font: inherit; font-size: var(--fs-base); line-height: 1.55;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.notes-area:focus-visible { border-color: var(--accent); }
+
+.notes-panel__foot {
+  display: flex; gap: var(--sp-2); align-items: center;
+  padding: var(--sp-2) var(--sp-3) var(--sp-3);
+}
+.notes-panel__foot .notes-hint { font-size: var(--fs-xs); color: var(--text-faint); margin-right: auto; }
+.notes-mini {
+  min-height: 36px; padding: 0 var(--sp-3);
+  font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer;
+}
+.notes-mini:hover { border-color: var(--accent); color: var(--accent); }
+.notes-mini.is-danger:hover { border-color: var(--danger); color: var(--danger); }
+
+@media (max-width: 720px) {
+  .notes-panel { right: 3vw; left: 3vw; width: auto; bottom: calc(var(--sp-3) + 64px); }
+  .notes-fab { right: var(--sp-3); bottom: var(--sp-3); }
+  .notes-fab__text { display: none; }
+}
+
+/* ---------- 19. FOOTER ---------- */
+.module-footer {
+  margin-top: var(--sp-6); padding: var(--sp-4) 0;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs); color: var(--text-faint); text-align: center;
+}
+.module-footer .legal {
+  max-width: 70ch; margin: 0 auto var(--sp-2);
+}
+
+/* ---------- 20. MOTION ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .matrix-line { display: none; }
+}
+
+/* ---------- 21. RESPONSIVE ---------- */
+@media (max-width: 720px) {
+  .container { padding: var(--sp-3); }
+  .header { padding: var(--sp-4) var(--sp-3); }
+  .nav-btn { flex: 1 1 100%; }
+  .controlbar__brand { flex: 1 1 100%; margin-bottom: 4px; }
+  .attack-flow { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+}
+
+/* ---------- 22. PRINT ---------- */
+@media print {
+  :root {
+    --bg: #fff; --bg-elev: #fff; --surface: #fff; --surface-2: #fff;
+    --text: #000; --text-muted: #333; --text-faint: #555;
+    --border: #999; --accent: #000; --accent-dim: transparent;
+    --code-bg: #f2f2f2; --code-text: #000; --shadow: none; --shadow-lg: none;
+  }
+  .controlbar, .navigation, .progress-wrap, .matrix-bg, .course-nav,
+  .notes-fab, .notes-panel,
+  .notification, .demo-controls, .btn, .modal, .tooltip-bubble { display: none !important; }
+  .term { border-bottom: none; background: none; color: inherit; }
+  .module-section { display: block !important; page-break-after: always; }
+  .card, .feature-card, .tool-card { page-break-inside: avoid; box-shadow: none; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; word-break: break-all; }
+  body { font-size: 11pt; }
+}
+
+/* ---------- 23. LAB KIT (portable interactive components) ----------
+   Drop-in styling for the data-driven lab widgets (dork builder, recon
+   terminal). Token-only: no hardcoded colours, so it themes automatically
+   in every module that carries the chassis. */
+
+.labkit {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: var(--sp-4);
+  margin: var(--sp-4) 0;
+}
+.labkit__head {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  justify-content: space-between; margin-bottom: var(--sp-2);
+}
+.labkit__title {
+  margin: 0; font-size: var(--fs-h4); color: var(--text);
+  display: flex; align-items: center; gap: .45rem;
+}
+.labkit__badge {
+  font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: .04em;
+  border: 1px solid var(--accent-line); color: var(--accent);
+  background: var(--accent-dim); border-radius: 999px; padding: .22rem .6rem;
+  white-space: nowrap;
+}
+.labkit__intro { color: var(--text-muted); font-size: var(--fs-sm); margin: 0 0 var(--sp-3); }
+.labkit__sub {
+  margin: var(--sp-4) 0 var(--sp-2); font-size: var(--fs-sm); font-weight: 700;
+  color: var(--text); text-transform: uppercase; letter-spacing: .06em;
+}
+.labkit__cols { display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
+@media (min-width: 900px) { .labkit__cols { grid-template-columns: 1.6fr 1fr; } }
+/* grid children default to min-width:auto, which lets a wide <pre> terminal
+   blow out the page. Pin them to 0 so overflow scrolls inside the box. */
+.labkit__cols > * { min-width: 0; }
+
+.labkit :is(input[type="text"], input[type="search"]):focus-visible,
+.labkit button:focus-visible,
+.labkit [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* --- shared field --- */
+.labkit-field { display: flex; flex-direction: column; gap: .3rem; }
+.labkit-field > span { font-size: var(--fs-xs); color: var(--text-muted); }
+.labkit-text {
+  font-family: var(--font-mono); font-size: var(--fs-sm);
+  background: var(--bg-elev); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: .55rem .65rem; min-height: 44px; width: 100%;
+}
+.labkit-text::placeholder { color: var(--text-faint); }
+
+/* --- operator grid (dork builder) --- */
+.labkit-ops { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--sp-2); }
+.labkit-op {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-2); padding: var(--sp-2);
+}
+.labkit-op.on { border-color: var(--accent-line); background: var(--accent-dim); }
+.labkit-op__top { display: flex; align-items: center; gap: .5rem; min-height: 30px; }
+.labkit-op__top input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+.labkit-op__top label { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--text); cursor: pointer; }
+.labkit-op__hint { display: block; font-size: var(--fs-xs); color: var(--text-muted); margin: .25rem 0 .35rem; }
+
+/* --- assembled query --- */
+.labkit-query {
+  font-family: var(--font-mono); font-size: var(--fs-sm);
+  background: var(--code-bg); color: var(--code-text);
+  border: 1px solid var(--code-border); border-radius: var(--radius);
+  padding: var(--sp-3); min-height: 48px; word-break: break-word; white-space: pre-wrap;
+}
+.labkit-query--empty { color: var(--text-faint); }
+
+/* Simulated tool output: keep column alignment, scroll rather than wrap. */
+.labkit-out {
+  font-family: var(--font-mono); font-size: var(--fs-sm);
+  background: var(--code-bg); color: var(--code-text);
+  border: 1px solid var(--code-border); border-radius: var(--radius);
+  padding: var(--sp-3); margin-top: var(--sp-2);
+  white-space: pre; overflow: auto; max-width: 100%;
+}
+
+.labkit-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-3); }
+
+/* --- simulated results --- */
+.labkit-results { display: grid; gap: var(--sp-2); margin-top: var(--sp-3); }
+.labkit-result {
+  border: 1px solid var(--border); border-left: 3px solid var(--cyan);
+  border-radius: var(--radius); background: var(--surface-2); padding: var(--sp-3);
+}
+.labkit-result__title { font-weight: 700; color: var(--text); font-size: var(--fs-sm); }
+.labkit-result__url { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--cyan); word-break: break-all; }
+.labkit-result__snip { color: var(--text-muted); font-size: var(--fs-sm); margin: .35rem 0 0; }
+.labkit-result__risk { font-size: var(--fs-xs); color: var(--text); margin: .45rem 0 0; }
+.labkit-empty { color: var(--text-muted); font-size: var(--fs-sm); border: 1px dashed var(--border-strong);
+  border-radius: var(--radius); padding: var(--sp-3); margin-top: var(--sp-3); }
+
+.labkit-note {
+  border-left: 3px solid var(--amber); background: var(--surface-2);
+  border-radius: var(--radius); padding: var(--sp-3); margin-top: var(--sp-3);
+  font-size: var(--fs-sm); color: var(--text-muted);
+}
+.labkit-note strong { color: var(--text); }
+
+/* --- challenges --- */
+.labkit-challenges { display: grid; gap: var(--sp-2); }
+.labkit-chal {
+  display: flex; gap: .6rem; align-items: flex-start; text-align: left; width: 100%;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-2); color: var(--text);
+  padding: var(--sp-2) var(--sp-3); min-height: 44px; cursor: pointer;
+  font: inherit; font-size: var(--fs-sm);
+}
+.labkit-chal:hover { border-color: var(--border-strong); }
+.labkit-chal[aria-pressed="true"] { border-color: var(--accent-line); background: var(--accent-dim); }
+.labkit-chal.solved { border-left: 3px solid var(--success); }
+.labkit-chal__mark { font-family: var(--font-mono); flex: none; color: var(--success); width: 1.1em; }
+.labkit-feedback { margin-top: var(--sp-3); font-size: var(--fs-sm); border-radius: var(--radius); padding: var(--sp-3); }
+.labkit-feedback--ok  { border: 1px solid var(--accent-line); background: var(--accent-dim); color: var(--text); }
+.labkit-feedback--no  { border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text-muted); }
+
+/* --- terminal --- */
+.labkit-term {
+  background: var(--code-bg); border: 1px solid var(--code-border);
+  border-radius: var(--radius); padding: var(--sp-3);
+  font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--code-text);
+  height: clamp(240px, 46vh, 400px); overflow: auto; max-width: 100%;
+}
+.labkit-term__line { white-space: pre; margin: 0; }
+.labkit-term__wrap { white-space: pre-wrap; word-break: break-word; }
+.labkit-term__echo { color: var(--accent-strong); margin-top: .5rem; }
+.labkit-term__muted { color: var(--text-faint); }
+.labkit-term__err { color: var(--danger); }
+.labkit-term__why { color: var(--text-faint); white-space: pre-wrap; margin: .2rem 0 .1rem; }
+.labkit-inputrow { display: flex; gap: var(--sp-2); margin-top: var(--sp-2); }
+.labkit-inputrow .labkit-text { background: var(--code-bg); color: var(--code-text); border-color: var(--code-border); }
+.labkit-suggest { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: var(--sp-2); }
+.labkit-suggest button {
+  font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-muted);
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 999px; padding: .35rem .7rem; min-height: 32px; cursor: pointer;
+}
+.labkit-suggest button:hover { color: var(--text); border-color: var(--accent-line); }
+
+.labkit-tag {
+  display: inline-block; font-family: var(--font-mono); font-size: var(--fs-xs);
+  border-radius: 4px; padding: .05rem .4rem; margin-right: .4rem;
+  border: 1px solid currentColor;
+}
+.labkit-tag--passive { color: var(--cyan); }
+.labkit-tag--active  { color: var(--amber); }
+
+/* --- objectives --- */
+.labkit-obj { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-2); }
+.labkit-obj li {
+  display: flex; gap: .55rem; align-items: flex-start;
+  font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.45;
+}
+.labkit-obj li.done { color: var(--text); }
+.labkit-obj__box {
+  flex: none; width: 1.15em; font-family: var(--font-mono); color: var(--text-faint);
+}
+.labkit-obj li.done .labkit-obj__box { color: var(--success); }
+.labkit-count { font-size: var(--fs-xs); color: var(--text-muted); margin: var(--sp-2) 0 0; }
+
+@media print {
+  .labkit-inputrow, .labkit-suggest, .labkit-actions { display: none !important; }
+  .labkit-term { height: auto; overflow: visible; }
+  .labkit { break-inside: avoid; }
+}
+
+</style>
+
+<style>
+/* ===== Networking Primer page ===== */
+.primer-intro { max-width: 70ch; margin: 0 0 2rem; color: var(--text-muted); }
+.primer-toc { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 2.5rem; }
+.primer-toc a {
+  display: inline-block; padding: .3rem .7rem; font-size: var(--fs-sm);
+  color: var(--cyan); text-decoration: none; border: 1px solid var(--border);
+  border-radius: 999px; background: var(--surface);
+}
+.primer-toc a:hover, .primer-toc a:focus-visible {
+  border-color: var(--cyan); background: var(--surface-2);
+}
+.concept {
+  scroll-margin-top: 90px; margin: 0 0 2.2rem; padding: 1.4rem 1.5rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan); border-radius: 10px;
+}
+.concept h2 {
+  margin: 0 0 .2rem; font-size: var(--fs-lg); color: var(--text);
+  display: flex; align-items: center; gap: .55rem;
+}
+.concept h2 .net-badge {
+  font-size: var(--fs-xs); font-weight: 700; letter-spacing: .04em;
+  color: var(--cyan); border: 1px solid var(--cyan); border-radius: 4px;
+  padding: .05rem .4rem; text-transform: uppercase; white-space: nowrap;
+}
+.concept__short { margin: .3rem 0 1rem; color: var(--text-muted); font-style: italic; }
+.concept p { margin: 0 0 .9rem; line-height: 1.65; }
+.concept__ceh {
+  margin: 1rem 0 .9rem; padding: .8rem 1rem; background: var(--accent-dim);
+  border-radius: 8px; border: 1px solid var(--accent-line);
+}
+.concept__ceh strong { color: var(--accent); }
+.concept__check {
+  margin: .6rem 0 0; border-top: 1px dashed var(--border); padding-top: .9rem;
+}
+.concept__check summary {
+  cursor: pointer; color: var(--cyan); font-weight: 600; font-size: var(--fs-sm);
+}
+.concept__check p { margin: .6rem 0 0; color: var(--text-muted); }
+.concept__back { font-size: var(--fs-sm); }
+.concept__back a { color: var(--text-faint); text-decoration: none; }
+.concept__back a:hover { color: var(--cyan); }
+@media print { .primer-toc, .concept__back { display: none; } .concept { break-inside: avoid; } }
+</style>
+
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<div class="controlbar">
+    <span class="controlbar__brand">CEH v13 · Networking Primer</span>
+    <div class="controlbar__group" role="group" aria-label="Text size">
+        <span class="controlbar__label" aria-hidden="true">Text</span>
+        <button class="ctl" id="fontDec" type="button" aria-label="Decrease text size">&minus;</button>
+        <span class="controlbar__label" id="fontSizeValue" aria-live="polite">100%</span>
+        <button class="ctl" id="fontInc" type="button" aria-label="Increase text size">+</button>
+    </div>
+    <button class="ctl" id="themeToggle" type="button" aria-pressed="true" aria-label="Switch to light theme">
+        <span class="ctl__icon" aria-hidden="true">🌙</span><span class="ctl__text">Dark</span>
+    </button>
+    <button class="ctl" id="printBtn" type="button" aria-label="Print this page">
+        <span aria-hidden="true">🖨</span><span class="ctl__text">Print</span>
+    </button>
+</div>
+
+<div class="container" id="top">
+  <header class="header">
+    <h1>Networking Primer</h1>
+    <div class="module-info">
+      <h3>Just-in-time networking fundamentals</h3>
+      <p>Short explainers for the networking concepts the CEH modules assume. Each entry gives a plain explanation, why it matters for ethical hacking, and a quick check. Modules link here with a <span style="color:var(--cyan);font-weight:700;">Net&nbsp;101</span> chip when a concept first comes up — follow the chip, read the entry, and jump back.</p>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <p class="primer-intro">Not sure where to start? These five carry the most weight across the course: DNS, HTTP/HTTPS, Switching vs.&nbsp;Routing, IP Addressing, and TLS/SSL. If the TCP three-way handshake or ports feel shaky, read those first — the scanning modules lean on them hard.</p>
+
+    <nav class="primer-toc" aria-label="Concept index">
+      <a href="#osi-model">OSI Model</a><a href="#tcp-ip-model">TCP/IP Model</a><a href="#encapsulation">Encapsulation</a><a href="#tcp-handshake">TCP Three-Way Handshake</a><a href="#tcp-flags">TCP Flags</a><a href="#tcp-vs-udp">TCP vs. UDP</a><a href="#ports">Ports &amp; Services</a><a href="#ip-addressing">IP Addressing</a><a href="#subnetting">Subnetting &amp; CIDR</a><a href="#mac-address">MAC Address</a><a href="#arp">ARP (Address Resolution Protocol)</a><a href="#dns">DNS (Domain Name System)</a><a href="#dhcp">DHCP</a><a href="#icmp">ICMP / Ping</a><a href="#http-https">HTTP / HTTPS</a><a href="#tls-ssl">TLS / SSL</a><a href="#switching-routing">Switching vs. Routing</a><a href="#nat">NAT (Network Address Translation)</a><a href="#ttl-fragmentation">TTL &amp; Fragmentation</a><a href="#mac-arp-table">CAM / MAC Table</a><a href="#wifi-80211">Wi-Fi (802.11)</a><a href="#promiscuous-mode">Promiscuous / Monitor Mode</a><a href="#proxy">Proxy</a><a href="#vpn">VPN / Tunneling</a><a href="#vlan">VLAN (Virtual LAN)</a>
+    </nav>
+
+    
+      <article class="concept" id="osi-model">
+        <h2><span class="net-badge">Net 101</span> OSI Model</h2>
+        <p class="concept__short">A seven-layer reference model that splits networking into independent jobs: Physical, Data Link, Network, Transport, Session, Presentation, Application (layers 1–7).</p>
+        <p>The OSI model is a mental filing system for networking. Each layer does one job and hands its result to the layer above or below. Layer 1 (Physical) is cables and radio; Layer 2 (Data Link) moves frames between devices on the same local network using MAC addresses; Layer 3 (Network) moves packets between networks using IP addresses; Layer 4 (Transport) handles end-to-end delivery with TCP or UDP and port numbers; Layers 5–7 handle sessions, data formatting, and the application itself.</p>
+        <p>In practice the TCP/IP model (four layers) is what the Internet actually runs on, but CEH and most tools still describe attacks by OSI layer because it tells you *where* an attack operates.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> Attacks are categorized by layer. ARP spoofing is Layer 2, IP spoofing and ICMP tricks are Layer 3, SYN floods and port scans are Layer 4, and SQL injection or XSS are Layer 7. Knowing the layer tells you which defense applies.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>A switch forwards traffic using MAC addresses, and a router forwards using IP addresses. Which OSI layer does each operate at?</em></p>
+          <p><strong>Answer:</strong> Switch = Layer 2 (Data Link). Router = Layer 3 (Network).</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="tcp-ip-model">
+        <h2><span class="net-badge">Net 101</span> TCP/IP Model</h2>
+        <p class="concept__short">The four-layer model the Internet really uses: Link, Internet, Transport, Application — a simplified cousin of OSI.</p>
+        <p>The TCP/IP model collapses OSI&#x27;s seven layers into four. The Link layer covers OSI 1–2 (Ethernet, Wi-Fi, MAC addresses). The Internet layer is OSI 3 (IP, ICMP, routing). The Transport layer is OSI 4 (TCP and UDP). The Application layer covers OSI 5–7 (HTTP, DNS, SSH, everything an app speaks).</p>
+        <p>When a tool or exam says &#x27;the transport layer,&#x27; it means the same thing in both models — TCP/UDP and ports. The two models are just different-resolution maps of the same territory.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> Most scanning and sniffing tools let you operate at a chosen layer. Understanding the stack tells you what a captured packet contains at each level and what a scanner is actually probing.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>A packet capture shows an Ethernet header, then an IP header, then a TCP header, then HTTP data. Which TCP/IP layer produced each header?</em></p>
+          <p><strong>Answer:</strong> Ethernet = Link, IP = Internet, TCP = Transport, HTTP = Application.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="encapsulation">
+        <h2><span class="net-badge">Net 101</span> Encapsulation</h2>
+        <p class="concept__short">As data moves down the stack, each layer wraps it in its own header (and sometimes trailer), like nested envelopes.</p>
+        <p>When your browser sends a request, the Application layer produces the data, the Transport layer wraps it in a TCP segment (adding ports and sequence numbers), the Internet layer wraps that in an IP packet (adding source/destination IP), and the Link layer wraps that in an Ethernet frame (adding MAC addresses). Each wrapper is a header. The receiving side unwraps them in reverse — decapsulation.</p>
+        <p>This is why a single piece of data on the wire carries several addresses at once: MAC (who&#x27;s the next hop), IP (who&#x27;s the final destination), and port (which service).</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> Packet crafting and sniffing both depend on this. When you read a capture in Wireshark, you are looking at the nested headers encapsulation produced. Spoofing an attack means forging a field in one of these layers.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>Which address does encapsulation add at Layer 2, and does it change at every hop or stay the same end-to-end?</em></p>
+          <p><strong>Answer:</strong> The MAC address is added at Layer 2 and changes at every hop. The IP address stays the same end-to-end.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="tcp-handshake">
+        <h2><span class="net-badge">Net 101</span> TCP Three-Way Handshake</h2>
+        <p class="concept__short">How two hosts open a reliable TCP connection: SYN → SYN/ACK → ACK.</p>
+        <p>TCP connections start with a three-step negotiation. The client sends a SYN (synchronize) with an initial sequence number. The server replies SYN/ACK, acknowledging the client&#x27;s number and sending its own. The client replies ACK. Now both sides agree on sequence numbers and the connection is &#x27;established.&#x27; A FIN or RST tears it down.</p>
+        <p>The sequence numbers chosen here matter: they&#x27;re how TCP keeps bytes in order and how it rejects packets that don&#x27;t belong.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> A full-connect scan completes the whole handshake (noisy, logged). A SYN / &#x27;half-open&#x27; scan sends SYN, reads the reply, then never sends the final ACK (stealthier). A SYN flood abuses step 1 to exhaust a server. Session hijacking abuses the sequence numbers set up here.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>In a SYN scan, which of the three steps does the scanner deliberately skip, and why?</em></p>
+          <p><strong>Answer:</strong> It skips the final ACK, so the connection never fully opens — making the scan quieter and less likely to be logged as a real connection.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="tcp-flags">
+        <h2><span class="net-badge">Net 101</span> TCP Flags</h2>
+        <p class="concept__short">Control bits in the TCP header — SYN, ACK, FIN, RST, PSH, URG — that signal connection state.</p>
+        <p>Each TCP segment has a set of 1-bit flags. SYN opens a connection, ACK acknowledges received data, FIN closes gracefully, RST aborts abruptly, PSH says &#x27;deliver this now,&#x27; URG marks urgent data. A normal connection is a predictable sequence of these flags.</p>
+        <p>Scanners exploit the rules for how a host *must* respond to unusual flag combinations. For example, a closed port must answer certain probes with RST, while an open port may stay silent.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> FIN, NULL, and Xmas scans send odd flag combinations to infer port state from the response (or lack of one). An RST in reply usually means &#x27;port closed.&#x27; These scans can slip past simple filters that only watch for SYN.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>A scanner sends a packet with no flags set (a NULL scan) to a port and gets no response. On most systems, what does that suggest?</em></p>
+          <p><strong>Answer:</strong> No response suggests the port is open (or filtered). A closed port would typically reply with RST.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="tcp-vs-udp">
+        <h2><span class="net-badge">Net 101</span> TCP vs. UDP</h2>
+        <p class="concept__short">TCP is connection-oriented and reliable (handshake, ordering, retransmission). UDP is connectionless and fast (fire-and-forget).</p>
+        <p>TCP sets up a connection, numbers every byte, acknowledges receipt, and retransmits what&#x27;s lost — good for web, email, SSH. UDP just sends datagrams with no handshake and no guarantee — good for DNS queries, DHCP, VoIP, and streaming where speed beats perfection.</p>
+        <p>The difference shapes how each is scanned: TCP gives you clear handshake signals, while UDP&#x27;s silence is ambiguous (no reply could mean open *or* filtered).</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> UDP scanning is slower and less reliable precisely because UDP doesn&#x27;t answer predictably. Many high-value services (DNS 53, SNMP 161, DHCP 67/68) run over UDP, so you can&#x27;t skip it.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>Why is scanning a UDP port harder to interpret than scanning a TCP port?</em></p>
+          <p><strong>Answer:</strong> UDP has no handshake. An open UDP port often sends nothing back, which looks the same as a filtered port, so results are ambiguous.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="ports">
+        <h2><span class="net-badge">Net 101</span> Ports &amp; Services</h2>
+        <p class="concept__short">A 16-bit number (0–65535) that identifies which service a packet is for. Well-known services use fixed ports.</p>
+        <p>An IP address gets you to a host; a port number gets you to the right service on that host. Ports 0–1023 are &#x27;well-known&#x27; (HTTP 80, HTTPS 443, SSH 22, DNS 53, SMB 445). Ports above that are registered or ephemeral (temporary client-side ports). A service &#x27;listening&#x27; on a port is waiting for connections there.</p>
+        <p>Port state is the core output of scanning: open (a service is listening), closed (nothing listening but host reachable), or filtered (a firewall is blocking the probe).</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> The whole point of port scanning is mapping which ports are open and what&#x27;s behind them. An open port is a potential door; the service and version behind it tell you what exploits might apply.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>A scan reports port 445 open. What common service is that, and why would an attacker care?</em></p>
+          <p><strong>Answer:</strong> Port 445 is SMB (Windows file sharing). It&#x27;s a frequent target for enumeration and well-known exploits, so an open 445 is a strong lead.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="ip-addressing">
+        <h2><span class="net-badge">Net 101</span> IP Addressing</h2>
+        <p class="concept__short">The numeric address that identifies a host on a network — IPv4 (e.g. 192.168.1.10) or IPv6. Can be public or private.</p>
+        <p>An IPv4 address is four numbers 0–255 (32 bits total). Some ranges are private (10.x, 172.16–31.x, 192.168.x) and only valid inside a local network; the rest are public and routable on the Internet. IPv6 is the much larger successor, written in hex groups.</p>
+        <p>Private addresses reach the Internet through NAT, which is why many hosts can share one public IP.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> Target selection starts with IP ranges. Recognizing private vs. public addressing tells you whether you&#x27;re looking at an internal host or an Internet-facing one, which changes the whole attack path.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>Is 192.168.4.20 a public or private address, and can a host on the Internet route to it directly?</em></p>
+          <p><strong>Answer:</strong> Private. The Internet can&#x27;t route to it directly — it&#x27;s only reachable inside the local network or via NAT/port forwarding.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="subnetting">
+        <h2><span class="net-badge">Net 101</span> Subnetting &amp; CIDR</h2>
+        <p class="concept__short">Dividing an IP range into smaller networks. CIDR notation (e.g. /24) says how many bits are the network portion.</p>
+        <p>A subnet mask splits an IP address into a network part and a host part. CIDR notation writes this as a slash number: /24 means the first 24 bits are the network, leaving 8 bits (256 addresses) for hosts. So 192.168.1.0/24 covers 192.168.1.0 through 192.168.1.255.</p>
+        <p>Smaller numbers after the slash mean bigger networks: /16 is 65,536 addresses, /24 is 256, /30 is 4.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> When you scan &#x27;192.168.1.0/24&#x27; you&#x27;re telling the scanner to sweep all 256 addresses in that subnet. Reading CIDR correctly is how you aim a scan at the right scope — too broad is noisy, too narrow misses hosts.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>How many host addresses does a /24 network contain, and how many does a /16 contain?</em></p>
+          <p><strong>Answer:</strong> A /24 contains 256 addresses (254 usable); a /16 contains 65,536.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="mac-address">
+        <h2><span class="net-badge">Net 101</span> MAC Address</h2>
+        <p class="concept__short">A 48-bit hardware address burned into a network interface, used for delivery within a local network (Layer 2).</p>
+        <p>Every network interface has a MAC address (e.g. 00:1A:2B:3C:4D:5E). It&#x27;s how devices on the same local segment find each other. Unlike an IP address, which is logical and changes as you move between networks, a MAC is tied to the hardware — though it can be spoofed in software.</p>
+        <p>The first half identifies the manufacturer (the OUI), which can leak what kind of device you&#x27;re looking at.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> MAC spoofing defeats MAC-based access control and hides a device&#x27;s identity. ARP attacks work by lying about which MAC owns which IP. On Wi-Fi, MAC addresses are visible even when traffic is encrypted.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>You change your interface&#x27;s MAC to match an authorized device. What kind of access control does this defeat, and does it change your IP address?</em></p>
+          <p><strong>Answer:</strong> It defeats MAC filtering (common on Wi-Fi). It does not change your IP — MAC and IP are separate addresses at different layers.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="arp">
+        <h2><span class="net-badge">Net 101</span> ARP (Address Resolution Protocol)</h2>
+        <p class="concept__short">Maps an IP address to a MAC address on the local network so frames can actually be delivered.</p>
+        <p>To send a packet to 192.168.1.50 on your LAN, a host needs that device&#x27;s MAC address. ARP is the question: &#x27;Who has 192.168.1.50? Tell me your MAC.&#x27; The owner replies, and the answer is cached in the ARP table. The catch: ARP has no authentication — any device can answer, truthfully or not.</p>
+        <p>This trust-by-default design is the root of a whole family of local attacks.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> ARP spoofing/poisoning sends forged replies so the victim&#x27;s traffic is sent to the attacker instead of the gateway — the basis for man-in-the-middle attacks and local sniffing on switched networks.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>Why can an attacker intercept traffic with ARP spoofing even on a switched network, where the switch normally isolates traffic?</em></p>
+          <p><strong>Answer:</strong> Because ARP has no authentication. The attacker poisons the victim&#x27;s ARP cache so the victim sends frames to the attacker&#x27;s MAC, bypassing the switch&#x27;s normal isolation.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="dns">
+        <h2><span class="net-badge">Net 101</span> DNS (Domain Name System)</h2>
+        <p class="concept__short">The Internet&#x27;s directory — translates names like example.com into IP addresses.</p>
+        <p>DNS turns human-friendly names into IP addresses. A resolver asks a chain of servers until it finds the authoritative answer, then caches it. Record types carry different info: A (IPv4), AAAA (IPv6), MX (mail servers), NS (name servers), TXT (arbitrary text), CNAME (aliases).</p>
+        <p>Because almost everything starts with a DNS lookup, DNS data is a goldmine for mapping a target — and DNS traffic is a convenient channel for attackers to hide in.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> DNS enumeration (and zone transfers, when misconfigured) reveals subdomains, mail servers, and infrastructure. DNS is also abused for tunneling/exfiltration and for spoofing victims to malicious IPs.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>During reconnaissance, why are a target&#x27;s MX and NS records useful even though you&#x27;re not attacking email yet?</em></p>
+          <p><strong>Answer:</strong> They reveal infrastructure — mail servers and name servers — expanding your map of the target&#x27;s systems and possible entry points.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="dhcp">
+        <h2><span class="net-badge">Net 101</span> DHCP</h2>
+        <p class="concept__short">Automatically hands out IP addresses and network settings (gateway, DNS) to devices joining a network.</p>
+        <p>When a device joins a network, it broadcasts asking for configuration. A DHCP server offers an IP address, subnet mask, default gateway, and DNS servers, on a lease. The exchange is Discover → Offer → Request → Acknowledge (DORA). Like ARP, classic DHCP has no authentication.</p>
+        <p>Because DHCP tells a client who its gateway and DNS are, controlling DHCP means controlling where a victim&#x27;s traffic goes.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> A rogue DHCP server can hand victims a malicious gateway or DNS, steering their traffic through the attacker. DHCP starvation exhausts the pool so the rogue server wins.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>If an attacker&#x27;s rogue DHCP server hands a victim a malicious DNS server, what can the attacker now do?</em></p>
+          <p><strong>Answer:</strong> Redirect the victim&#x27;s name lookups — sending them to attacker-controlled IPs for sites they think are legitimate.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="icmp">
+        <h2><span class="net-badge">Net 101</span> ICMP / Ping</h2>
+        <p class="concept__short">A control-message protocol used for diagnostics — ping (echo) and traceroute ride on it.</p>
+        <p>ICMP carries network control and error messages rather than user data. &#x27;Ping&#x27; sends an ICMP echo request and waits for an echo reply to check if a host is alive and measure latency. Traceroute abuses TTL expiry messages to map the hops between you and a target.</p>
+        <p>Many networks block or rate-limit ICMP, so &#x27;no ping reply&#x27; doesn&#x27;t prove a host is down.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> Host discovery often starts with ICMP sweeps. But because ICMP is frequently filtered, scanners fall back to TCP/UDP probes to find live hosts. ICMP is also abused for tunneling and some DoS techniques.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>A ping to a server times out. Can you conclude the server is offline? Why or why not?</em></p>
+          <p><strong>Answer:</strong> No. The host or a firewall may simply be dropping ICMP. You&#x27;d confirm with TCP/UDP probes to known ports.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="http-https">
+        <h2><span class="net-badge">Net 101</span> HTTP / HTTPS</h2>
+        <p class="concept__short">The protocol of the web. HTTP is plaintext; HTTPS is HTTP wrapped in TLS encryption.</p>
+        <p>HTTP is a request/response protocol: a client sends a method (GET, POST, etc.) to a URL with headers, and the server replies with a status code (200 OK, 404 Not Found, 500 error) and a body. HTTPS is the same thing carried inside a TLS-encrypted channel, so eavesdroppers see only ciphertext.</p>
+        <p>Headers and status codes carry a lot of signal — server software, cookies, redirects, caching — much of it useful to an attacker.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> Web attacks (injection, XSS, directory traversal) are crafted HTTP requests. Response headers and status codes fingerprint the server and reveal misconfigurations. Over plain HTTP, credentials and cookies travel in the clear.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>Why does capturing traffic on plain HTTP expose a login, while HTTPS does not?</em></p>
+          <p><strong>Answer:</strong> HTTP sends data in plaintext, so a sniffer reads the credentials directly. HTTPS encrypts the whole exchange with TLS, so a sniffer sees only ciphertext.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="tls-ssl">
+        <h2><span class="net-badge">Net 101</span> TLS / SSL</h2>
+        <p class="concept__short">The encryption layer that secures traffic (HTTPS, secure email, VPNs). SSL is its obsolete predecessor.</p>
+        <p>TLS provides confidentiality (encryption), integrity (tamper detection), and authentication (certificates proving you&#x27;re talking to the real server). A TLS handshake negotiates a cipher, validates the server&#x27;s certificate, and establishes session keys. &#x27;SSL&#x27; is the old name; the modern protocol is TLS 1.2/1.3.</p>
+        <p>A certificate chains back to a trusted Certificate Authority — which is exactly what a man-in-the-middle must defeat or forge.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> Weak ciphers, expired or self-signed certs, and old SSL/TLS versions are common findings. SSL stripping and rogue certificates are how attackers pierce HTTPS. CEH expects you to recognize these weaknesses.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>What three guarantees does a correctly configured TLS connection provide?</em></p>
+          <p><strong>Answer:</strong> Confidentiality (encryption), integrity (tamper detection), and authentication (the server&#x27;s identity via its certificate).</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="switching-routing">
+        <h2><span class="net-badge">Net 101</span> Switching vs. Routing</h2>
+        <p class="concept__short">Switches move frames within a local network (Layer 2, MAC). Routers move packets between networks (Layer 3, IP).</p>
+        <p>A switch connects devices on the same local network and forwards frames by MAC address, learning which device is on which port. A router connects different networks and forwards packets by IP address, choosing the next network hop. Your &#x27;default gateway&#x27; is the router that leads off your local network.</p>
+        <p>The boundary matters for attacks: Layer 2 attacks (ARP, MAC) stay within a switched segment; crossing into other networks is a Layer 3 (routing) problem.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> Sniffing on a switched network requires defeating the switch (ARP poisoning, MAC flooding) because the switch won&#x27;t just hand you other devices&#x27; traffic. Knowing where the Layer 2/3 boundary sits tells you how far an attack can reach.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>Why is passive sniffing easy on an old hub but hard on a modern switch?</em></p>
+          <p><strong>Answer:</strong> A hub broadcasts every frame to all ports, so you see everything. A switch forwards frames only to the intended port, so you must actively subvert it to capture others&#x27; traffic.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="nat">
+        <h2><span class="net-badge">Net 101</span> NAT (Network Address Translation)</h2>
+        <p class="concept__short">Lets many private hosts share one public IP by rewriting addresses at the router.</p>
+        <p>NAT rewrites the source address of outbound packets so internal private IPs (like 192.168.x) appear to come from the router&#x27;s single public IP, and it maps replies back to the right internal host using port numbers. This conserves public IPs and incidentally hides internal hosts.</p>
+        <p>Port forwarding is the manual exception: the router sends a chosen public port to a specific internal host, deliberately exposing a service.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> NAT hides internal addressing from outside scans — you see the public edge, not the hosts behind it. Port-forwarding rules are exactly the deliberately exposed services worth probing.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>Why can&#x27;t you directly scan an internal host behind NAT from the Internet unless a port-forward exists?</em></p>
+          <p><strong>Answer:</strong> NAT only maps replies to connections an internal host started, or to explicitly forwarded ports. Unsolicited inbound traffic has no mapping, so it can&#x27;t reach internal hosts.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="ttl-fragmentation">
+        <h2><span class="net-badge">Net 101</span> TTL &amp; Fragmentation</h2>
+        <p class="concept__short">TTL limits how many hops a packet can travel; fragmentation splits a packet too big for a link.</p>
+        <p>Every IP packet has a Time To Live (TTL) that drops by one at each router; at zero the packet is discarded (this is what traceroute exploits). Fragmentation splits a packet that exceeds a link&#x27;s maximum size into pieces that are reassembled at the destination.</p>
+        <p>Both fields are predictable enough to fingerprint systems — and malleable enough to abuse.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> Default TTL values differ by OS, so TTL helps fingerprint a target. Fragmentation is an evasion technique: splitting an attack across fragments can slip past IDS/firewalls that don&#x27;t reassemble packets the way the target does.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>How can an attacker use packet fragmentation to evade an IDS?</em></p>
+          <p><strong>Answer:</strong> By splitting a malicious payload across fragments so the IDS, if it reassembles differently than the target host, fails to recognize the attack while the host still reassembles and executes it.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="mac-arp-table">
+        <h2><span class="net-badge">Net 101</span> CAM / MAC Table</h2>
+        <p class="concept__short">The switch&#x27;s memory of which MAC address lives on which port. Overflowing it can turn a switch into a hub.</p>
+        <p>A switch builds a table mapping MAC addresses to physical ports so it can forward frames only where they belong. This table (the CAM table) is finite. If it fills up, many switches &#x27;fail open&#x27; and start flooding all frames to every port — behaving like a hub.</p>
+        <p>That failure mode is the whole point of a MAC flooding attack.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> MAC flooding (e.g. with macof) overflows the CAM table so the switch floods traffic, letting an attacker passively sniff a switched network. It&#x27;s the brute-force cousin of ARP poisoning.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>What happens to a switch&#x27;s forwarding behavior when its CAM table is overflowed, and why does that help an attacker?</em></p>
+          <p><strong>Answer:</strong> It fails open and floods frames to all ports like a hub, so the attacker can now passively capture traffic meant for other devices.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="wifi-80211">
+        <h2><span class="net-badge">Net 101</span> Wi-Fi (802.11)</h2>
+        <p class="concept__short">The family of wireless LAN standards. Networks are named by SSID; access points are identified by BSSID (a MAC).</p>
+        <p>802.11 is the set of standards behind Wi-Fi. An access point advertises its network name (SSID) in beacon frames; its radio has a hardware address called the BSSID. Clients associate with an AP to join. Because the medium is radio, anyone in range can hear the frames — even if the payload is encrypted.</p>
+        <p>Management frames (beacons, authentication, deauthentication) were historically unprotected, which enables several attacks.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> Wireless attacks exploit the open medium: capturing handshakes for offline cracking, deauth attacks to force reconnection, and evil-twin APs that imitate a real SSID. Monitor mode lets a card capture all nearby frames.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>Why can an attacker capture Wi-Fi frames without connecting to the network, and what stops them from reading the contents?</em></p>
+          <p><strong>Answer:</strong> Radio is a shared medium — frames are in the air for anyone in range to capture. Encryption (WPA2/WPA3) is what keeps the payload unreadable without the key.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="promiscuous-mode">
+        <h2><span class="net-badge">Net 101</span> Promiscuous / Monitor Mode</h2>
+        <p class="concept__short">Interface modes that capture all traffic the card can hear, not just traffic addressed to it.</p>
+        <p>Normally a network card ignores frames not addressed to its own MAC. Promiscuous mode tells a wired card to hand every frame it receives up to the OS — essential for sniffing. On Wi-Fi, monitor mode goes further, capturing raw 802.11 frames from the air without associating to any network.</p>
+        <p>Without these modes, a sniffer only sees its own traffic, which defeats the purpose.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> Sniffers like Wireshark and tcpdump rely on promiscuous mode; wireless capture and handshake collection rely on monitor mode. Knowing the difference explains why some captures see &#x27;everything&#x27; and others see almost nothing.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>You run Wireshark but only see your own machine&#x27;s traffic on a switched network. Name two reasons.</em></p>
+          <p><strong>Answer:</strong> The interface isn&#x27;t in promiscuous mode, and/or the switch isn&#x27;t flooding traffic to your port (you&#x27;d need ARP poisoning or MAC flooding to see others&#x27; traffic).</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="proxy">
+        <h2><span class="net-badge">Net 101</span> Proxy</h2>
+        <p class="concept__short">An intermediary that forwards traffic on your behalf — forward proxies hide the client, reverse proxies front the server.</p>
+        <p>A forward proxy sits between a client and the Internet, making requests on the client&#x27;s behalf (hiding or changing the client&#x27;s apparent origin). A reverse proxy sits in front of servers, receiving requests and passing them to backends (load balancing, caching, TLS termination, WAF).</p>
+        <p>Intercepting proxies (like Burp Suite) are a special case: they sit between browser and server so you can read and modify every request.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> An intercepting proxy is the core web-testing tool — it lets you tamper with HTTP requests. Attackers also chain proxies to obscure their origin, and reverse proxies/WAFs are defenses you must recognize and sometimes evade.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>What does an intercepting proxy like Burp Suite let a tester do that a normal browser cannot?</em></p>
+          <p><strong>Answer:</strong> Pause, read, and modify each HTTP request and response before it&#x27;s sent or rendered — enabling manual injection and tampering tests.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="vpn">
+        <h2><span class="net-badge">Net 101</span> VPN / Tunneling</h2>
+        <p class="concept__short">An encrypted tunnel that carries traffic across an untrusted network as if you were on a trusted one.</p>
+        <p>A VPN wraps your traffic in an encrypted tunnel to a remote endpoint, so intermediaries see only the encrypted outer packets, not the inner traffic. More generally, &#x27;tunneling&#x27; means carrying one protocol inside another — which can be legitimate (secure remote access) or sneaky (smuggling data out inside DNS or HTTPS).</p>
+        <p>The same mechanism that protects privacy can also hide an attacker&#x27;s activity from network defenders.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> VPNs defeat passive sniffing of the tunneled traffic. Attackers use tunneling (DNS, ICMP, HTTPS) to exfiltrate data and bypass egress filtering, so recognizing tunnel signatures is a defensive skill CEH tests.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>Why does data exfiltration over a DNS tunnel often slip past firewalls?</em></p>
+          <p><strong>Answer:</strong> DNS is almost always allowed outbound for normal name resolution, so a tunnel disguised as DNS queries blends into traffic firewalls routinely permit.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+      <article class="concept" id="vlan">
+        <h2><span class="net-badge">Net 101</span> VLAN (Virtual LAN)</h2>
+        <p class="concept__short">A way to split one physical switch into several isolated logical networks, so traffic in one VLAN can&#x27;t normally reach another.</p>
+        <p>A VLAN lets a single switch act like several separate switches. Ports are tagged with a VLAN ID, and the switch keeps each VLAN&#x27;s traffic isolated — devices in VLAN 10 don&#x27;t see VLAN 20&#x27;s frames, even on the same hardware. Traffic between VLANs has to go through a router or Layer 3 switch. Trunk links (using 802.1Q tags) carry multiple VLANs between switches.</p>
+        <p>The isolation is enforced by the switch&#x27;s configuration, not by physical separation — which is exactly what VLAN attacks try to subvert.</p>
+        <div class="concept__ceh"><strong>Why it matters for CEH:</strong> VLAN hopping (via switch spoofing or double-tagging 802.1Q frames) lets an attacker send traffic into a VLAN they shouldn&#x27;t reach, defeating the segmentation defenders rely on to contain a breach.</div>
+        <details class="concept__check">
+          <summary>Quick check</summary>
+          <p><em>VLANs are often used to separate a guest network from an internal one. What does a VLAN hopping attack let an attacker do to that design?</em></p>
+          <p><strong>Answer:</strong> Reach the internal VLAN from the guest VLAN — bypassing the segmentation that was supposed to keep guests isolated from internal systems.</p>
+        </details>
+        <p class="concept__back"><a href="#top">↑ Back to top</a></p>
+      </article>
+  </main>
+</div>
+
+<script>
+/* Minimal controlbar behavior: theme toggle, font size, print. Self-contained. */
+(function(){
+  var KEY_THEME='ceh_primer_theme', KEY_FONT='ceh_primer_font';
+  var root=document.documentElement;
+  function setTheme(t){
+    root.setAttribute('data-theme',t);
+    var b=document.getElementById('themeToggle');
+    var dark=(t!=='light');
+    b.setAttribute('aria-pressed',String(dark));
+    b.querySelector('.ctl__icon').textContent=dark?'\uD83C\uDF19':'\u2600\uFE0F';
+    b.querySelector('.ctl__text').textContent=dark?'Dark':'Light';
+    b.setAttribute('aria-label', dark?'Switch to light theme':'Switch to dark theme');
+    try{localStorage.setItem(KEY_THEME,t);}catch(e){}
+  }
+  var savedT; try{savedT=localStorage.getItem(KEY_THEME);}catch(e){}
+  setTheme(savedT==='light'?'light':'dark');
+  document.getElementById('themeToggle').addEventListener('click',function(){
+    setTheme(root.getAttribute('data-theme')==='light'?'dark':'light');
+  });
+
+  var scale=1; try{var s=parseFloat(localStorage.getItem(KEY_FONT)); if(s)scale=s;}catch(e){}
+  function applyFont(){
+    root.style.setProperty('--font-scale',scale);
+    document.getElementById('fontSizeValue').textContent=Math.round(scale*100)+'%';
+    try{localStorage.setItem(KEY_FONT,String(scale));}catch(e){}
+  }
+  applyFont();
+  document.getElementById('fontInc').addEventListener('click',function(){scale=Math.min(1.6,scale+0.1);applyFont();});
+  document.getElementById('fontDec').addEventListener('click',function(){scale=Math.max(0.8,scale-0.1);applyFont();});
+  document.getElementById('printBtn').addEventListener('click',function(){window.print();});
+})();
+</script>
+</body>
+</html>
