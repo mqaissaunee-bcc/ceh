@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lab 16 Companion — VNC as a Backdoor · CEH v13</title>
+<meta name="description" content="Student companion for CEH Lab 16: using TightVNC and reverse VNC connections as a backdoor, display-to-port mapping, the en-dash trap, allow-listing and egress filtering as defenses, screenshots to submit, and CEH v13 exam relevance.">
+<style>  /* ===== Theme tokens — matched to the CEH v13 site (dark-first) ===== */
+  :root, :root[data-theme="dark"]{
+    --bg:#07090b;--surface:#141a20;--surface-2:#1b232b;
+    --ink:#e8eef2;--ink-soft:#c3ccd6;--muted:#9fb0bd;
+    --border:#26313b;--border-strong:#37444f;
+    --accent:#35e05f;--accent-soft:rgba(53,224,95,.14);--accent-ink:#6dff96;
+    --warn:#f0b429;--warn-soft:rgba(240,180,41,.13);
+    --danger:#ff6b6b;--danger-soft:rgba(255,107,107,.13);
+    --blue:#43d9d4;--blue-soft:rgba(67,217,212,.13);
+    --violet:#b58cff;--violet-soft:rgba(181,140,255,.15);
+    --term-bg:#05070a;--term-ink:#dbe7df;--term-dim:#6f8291;
+    --radius:10px;--radius-sm:7px;--maxw:62rem;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --text-scale:1;
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6f8;--surface:#ffffff;--surface-2:#eef2f5;
+    --ink:#10181f;--ink-soft:#33414f;--muted:#6b7c8c;
+    --border:#d3dbe2;--border-strong:#b4c0ca;
+    --accent:#0f7a34;--accent-soft:rgba(15,122,52,.10);--accent-ink:#0a5c26;
+    --warn:#8a5a00;--warn-soft:rgba(138,90,0,.10);
+    --danger:#b3261e;--danger-soft:rgba(179,38,30,.10);
+    --blue:#0b6d78;--blue-soft:rgba(11,109,120,.10);
+    --violet:#6d28d9;--violet-soft:rgba(109,40,217,.08);
+    --term-bg:#10181f;--term-ink:#dbe7df;--term-dim:#8a97a3;
+  }
+*{box-sizing:border-box}
+  html{font-size:calc(100% * var(--text-scale));scroll-behavior:smooth;scroll-padding-top:5.5rem}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-text-size-adjust:100%;
+  }
+  .skip-link{position:absolute;left:-999px;top:0;background:var(--accent);color:#fff;padding:.6rem 1rem;z-index:100;border-radius:0 0 var(--radius-sm) 0}
+  .skip-link:focus{left:0}
+
+  a{color:var(--accent-ink);text-underline-offset:2px}
+  a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{
+    outline:3px solid var(--accent);outline-offset:2px;border-radius:4px
+  }
+
+  /* ---------- Header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:50;background:var(--bg);
+    border-bottom:1px solid var(--border);backdrop-filter:saturate(1.2);
+  }
+  .bar{max-width:var(--maxw);margin:0 auto;padding:.55rem 1.15rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .crumb{font-size:.82rem;color:var(--muted);font-weight:600;letter-spacing:.01em;margin-right:auto}
+  .crumb b{color:var(--accent-ink)}
+  .controls{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+  .controls .grp{display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+  button.ctl{
+    font:inherit;font-size:.82rem;background:var(--surface);color:var(--ink-soft);border:1px solid var(--border);
+    min-height:40px;min-width:40px;padding:0 .7rem;cursor:pointer;border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:.35rem
+  }
+  .controls .grp button.ctl{border:none;border-radius:0;border-right:1px solid var(--border)}
+  .controls .grp button.ctl:last-child{border-right:none}
+  button.ctl:hover{background:var(--surface-2)}
+  .scale-read{font-size:.78rem;color:var(--muted);min-width:2.8rem;text-align:center;font-variant-numeric:tabular-nums}
+
+  /* ---------- Layout ---------- */
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.15rem 5rem}
+  section{margin-top:2.6rem;scroll-margin-top:5.5rem}
+  h1,h2,h3{line-height:1.25;color:var(--ink)}
+  h1{font-size:clamp(1.65rem,1.1rem + 2.4vw,2.35rem);margin:.2rem 0 .3rem;letter-spacing:-.01em}
+  h2{font-size:clamp(1.3rem,1rem + 1.2vw,1.6rem);margin:0 0 .9rem;padding-bottom:.4rem;border-bottom:2px solid var(--border)}
+  h3{font-size:1.08rem;margin:1.6rem 0 .5rem}
+  p{margin:.6rem 0}
+  .lede{font-size:1.08rem;color:var(--ink-soft)}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:1.8rem 0 .4rem}
+  .labno{display:inline-block;font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--accent-ink);
+    background:var(--accent-soft);padding:.25rem .6rem;border-radius:999px;letter-spacing:.03em}
+  .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 .2rem}
+  .chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--ink-soft);
+    background:var(--surface);border:1px solid var(--border);padding:.35rem .65rem;border-radius:var(--radius-sm)}
+  .chip b{color:var(--ink);font-weight:600}
+
+  /* ---------- Progress ---------- */
+  .progress-wrap{margin:1.4rem 0 .3rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem}
+  .progress-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;font-size:.85rem;color:var(--ink-soft)}
+  .progress-top b{color:var(--ink)}
+  progress{width:100%;height:9px;margin-top:.55rem;appearance:none;border:none;border-radius:999px;overflow:hidden;background:var(--surface-2)}
+  progress::-webkit-progress-bar{background:var(--surface-2);border-radius:999px}
+  progress::-webkit-progress-value{background:var(--accent);border-radius:999px}
+  progress::-moz-progress-bar{background:var(--accent);border-radius:999px}
+
+  /* ---------- On-this-page nav ---------- */
+  nav.toc{margin:1.4rem 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .5rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.2rem}
+  nav.toc a{display:block;padding:.4rem .7rem;font-size:.85rem;color:var(--ink-soft);text-decoration:none;border-radius:var(--radius-sm)}
+  nav.toc a:hover{background:var(--surface-2);color:var(--accent-ink)}
+
+  /* ---------- Callouts ---------- */
+  .call{border-left:4px solid var(--border-strong);background:var(--surface);padding:.85rem 1rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin:1rem 0}
+  .call .k{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:.25rem}
+  .call p{margin:.3rem 0}
+  .call.stuck{border-color:var(--warn);background:var(--warn-soft)}
+  .call.stuck .k{color:var(--warn)}
+  .call.tip{border-color:var(--accent);background:var(--accent-soft)}
+  .call.tip .k{color:var(--accent-ink)}
+  .call.defend{border-color:var(--blue);background:var(--blue-soft)}
+  .call.defend .k{color:var(--blue)}
+  .call.auth{border-color:var(--danger);background:var(--danger-soft)}
+  .call.auth .k{color:var(--danger)}
+
+  /* ---------- Command block ---------- */
+  .cmd{position:relative;background:var(--term-bg);border-radius:var(--radius-sm);margin:.7rem 0;border:1px solid #000}
+  .cmd pre{margin:0;padding:.85rem 3rem .85rem 1rem;overflow-x:auto;color:var(--term-ink);font-family:var(--mono);font-size:.92rem;line-height:1.5}
+  .cmd pre .p{color:var(--term-dim)}         /* prompt */
+  .cmd pre .fl{color:#7ee7da}                /* flags */
+  .cmd pre .ar{color:#f0c674}                /* args / targets */
+  .cmd pre .cm{color:var(--term-dim);font-style:italic} /* comment */
+  .copy{position:absolute;top:.5rem;right:.5rem;min-height:32px;min-width:32px;font-size:.72rem;
+    background:#20303c;color:#cfe3df;border:1px solid #33424e;border-radius:6px;cursor:pointer;padding:.2rem .5rem}
+  .copy:hover{background:#2a3d49}
+  .copy.ok{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  code.inl{font-family:var(--mono);font-size:.88em;background:var(--surface-2);padding:.08em .4em;border-radius:5px;color:var(--ink)}
+
+  /* ---------- Walkthrough step ---------- */
+  .step{border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;margin:1rem 0;background:var(--bg)}
+  .step h3{margin-top:0;display:flex;gap:.6rem;align-items:baseline}
+  .step h3 .n{font-family:var(--mono);font-size:.8rem;color:var(--accent-ink);background:var(--accent-soft);border-radius:6px;padding:.1rem .45rem}
+  .task-head{margin-top:2rem;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:.8rem 0;border:1px solid var(--border);border-radius:var(--radius)}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:30rem}
+  th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--border);vertical-align:top}
+  thead th{background:var(--surface);color:var(--ink);font-size:.82rem;letter-spacing:.02em}
+  tbody tr:last-child td{border-bottom:none}
+  td code,th code{font-family:var(--mono);font-size:.86em;color:var(--accent-ink);white-space:nowrap}
+
+  details.go{border:1px solid var(--border);border-radius:var(--radius-sm);padding:.3rem .9rem;margin:.8rem 0;background:var(--surface)}
+  details.go>summary{cursor:pointer;font-weight:600;color:var(--ink-soft);padding:.5rem 0;font-size:.92rem}
+  details.go[open]>summary{border-bottom:1px solid var(--border);margin-bottom:.6rem}
+
+  /* ---------- Self-check ---------- */
+  .q{border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;margin:.8rem 0;background:var(--bg)}
+  .q p.ask{font-weight:600;margin:.1rem 0 .3rem}
+  .q .reveal{font:inherit;font-size:.82rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .8rem;cursor:pointer;min-height:40px}
+  .q .reveal:hover{background:var(--surface-2)}
+  .q .ans{margin-top:.6rem;padding:.6rem .8rem;background:var(--accent-soft);border-radius:var(--radius-sm);font-size:.92rem;display:none}
+  .q .ans.show{display:block}
+
+  /* ---------- Section complete toggle ---------- */
+  .done-row{display:flex;align-items:center;gap:.55rem;margin-top:1rem;font-size:.88rem;color:var(--ink-soft)}
+  .done-row input{width:20px;height:20px;accent-color:var(--accent)}
+
+  /* ---------- Cheat sheet ---------- */
+  .cheat{background:var(--surface);border:1px dashed var(--border-strong);border-radius:var(--radius);padding:1.1rem 1.2rem}
+  .cheat .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1.1rem}
+  .cheat h3{margin:.2rem 0 .4rem}
+  .cheat ul{margin:.2rem 0;padding-left:0;list-style:none}
+  .cheat li{padding:.22rem 0;font-size:.88rem;border-bottom:1px dotted var(--border)}
+  .cheat li code{font-family:var(--mono);color:var(--accent-ink)}
+
+  footer.site{max-width:var(--maxw);margin:3rem auto 0;padding:1.6rem 1.15rem 0;border-top:1px solid var(--border);color:var(--muted);font-size:.84rem}
+  footer.site p{margin:.4rem 0}
+  footer.site .program{color:var(--ink-soft);font-weight:600}
+
+  /* ---------- Print ---------- */
+  @media print{
+    header.site,nav.toc,.controls,.copy,.progress-wrap,.done-row,.reveal{display:none !important}
+    body{background:#fff;color:#000}
+    .cmd{background:#f2f2f2;border:1px solid #bbb}
+    .cmd pre{color:#111}
+    .cmd pre .fl{color:#0a6b60}.cmd pre .ar{color:#8a5a00}.cmd pre .p,.cmd pre .cm{color:#555}
+    .q .ans{display:block;background:#f2f2f2}
+    a{color:#000;text-decoration:underline}
+    section{page-break-inside:avoid}
+  }
+
+  /* ---- screenshot + evidence (added) ---- */
+  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
+  .call.capture .k{color:var(--violet)}
+  .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
+  .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
+  .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
+  .evidence li:last-child{border-bottom:none}
+  .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
+  .evidence .shot{font-weight:600;color:var(--ink)}
+  @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="site">
+  <div class="bar">
+    <span class="crumb">CEH v13 · <a href="ceh_labs.html" style="color:var(--accent-ink);text-decoration:none">‹ All labs</a></span>
+    <div class="controls">
+      <div class="grp" role="group" aria-label="Text size">
+        <button class="ctl" id="text-dn" aria-label="Decrease text size">A−</button>
+        <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
+        <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
+      </div>
+      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="print-btn">🖨 Print</button>
+      <button class="ctl" id="clear-btn">Clear progress</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <div class="hero">
+    <span class="labno">LAB 16</span>
+    <h1>VNC as a Backdoor</h1>
+    <p class="lede">VNC is a legitimate remote-desktop tool — and, left on a compromised machine, a full-GUI backdoor. The reverse VNC connection, like a reverse shell, slips past inbound firewalls, which points straight at the defense.</p>
+    <div class="chips">
+      <span class="chip">⏱ <b>40 min</b></span>
+      <span class="chip">📶 Difficulty: <b>Beginner→Intermediate</b></span>
+      <span class="chip">🧰 Tool: <b>TightVNC</b></span>
+      <span class="chip">🎯 Target: <b>two pod hosts</b></span>
+      <span class="chip">📘 Maps to: <b>Module 6 — System Hacking</b></span>
+    </div>
+  </div>
+
+  <div class="call auth">
+    <span class="k">Authorized testing only</span>
+    <p>Every command here runs inside your isolated NETLAB+ pod against machines built for practice. Scanning hosts or networks you do not own or have written permission to test is illegal in most jurisdictions.</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-top"><span>Lab progress</span><span><b id="pct">0%</b> · <span id="count">0 of 6</span> sections</span></div>
+    <progress id="bar" value="0" max="6" aria-label="Lab completion"></progress>
+  </div>
+  <nav class="toc" aria-label="On this page">
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#environment">The environment</a></li>
+      <li><a href="#walkthrough">Command walkthrough</a></li>
+      <li><a href="#reference">Reference</a></li>
+      <li><a href="#stuck">Where people get stuck</a></li>
+      <li><a href="#defend">The defender's view</a></li>
+      <li><a href="#exam">CEH v13 exam relevance</a></li>
+      <li><a href="#check">Check yourself</a></li>
+      <li><a href="#evidence">Evidence</a></li>
+      <li><a href="#cheat">Cheat sheet</a></li>
+    </ol>
+  </nav>
+
+  <section id="overview" data-track>
+    <h2>Overview — what this lab is really teaching</h2>
+    <p><strong>VNC</strong> gives you a remote graphical desktop — a perfectly legitimate admin tool. This lab shows the flip side: the same software, left in place on a compromised machine, is a <strong>backdoor</strong> that hands an attacker full GUI control. It's a maintaining-access technique in <strong>Module 6: System Hacking</strong>.</p>
+    <p>The sharper idea is the <strong>reverse VNC connection</strong>: instead of the attacker dialing in to the victim, the victim's VNC server connects <em>out</em> to a viewer the attacker is running. Just like a reverse shell, it slips past inbound firewall rules — and points at the same defenses.</p>
+    <div class="done-row"><input type="checkbox" id="done-overview" data-done="overview"><label for="done-overview">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="environment" data-track>
+    <h2>The environment you're working in</h2>
+    <p>You run a VNC <strong>server</strong> and <strong>viewer</strong> across two pod machines. VNC numbers its sessions by <strong>display</strong> (<code class="inl">:1</code>, <code class="inl">:2</code>, …), and each display maps to a TCP port (<code class="inl">5900 + display</code>, so <code class="inl">:2</code> is <code class="inl">5902</code>). Keeping display-vs-port straight avoids most of the confusion.</p>
+    <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="walkthrough" data-track>
+    <h2>Command walkthrough</h2>
+
+    <div class="call stuck">
+      <span class="k">Read this before you copy anything</span>
+      <p>The source PDF uses <strong>en-dashes</strong> in some flags (<code class="inl">–kill</code>, <code class="inl">–listen</code>). Retype them as hyphens, or use the copy buttons.</p>
+    </div>
+
+    <p class="task-head">Task 1 — Normal VNC</p>
+    <div class="step">
+      <h3><span class="n">1</span> Start, list, and stop a server</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> vncserver :2</pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> vncserver <span class="fl">-list</span></pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> vncserver <span class="fl">-kill</span> :2</pre></div>
+      <p><code class="inl">vncserver :2</code> starts a desktop on display 2 (port 5902); <code class="inl">-list</code> shows running sessions; <code class="inl">-kill :2</code> stops it. This is exactly how an admin would use it — and exactly what an attacker leaves running.</p>
+    </div>
+    <div class="step">
+      <h3><span class="n">2</span> Connect with a viewer</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> vncviewer</pre></div>
+      <p>Point the viewer at <code class="inl">HOST:2</code> (or <code class="inl">HOST:5902</code>) and you're looking at that desktop. In the forward direction, the viewer connects <em>to</em> the server — which means the server's port has to be reachable through any firewall.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the viewer showing the remote desktop over a normal VNC connection.</p></div>
+    </div>
+
+    <p class="task-head">Task 2 — Reverse VNC</p>
+    <div class="step">
+      <h3><span class="n">3</span> Turn the connection around</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> vncviewer <span class="fl">-listen</span> <span class="ar">0</span></pre></div>
+      <p>Here the attacker's <strong>viewer listens</strong> and the victim's <strong>server connects back</strong> to it. Because the victim initiates an <em>outbound</em> connection, it bypasses firewall rules that would have blocked an inbound viewer — the reverse-connection trick again. That's what turns remote-admin software into a stealthy backdoor.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the reverse connection established — the attacker's listening viewer receiving the victim's desktop.</p></div>
+    </div>
+    <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="reference" data-track>
+    <h2>Reference — beyond the lab</h2>
+    <h3>Displays, ports, and direction</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Item</th><th>Means</th></tr></thead>
+      <tbody>
+        <tr><td>Display <code>:N</code></td><td>Session number — maps to TCP port <code>5900 + N</code></td></tr>
+        <tr><td>Forward connection</td><td>Viewer → server (server port must be reachable)</td></tr>
+        <tr><td>Reverse connection</td><td>Server → viewer (<code>vncviewer -listen</code>, port 5500) — beats inbound firewalls</td></tr>
+        <tr><td>Flavors</td><td>TightVNC, RealVNC, UltraVNC, TigerVNC, x11vnc</td></tr>
+      </tbody>
+    </table></div>
+    <div class="call tip"><span class="k">VNC's built-in crypto is weak</span><p>Classic VNC authentication is limited and traffic is often unencrypted. Legitimate use tunnels VNC over <strong>SSH</strong> or a VPN — which is also why unencrypted VNC on the wire is a red flag for defenders.</p></div>
+    <div class="done-row"><input type="checkbox" id="done-reference" data-done="reference"><label for="done-reference">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="stuck" data-track>
+    <h2>Where people get stuck</h2>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Flag "not recognized"</td><td>En-dashes from the PDF</td><td>Retype with hyphens, or use the copy buttons.</td></tr>
+        <tr><td>Can't connect to <code>:2</code></td><td>Confused display with port</td><td>Display <code>:2</code> = port <code>5902</code>; connect to <code>HOST:2</code> or <code>HOST:5902</code>.</td></tr>
+        <tr><td>Reverse connection never arrives</td><td>Viewer not listening, or server pointed at wrong address</td><td>Start <code>vncviewer -listen</code> first; tell the server the viewer's IP.</td></tr>
+        <tr><td>Forward connection blocked</td><td>Firewall between viewer and server</td><td>Expected in the real world — the reason attackers use reverse connections.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="done-row"><input type="checkbox" id="done-stuck" data-done="stuck"><label for="done-stuck">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="defend" data-track>
+    <h2>The defender's view</h2>
+    <div class="call defend">
+      <span class="k">Unauthorized remote-access software is the threat</span>
+      <p>VNC isn't malicious — <em>unapproved</em> remote access is. The defenses are about controlling and detecting that, and about denying the reverse connection.</p>
+    </div>
+    <ul>
+      <li><strong>Application allow-listing</strong> — if an unapproved VNC server can't run, there's no backdoor.</li>
+      <li><strong>Egress filtering</strong> — blocks the reverse connection (and odd outbound to VNC ports).</li>
+      <li><strong>Monitor for remote-access tools and listeners</strong> — EDR flags unexpected VNC/RDP/remote-control software and new listening ports.</li>
+      <li><strong>Gate legitimate remote access</strong> — behind a VPN with MFA; tunnel VNC over SSH; never expose it raw.</li>
+      <li><strong>Network segmentation</strong> — limit where a remote session can reach.</li>
+    </ul>
+    <div class="done-row"><input type="checkbox" id="done-defend" data-done="defend"><label for="done-defend">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="exam">
+    <h2>CEH v13 exam relevance</h2>
+    <p>Maintaining-access technique in <strong>Module 6: System Hacking</strong>. High-yield facts:</p>
+    <ul>
+      <li><strong>Remote-access software as a backdoor</strong> (VNC, RDP, RATs) and the "living off legitimate tools" idea.</li>
+      <li><strong>Reverse connections</strong> and why they defeat inbound firewall rules.</li>
+      <li>VNC's weak native authentication/encryption, and tunneling over SSH/VPN.</li>
+      <li>Display-to-port mapping (<code class="inl">5900 + N</code>).</li>
+      <li>Defenses: allow-listing, egress filtering, remote-access monitoring, MFA-gated VPN.</li>
+    </ul>
+  </section>
+
+  <section id="check">
+    <h2>Check yourself</h2>
+    <div class="q"><p class="ask">1. VNC display <code class="inl">:2</code> listens on which TCP port?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">5902 — the port is <code class="inl">5900 + display number</code>.</div></div>
+    <div class="q"><p class="ask">2. In a reverse VNC connection, who listens and who connects?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">The attacker's viewer listens (<code class="inl">vncviewer -listen</code>); the victim's server connects out to it — which is how it bypasses inbound firewall rules.</div></div>
+    <div class="q"><p class="ask">3. Why is "VNC is a legitimate tool" not a reason to ignore it on an endpoint?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">Attackers abuse legitimate remote-access software for persistence. What matters is whether it's <em>authorized</em> — unapproved remote access is the threat.</div></div>
+    <div class="q"><p class="ask">4. Name two controls that stop a reverse-VNC backdoor.</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">Any two: application allow-listing, egress filtering, remote-access/listener monitoring (EDR), network segmentation.</div></div>
+  </section>
+
+  <section id="evidence">
+    <h2>Evidence to capture</h2>
+    <p>Your instructor wants screenshots of the key steps as proof you ran the lab. Grab these as you go, tick each one off, then print or submit this list as your evidence cover sheet.</p>
+    <div class="evidence"><ul>
+      <li><input type="checkbox" data-evidence="lab16-1"><span><span class="shot">A VNC session.</span> The viewer showing the remote desktop over a normal connection.</span></li>
+      <li><input type="checkbox" data-evidence="lab16-2"><span><span class="shot">Reverse connection.</span> The listening viewer receiving the victim's desktop.</span></li>
+    </ul></div>
+  </section>
+
+  <section id="cheat">
+    <h2>Cheat sheet</h2>
+    <div class="cheat"><div class="grid">
+      <div>
+        <h3>VNC basics</h3>
+        <ul>
+          <li><code>vncserver :2</code> — start (port 5902)</li>
+          <li><code>vncserver -list</code> · <code>vncserver -kill :2</code></li>
+          <li><code>vncviewer HOST:2</code> — connect</li>
+          <li><code>vncviewer -listen</code> — reverse (attacker side)</li>
+          <li>Port = <code>5900 + display</code></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Defense</h3>
+        <ul>
+          <li>Application allow-listing</li>
+          <li>Egress filtering (stops reverse)</li>
+          <li>Monitor remote-access tools / listeners</li>
+          <li>Legit use: VPN + MFA, tunnel over SSH</li>
+          <li>Segmentation</li>
+        </ul>
+      </div>
+    </div></div>
+  </section>
+
+</main>
+<footer class="site">
+  <p>Lab companion for <span class="program">CEH v13 — Lab 16</span>. Companion material © 2026; original explanatory content written to accompany the NDG <em>Ethical Hacking v2</em> lab series, which remains the property of its publisher.</p>
+  <p>Aligned to the EC-Council CEH v13 curriculum. An independent study companion — not affiliated with or endorsed by EC-Council or NDG.</p>
+  <p><span class="program">CEH v13 Course Series</span> · Brookdale Community College · 2026</p>
+</footer>
+<script>
+(function(){
+  "use strict";
+  var PREFIX="ceh-lab16-v1:",root=document.documentElement;
+  function save(k,v){try{localStorage.setItem(PREFIX+k,v);}catch(e){}}
+  function load(k){try{return localStorage.getItem(PREFIX+k);}catch(e){return null;}}
+  function del(k){try{localStorage.removeItem(PREFIX+k);}catch(e){}}
+
+  var themeBtn=document.getElementById("theme-toggle");
+  function applyTheme(mode){
+    root.setAttribute("data-theme",mode==="light"?"light":"dark");
+    var dark=mode!=="light";
+    themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
+    themeBtn.setAttribute("aria-pressed",dark?"true":"false");
+  }
+  applyTheme(load("theme")||"dark");
+  themeBtn.addEventListener("click",function(){
+    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+  });
+
+  var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));
+  if(!isNaN(stored)){var q=steps.indexOf(stored);if(q>=0)idx=q;}
+  var readout=document.getElementById("scale-read");
+  function applyScale(){root.style.setProperty("--text-scale",steps[idx]);readout.textContent=Math.round(steps[idx]*100)+"%";save("scale",steps[idx]);}
+  applyScale();
+  document.getElementById("text-up").addEventListener("click",function(){if(idx<steps.length-1){idx++;applyScale();}});
+  document.getElementById("text-dn").addEventListener("click",function(){if(idx>0){idx--;applyScale();}});
+  document.getElementById("print-btn").addEventListener("click",function(){window.print();});
+
+  document.querySelectorAll(".cmd").forEach(function(b){
+    var btn=document.createElement("button");
+    btn.className="copy";btn.type="button";btn.textContent="Copy";btn.setAttribute("aria-label","Copy command");
+    btn.addEventListener("click",function(){
+      var pre=b.querySelector("pre"),clone=pre.cloneNode(true);
+      clone.querySelectorAll(".p,.cm").forEach(function(e){e.parentNode.removeChild(e);});
+      var text=clone.textContent.replace(/[ \t]+\n/g,"\n").replace(/\n{2,}/g,"\n").trim();
+      var done=function(){btn.textContent="Copied";btn.classList.add("ok");setTimeout(function(){btn.textContent="Copy";btn.classList.remove("ok");},1400);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(fb);}else{fb();}
+      function fb(){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(ta);}
+    });
+    b.appendChild(btn);
+  });
+
+  document.querySelectorAll(".q .reveal").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var ans=btn.parentElement.querySelector(".ans"),open=ans.classList.toggle("show");
+      btn.setAttribute("aria-expanded",open?"true":"false");btn.textContent=open?"Hide answer":"Show answer";
+    });
+  });
+
+  var boxes=document.querySelectorAll('input[data-done]'),total=boxes.length;
+  var bar=document.getElementById("bar"),pct=document.getElementById("pct"),count=document.getElementById("count"),pct2=document.getElementById("pct2");
+  if(bar)bar.max=total;
+  function refresh(){
+    var n=0;boxes.forEach(function(b){if(b.checked)n++;});
+    if(bar)bar.value=n;var pc=total?Math.round(n/total*100):0;
+    if(pct)pct.textContent=pc+"%";if(pct2)pct2.textContent=pc+"%";if(count)count.textContent=n+" of "+total;
+  }
+  boxes.forEach(function(b){var k="done:"+b.getAttribute("data-done");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);refresh();});});
+  refresh();
+
+  var evs=document.querySelectorAll('input[data-evidence]');
+  evs.forEach(function(b){var k="ev:"+b.getAttribute("data-evidence");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);});});
+
+  var clr=document.getElementById("clear-btn");
+  if(clr)clr.addEventListener("click",function(){
+    boxes.forEach(function(b){b.checked=false;del("done:"+b.getAttribute("data-done"));});
+    evs.forEach(function(b){b.checked=false;del("ev:"+b.getAttribute("data-evidence"));});
+    document.querySelectorAll(".q .ans.show").forEach(function(a){a.classList.remove("show");});
+    document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
+    refresh();
+  });
+})();
+</script>
+</body>
+</html>

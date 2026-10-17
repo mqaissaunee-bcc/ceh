@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lab 03 Companion — Reconnaissance with Nmap, Zenmap &amp; Masscan · CEH v13</title>
+<meta name="description" content="Student companion for CEH Lab 03: every Nmap, Zenmap, and Masscan command and option, struggle points, screenshots to submit, the defender's view, and CEH v13 exam relevance.">
+<style>  /* ===== Theme tokens — matched to the CEH v13 site (dark-first) ===== */
+  :root, :root[data-theme="dark"]{
+    --bg:#07090b;--surface:#141a20;--surface-2:#1b232b;
+    --ink:#e8eef2;--ink-soft:#c3ccd6;--muted:#9fb0bd;
+    --border:#26313b;--border-strong:#37444f;
+    --accent:#35e05f;--accent-soft:rgba(53,224,95,.14);--accent-ink:#6dff96;
+    --warn:#f0b429;--warn-soft:rgba(240,180,41,.13);
+    --danger:#ff6b6b;--danger-soft:rgba(255,107,107,.13);
+    --blue:#43d9d4;--blue-soft:rgba(67,217,212,.13);
+    --violet:#b58cff;--violet-soft:rgba(181,140,255,.15);
+    --term-bg:#05070a;--term-ink:#dbe7df;--term-dim:#6f8291;
+    --radius:10px;--radius-sm:7px;--maxw:62rem;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --text-scale:1;
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6f8;--surface:#ffffff;--surface-2:#eef2f5;
+    --ink:#10181f;--ink-soft:#33414f;--muted:#6b7c8c;
+    --border:#d3dbe2;--border-strong:#b4c0ca;
+    --accent:#0f7a34;--accent-soft:rgba(15,122,52,.10);--accent-ink:#0a5c26;
+    --warn:#8a5a00;--warn-soft:rgba(138,90,0,.10);
+    --danger:#b3261e;--danger-soft:rgba(179,38,30,.10);
+    --blue:#0b6d78;--blue-soft:rgba(11,109,120,.10);
+    --violet:#6d28d9;--violet-soft:rgba(109,40,217,.08);
+    --term-bg:#10181f;--term-ink:#dbe7df;--term-dim:#8a97a3;
+  }
+*{box-sizing:border-box}
+  html{font-size:calc(100% * var(--text-scale));scroll-behavior:smooth;scroll-padding-top:5.5rem}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-text-size-adjust:100%;
+  }
+  .skip-link{position:absolute;left:-999px;top:0;background:var(--accent);color:#fff;padding:.6rem 1rem;z-index:100;border-radius:0 0 var(--radius-sm) 0}
+  .skip-link:focus{left:0}
+
+  a{color:var(--accent-ink);text-underline-offset:2px}
+  a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{
+    outline:3px solid var(--accent);outline-offset:2px;border-radius:4px
+  }
+
+  /* ---------- Header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:50;background:var(--bg);
+    border-bottom:1px solid var(--border);backdrop-filter:saturate(1.2);
+  }
+  .bar{max-width:var(--maxw);margin:0 auto;padding:.55rem 1.15rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .crumb{font-size:.82rem;color:var(--muted);font-weight:600;letter-spacing:.01em;margin-right:auto}
+  .crumb b{color:var(--accent-ink)}
+  .controls{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+  .controls .grp{display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+  button.ctl{
+    font:inherit;font-size:.82rem;background:var(--surface);color:var(--ink-soft);border:1px solid var(--border);
+    min-height:40px;min-width:40px;padding:0 .7rem;cursor:pointer;border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:.35rem
+  }
+  .controls .grp button.ctl{border:none;border-radius:0;border-right:1px solid var(--border)}
+  .controls .grp button.ctl:last-child{border-right:none}
+  button.ctl:hover{background:var(--surface-2)}
+  .scale-read{font-size:.78rem;color:var(--muted);min-width:2.8rem;text-align:center;font-variant-numeric:tabular-nums}
+
+  /* ---------- Layout ---------- */
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.15rem 5rem}
+  section{margin-top:2.6rem;scroll-margin-top:5.5rem}
+  h1,h2,h3{line-height:1.25;color:var(--ink)}
+  h1{font-size:clamp(1.65rem,1.1rem + 2.4vw,2.35rem);margin:.2rem 0 .3rem;letter-spacing:-.01em}
+  h2{font-size:clamp(1.3rem,1rem + 1.2vw,1.6rem);margin:0 0 .9rem;padding-bottom:.4rem;border-bottom:2px solid var(--border)}
+  h3{font-size:1.08rem;margin:1.6rem 0 .5rem}
+  p{margin:.6rem 0}
+  .lede{font-size:1.08rem;color:var(--ink-soft)}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:1.8rem 0 .4rem}
+  .labno{display:inline-block;font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--accent-ink);
+    background:var(--accent-soft);padding:.25rem .6rem;border-radius:999px;letter-spacing:.03em}
+  .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 .2rem}
+  .chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--ink-soft);
+    background:var(--surface);border:1px solid var(--border);padding:.35rem .65rem;border-radius:var(--radius-sm)}
+  .chip b{color:var(--ink);font-weight:600}
+
+  /* ---------- Progress ---------- */
+  .progress-wrap{margin:1.4rem 0 .3rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem}
+  .progress-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;font-size:.85rem;color:var(--ink-soft)}
+  .progress-top b{color:var(--ink)}
+  progress{width:100%;height:9px;margin-top:.55rem;appearance:none;border:none;border-radius:999px;overflow:hidden;background:var(--surface-2)}
+  progress::-webkit-progress-bar{background:var(--surface-2);border-radius:999px}
+  progress::-webkit-progress-value{background:var(--accent);border-radius:999px}
+  progress::-moz-progress-bar{background:var(--accent);border-radius:999px}
+
+  /* ---------- On-this-page nav ---------- */
+  nav.toc{margin:1.4rem 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .5rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.2rem}
+  nav.toc a{display:block;padding:.4rem .7rem;font-size:.85rem;color:var(--ink-soft);text-decoration:none;border-radius:var(--radius-sm)}
+  nav.toc a:hover{background:var(--surface-2);color:var(--accent-ink)}
+
+  /* ---------- Callouts ---------- */
+  .call{border-left:4px solid var(--border-strong);background:var(--surface);padding:.85rem 1rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin:1rem 0}
+  .call .k{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:.25rem}
+  .call p{margin:.3rem 0}
+  .call.stuck{border-color:var(--warn);background:var(--warn-soft)}
+  .call.stuck .k{color:var(--warn)}
+  .call.tip{border-color:var(--accent);background:var(--accent-soft)}
+  .call.tip .k{color:var(--accent-ink)}
+  .call.defend{border-color:var(--blue);background:var(--blue-soft)}
+  .call.defend .k{color:var(--blue)}
+  .call.auth{border-color:var(--danger);background:var(--danger-soft)}
+  .call.auth .k{color:var(--danger)}
+
+  /* ---------- Command block ---------- */
+  .cmd{position:relative;background:var(--term-bg);border-radius:var(--radius-sm);margin:.7rem 0;border:1px solid #000}
+  .cmd pre{margin:0;padding:.85rem 3rem .85rem 1rem;overflow-x:auto;color:var(--term-ink);font-family:var(--mono);font-size:.92rem;line-height:1.5}
+  .cmd pre .p{color:var(--term-dim)}         /* prompt */
+  .cmd pre .fl{color:#7ee7da}                /* flags */
+  .cmd pre .ar{color:#f0c674}                /* args / targets */
+  .cmd pre .cm{color:var(--term-dim);font-style:italic} /* comment */
+  .copy{position:absolute;top:.5rem;right:.5rem;min-height:32px;min-width:32px;font-size:.72rem;
+    background:#20303c;color:#cfe3df;border:1px solid #33424e;border-radius:6px;cursor:pointer;padding:.2rem .5rem}
+  .copy:hover{background:#2a3d49}
+  .copy.ok{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  code.inl{font-family:var(--mono);font-size:.88em;background:var(--surface-2);padding:.08em .4em;border-radius:5px;color:var(--ink)}
+
+  /* ---------- Walkthrough step ---------- */
+  .step{border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;margin:1rem 0;background:var(--bg)}
+  .step h3{margin-top:0;display:flex;gap:.6rem;align-items:baseline}
+  .step h3 .n{font-family:var(--mono);font-size:.8rem;color:var(--accent-ink);background:var(--accent-soft);border-radius:6px;padding:.1rem .45rem}
+  .task-head{margin-top:2rem;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:.8rem 0;border:1px solid var(--border);border-radius:var(--radius)}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:30rem}
+  th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--border);vertical-align:top}
+  thead th{background:var(--surface);color:var(--ink);font-size:.82rem;letter-spacing:.02em}
+  tbody tr:last-child td{border-bottom:none}
+  td code,th code{font-family:var(--mono);font-size:.86em;color:var(--accent-ink);white-space:nowrap}
+
+  details.go{border:1px solid var(--border);border-radius:var(--radius-sm);padding:.3rem .9rem;margin:.8rem 0;background:var(--surface)}
+  details.go>summary{cursor:pointer;font-weight:600;color:var(--ink-soft);padding:.5rem 0;font-size:.92rem}
+  details.go[open]>summary{border-bottom:1px solid var(--border);margin-bottom:.6rem}
+
+  /* ---------- Self-check ---------- */
+  .q{border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;margin:.8rem 0;background:var(--bg)}
+  .q p.ask{font-weight:600;margin:.1rem 0 .3rem}
+  .q .reveal{font:inherit;font-size:.82rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .8rem;cursor:pointer;min-height:40px}
+  .q .reveal:hover{background:var(--surface-2)}
+  .q .ans{margin-top:.6rem;padding:.6rem .8rem;background:var(--accent-soft);border-radius:var(--radius-sm);font-size:.92rem;display:none}
+  .q .ans.show{display:block}
+
+  /* ---------- Section complete toggle ---------- */
+  .done-row{display:flex;align-items:center;gap:.55rem;margin-top:1rem;font-size:.88rem;color:var(--ink-soft)}
+  .done-row input{width:20px;height:20px;accent-color:var(--accent)}
+
+  /* ---------- Cheat sheet ---------- */
+  .cheat{background:var(--surface);border:1px dashed var(--border-strong);border-radius:var(--radius);padding:1.1rem 1.2rem}
+  .cheat .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1.1rem}
+  .cheat h3{margin:.2rem 0 .4rem}
+  .cheat ul{margin:.2rem 0;padding-left:0;list-style:none}
+  .cheat li{padding:.22rem 0;font-size:.88rem;border-bottom:1px dotted var(--border)}
+  .cheat li code{font-family:var(--mono);color:var(--accent-ink)}
+
+  footer.site{max-width:var(--maxw);margin:3rem auto 0;padding:1.6rem 1.15rem 0;border-top:1px solid var(--border);color:var(--muted);font-size:.84rem}
+  footer.site p{margin:.4rem 0}
+  footer.site .program{color:var(--ink-soft);font-weight:600}
+
+  /* ---------- Print ---------- */
+  @media print{
+    header.site,nav.toc,.controls,.copy,.progress-wrap,.done-row,.reveal{display:none !important}
+    body{background:#fff;color:#000}
+    .cmd{background:#f2f2f2;border:1px solid #bbb}
+    .cmd pre{color:#111}
+    .cmd pre .fl{color:#0a6b60}.cmd pre .ar{color:#8a5a00}.cmd pre .p,.cmd pre .cm{color:#555}
+    .q .ans{display:block;background:#f2f2f2}
+    a{color:#000;text-decoration:underline}
+    section{page-break-inside:avoid}
+  }
+
+  /* ---- screenshot + evidence (added) ---- */
+  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
+  .call.capture .k{color:var(--violet)}
+  .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
+  .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
+  .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
+  .evidence li:last-child{border-bottom:none}
+  .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
+  .evidence .shot{font-weight:600;color:var(--ink)}
+  @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="site">
+  <div class="bar">
+    <span class="crumb">CEH v13 · <a href="ceh_labs.html" style="color:var(--accent-ink);text-decoration:none">‹ All labs</a></span>
+    <div class="controls">
+      <div class="grp" role="group" aria-label="Text size">
+        <button class="ctl" id="text-dn" aria-label="Decrease text size">A−</button>
+        <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
+        <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
+      </div>
+      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="print-btn">🖨 Print</button>
+      <button class="ctl" id="clear-btn">Clear progress</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <div class="hero">
+    <span class="labno">LAB 03</span>
+    <h1>Reconnaissance with Nmap, Zenmap &amp; Masscan</h1>
+    <p class="lede">You move from passive footprinting into active scanning: fingerprinting a live host with Nmap, visualizing the same data in Zenmap, and seeing how Masscan trades depth for raw speed.</p>
+    <div class="chips">
+      <span class="chip">⏱ <b>45–60 min</b></span>
+      <span class="chip">📶 Difficulty: <b>Beginner→Intermediate</b></span>
+      <span class="chip">🧰 Tools: <b>Nmap · Zenmap · Masscan</b></span>
+      <span class="chip">🎯 Target: <b>OWASP BWA (192.168.68.12)</b></span>
+      <span class="chip">📘 Maps to: <b>Module 3 — Scanning Networks</b></span>
+    </div>
+  </div>
+
+  <div class="call auth">
+    <span class="k">Authorized testing only</span>
+    <p>Every command here runs inside your isolated NETLAB+ pod against machines built for practice. Scanning hosts or networks you do not own or have written permission to test is illegal in most jurisdictions.</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-top"><span>Lab progress</span><span><b id="pct">0%</b> · <span id="count">0 of 6</span> sections</span></div>
+    <progress id="bar" value="0" max="6" aria-label="Lab completion"></progress>
+  </div>
+<nav class="toc" aria-label="On this page">
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#environment">The environment</a></li>
+      <li><a href="#walkthrough">Command walkthrough</a></li>
+      <li><a href="#reference">Options reference</a></li>
+      <li><a href="#stuck">Where people get stuck</a></li>
+      <li><a href="#defend">The defender's view</a></li>
+      <li><a href="#exam">CEH v13 exam relevance</a></li>
+      <li><a href="#check">Check yourself</a></li>
+      <li><a href="#evidence">Evidence</a></li>
+      <li><a href="#cheat">Cheat sheet</a></li>
+    </ol>
+  </nav>
+
+  <!-- ===================== OVERVIEW ===================== -->
+  <section id="overview" data-track>
+    <h2>Overview — what this lab is really teaching</h2>
+    <p>Footprinting (Lab 01) told you a target <em>exists</em>. Scanning tells you what is <em>reachable and running</em> on it. This is the second phase of the attack lifecycle, and in the CEH v13 curriculum it is <strong>Module 3: Scanning Networks</strong>.</p>
+    <p>The lab walks the same target three ways on purpose, so you can feel the trade-offs that scanning tools make:</p>
+    <ul>
+      <li><strong>Nmap</strong> — the reference tool. Deep, accurate, scriptable; slower and noisier the more you ask of it.</li>
+      <li><strong>Zenmap</strong> — Nmap with a graphical front end. Same engine, friendlier output, and it <em>shows you the command it builds</em> — a great way to learn the flags.</li>
+      <li><strong>Masscan</strong> — built for speed over the whole internet. It gives up Nmap's depth to scan enormous ranges in seconds.</li>
+    </ul>
+    <p>The real learning objective isn't "type these commands." It's understanding that <strong>every scan is a choice between coverage, depth, speed, and stealth</strong> — and that each flag moves one of those dials at the expense of another.</p>
+    <div class="done-row"><input type="checkbox" id="done-overview" data-done="overview"><label for="done-overview">Mark this section reviewed</label></div>
+  </section>
+
+  <!-- ===================== ENVIRONMENT ===================== -->
+  <section id="environment" data-track>
+    <h2>The environment you're working in</h2>
+    <p>Your pod is a small, self-contained network. You drive everything from <strong>Kali Linux</strong>; the host you scan is the deliberately vulnerable <strong>OWASP Broken Web App</strong> at <code class="inl">192.168.68.12</code>. The pieces that matter for this lab:</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Machine</th><th>Role in this lab</th><th>Address</th></tr></thead>
+        <tbody>
+          <tr><td><b>Kali Linux</b></td><td>Your attack box — you run every command from here, logged in as root</td><td><code>192.168.9.2</code> / <code>192.168.0.2</code></td></tr>
+          <tr><td><b>OWASP BWA</b></td><td>The scan target — a web app VM with several open ports</td><td><code>192.168.68.12</code></td></tr>
+          <tr><td><b>pfSense</b></td><td>The firewall/router between the LAN segments</td><td><code>192.168.0.254</code></td></tr>
+          <tr><td><b>Security Onion</b></td><td>The IDS/network-monitoring sensor — it is <em>watching your scans</em> (see the defender's view below)</td><td><code>192.168.0.100</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="call tip">
+      <span class="k">Why you log in as root</span>
+      <p>The lab signs you in as root (<code class="inl">toor</code>) so that Nmap's raw-socket scan types just work. On your own machine you would run these with <code class="inl">sudo</code>. Remember that difference — it explains one of the most common "why doesn't this work" moments later.</p>
+    </div>
+    <p class="muted" style="font-size:.84rem;color:var(--muted)">Exact login credentials for every VM are in the Lab Settings table of your NETLAB+ lab document.</p>
+    <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
+  </section>
+
+  <!-- ===================== WALKTHROUGH ===================== -->
+  <section id="walkthrough" data-track>
+    <h2>Command walkthrough</h2>
+    <p>Every command the lab has you type, in order, with what it does and what to watch for. Hover or tab to any command block and use <b>Copy</b>.</p>
+
+    <p class="task-head">Setup</p>
+    <div class="step">
+      <h3><span class="n">0</span> Disable Docker first</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> systemctl stop docker</pre></div>
+      <p>Docker runs its own virtual network bridges and iptables rules on Kali. Masscan uses its <em>own</em> TCP/IP stack and talks to the network card directly — when Docker's networking is in the way, the two collide.</p>
+      <div class="call stuck">
+        <span class="k">This is the #1 lab-killer</span>
+        <p>Skip this step and you get a <strong>segmentation fault</strong> on the Masscan task later — with no obvious hint why. If Masscan crashes, this is almost always the reason. Run the command, then continue.</p>
+      </div>
+    </div>
+
+    <p class="task-head">Task 1 — Reconnaissance using Nmap</p>
+
+    <div class="step">
+      <h3><span class="n">1</span> Read the manual</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> man nmap</pre></div>
+      <p>Nmap has more options than any other tool in this course, plus its own scripting engine (NSE). Spacebar pages down, <code class="inl">q</code> quits. You won't memorize it — but knowing the man page is where the answers live is the habit that matters.</p>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">2</span> A default scan</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nmap <span class="ar">192.168.68.12</span></pre></div>
+      <p>With no flags, Nmap scans the <strong>top 1,000 most common TCP ports</strong> (not all 65,535) and reports which are open, closed, or filtered. Because you're root, it quietly uses a SYN scan under the hood.</p>
+      <div class="call tip"><span class="k">Read the output</span><p>"Open" = something is listening. "Filtered" = a firewall is swallowing the probe, so Nmap can't tell. That distinction is a real finding, not noise.</p></div>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">3</span> A TCP connect scan</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nmap <span class="fl">-sT</span> <span class="ar">192.168.68.12</span></pre></div>
+      <p><code class="inl">-sT</code> forces a <strong>full TCP connect scan</strong>: Nmap completes the whole three-way handshake (SYN → SYN/ACK → ACK) on every port, using the operating system's normal connect call. It needs no special privileges — but it is louder, because applications log a completed connection.</p>
+      <div class="call stuck"><span class="k">"The results look identical to the last scan"</span><p>They will here — this target only has standard, responsive TCP ports. That does <em>not</em> mean <code class="inl">-sT</code> and the default SYN scan are the same thing. They differ in <em>mechanism</em> (full handshake vs half-open), in <em>privilege</em> (connect needs none; SYN needs root), and in <em>how loud they are</em>. Same picture, very different footprint.</p></div>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">4</span> A fast scan</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nmap <span class="fl">-F</span> <span class="ar">192.168.68.12</span></pre></div>
+      <p><code class="inl">-F</code> ("fast") drops from the top 1,000 ports to the top <strong>100</strong>. Quicker and quieter — but you trade away coverage.</p>
+      <div class="call tip"><span class="k">Notice what disappears</span><p>Port <code class="inl">5001</code> is gone from this output. It's a non-standard port, so it isn't in the top-100 list. That's the whole lesson of <code class="inl">-F</code> in one line: <strong>speed costs you the unusual ports — which are often the interesting ones.</strong></p></div>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">5</span> An aggressive scan</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nmap <span class="fl">-A</span> <span class="ar">192.168.68.12</span></pre></div>
+      <p><code class="inl">-A</code> is a bundle — one flag that turns on four things at once: <strong>OS detection</strong> (<code class="inl">-O</code>), <strong>service/version detection</strong> (<code class="inl">-sV</code>), <strong>default scripts</strong> (<code class="inl">-sC</code>), and <strong>traceroute</strong>. You get far more detail about the target.</p>
+      <div class="call stuck"><span class="k">"It froze / is taking forever"</span><p>It isn't frozen — <code class="inl">-A</code> is doing a lot of work and is the slowest command in this task. It's also the <em>loudest</em> thing you can do to a target. Give it time.</p></div>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">nmap -A</code> output showing the OS guess and the service/version detail.</p></div>
+
+    </div>
+
+    <div class="step">
+      <h3><span class="n">6</span> Run the default scripts</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nmap <span class="fl">-sC</span> <span class="ar">192.168.68.12</span></pre></div>
+      <p><code class="inl">-sC</code> runs Nmap's <strong>default category of NSE scripts</strong> (equivalent to <code class="inl">--script=default</code>) — safe checks that pull banners, basic config, and low-risk vulnerability hints.</p>
+      <div class="call tip"><span class="k">How does this relate to <code style="color:inherit">-A</code>?</span><p><code class="inl">-A</code> already <em>includes</em> <code class="inl">-sC</code>. Running <code class="inl">-sC</code> on its own is the "just the scripts, please" version — lighter than the full aggressive bundle.</p></div>
+    </div>
+
+    <p class="task-head">Task 2 — Reconnaissance using Zenmap</p>
+    <div class="step">
+      <h3><span class="n">7</span> Launch the GUI</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> zenmap</pre></div>
+      <p>Enter the target, pick a <strong>Profile</strong> (e.g. <em>Quick scan</em>), and — this is the part worth slowing down for — <strong>watch the Command field</strong>. Zenmap builds a real Nmap command from your choices and shows it to you. Quick scan, for instance, is just <code class="inl">nmap -T4 -F</code>. The GUI is a flashcard for the flags.</p>
+      <ul>
+        <li><b>Ports / Hosts tab</b> — the same data, organized cleanly.</li>
+        <li><b>Save Scan</b> → <code class="inl">scan1.xml</code> — scans persist and can be re-loaded and combined.</li>
+        <li><b>Scan a whole network</b> — set the target to <code class="inl">192.168.0.0/24</code> to sweep the subnet.</li>
+        <li><b>Topology tab</b> — a network map you can export straight into an assessment report.</li>
+      </ul>
+      <div class="call tip"><span class="k">The /24 means</span><p><code class="inl">192.168.0.0/24</code> is CIDR for "all 256 addresses from .0 to .255." One target just became the whole LAN.</p></div>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture Zenmap’s <strong>Topology</strong> tab — that network map is exactly the kind of figure that belongs in an assessment report.</p></div>
+
+      <details class="go"><summary>Currency note — Zenmap in 2026</summary><p>Zenmap is still a fine learning aid, but it's no longer installed by default in current Kali, and modern workflows lean on the Nmap CLI (its XML output feeds other tools). Learn the GUI to <em>see</em> the flags; live on the command line.</p></details>
+    </div>
+
+    <p class="task-head">Task 3 — Reconnaissance using Masscan</p>
+    <div class="step">
+      <h3><span class="n">8</span> Manual, then nmap-style help</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> man masscan</pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> masscan <span class="fl">--nmap</span></pre></div>
+      <p><code class="inl">--nmap</code> prints the Nmap-compatible options Masscan understands — a bridge for people who already think in Nmap flags.</p>
+    </div>
+    <div class="step">
+      <h3><span class="n">9</span> A fast SYN sweep</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> masscan <span class="fl">-sS</span> <span class="ar">192.168.0.0/24</span> <span class="fl">-p</span> <span class="ar">80</span></pre></div>
+      <p>This asks: across all 256 addresses on the LAN, who has <strong>port 80 open</strong>? <code class="inl">-sS</code> is a SYN scan (Masscan's default style), <code class="inl">-p 80</code> limits it to one port. It finishes almost instantly — the pause at the end is just Masscan waiting for late replies.</p>
+      <div class="call stuck"><span class="k">Why Masscan feels dangerous</span><p>Masscan sends packets <em>asynchronously</em> at whatever rate you allow (<code class="inl">--rate</code>, default is very high). On a real network that can saturate links or trip every alarm. In the pod it's safe; in the wild, always set a sane <code class="inl">--rate</code> and have written authorization.</p></div>
+    </div>
+
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the Masscan result for the <code class="inl">/24</code>, and note how much faster it returned than the Nmap scans.</p></div>
+    <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
+  </section>
+
+  <!-- ===================== REFERENCE ===================== -->
+  <section id="reference" data-track>
+    <h2>Options reference — beyond the lab</h2>
+    <p>The lab uses a handful of flags. Here's the fuller toolkit, so you understand the <em>tool</em> and not just the keystrokes. Learn one scanner deeply and you can pick up its competitors fast.</p>
+
+    <h3>Nmap — scan types</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Flag</th><th>Scan</th><th>Root?</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>-sS</code></td><td>SYN / half-open</td><td>Yes</td><td>Nmap's default when privileged. Sends SYN, never completes the handshake. Faster, quieter.</td></tr>
+        <tr><td><code>-sT</code></td><td>TCP connect</td><td>No</td><td>Full handshake via the OS. The fallback when you aren't root; more likely to be logged.</td></tr>
+        <tr><td><code>-sU</code></td><td>UDP</td><td>Yes</td><td>Slow but essential — DNS, SNMP, DHCP live on UDP and a TCP scan misses them entirely.</td></tr>
+        <tr><td><code>-sn</code></td><td>Ping sweep</td><td>No</td><td>Host discovery only — "who's alive?" — no port scan.</td></tr>
+        <tr><td><code>-sF / -sN / -sX</code></td><td>FIN / NULL / Xmas</td><td>Yes</td><td>Stealth/evasion scans that exploit how the TCP spec handles odd flag combinations.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Nmap — scope, detection, output</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Flag</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>-p 80,443</code> · <code>-p 1-1024</code> · <code>-p-</code></td><td>Choose ports: a list, a range, or <code>-p-</code> for all 65,535.</td></tr>
+        <tr><td><code>--top-ports N</code></td><td>Scan the N most common ports.</td></tr>
+        <tr><td><code>-Pn</code></td><td>Skip host discovery — treat the target as up. Essential when a host blocks ping.</td></tr>
+        <tr><td><code>-sV</code> · <code>-O</code></td><td>Service/version detection · OS detection.</td></tr>
+        <tr><td><code>-sC</code> · <code>--script=NAME</code></td><td>Default NSE scripts · a specific script or category.</td></tr>
+        <tr><td><code>-T0 … -T5</code></td><td>Timing: <code>-T0</code> paranoid-slow (evasion), <code>-T4</code> a sensible LAN default, <code>-T5</code> fastest/loudest.</td></tr>
+        <tr><td><code>-oN</code> · <code>-oX</code> · <code>-oG</code> · <code>-oA</code></td><td>Save output: normal · XML · grepable · all three at once.</td></tr>
+        <tr><td><code>-v</code> · <code>-n</code> · <code>--open</code></td><td>Verbose · skip DNS resolution (faster) · show only open ports.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Masscan — the ones worth knowing</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Flag</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>--rate N</code></td><td><strong>Packets per second.</strong> The single most important knob — low on production networks, high only when you own the wire.</td></tr>
+        <tr><td><code>-p 80,443</code> · <code>-p 0-65535</code></td><td>Ports to scan.</td></tr>
+        <tr><td><code>--banners</code></td><td>Grab service banners (needs Masscan's own stack, which is why Docker had to go).</td></tr>
+        <tr><td><code>--exclude</code> · <code>--excludefile</code></td><td>Carve out addresses you must not touch — your safety rail on real engagements.</td></tr>
+        <tr><td><code>-oL / -oG / -oX / -oJ</code></td><td>Output as list / grepable / XML / JSON.</td></tr>
+        <tr><td><code>--open-only</code></td><td>Report only open ports.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="done-row"><input type="checkbox" id="done-reference" data-done="reference"><label for="done-reference">Mark this section reviewed</label></div>
+  </section>
+
+  <!-- ===================== STUCK ===================== -->
+  <section id="stuck" data-track>
+    <h2>Where people get stuck</h2>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Segmentation fault on the Masscan step</td><td>Docker networking wasn't disabled</td><td>Run <code>systemctl stop docker</code> first, then retry.</td></tr>
+        <tr><td><code>-sT</code> and the default scan give the same result — "did I do it wrong?"</td><td>Nothing's wrong; the target only has standard TCP ports</td><td>Compare mechanism, not output. Capture both in Wireshark to <em>see</em> the half-open vs full handshake.</td></tr>
+        <tr><td>On your own laptop: "You requested a scan type which requires root"</td><td><code>-sS</code>, <code>-A</code>, <code>-O</code>, <code>-sU</code> need raw sockets</td><td>Prefix with <code>sudo</code>, or use <code>-sT</code>. In the pod you're already root.</td></tr>
+        <tr><td><code>-A</code> "hangs"</td><td>It's slow by design — OS + version + scripts + traceroute</td><td>Wait. If you only need part of it, run <code>-sV</code> or <code>-sC</code> alone.</td></tr>
+        <tr><td>A host "has no open ports" but you know it's up</td><td>It's dropping your discovery probes</td><td>Add <code>-Pn</code> to skip host discovery and scan anyway.</td></tr>
+        <tr><td><code>zenmap</code>: command not found</td><td>Not installed on this image</td><td>Use the Nmap CLI; the flags are identical to what the GUI builds.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="done-row"><input type="checkbox" id="done-stuck" data-done="stuck"><label for="done-stuck">Mark this section reviewed</label></div>
+  </section>
+
+  <!-- ===================== DEFEND ===================== -->
+  <section id="defend" data-track>
+    <h2>The defender's view</h2>
+    <div class="call defend">
+      <span class="k">Remember the Security Onion box in your pod</span>
+      <p>While you scanned, the <strong>Security Onion</strong> sensor at <code class="inl">192.168.0.100</code> was watching. Everything you just did leaves a signature — and knowing what that signature looks like is half of what employers actually hire CEH holders to do.</p>
+    </div>
+    <p>How your three scans look from the blue team's chair:</p>
+    <ul>
+      <li><strong>Nmap default / <code class="inl">-sT</code></strong> — many connection attempts from one source across many ports in seconds. Classic port-scan pattern; IDS rules (Snort/Suricata) and the firewall's scan-detection both flag it.</li>
+      <li><strong><code class="inl">-A</code></strong> — the loudest. Version probes and NSE scripts send distinctive payloads that signatures recognize instantly.</li>
+      <li><strong>Masscan</strong> — a burst of SYNs to one port across a whole subnet. Volumetric and obvious unless the rate is throttled right down.</li>
+    </ul>
+    <p><strong>Countermeasures</strong> a defender puts in place: firewall rate-limiting and scan thresholds, dropping unsolicited SYNs, IDS/IPS signatures, closing and patching unneeded services to shrink the attack surface, and honeypots to catch and study scanners. Slowing a scan (<code class="inl">-T0</code>/<code class="inl">-T1</code>) lowers the odds of tripping a threshold — the attacker's answer to the defender's threshold, and exactly the cat-and-mouse Module 12 (Evading IDS) picks up.</p>
+    <div class="done-row"><input type="checkbox" id="done-defend" data-done="defend"><label for="done-defend">Mark this section reviewed</label></div>
+  </section>
+
+  <!-- ===================== EXAM ===================== -->
+  <section id="exam">
+    <h2>CEH v13 exam relevance</h2>
+    <p>This lab is the hands-on side of <strong>Module 3: Scanning Networks</strong>. High-yield facts that show up on the exam:</p>
+    <ul>
+      <li>The <strong>three-way handshake</strong> (SYN → SYN/ACK → ACK) — and how each scan type uses or abuses it.</li>
+      <li><strong>Scan types by flag:</strong> connect (<code class="inl">-sT</code>, full), SYN/stealth (<code class="inl">-sS</code>, half-open), plus FIN/NULL/Xmas/ACK and idle (zombie) scans.</li>
+      <li>Which scans <strong>need privilege</strong> (anything using raw packets) and which don't (<code class="inl">-sT</code>).</li>
+      <li>Nmap's <strong>default = top 1,000 TCP ports</strong>, SYN scan when privileged.</li>
+      <li><strong>Detection flags:</strong> <code class="inl">-sV</code>, <code class="inl">-O</code>, and NSE via <code class="inl">-sC</code>/<code class="inl">--script</code>.</li>
+      <li>Reading a scan type <strong>from a packet capture</strong> — a common question style.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== CHECK ===================== -->
+  <section id="check">
+    <h2>Check yourself</h2>
+    <div class="q"><p class="ask">1. Why does <code class="inl">-sS</code> require root while <code class="inl">-sT</code> does not?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans"><code class="inl">-sS</code> crafts raw packets to send a bare SYN and read the reply directly — raw-socket access needs root. <code class="inl">-sT</code> just asks the operating system to make a normal connection, which any user can do.</div></div>
+    <div class="q"><p class="ask">2. You skipped a setup step and Masscan segfaults. What did you miss, and why does it matter?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans"><code class="inl">systemctl stop docker</code>. Masscan uses its own network stack and collides with Docker's bridges and iptables rules, which crashes it.</div></div>
+    <div class="q"><p class="ask">3. Your default scan and <code class="inl">-sT</code> scan returned identical open ports. Are the two scans equivalent?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">No. They returned the same picture only because this host's open ports are standard and responsive. They differ in mechanism (half-open vs full handshake), in privilege, and in how much noise/logging they generate.</div></div>
+    <div class="q"><p class="ask">4. Which single Nmap flag is roughly equal to <code class="inl">-O -sV -sC</code> plus traceroute — and what's the cost?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans"><code class="inl">-A</code> (aggressive). The cost is speed and stealth: it's the slowest and loudest option in the lab.</div></div>
+  </section>
+
+  <!-- ===================== CHEAT ===================== -->
+  <section id="evidence">
+    <h2>Evidence to capture</h2>
+    <p>Your instructor wants screenshots of the key steps as proof you ran the lab. Grab these as you go, tick each one off, then print or submit this list as your evidence cover sheet.</p>
+    <div class="evidence"><ul>
+        <li><input type="checkbox" data-evidence="lab03-1"><span><span class="shot">Aggressive scan.</span> The <code class="inl">nmap -A</code> output with OS and service/version detection.</span></li>
+        <li><input type="checkbox" data-evidence="lab03-2"><span><span class="shot">Zenmap topology.</span> The Topology tab for the <code class="inl">/24</code> sweep.</span></li>
+        <li><input type="checkbox" data-evidence="lab03-3"><span><span class="shot">Masscan speed.</span> The <code class="inl">masscan</code> result for port 80 across the subnet.</span></li>
+    </ul></div>
+  </section>
+
+  <section id="cheat">
+    <h2>Cheat sheet</h2>
+    <div class="cheat">
+      <div class="grid">
+        <div>
+          <h3>Nmap</h3>
+          <ul>
+            <li><code>nmap HOST</code> — default top-1000 scan</li>
+            <li><code>nmap -sS HOST</code> — SYN / stealth (root)</li>
+            <li><code>nmap -sT HOST</code> — full connect (no root)</li>
+            <li><code>nmap -sU HOST</code> — UDP</li>
+            <li><code>nmap -F HOST</code> — fast, top 100</li>
+            <li><code>nmap -p- HOST</code> — all 65,535 ports</li>
+            <li><code>nmap -Pn HOST</code> — skip host discovery</li>
+            <li><code>nmap -sV -O HOST</code> — versions + OS</li>
+            <li><code>nmap -sC HOST</code> — default scripts</li>
+            <li><code>nmap -A HOST</code> — everything, loud</li>
+            <li><code>nmap -T4 HOST</code> — brisk LAN timing</li>
+            <li><code>nmap -oA name HOST</code> — save all formats</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Masscan</h3>
+          <ul>
+            <li><code>masscan -p80 10.0.0.0/8</code> — one port, huge range</li>
+            <li><code>masscan -p0-65535 CIDR</code> — all ports</li>
+            <li><code>masscan --rate 1000 ...</code> — throttle speed</li>
+            <li><code>masscan --banners ...</code> — grab banners</li>
+            <li><code>masscan --exclude IP ...</code> — stay off a host</li>
+            <li><code>masscan -oJ out.json ...</code> — JSON output</li>
+          </ul>
+          <h3>First, always</h3>
+          <ul>
+            <li><code>systemctl stop docker</code> — before Masscan</li>
+            <li><code>man nmap</code> / <code>man masscan</code> — the answers live here</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+<footer class="site">
+  <p>Lab companion for <span class="program">CEH v13 — Lab 03</span>. Companion material © 2026; original explanatory content written to accompany the NDG <em>Ethical Hacking v2</em> lab series, which remains the property of its publisher.</p>
+  <p>Aligned to the EC-Council CEH v13 curriculum. An independent study companion — not affiliated with or endorsed by EC-Council or NDG.</p>
+  <p><span class="program">CEH v13 Course Series</span> · Brookdale Community College · 2026</p>
+</footer>
+<script>
+(function(){
+  "use strict";
+  var PREFIX="ceh-lab03-v1:",root=document.documentElement;
+  function save(k,v){try{localStorage.setItem(PREFIX+k,v);}catch(e){}}
+  function load(k){try{return localStorage.getItem(PREFIX+k);}catch(e){return null;}}
+  function del(k){try{localStorage.removeItem(PREFIX+k);}catch(e){}}
+
+  var themeBtn=document.getElementById("theme-toggle");
+  function applyTheme(mode){
+    root.setAttribute("data-theme",mode==="light"?"light":"dark");
+    var dark=mode!=="light";
+    themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
+    themeBtn.setAttribute("aria-pressed",dark?"true":"false");
+  }
+  applyTheme(load("theme")||"dark");
+  themeBtn.addEventListener("click",function(){
+    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+  });
+
+  var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));
+  if(!isNaN(stored)){var q=steps.indexOf(stored);if(q>=0)idx=q;}
+  var readout=document.getElementById("scale-read");
+  function applyScale(){root.style.setProperty("--text-scale",steps[idx]);readout.textContent=Math.round(steps[idx]*100)+"%";save("scale",steps[idx]);}
+  applyScale();
+  document.getElementById("text-up").addEventListener("click",function(){if(idx<steps.length-1){idx++;applyScale();}});
+  document.getElementById("text-dn").addEventListener("click",function(){if(idx>0){idx--;applyScale();}});
+  document.getElementById("print-btn").addEventListener("click",function(){window.print();});
+
+  document.querySelectorAll(".cmd").forEach(function(b){
+    var btn=document.createElement("button");
+    btn.className="copy";btn.type="button";btn.textContent="Copy";btn.setAttribute("aria-label","Copy command");
+    btn.addEventListener("click",function(){
+      var pre=b.querySelector("pre"),clone=pre.cloneNode(true);
+      clone.querySelectorAll(".p,.cm").forEach(function(e){e.parentNode.removeChild(e);});
+      var text=clone.textContent.replace(/[ \t]+\n/g,"\n").replace(/\n{2,}/g,"\n").trim();
+      var done=function(){btn.textContent="Copied";btn.classList.add("ok");setTimeout(function(){btn.textContent="Copy";btn.classList.remove("ok");},1400);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(fb);}else{fb();}
+      function fb(){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(ta);}
+    });
+    b.appendChild(btn);
+  });
+
+  document.querySelectorAll(".q .reveal").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var ans=btn.parentElement.querySelector(".ans"),open=ans.classList.toggle("show");
+      btn.setAttribute("aria-expanded",open?"true":"false");btn.textContent=open?"Hide answer":"Show answer";
+    });
+  });
+
+  var boxes=document.querySelectorAll('input[data-done]'),total=boxes.length;
+  var bar=document.getElementById("bar"),pct=document.getElementById("pct"),count=document.getElementById("count"),pct2=document.getElementById("pct2");
+  if(bar)bar.max=total;
+  function refresh(){
+    var n=0;boxes.forEach(function(b){if(b.checked)n++;});
+    if(bar)bar.value=n;var pc=total?Math.round(n/total*100):0;
+    if(pct)pct.textContent=pc+"%";if(pct2)pct2.textContent=pc+"%";if(count)count.textContent=n+" of "+total;
+  }
+  boxes.forEach(function(b){var k="done:"+b.getAttribute("data-done");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);refresh();});});
+  refresh();
+
+  var evs=document.querySelectorAll('input[data-evidence]');
+  evs.forEach(function(b){var k="ev:"+b.getAttribute("data-evidence");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);});});
+
+  var clr=document.getElementById("clear-btn");
+  if(clr)clr.addEventListener("click",function(){
+    boxes.forEach(function(b){b.checked=false;del("done:"+b.getAttribute("data-done"));});
+    evs.forEach(function(b){b.checked=false;del("ev:"+b.getAttribute("data-evidence"));});
+    document.querySelectorAll(".q .ans.show").forEach(function(a){a.classList.remove("show");});
+    document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
+    refresh();
+  });
+})();
+</script>
+</body>
+</html>

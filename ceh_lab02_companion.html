@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lab 02 Companion — Packet Crafting with Scapy · CEH v13</title>
+<meta name="description" content="Student companion for CEH Lab 02: building packets layer by layer in Scapy, every command and layer, the curly-quote trap, screenshots to submit, the defender's view, and CEH v13 exam relevance.">
+<style>  /* ===== Theme tokens — matched to the CEH v13 site (dark-first) ===== */
+  :root, :root[data-theme="dark"]{
+    --bg:#07090b;--surface:#141a20;--surface-2:#1b232b;
+    --ink:#e8eef2;--ink-soft:#c3ccd6;--muted:#9fb0bd;
+    --border:#26313b;--border-strong:#37444f;
+    --accent:#35e05f;--accent-soft:rgba(53,224,95,.14);--accent-ink:#6dff96;
+    --warn:#f0b429;--warn-soft:rgba(240,180,41,.13);
+    --danger:#ff6b6b;--danger-soft:rgba(255,107,107,.13);
+    --blue:#43d9d4;--blue-soft:rgba(67,217,212,.13);
+    --violet:#b58cff;--violet-soft:rgba(181,140,255,.15);
+    --term-bg:#05070a;--term-ink:#dbe7df;--term-dim:#6f8291;
+    --radius:10px;--radius-sm:7px;--maxw:62rem;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --text-scale:1;
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6f8;--surface:#ffffff;--surface-2:#eef2f5;
+    --ink:#10181f;--ink-soft:#33414f;--muted:#6b7c8c;
+    --border:#d3dbe2;--border-strong:#b4c0ca;
+    --accent:#0f7a34;--accent-soft:rgba(15,122,52,.10);--accent-ink:#0a5c26;
+    --warn:#8a5a00;--warn-soft:rgba(138,90,0,.10);
+    --danger:#b3261e;--danger-soft:rgba(179,38,30,.10);
+    --blue:#0b6d78;--blue-soft:rgba(11,109,120,.10);
+    --violet:#6d28d9;--violet-soft:rgba(109,40,217,.08);
+    --term-bg:#10181f;--term-ink:#dbe7df;--term-dim:#8a97a3;
+  }
+*{box-sizing:border-box}
+  html{font-size:calc(100% * var(--text-scale));scroll-behavior:smooth;scroll-padding-top:5.5rem}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-text-size-adjust:100%;
+  }
+  .skip-link{position:absolute;left:-999px;top:0;background:var(--accent);color:#fff;padding:.6rem 1rem;z-index:100;border-radius:0 0 var(--radius-sm) 0}
+  .skip-link:focus{left:0}
+
+  a{color:var(--accent-ink);text-underline-offset:2px}
+  a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{
+    outline:3px solid var(--accent);outline-offset:2px;border-radius:4px
+  }
+
+  /* ---------- Header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:50;background:var(--bg);
+    border-bottom:1px solid var(--border);backdrop-filter:saturate(1.2);
+  }
+  .bar{max-width:var(--maxw);margin:0 auto;padding:.55rem 1.15rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .crumb{font-size:.82rem;color:var(--muted);font-weight:600;letter-spacing:.01em;margin-right:auto}
+  .crumb b{color:var(--accent-ink)}
+  .controls{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+  .controls .grp{display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+  button.ctl{
+    font:inherit;font-size:.82rem;background:var(--surface);color:var(--ink-soft);border:1px solid var(--border);
+    min-height:40px;min-width:40px;padding:0 .7rem;cursor:pointer;border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:.35rem
+  }
+  .controls .grp button.ctl{border:none;border-radius:0;border-right:1px solid var(--border)}
+  .controls .grp button.ctl:last-child{border-right:none}
+  button.ctl:hover{background:var(--surface-2)}
+  .scale-read{font-size:.78rem;color:var(--muted);min-width:2.8rem;text-align:center;font-variant-numeric:tabular-nums}
+
+  /* ---------- Layout ---------- */
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.15rem 5rem}
+  section{margin-top:2.6rem;scroll-margin-top:5.5rem}
+  h1,h2,h3{line-height:1.25;color:var(--ink)}
+  h1{font-size:clamp(1.65rem,1.1rem + 2.4vw,2.35rem);margin:.2rem 0 .3rem;letter-spacing:-.01em}
+  h2{font-size:clamp(1.3rem,1rem + 1.2vw,1.6rem);margin:0 0 .9rem;padding-bottom:.4rem;border-bottom:2px solid var(--border)}
+  h3{font-size:1.08rem;margin:1.6rem 0 .5rem}
+  p{margin:.6rem 0}
+  .lede{font-size:1.08rem;color:var(--ink-soft)}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:1.8rem 0 .4rem}
+  .labno{display:inline-block;font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--accent-ink);
+    background:var(--accent-soft);padding:.25rem .6rem;border-radius:999px;letter-spacing:.03em}
+  .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 .2rem}
+  .chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--ink-soft);
+    background:var(--surface);border:1px solid var(--border);padding:.35rem .65rem;border-radius:var(--radius-sm)}
+  .chip b{color:var(--ink);font-weight:600}
+
+  /* ---------- Progress ---------- */
+  .progress-wrap{margin:1.4rem 0 .3rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem}
+  .progress-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;font-size:.85rem;color:var(--ink-soft)}
+  .progress-top b{color:var(--ink)}
+  progress{width:100%;height:9px;margin-top:.55rem;appearance:none;border:none;border-radius:999px;overflow:hidden;background:var(--surface-2)}
+  progress::-webkit-progress-bar{background:var(--surface-2);border-radius:999px}
+  progress::-webkit-progress-value{background:var(--accent);border-radius:999px}
+  progress::-moz-progress-bar{background:var(--accent);border-radius:999px}
+
+  /* ---------- On-this-page nav ---------- */
+  nav.toc{margin:1.4rem 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .5rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.2rem}
+  nav.toc a{display:block;padding:.4rem .7rem;font-size:.85rem;color:var(--ink-soft);text-decoration:none;border-radius:var(--radius-sm)}
+  nav.toc a:hover{background:var(--surface-2);color:var(--accent-ink)}
+
+  /* ---------- Callouts ---------- */
+  .call{border-left:4px solid var(--border-strong);background:var(--surface);padding:.85rem 1rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin:1rem 0}
+  .call .k{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:.25rem}
+  .call p{margin:.3rem 0}
+  .call.stuck{border-color:var(--warn);background:var(--warn-soft)}
+  .call.stuck .k{color:var(--warn)}
+  .call.tip{border-color:var(--accent);background:var(--accent-soft)}
+  .call.tip .k{color:var(--accent-ink)}
+  .call.defend{border-color:var(--blue);background:var(--blue-soft)}
+  .call.defend .k{color:var(--blue)}
+  .call.auth{border-color:var(--danger);background:var(--danger-soft)}
+  .call.auth .k{color:var(--danger)}
+
+  /* ---------- Command block ---------- */
+  .cmd{position:relative;background:var(--term-bg);border-radius:var(--radius-sm);margin:.7rem 0;border:1px solid #000}
+  .cmd pre{margin:0;padding:.85rem 3rem .85rem 1rem;overflow-x:auto;color:var(--term-ink);font-family:var(--mono);font-size:.92rem;line-height:1.5}
+  .cmd pre .p{color:var(--term-dim)}         /* prompt */
+  .cmd pre .fl{color:#7ee7da}                /* flags */
+  .cmd pre .ar{color:#f0c674}                /* args / targets */
+  .cmd pre .cm{color:var(--term-dim);font-style:italic} /* comment */
+  .copy{position:absolute;top:.5rem;right:.5rem;min-height:32px;min-width:32px;font-size:.72rem;
+    background:#20303c;color:#cfe3df;border:1px solid #33424e;border-radius:6px;cursor:pointer;padding:.2rem .5rem}
+  .copy:hover{background:#2a3d49}
+  .copy.ok{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  code.inl{font-family:var(--mono);font-size:.88em;background:var(--surface-2);padding:.08em .4em;border-radius:5px;color:var(--ink)}
+
+  /* ---------- Walkthrough step ---------- */
+  .step{border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;margin:1rem 0;background:var(--bg)}
+  .step h3{margin-top:0;display:flex;gap:.6rem;align-items:baseline}
+  .step h3 .n{font-family:var(--mono);font-size:.8rem;color:var(--accent-ink);background:var(--accent-soft);border-radius:6px;padding:.1rem .45rem}
+  .task-head{margin-top:2rem;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:.8rem 0;border:1px solid var(--border);border-radius:var(--radius)}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:30rem}
+  th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--border);vertical-align:top}
+  thead th{background:var(--surface);color:var(--ink);font-size:.82rem;letter-spacing:.02em}
+  tbody tr:last-child td{border-bottom:none}
+  td code,th code{font-family:var(--mono);font-size:.86em;color:var(--accent-ink);white-space:nowrap}
+
+  details.go{border:1px solid var(--border);border-radius:var(--radius-sm);padding:.3rem .9rem;margin:.8rem 0;background:var(--surface)}
+  details.go>summary{cursor:pointer;font-weight:600;color:var(--ink-soft);padding:.5rem 0;font-size:.92rem}
+  details.go[open]>summary{border-bottom:1px solid var(--border);margin-bottom:.6rem}
+
+  /* ---------- Self-check ---------- */
+  .q{border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;margin:.8rem 0;background:var(--bg)}
+  .q p.ask{font-weight:600;margin:.1rem 0 .3rem}
+  .q .reveal{font:inherit;font-size:.82rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .8rem;cursor:pointer;min-height:40px}
+  .q .reveal:hover{background:var(--surface-2)}
+  .q .ans{margin-top:.6rem;padding:.6rem .8rem;background:var(--accent-soft);border-radius:var(--radius-sm);font-size:.92rem;display:none}
+  .q .ans.show{display:block}
+
+  /* ---------- Section complete toggle ---------- */
+  .done-row{display:flex;align-items:center;gap:.55rem;margin-top:1rem;font-size:.88rem;color:var(--ink-soft)}
+  .done-row input{width:20px;height:20px;accent-color:var(--accent)}
+
+  /* ---------- Cheat sheet ---------- */
+  .cheat{background:var(--surface);border:1px dashed var(--border-strong);border-radius:var(--radius);padding:1.1rem 1.2rem}
+  .cheat .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1.1rem}
+  .cheat h3{margin:.2rem 0 .4rem}
+  .cheat ul{margin:.2rem 0;padding-left:0;list-style:none}
+  .cheat li{padding:.22rem 0;font-size:.88rem;border-bottom:1px dotted var(--border)}
+  .cheat li code{font-family:var(--mono);color:var(--accent-ink)}
+
+  footer.site{max-width:var(--maxw);margin:3rem auto 0;padding:1.6rem 1.15rem 0;border-top:1px solid var(--border);color:var(--muted);font-size:.84rem}
+  footer.site p{margin:.4rem 0}
+  footer.site .program{color:var(--ink-soft);font-weight:600}
+
+  /* ---------- Print ---------- */
+  @media print{
+    header.site,nav.toc,.controls,.copy,.progress-wrap,.done-row,.reveal{display:none !important}
+    body{background:#fff;color:#000}
+    .cmd{background:#f2f2f2;border:1px solid #bbb}
+    .cmd pre{color:#111}
+    .cmd pre .fl{color:#0a6b60}.cmd pre .ar{color:#8a5a00}.cmd pre .p,.cmd pre .cm{color:#555}
+    .q .ans{display:block;background:#f2f2f2}
+    a{color:#000;text-decoration:underline}
+    section{page-break-inside:avoid}
+  }
+
+  /* ---- screenshot + evidence (added) ---- */
+  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
+  .call.capture .k{color:var(--violet)}
+  .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
+  .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
+  .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
+  .evidence li:last-child{border-bottom:none}
+  .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
+  .evidence .shot{font-weight:600;color:var(--ink)}
+  @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="site">
+  <div class="bar">
+    <span class="crumb">CEH v13 · <a href="ceh_labs.html" style="color:var(--accent-ink);text-decoration:none">‹ All labs</a></span>
+    <div class="controls">
+      <div class="grp" role="group" aria-label="Text size">
+        <button class="ctl" id="text-dn" aria-label="Decrease text size">A−</button>
+        <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
+        <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
+      </div>
+      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="print-btn">🖨 Print</button>
+      <button class="ctl" id="clear-btn">Clear progress</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <div class="hero">
+    <span class="labno">LAB 02</span>
+    <h1>Packet Crafting with Scapy</h1>
+    <p class="lede">Every scanner is ultimately sending packets. Scapy lets you build them by hand, one field and one layer at a time, so Nmap's SYN scan stops being magic and starts being something you understand.</p>
+    <div class="chips">
+      <span class="chip">⏱ <b>45–60 min</b></span>
+      <span class="chip">📶 Difficulty: <b>Beginner→Intermediate</b></span>
+      <span class="chip">🧰 Tools: <b>Scapy · Wireshark</b></span>
+      <span class="chip">🎯 Target: <b>OWASP BWA (192.168.68.12)</b></span>
+      <span class="chip">📘 Maps to: <b>Module 3 — Scanning Networks</b></span>
+    </div>
+  </div>
+
+  <div class="call auth">
+    <span class="k">Authorized testing only</span>
+    <p>Every command here runs inside your isolated NETLAB+ pod against machines built for practice. Scanning hosts or networks you do not own or have written permission to test is illegal in most jurisdictions.</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-top"><span>Lab progress</span><span><b id="pct">0%</b> · <span id="count">0 of 6</span> sections</span></div>
+    <progress id="bar" value="0" max="6" aria-label="Lab completion"></progress>
+  </div>
+  <nav class="toc" aria-label="On this page">
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#environment">The environment</a></li>
+      <li><a href="#walkthrough">Command walkthrough</a></li>
+      <li><a href="#reference">Options reference</a></li>
+      <li><a href="#stuck">Where people get stuck</a></li>
+      <li><a href="#defend">The defender's view</a></li>
+      <li><a href="#exam">CEH v13 exam relevance</a></li>
+      <li><a href="#check">Check yourself</a></li>
+      <li><a href="#evidence">Evidence</a></li>
+      <li><a href="#cheat">Cheat sheet</a></li>
+    </ol>
+  </nav>
+
+  <section id="overview" data-track>
+    <h2>Overview — what this lab is really teaching</h2>
+    <p>Every tool in this course — Nmap, Hping, the sniffers, the spoofers — is ultimately sending and receiving packets. <strong>Scapy</strong> lets you build those packets by hand, one field at a time, inside an interactive Python session. Once you've assembled a SYN packet yourself, Nmap's <code class="inl">-sS</code> stops being magic.</p>
+    <p>The mental model is the heart of it: a packet is a <strong>stack of layers</strong> — Ethernet, then IP, then TCP, then your payload — and in Scapy you stack them with the <code class="inl">/</code> operator. You build it, send it, and read what comes back.</p>
+    <div class="done-row"><input type="checkbox" id="done-overview" data-done="overview"><label for="done-overview">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="environment" data-track>
+    <h2>The environment you're working in</h2>
+    <p>You run Scapy on <strong>Kali</strong> (as root — crafting raw packets needs it) and send toward the OWASP BWA host at <code class="inl">192.168.68.12</code>. You'll open <strong>Wireshark</strong> alongside so you can watch the packets you craft actually leave the machine — the "oh, that's what that does" moment of the whole lab.</p>
+    <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="walkthrough" data-track>
+    <h2>Command walkthrough</h2>
+
+    <div class="call stuck">
+      <span class="k">Read this before you copy anything</span>
+      <p>Lab PDFs often render straight quotes as <strong>curly "smart quotes"</strong> (<code class="inl">" "</code>). Python does not accept those — paste them and you get a <code class="inl">SyntaxError</code>. Type plain quotes <code class="inl">"</code> yourself. The copy buttons here already give you clean, straight quotes.</p>
+    </div>
+
+    <p class="task-head">Task 1 — Explore and build a packet</p>
+    <div class="step">
+      <h3><span class="n">1</span> Launch Scapy and look around</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> scapy</pre></div>
+      <div class="cmd"><pre><span class="p">>>></span> ls()</pre></div>
+      <div class="cmd"><pre><span class="p">>>></span> lsc()</pre></div>
+      <p><code class="inl">scapy</code> drops you into a Python prompt with networking superpowers. <code class="inl">ls()</code> lists every protocol layer Scapy knows; <code class="inl">lsc()</code> lists the commands (send, sniff, and friends). Think of these two as your table of contents.</p>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">2</span> Create an IP layer and inspect its fields</h3>
+      <div class="cmd"><pre><span class="p">>>></span> ip=IP(ttl=10)</pre></div>
+      <div class="cmd"><pre><span class="p">>>></span> ip
+<span class="p">>>></span> ip.dst
+<span class="p">>>></span> ip.src</pre></div>
+      <p>You've made an IP packet object and set its time-to-live to 10. Typing the variable shows a summary; <code class="inl">ip.dst</code> and <code class="inl">ip.src</code> read individual fields. Unset fields show sensible defaults.</p>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">3</span> Set, delete, and re-read fields</h3>
+      <div class="cmd"><pre><span class="p">>>></span> ip.dst="192.168.9.1"
+<span class="p">>>></span> ip.src="192.168.9.2"</pre></div>
+      <div class="cmd"><pre><span class="p">>>></span> del(ip.ttl)
+<span class="p">>>></span> ip.ttl</pre></div>
+      <p>Fields are just attributes you can assign. <code class="inl">del(ip.ttl)</code> removes your override and lets the field fall back to its default — a neat way to see which values you've actually pinned versus which Scapy fills in.</p>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">4</span> Stack a TCP layer</h3>
+      <div class="cmd"><pre><span class="p">>>></span> ip/TCP()</pre></div>
+      <div class="cmd"><pre><span class="p">>>></span> tcp=TCP(sport=1025, dport=80)</pre></div>
+      <p>The <code class="inl">/</code> operator stacks layers: <code class="inl">IP()/TCP()</code> is a TCP segment riding on an IP packet. Here you build a TCP layer with a source port of 1025 and a destination of 80 — a packet headed for a web server.</p>
+    </div>
+
+    <p class="task-head">Task 2 — Send packets and read the replies</p>
+    <div class="step">
+      <h3><span class="n">5</span> Watch the wire, then send</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> wireshark</pre></div>
+      <div class="cmd"><pre><span class="p">>>></span> packet=sr1(IP(dst="192.168.68.12")/ICMP()/"XXXXXXXXXXX")</pre></div>
+      <div class="cmd"><pre><span class="p">>>></span> packet</pre></div>
+      <p><code class="inl">sr1()</code> means <strong>send one packet and return the first reply</strong>. This one is an ICMP echo (a ping) with a custom payload of X's — look for it in Wireshark. Inspecting <code class="inl">packet</code> shows the response that came back.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the Wireshark row for your crafted ICMP packet — the one carrying the <code class="inl">XXXXXXXXXXX</code> payload. It proves the packet you built actually left the machine.</p></div>
+
+    </div>
+    <div class="step">
+      <h3><span class="n">6</span> Craft a SYN and read the handshake</h3>
+      <div class="cmd"><pre><span class="p">>>></span> packet=sr1(IP(dst="192.168.68.12")/TCP(dport=80,flags="S"))</pre></div>
+      <p>This is a port scan in miniature: a single SYN to port 80. If the reply carries flags <code class="inl">SA</code> (SYN/ACK) the port is <strong>open</strong>; a <code class="inl">RA</code> (RST/ACK) means <strong>closed</strong>. You just did by hand what <code class="inl">nmap -sS</code> automates thousands of times.</p>
+      <div class="call tip"><span class="k">Inspect it properly</span><p><code class="inl">packet.show()</code> prints every field of the response, layer by layer — the best way to confirm which flags came back.</p></div>
+    </div>
+
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">sr1</code> SYN reply (run <code class="inl">packet.show()</code>) with the TCP flags visible — <code class="inl">SA</code> means the port is open.</p></div>
+    <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="reference" data-track>
+    <h2>Options reference — beyond the lab</h2>
+    <h3>Common layers</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Layer</th><th>Represents</th></tr></thead>
+      <tbody>
+        <tr><td><code>Ether()</code></td><td>Layer-2 Ethernet frame (needs <code>srp</code>/<code>sendp</code>)</td></tr>
+        <tr><td><code>IP()</code> / <code>IPv6()</code></td><td>Layer-3 packet — <code>src</code>, <code>dst</code>, <code>ttl</code></td></tr>
+        <tr><td><code>TCP()</code> / <code>UDP()</code></td><td>Layer-4 — <code>sport</code>, <code>dport</code>, <code>flags</code></td></tr>
+        <tr><td><code>ICMP()</code></td><td>Ping and control messages — <code>type</code>, <code>code</code></td></tr>
+        <tr><td><code>ARP()</code>, <code>DNS()</code>, <code>Raw()</code></td><td>Spoofing material, DNS queries, raw payload bytes</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Sending &amp; inspecting</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Function</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>send(pkt)</code></td><td>Send at layer 3, no reply collected</td></tr>
+        <tr><td><code>sr(pkt)</code> / <code>sr1(pkt)</code></td><td>Send &amp; receive — all replies / just the first</td></tr>
+        <tr><td><code>sendp()</code> / <code>srp()</code></td><td>The layer-2 versions (use with <code>Ether()</code>)</td></tr>
+        <tr><td><code>sniff(count=N)</code></td><td>Capture packets off the wire</td></tr>
+        <tr><td><code>pkt.show()</code> / <code>.summary()</code></td><td>Full field dump / one-line summary</td></tr>
+        <tr><td><code>ls()</code> / <code>lsc()</code></td><td>List layers / list commands</td></tr>
+      </tbody>
+    </table></div>
+    <div class="done-row"><input type="checkbox" id="done-reference" data-done="reference"><label for="done-reference">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="stuck" data-track>
+    <h2>Where people get stuck</h2>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td><code>SyntaxError</code> on a line you copied</td><td>Curly "smart quotes" from the PDF</td><td>Retype with straight quotes <code>"</code>, or use the copy buttons here.</td></tr>
+        <tr><td><code>sr1()</code> just hangs</td><td>No reply came, so it waits</td><td>Add a timeout: <code>sr1(pkt, timeout=2)</code>. A silent host or filtered port returns nothing.</td></tr>
+        <tr><td>"Operation not permitted" on send</td><td>Raw sockets need root</td><td>You're root in the pod; on your own box use <code>sudo scapy</code>.</td></tr>
+        <tr><td>Nothing in Wireshark</td><td>Watching the wrong interface</td><td>Capture on the interface that faces the target (e.g. <code>eth0</code>).</td></tr>
+        <tr><td><code>Ether()</code> packet never arrives via <code>sr1</code></td><td>Layer-2 frames need layer-2 functions</td><td>Use <code>srp()</code>/<code>sendp()</code> for anything with <code>Ether()</code>.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="done-row"><input type="checkbox" id="done-stuck" data-done="stuck"><label for="done-stuck">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="defend" data-track>
+    <h2>The defender's view</h2>
+    <div class="call defend">
+      <span class="k">Why defenders should care about packet crafting</span>
+      <p>Hand-crafted packets are how attackers spoof sources, evade naive filters, and fuzz services. The same skill powers blue-team detection engineering.</p>
+    </div>
+    <ul>
+      <li><strong>Anti-spoofing</strong> — ingress/egress filtering (BCP 38) and uRPF drop packets whose source address can't be real.</li>
+      <li><strong>Stateful inspection</strong> — firewalls that track connection state reject lone, out-of-context packets (a bare ACK, an orphan FIN).</li>
+      <li><strong>Anomaly detection</strong> — IDS/IPS flag malformed or impossible flag combinations that crafted packets often carry.</li>
+      <li><strong>Use it defensively</strong> — Scapy is a first-rate tool for reproducing an attack to test whether your own detections fire.</li>
+    </ul>
+    <div class="done-row"><input type="checkbox" id="done-defend" data-done="defend"><label for="done-defend">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="exam">
+    <h2>CEH v13 exam relevance</h2>
+    <p>Supports <strong>Module 3 (Scanning)</strong> and underpins sniffing and spoofing later. High-yield facts:</p>
+    <ul>
+      <li>The <strong>TCP flags</strong> and the three-way handshake at the packet level: SYN, SYN/ACK, ACK; RST on refusal.</li>
+      <li>Reading scan results from flags: <strong>SA = open, RA = closed</strong>, no reply = filtered.</li>
+      <li>The <strong>layered model</strong> — which protocol lives at which layer, and what "packet crafting" means.</li>
+      <li>Packet crafting as the basis for custom scans, firewalk testing, and spoofing.</li>
+    </ul>
+  </section>
+
+  <section id="check">
+    <h2>Check yourself</h2>
+    <div class="q"><p class="ask">1. What does the <code class="inl">/</code> operator do in <code class="inl">IP()/TCP()/"data"</code>?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">It stacks protocol layers — an IP packet carrying a TCP segment carrying a raw payload. Scapy builds packets by composing layers this way.</div></div>
+    <div class="q"><p class="ask">2. A copied line throws <code class="inl">SyntaxError</code>. What's the most likely cause?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">Curly "smart quotes" from the document instead of straight quotes. Retype the quotes.</div></div>
+    <div class="q"><p class="ask">3. You send a SYN with <code class="inl">sr1</code> and the reply has flags <code class="inl">SA</code>. Open or closed?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">Open — SA is SYN/ACK, the server agreeing to the handshake. A RST/ACK (RA) would mean closed.</div></div>
+    <div class="q"><p class="ask">4. Why does <code class="inl">sr1()</code> sometimes appear to hang, and how do you prevent it?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">It waits for a reply that may never come (filtered port or silent host). Pass a <code class="inl">timeout=</code> value.</div></div>
+  </section>
+
+  <section id="evidence">
+    <h2>Evidence to capture</h2>
+    <p>Your instructor wants screenshots of the key steps as proof you ran the lab. Grab these as you go, tick each one off, then print or submit this list as your evidence cover sheet.</p>
+    <div class="evidence"><ul>
+        <li><input type="checkbox" data-evidence="lab02-1"><span><span class="shot">A crafted packet.</span> The layered packet from <code class="inl">IP()/TCP()</code> (or <code class="inl">p.show()</code>) showing its fields.</span></li>
+        <li><input type="checkbox" data-evidence="lab02-2"><span><span class="shot">On the wire.</span> Wireshark showing your crafted ICMP packet with the <code class="inl">XXXX</code> payload.</span></li>
+        <li><input type="checkbox" data-evidence="lab02-3"><span><span class="shot">The SYN reply.</span> The <code class="inl">sr1</code> response flags — <code class="inl">SA</code> open or <code class="inl">RA</code> closed.</span></li>
+    </ul></div>
+  </section>
+
+  <section id="cheat">
+    <h2>Cheat sheet</h2>
+    <div class="cheat"><div class="grid">
+      <div>
+        <h3>Build</h3>
+        <ul>
+          <li><code>scapy</code> — start the session</li>
+          <li><code>ls()</code> / <code>lsc()</code> — layers / commands</li>
+          <li><code>p = IP(dst="x")/TCP(dport=80,flags="S")</code></li>
+          <li><code>p.dst</code>, <code>p.ttl=10</code>, <code>del(p.ttl)</code></li>
+          <li><code>p.show()</code> — dump all fields</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Send &amp; capture</h3>
+        <ul>
+          <li><code>sr1(p, timeout=2)</code> — one reply</li>
+          <li><code>send(p)</code> — fire and forget (L3)</li>
+          <li><code>srp(p)</code> / <code>sendp(p)</code> — layer 2</li>
+          <li><code>sniff(count=10)</code> — capture</li>
+          <li>Flags: <code>SA</code>=open, <code>RA</code>=closed</li>
+        </ul>
+      </div>
+    </div></div>
+  </section>
+
+</main>
+<footer class="site">
+  <p>Lab companion for <span class="program">CEH v13 — Lab 02</span>. Companion material © 2026; original explanatory content written to accompany the NDG <em>Ethical Hacking v2</em> lab series, which remains the property of its publisher.</p>
+  <p>Aligned to the EC-Council CEH v13 curriculum. An independent study companion — not affiliated with or endorsed by EC-Council or NDG.</p>
+  <p><span class="program">CEH v13 Course Series</span> · Brookdale Community College · 2026</p>
+</footer>
+<script>
+(function(){
+  "use strict";
+  var PREFIX="ceh-lab02-v1:",root=document.documentElement;
+  function save(k,v){try{localStorage.setItem(PREFIX+k,v);}catch(e){}}
+  function load(k){try{return localStorage.getItem(PREFIX+k);}catch(e){return null;}}
+  function del(k){try{localStorage.removeItem(PREFIX+k);}catch(e){}}
+
+  var themeBtn=document.getElementById("theme-toggle");
+  function applyTheme(mode){
+    root.setAttribute("data-theme",mode==="light"?"light":"dark");
+    var dark=mode!=="light";
+    themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
+    themeBtn.setAttribute("aria-pressed",dark?"true":"false");
+  }
+  applyTheme(load("theme")||"dark");
+  themeBtn.addEventListener("click",function(){
+    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+  });
+
+  var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));
+  if(!isNaN(stored)){var q=steps.indexOf(stored);if(q>=0)idx=q;}
+  var readout=document.getElementById("scale-read");
+  function applyScale(){root.style.setProperty("--text-scale",steps[idx]);readout.textContent=Math.round(steps[idx]*100)+"%";save("scale",steps[idx]);}
+  applyScale();
+  document.getElementById("text-up").addEventListener("click",function(){if(idx<steps.length-1){idx++;applyScale();}});
+  document.getElementById("text-dn").addEventListener("click",function(){if(idx>0){idx--;applyScale();}});
+  document.getElementById("print-btn").addEventListener("click",function(){window.print();});
+
+  document.querySelectorAll(".cmd").forEach(function(b){
+    var btn=document.createElement("button");
+    btn.className="copy";btn.type="button";btn.textContent="Copy";btn.setAttribute("aria-label","Copy command");
+    btn.addEventListener("click",function(){
+      var pre=b.querySelector("pre"),clone=pre.cloneNode(true);
+      clone.querySelectorAll(".p,.cm").forEach(function(e){e.parentNode.removeChild(e);});
+      var text=clone.textContent.replace(/[ \t]+\n/g,"\n").replace(/\n{2,}/g,"\n").trim();
+      var done=function(){btn.textContent="Copied";btn.classList.add("ok");setTimeout(function(){btn.textContent="Copy";btn.classList.remove("ok");},1400);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(fb);}else{fb();}
+      function fb(){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(ta);}
+    });
+    b.appendChild(btn);
+  });
+
+  document.querySelectorAll(".q .reveal").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var ans=btn.parentElement.querySelector(".ans"),open=ans.classList.toggle("show");
+      btn.setAttribute("aria-expanded",open?"true":"false");btn.textContent=open?"Hide answer":"Show answer";
+    });
+  });
+
+  var boxes=document.querySelectorAll('input[data-done]'),total=boxes.length;
+  var bar=document.getElementById("bar"),pct=document.getElementById("pct"),count=document.getElementById("count"),pct2=document.getElementById("pct2");
+  if(bar)bar.max=total;
+  function refresh(){
+    var n=0;boxes.forEach(function(b){if(b.checked)n++;});
+    if(bar)bar.value=n;var pc=total?Math.round(n/total*100):0;
+    if(pct)pct.textContent=pc+"%";if(pct2)pct2.textContent=pc+"%";if(count)count.textContent=n+" of "+total;
+  }
+  boxes.forEach(function(b){var k="done:"+b.getAttribute("data-done");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);refresh();});});
+  refresh();
+
+  var evs=document.querySelectorAll('input[data-evidence]');
+  evs.forEach(function(b){var k="ev:"+b.getAttribute("data-evidence");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);});});
+
+  var clr=document.getElementById("clear-btn");
+  if(clr)clr.addEventListener("click",function(){
+    boxes.forEach(function(b){b.checked=false;del("done:"+b.getAttribute("data-done"));});
+    evs.forEach(function(b){b.checked=false;del("ev:"+b.getAttribute("data-evidence"));});
+    document.querySelectorAll(".q .ans.show").forEach(function(a){a.classList.remove("show");});
+    document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
+    refresh();
+  });
+})();
+</script>
+</body>
+</html>

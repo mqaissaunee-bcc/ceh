@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lab 05 Companion — Vulnerability Scanning with OpenVAS · CEH v13</title>
+<meta name="description" content="Student companion for CEH Lab 05: running OpenVAS/Greenbone, scan configs and CVSS, reading a report, false positives, screenshots to submit, the defender's view, and CEH v13 exam relevance.">
+<style>  /* ===== Theme tokens — matched to the CEH v13 site (dark-first) ===== */
+  :root, :root[data-theme="dark"]{
+    --bg:#07090b;--surface:#141a20;--surface-2:#1b232b;
+    --ink:#e8eef2;--ink-soft:#c3ccd6;--muted:#9fb0bd;
+    --border:#26313b;--border-strong:#37444f;
+    --accent:#35e05f;--accent-soft:rgba(53,224,95,.14);--accent-ink:#6dff96;
+    --warn:#f0b429;--warn-soft:rgba(240,180,41,.13);
+    --danger:#ff6b6b;--danger-soft:rgba(255,107,107,.13);
+    --blue:#43d9d4;--blue-soft:rgba(67,217,212,.13);
+    --violet:#b58cff;--violet-soft:rgba(181,140,255,.15);
+    --term-bg:#05070a;--term-ink:#dbe7df;--term-dim:#6f8291;
+    --radius:10px;--radius-sm:7px;--maxw:62rem;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --text-scale:1;
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6f8;--surface:#ffffff;--surface-2:#eef2f5;
+    --ink:#10181f;--ink-soft:#33414f;--muted:#6b7c8c;
+    --border:#d3dbe2;--border-strong:#b4c0ca;
+    --accent:#0f7a34;--accent-soft:rgba(15,122,52,.10);--accent-ink:#0a5c26;
+    --warn:#8a5a00;--warn-soft:rgba(138,90,0,.10);
+    --danger:#b3261e;--danger-soft:rgba(179,38,30,.10);
+    --blue:#0b6d78;--blue-soft:rgba(11,109,120,.10);
+    --violet:#6d28d9;--violet-soft:rgba(109,40,217,.08);
+    --term-bg:#10181f;--term-ink:#dbe7df;--term-dim:#8a97a3;
+  }
+*{box-sizing:border-box}
+  html{font-size:calc(100% * var(--text-scale));scroll-behavior:smooth;scroll-padding-top:5.5rem}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-text-size-adjust:100%;
+  }
+  .skip-link{position:absolute;left:-999px;top:0;background:var(--accent);color:#fff;padding:.6rem 1rem;z-index:100;border-radius:0 0 var(--radius-sm) 0}
+  .skip-link:focus{left:0}
+
+  a{color:var(--accent-ink);text-underline-offset:2px}
+  a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{
+    outline:3px solid var(--accent);outline-offset:2px;border-radius:4px
+  }
+
+  /* ---------- Header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:50;background:var(--bg);
+    border-bottom:1px solid var(--border);backdrop-filter:saturate(1.2);
+  }
+  .bar{max-width:var(--maxw);margin:0 auto;padding:.55rem 1.15rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .crumb{font-size:.82rem;color:var(--muted);font-weight:600;letter-spacing:.01em;margin-right:auto}
+  .crumb b{color:var(--accent-ink)}
+  .controls{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+  .controls .grp{display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+  button.ctl{
+    font:inherit;font-size:.82rem;background:var(--surface);color:var(--ink-soft);border:1px solid var(--border);
+    min-height:40px;min-width:40px;padding:0 .7rem;cursor:pointer;border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:.35rem
+  }
+  .controls .grp button.ctl{border:none;border-radius:0;border-right:1px solid var(--border)}
+  .controls .grp button.ctl:last-child{border-right:none}
+  button.ctl:hover{background:var(--surface-2)}
+  .scale-read{font-size:.78rem;color:var(--muted);min-width:2.8rem;text-align:center;font-variant-numeric:tabular-nums}
+
+  /* ---------- Layout ---------- */
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.15rem 5rem}
+  section{margin-top:2.6rem;scroll-margin-top:5.5rem}
+  h1,h2,h3{line-height:1.25;color:var(--ink)}
+  h1{font-size:clamp(1.65rem,1.1rem + 2.4vw,2.35rem);margin:.2rem 0 .3rem;letter-spacing:-.01em}
+  h2{font-size:clamp(1.3rem,1rem + 1.2vw,1.6rem);margin:0 0 .9rem;padding-bottom:.4rem;border-bottom:2px solid var(--border)}
+  h3{font-size:1.08rem;margin:1.6rem 0 .5rem}
+  p{margin:.6rem 0}
+  .lede{font-size:1.08rem;color:var(--ink-soft)}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:1.8rem 0 .4rem}
+  .labno{display:inline-block;font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--accent-ink);
+    background:var(--accent-soft);padding:.25rem .6rem;border-radius:999px;letter-spacing:.03em}
+  .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 .2rem}
+  .chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--ink-soft);
+    background:var(--surface);border:1px solid var(--border);padding:.35rem .65rem;border-radius:var(--radius-sm)}
+  .chip b{color:var(--ink);font-weight:600}
+
+  /* ---------- Progress ---------- */
+  .progress-wrap{margin:1.4rem 0 .3rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem}
+  .progress-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;font-size:.85rem;color:var(--ink-soft)}
+  .progress-top b{color:var(--ink)}
+  progress{width:100%;height:9px;margin-top:.55rem;appearance:none;border:none;border-radius:999px;overflow:hidden;background:var(--surface-2)}
+  progress::-webkit-progress-bar{background:var(--surface-2);border-radius:999px}
+  progress::-webkit-progress-value{background:var(--accent);border-radius:999px}
+  progress::-moz-progress-bar{background:var(--accent);border-radius:999px}
+
+  /* ---------- On-this-page nav ---------- */
+  nav.toc{margin:1.4rem 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .5rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.2rem}
+  nav.toc a{display:block;padding:.4rem .7rem;font-size:.85rem;color:var(--ink-soft);text-decoration:none;border-radius:var(--radius-sm)}
+  nav.toc a:hover{background:var(--surface-2);color:var(--accent-ink)}
+
+  /* ---------- Callouts ---------- */
+  .call{border-left:4px solid var(--border-strong);background:var(--surface);padding:.85rem 1rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin:1rem 0}
+  .call .k{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:.25rem}
+  .call p{margin:.3rem 0}
+  .call.stuck{border-color:var(--warn);background:var(--warn-soft)}
+  .call.stuck .k{color:var(--warn)}
+  .call.tip{border-color:var(--accent);background:var(--accent-soft)}
+  .call.tip .k{color:var(--accent-ink)}
+  .call.defend{border-color:var(--blue);background:var(--blue-soft)}
+  .call.defend .k{color:var(--blue)}
+  .call.auth{border-color:var(--danger);background:var(--danger-soft)}
+  .call.auth .k{color:var(--danger)}
+
+  /* ---------- Command block ---------- */
+  .cmd{position:relative;background:var(--term-bg);border-radius:var(--radius-sm);margin:.7rem 0;border:1px solid #000}
+  .cmd pre{margin:0;padding:.85rem 3rem .85rem 1rem;overflow-x:auto;color:var(--term-ink);font-family:var(--mono);font-size:.92rem;line-height:1.5}
+  .cmd pre .p{color:var(--term-dim)}         /* prompt */
+  .cmd pre .fl{color:#7ee7da}                /* flags */
+  .cmd pre .ar{color:#f0c674}                /* args / targets */
+  .cmd pre .cm{color:var(--term-dim);font-style:italic} /* comment */
+  .copy{position:absolute;top:.5rem;right:.5rem;min-height:32px;min-width:32px;font-size:.72rem;
+    background:#20303c;color:#cfe3df;border:1px solid #33424e;border-radius:6px;cursor:pointer;padding:.2rem .5rem}
+  .copy:hover{background:#2a3d49}
+  .copy.ok{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  code.inl{font-family:var(--mono);font-size:.88em;background:var(--surface-2);padding:.08em .4em;border-radius:5px;color:var(--ink)}
+
+  /* ---------- Walkthrough step ---------- */
+  .step{border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;margin:1rem 0;background:var(--bg)}
+  .step h3{margin-top:0;display:flex;gap:.6rem;align-items:baseline}
+  .step h3 .n{font-family:var(--mono);font-size:.8rem;color:var(--accent-ink);background:var(--accent-soft);border-radius:6px;padding:.1rem .45rem}
+  .task-head{margin-top:2rem;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:.8rem 0;border:1px solid var(--border);border-radius:var(--radius)}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:30rem}
+  th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--border);vertical-align:top}
+  thead th{background:var(--surface);color:var(--ink);font-size:.82rem;letter-spacing:.02em}
+  tbody tr:last-child td{border-bottom:none}
+  td code,th code{font-family:var(--mono);font-size:.86em;color:var(--accent-ink);white-space:nowrap}
+
+  details.go{border:1px solid var(--border);border-radius:var(--radius-sm);padding:.3rem .9rem;margin:.8rem 0;background:var(--surface)}
+  details.go>summary{cursor:pointer;font-weight:600;color:var(--ink-soft);padding:.5rem 0;font-size:.92rem}
+  details.go[open]>summary{border-bottom:1px solid var(--border);margin-bottom:.6rem}
+
+  /* ---------- Self-check ---------- */
+  .q{border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;margin:.8rem 0;background:var(--bg)}
+  .q p.ask{font-weight:600;margin:.1rem 0 .3rem}
+  .q .reveal{font:inherit;font-size:.82rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .8rem;cursor:pointer;min-height:40px}
+  .q .reveal:hover{background:var(--surface-2)}
+  .q .ans{margin-top:.6rem;padding:.6rem .8rem;background:var(--accent-soft);border-radius:var(--radius-sm);font-size:.92rem;display:none}
+  .q .ans.show{display:block}
+
+  /* ---------- Section complete toggle ---------- */
+  .done-row{display:flex;align-items:center;gap:.55rem;margin-top:1rem;font-size:.88rem;color:var(--ink-soft)}
+  .done-row input{width:20px;height:20px;accent-color:var(--accent)}
+
+  /* ---------- Cheat sheet ---------- */
+  .cheat{background:var(--surface);border:1px dashed var(--border-strong);border-radius:var(--radius);padding:1.1rem 1.2rem}
+  .cheat .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1.1rem}
+  .cheat h3{margin:.2rem 0 .4rem}
+  .cheat ul{margin:.2rem 0;padding-left:0;list-style:none}
+  .cheat li{padding:.22rem 0;font-size:.88rem;border-bottom:1px dotted var(--border)}
+  .cheat li code{font-family:var(--mono);color:var(--accent-ink)}
+
+  footer.site{max-width:var(--maxw);margin:3rem auto 0;padding:1.6rem 1.15rem 0;border-top:1px solid var(--border);color:var(--muted);font-size:.84rem}
+  footer.site p{margin:.4rem 0}
+  footer.site .program{color:var(--ink-soft);font-weight:600}
+
+  /* ---------- Print ---------- */
+  @media print{
+    header.site,nav.toc,.controls,.copy,.progress-wrap,.done-row,.reveal{display:none !important}
+    body{background:#fff;color:#000}
+    .cmd{background:#f2f2f2;border:1px solid #bbb}
+    .cmd pre{color:#111}
+    .cmd pre .fl{color:#0a6b60}.cmd pre .ar{color:#8a5a00}.cmd pre .p,.cmd pre .cm{color:#555}
+    .q .ans{display:block;background:#f2f2f2}
+    a{color:#000;text-decoration:underline}
+    section{page-break-inside:avoid}
+  }
+
+  /* ---- screenshot + evidence (added) ---- */
+  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
+  .call.capture .k{color:var(--violet)}
+  .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
+  .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
+  .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
+  .evidence li:last-child{border-bottom:none}
+  .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
+  .evidence .shot{font-weight:600;color:var(--ink)}
+  @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="site">
+  <div class="bar">
+    <span class="crumb">CEH v13 · <a href="ceh_labs.html" style="color:var(--accent-ink);text-decoration:none">‹ All labs</a></span>
+    <div class="controls">
+      <div class="grp" role="group" aria-label="Text size">
+        <button class="ctl" id="text-dn" aria-label="Decrease text size">A−</button>
+        <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
+        <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
+      </div>
+      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="print-btn">🖨 Print</button>
+      <button class="ctl" id="clear-btn">Clear progress</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <div class="hero">
+    <span class="labno">LAB 05</span>
+    <h1>Vulnerability Scanning with OpenVAS</h1>
+    <p class="lede">Scanning found what's running; vulnerability analysis asks which of it is weak. OpenVAS fires thousands of tests at a target and ranks what it finds — your job is to read the report, score it with CVSS, and tell real findings from false positives.</p>
+    <div class="chips">
+      <span class="chip">⏱ <b>60+ min</b> (feed sync)</span>
+      <span class="chip">📶 Difficulty: <b>Intermediate</b></span>
+      <span class="chip">🧰 Tool: <b>OpenVAS / Greenbone</b></span>
+      <span class="chip">🎯 Target: <b>OWASP BWA</b></span>
+      <span class="chip">📘 Maps to: <b>Module 5 — Vulnerability Analysis</b></span>
+    </div>
+  </div>
+
+  <div class="call auth">
+    <span class="k">Authorized testing only</span>
+    <p>Every command here runs inside your isolated NETLAB+ pod against machines built for practice. Scanning hosts or networks you do not own or have written permission to test is illegal in most jurisdictions.</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-top"><span>Lab progress</span><span><b id="pct">0%</b> · <span id="count">0 of 6</span> sections</span></div>
+    <progress id="bar" value="0" max="6" aria-label="Lab completion"></progress>
+  </div>
+  <nav class="toc" aria-label="On this page">
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#environment">The environment</a></li>
+      <li><a href="#walkthrough">Scan walkthrough</a></li>
+      <li><a href="#reference">Settings &amp; CVSS reference</a></li>
+      <li><a href="#stuck">Where people get stuck</a></li>
+      <li><a href="#defend">The defender's view</a></li>
+      <li><a href="#exam">CEH v13 exam relevance</a></li>
+      <li><a href="#check">Check yourself</a></li>
+      <li><a href="#evidence">Evidence</a></li>
+      <li><a href="#cheat">Cheat sheet</a></li>
+    </ol>
+  </nav>
+
+  <section id="overview" data-track>
+    <h2>Overview — what this lab is really teaching</h2>
+    <p>Scanning and enumeration told you what's running. <strong>Vulnerability analysis</strong> asks the next question: which of those things is <em>weak</em>? OpenVAS automates that by firing thousands of <strong>Network Vulnerability Tests (NVTs)</strong> at a target and matching what it finds against a database of known flaws. This is <strong>Module 5: Vulnerability Analysis</strong>.</p>
+    <p>The judgment to build here is that a scanner reports <strong>potential</strong> vulnerabilities from signatures — it is not proof. Your job is to read the report, rank findings by <strong>CVSS</strong>, and separate real issues from false positives. A scanner makes you fast; it doesn't make you right.</p>
+    <details class="go"><summary>Currency note — OpenVAS is now Greenbone</summary><p>"OpenVAS" is now part of <strong>Greenbone Vulnerability Management (GVM)</strong>; the web interface is the <strong>Greenbone Security Assistant (GSA)</strong> and the service is managed with <code class="inl">gvm-start</code> / <code class="inl">gvm-check-setup</code>. The lab's menu path and concepts still hold — just expect "Greenbone" branding in current builds.</p></details>
+    <div class="done-row"><input type="checkbox" id="done-overview" data-done="overview"><label for="done-overview">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="environment" data-track>
+    <h2>The environment you're working in</h2>
+    <p>OpenVAS runs on <strong>Kali</strong> and is driven through a <strong>web interface</strong> in the browser, not the terminal. Your target is the deliberately vulnerable <strong>OWASP BWA</strong> host, which will light the report up nicely. The one thing to know going in: the scanner is only as good as its <strong>feed</strong> (its NVT database), and that feed has to finish syncing before results mean anything.</p>
+    <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="walkthrough" data-track>
+    <h2>Scan walkthrough</h2>
+    <p>This lab is driven through the Greenbone web interface. Here's the workflow and what each choice means.</p>
+
+    <p class="task-head">Task 1 — Start the service</p>
+    <div class="step">
+      <h3><span class="n">1</span> Launch OpenVAS and sign in</h3>
+      <p>From the Kali menu: <strong>Vulnerability Analysis &gt; openvas start</strong> (equivalently <code class="inl">gvm-start</code>). The services take a moment to come up; then open the web interface and log in. Your browser will warn about a self-signed certificate — that's expected on a local scanner, so continue through it.</p>
+    </div>
+
+    <p class="task-head">Task 2 — Define what to scan</p>
+    <div class="step">
+      <h3><span class="n">2</span> Create a Target</h3>
+      <p>Under <strong>Configuration &gt; Targets</strong>, add a new target: give it a name, set <strong>Hosts</strong> to the OWASP BWA address, and set <strong>Alive Test</strong> to <em>Consider Alive</em> so the scanner doesn't skip a host that's ignoring pings.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture your Target configuration showing the host address and the Alive Test setting.</p></div>
+    </div>
+
+    <p class="task-head">Task 3 — Run a scan and read the report</p>
+    <div class="step">
+      <h3><span class="n">3</span> Pick a Scan Config, then scan</h3>
+      <p>The <strong>Scan Config</strong> decides how deep and how loud the scan is. <em>Full and fast</em> is the everyday default; <em>Full and very deep ultimate</em> runs far more NVTs (including potentially disruptive ones) and takes much longer. Create a task with your target and config, then run it and watch the progress bar reach 100% / Done.</p>
+      <div class="call tip"><span class="k">Depth vs. time vs. safety</span><p>"Ultimate" configs include checks that can crash fragile services. On production you'd think twice; on the practice target, go deep to see more.</p></div>
+    </div>
+    <div class="step">
+      <h3><span class="n">4</span> Open the report</h3>
+      <p>When the scan finishes, open the report and review the findings — grouped by <strong>severity</strong>, each tied to a <strong>CVE</strong> and a <strong>CVSS</strong> score, with a <strong>QoD</strong> (Quality of Detection) that tells you how confident the scanner is.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the report summary showing vulnerabilities grouped by severity (the High/Critical findings especially).</p></div>
+    </div>
+    <div class="step">
+      <h3><span class="n">5</span> Understand the score</h3>
+      <p>Open <strong>Extras &gt; CVSS Calculator</strong> and reproduce the score for one finding. Walk the base metrics — attack vector, complexity, privileges, user interaction, and the CIA impacts — and watch the 0–10 number move. This is how "High" and "Critical" are actually derived.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the CVSS Calculator showing the base metrics and resulting score for one vulnerability you investigated.</p></div>
+    </div>
+    <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="reference" data-track>
+    <h2>Settings &amp; CVSS reference</h2>
+    <h3>Scan configs, fastest → deepest</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Config</th><th>Use it when</th></tr></thead>
+      <tbody>
+        <tr><td><b>Host / System Discovery</b></td><td>You just want to know what's alive and what it is — no vuln checks.</td></tr>
+        <tr><td><b>Full and fast</b></td><td>The sensible default — broad coverage, optimized to skip irrelevant checks.</td></tr>
+        <tr><td><b>Full and fast ultimate</b></td><td>Adds checks that may disrupt services; more coverage, more risk.</td></tr>
+        <tr><td><b>Full and very deep</b></td><td>Doesn't trust prior results to prune — slower, thorough.</td></tr>
+        <tr><td><b>Full and very deep ultimate</b></td><td>Everything, including potentially dangerous NVTs. Slowest and loudest.</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Settings that change your results</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Setting</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td><b>Alive Test</b></td><td>How the scanner decides a host is up. "Consider Alive" forces a scan even if pings are filtered.</td></tr>
+        <tr><td><b>Credentials (authenticated scan)</b></td><td>Logging in finds far more — missing patches, local config — than scanning from outside. The single biggest lever on result quality.</td></tr>
+        <tr><td><b>QoD</b></td><td>Quality of Detection. Low-QoD findings are guesses; high-QoD are confirmed. Filter by it to cut noise.</td></tr>
+        <tr><td><b>Port list</b></td><td>Scan the right ports — a web host on 8080 is invisible if you only scan the defaults.</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Reading CVSS severity (v3.x)</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Score</th><th>Severity</th></tr></thead>
+      <tbody>
+        <tr><td><code>0.0</code></td><td>None</td></tr>
+        <tr><td><code>0.1–3.9</code></td><td>Low</td></tr>
+        <tr><td><code>4.0–6.9</code></td><td>Medium</td></tr>
+        <tr><td><code>7.0–8.9</code></td><td>High</td></tr>
+        <tr><td><code>9.0–10.0</code></td><td>Critical</td></tr>
+      </tbody>
+    </table></div>
+    <div class="done-row"><input type="checkbox" id="done-reference" data-done="reference"><label for="done-reference">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="stuck" data-track>
+    <h2>Where people get stuck</h2>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Scan finds almost nothing</td><td>The NVT feed hasn't finished syncing</td><td>Let the feed update complete before scanning (<code>gvm-check-setup</code> confirms readiness).</td></tr>
+        <tr><td>Can't log into the web UI</td><td>Services still starting</td><td>Give OpenVAS a minute after <code>openvas start</code>; it's slow to come up.</td></tr>
+        <tr><td>Browser blocks the page</td><td>Self-signed certificate</td><td>Expected on a local scanner — proceed past the warning.</td></tr>
+        <tr><td>Report looks thin for a known-vulnerable host</td><td>Unauthenticated scan</td><td>Add credentials for an authenticated scan to see missing patches and local issues.</td></tr>
+        <tr><td>A "vulnerability" isn't real</td><td>False positive from a signature match</td><td>Check the QoD, read the detection method, and validate manually before reporting.</td></tr>
+        <tr><td>Scan runs forever</td><td>"Very deep ultimate" config</td><td>Use "Full and fast" unless you specifically need the depth.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="done-row"><input type="checkbox" id="done-stuck" data-done="stuck"><label for="done-stuck">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="defend" data-track>
+    <h2>The defender's view</h2>
+    <div class="call defend">
+      <span class="k">Same tool, both chairs</span>
+      <p>Vulnerability scanning <em>is</em> a blue-team activity. The report an attacker uses to find a way in is the same report you use to close the door first.</p>
+    </div>
+    <ul>
+      <li><strong>Scan yourself, authenticated, on a schedule</strong> — find it before someone else does, with the depth that credentials unlock.</li>
+      <li><strong>Prioritize with more than CVSS</strong> — combine severity with exploitability signals (EPSS, the CISA KEV catalog) so you patch what's actually being exploited first.</li>
+      <li><strong>Treat the report as a backlog</strong> — track findings to remediation; re-scan to confirm the fix.</li>
+      <li><strong>Remember it's noisy</strong> — scanning lights up IDS. Coordinate authorized scans so your own sensors don't chase them.</li>
+    </ul>
+    <div class="done-row"><input type="checkbox" id="done-defend" data-done="defend"><label for="done-defend">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="exam">
+    <h2>CEH v13 exam relevance</h2>
+    <p>Hands-on side of <strong>Module 5: Vulnerability Analysis</strong>. High-yield facts:</p>
+    <ul>
+      <li><strong>Assessment vs. penetration test</strong> — scanning finds and ranks potential weaknesses; a pentest proves exploitability.</li>
+      <li><strong>CVSS</strong> — base/temporal/environmental metric groups and the 0–10 severity bands.</li>
+      <li><strong>CVE / NVD</strong> and how a scanner's NVTs map findings to known entries.</li>
+      <li><strong>Authenticated vs. unauthenticated</strong> scans, and why credentials change the results.</li>
+      <li><strong>False positives and false negatives</strong>, and the role of QoD/validation.</li>
+      <li>Scanner categories: network, host, application, and database.</li>
+    </ul>
+  </section>
+
+  <section id="check">
+    <h2>Check yourself</h2>
+    <div class="q"><p class="ask">1. A scanner reports a "Critical" finding. Is that proof the host is exploitable?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">No. A scanner reports a <em>potential</em> vulnerability from a signature match. You validate it (check the QoD and detection method, or exploit it in a controlled test) before treating it as confirmed.</div></div>
+    <div class="q"><p class="ask">2. Why does an authenticated scan usually find far more than an unauthenticated one?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">With credentials the scanner can log in and inspect installed patch levels, configuration, and local issues it can only guess at from the outside.</div></div>
+    <div class="q"><p class="ask">3. A CVSS score of 7.5 falls in which severity band?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">High (7.0–8.9). Critical begins at 9.0.</div></div>
+    <div class="q"><p class="ask">4. Your scan of a known-vulnerable host comes back nearly empty. First thing to check?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">Whether the NVT feed finished syncing — with no up-to-date tests, the scanner has little to check against.</div></div>
+  </section>
+
+  <section id="evidence">
+    <h2>Evidence to capture</h2>
+    <p>Your instructor wants screenshots of the key steps as proof you ran the lab. Grab these as you go, tick each one off, then print or submit this list as your evidence cover sheet.</p>
+    <div class="evidence"><ul>
+      <li><input type="checkbox" data-evidence="lab05-1"><span><span class="shot">Target configuration.</span> The target with the OWASP host and Alive Test setting.</span></li>
+      <li><input type="checkbox" data-evidence="lab05-2"><span><span class="shot">Scan report.</span> The finished report grouped by severity, High/Critical visible.</span></li>
+      <li><input type="checkbox" data-evidence="lab05-3"><span><span class="shot">CVSS calculator.</span> The base metrics and score for one finding you investigated.</span></li>
+    </ul></div>
+  </section>
+
+  <section id="cheat">
+    <h2>Cheat sheet</h2>
+    <div class="cheat"><div class="grid">
+      <div>
+        <h3>Workflow</h3>
+        <ul>
+          <li>Menu → <code>openvas start</code> (or <code>gvm-start</code>)</li>
+          <li><code>gvm-check-setup</code> — confirm feed/services</li>
+          <li>Configuration → Targets → New Target</li>
+          <li>Alive Test → <code>Consider Alive</code></li>
+          <li>Scan Config → <code>Full and fast</code> (default)</li>
+          <li>Run task → read Report → CVSS Calculator</li>
+        </ul>
+      </div>
+      <div>
+        <h3>CVSS bands</h3>
+        <ul>
+          <li><code>0.1–3.9</code> Low</li>
+          <li><code>4.0–6.9</code> Medium</li>
+          <li><code>7.0–8.9</code> High</li>
+          <li><code>9.0–10.0</code> Critical</li>
+          <li>Prioritize with EPSS + CISA KEV</li>
+        </ul>
+      </div>
+    </div></div>
+  </section>
+
+</main>
+<footer class="site">
+  <p>Lab companion for <span class="program">CEH v13 — Lab 05</span>. Companion material © 2026; original explanatory content written to accompany the NDG <em>Ethical Hacking v2</em> lab series, which remains the property of its publisher.</p>
+  <p>Aligned to the EC-Council CEH v13 curriculum. An independent study companion — not affiliated with or endorsed by EC-Council or NDG.</p>
+  <p><span class="program">CEH v13 Course Series</span> · Brookdale Community College · 2026</p>
+</footer>
+<script>
+(function(){
+  "use strict";
+  var PREFIX="ceh-lab05-v1:",root=document.documentElement;
+  function save(k,v){try{localStorage.setItem(PREFIX+k,v);}catch(e){}}
+  function load(k){try{return localStorage.getItem(PREFIX+k);}catch(e){return null;}}
+  function del(k){try{localStorage.removeItem(PREFIX+k);}catch(e){}}
+
+  var themeBtn=document.getElementById("theme-toggle");
+  function applyTheme(mode){
+    root.setAttribute("data-theme",mode==="light"?"light":"dark");
+    var dark=mode!=="light";
+    themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
+    themeBtn.setAttribute("aria-pressed",dark?"true":"false");
+  }
+  applyTheme(load("theme")||"dark");
+  themeBtn.addEventListener("click",function(){
+    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+  });
+
+  var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));
+  if(!isNaN(stored)){var q=steps.indexOf(stored);if(q>=0)idx=q;}
+  var readout=document.getElementById("scale-read");
+  function applyScale(){root.style.setProperty("--text-scale",steps[idx]);readout.textContent=Math.round(steps[idx]*100)+"%";save("scale",steps[idx]);}
+  applyScale();
+  document.getElementById("text-up").addEventListener("click",function(){if(idx<steps.length-1){idx++;applyScale();}});
+  document.getElementById("text-dn").addEventListener("click",function(){if(idx>0){idx--;applyScale();}});
+  document.getElementById("print-btn").addEventListener("click",function(){window.print();});
+
+  document.querySelectorAll(".cmd").forEach(function(b){
+    var btn=document.createElement("button");
+    btn.className="copy";btn.type="button";btn.textContent="Copy";btn.setAttribute("aria-label","Copy command");
+    btn.addEventListener("click",function(){
+      var pre=b.querySelector("pre"),clone=pre.cloneNode(true);
+      clone.querySelectorAll(".p,.cm").forEach(function(e){e.parentNode.removeChild(e);});
+      var text=clone.textContent.replace(/[ \t]+\n/g,"\n").replace(/\n{2,}/g,"\n").trim();
+      var done=function(){btn.textContent="Copied";btn.classList.add("ok");setTimeout(function(){btn.textContent="Copy";btn.classList.remove("ok");},1400);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(fb);}else{fb();}
+      function fb(){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(ta);}
+    });
+    b.appendChild(btn);
+  });
+
+  document.querySelectorAll(".q .reveal").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var ans=btn.parentElement.querySelector(".ans"),open=ans.classList.toggle("show");
+      btn.setAttribute("aria-expanded",open?"true":"false");btn.textContent=open?"Hide answer":"Show answer";
+    });
+  });
+
+  var boxes=document.querySelectorAll('input[data-done]'),total=boxes.length;
+  var bar=document.getElementById("bar"),pct=document.getElementById("pct"),count=document.getElementById("count"),pct2=document.getElementById("pct2");
+  if(bar)bar.max=total;
+  function refresh(){
+    var n=0;boxes.forEach(function(b){if(b.checked)n++;});
+    if(bar)bar.value=n;var pc=total?Math.round(n/total*100):0;
+    if(pct)pct.textContent=pc+"%";if(pct2)pct2.textContent=pc+"%";if(count)count.textContent=n+" of "+total;
+  }
+  boxes.forEach(function(b){var k="done:"+b.getAttribute("data-done");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);refresh();});});
+  refresh();
+
+  var evs=document.querySelectorAll('input[data-evidence]');
+  evs.forEach(function(b){var k="ev:"+b.getAttribute("data-evidence");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);});});
+
+  var clr=document.getElementById("clear-btn");
+  if(clr)clr.addEventListener("click",function(){
+    boxes.forEach(function(b){b.checked=false;del("done:"+b.getAttribute("data-done"));});
+    evs.forEach(function(b){b.checked=false;del("ev:"+b.getAttribute("data-evidence"));});
+    document.querySelectorAll(".q .ans.show").forEach(function(a){a.classList.remove("show");});
+    document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
+    refresh();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lab 01 Companion — DNS Footprinting · CEH v13</title>
+<meta name="description" content="Student companion for CEH Lab 01: nslookup and dig, every record type and option, zone transfers, struggle points, screenshots to submit, the defender's view, and CEH v13 exam relevance.">
+<style>  /* ===== Theme tokens — matched to the CEH v13 site (dark-first) ===== */
+  :root, :root[data-theme="dark"]{
+    --bg:#07090b;--surface:#141a20;--surface-2:#1b232b;
+    --ink:#e8eef2;--ink-soft:#c3ccd6;--muted:#9fb0bd;
+    --border:#26313b;--border-strong:#37444f;
+    --accent:#35e05f;--accent-soft:rgba(53,224,95,.14);--accent-ink:#6dff96;
+    --warn:#f0b429;--warn-soft:rgba(240,180,41,.13);
+    --danger:#ff6b6b;--danger-soft:rgba(255,107,107,.13);
+    --blue:#43d9d4;--blue-soft:rgba(67,217,212,.13);
+    --violet:#b58cff;--violet-soft:rgba(181,140,255,.15);
+    --term-bg:#05070a;--term-ink:#dbe7df;--term-dim:#6f8291;
+    --radius:10px;--radius-sm:7px;--maxw:62rem;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --text-scale:1;
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6f8;--surface:#ffffff;--surface-2:#eef2f5;
+    --ink:#10181f;--ink-soft:#33414f;--muted:#6b7c8c;
+    --border:#d3dbe2;--border-strong:#b4c0ca;
+    --accent:#0f7a34;--accent-soft:rgba(15,122,52,.10);--accent-ink:#0a5c26;
+    --warn:#8a5a00;--warn-soft:rgba(138,90,0,.10);
+    --danger:#b3261e;--danger-soft:rgba(179,38,30,.10);
+    --blue:#0b6d78;--blue-soft:rgba(11,109,120,.10);
+    --violet:#6d28d9;--violet-soft:rgba(109,40,217,.08);
+    --term-bg:#10181f;--term-ink:#dbe7df;--term-dim:#8a97a3;
+  }
+*{box-sizing:border-box}
+  html{font-size:calc(100% * var(--text-scale));scroll-behavior:smooth;scroll-padding-top:5.5rem}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-text-size-adjust:100%;
+  }
+  .skip-link{position:absolute;left:-999px;top:0;background:var(--accent);color:#fff;padding:.6rem 1rem;z-index:100;border-radius:0 0 var(--radius-sm) 0}
+  .skip-link:focus{left:0}
+
+  a{color:var(--accent-ink);text-underline-offset:2px}
+  a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{
+    outline:3px solid var(--accent);outline-offset:2px;border-radius:4px
+  }
+
+  /* ---------- Header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:50;background:var(--bg);
+    border-bottom:1px solid var(--border);backdrop-filter:saturate(1.2);
+  }
+  .bar{max-width:var(--maxw);margin:0 auto;padding:.55rem 1.15rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .crumb{font-size:.82rem;color:var(--muted);font-weight:600;letter-spacing:.01em;margin-right:auto}
+  .crumb b{color:var(--accent-ink)}
+  .controls{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+  .controls .grp{display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+  button.ctl{
+    font:inherit;font-size:.82rem;background:var(--surface);color:var(--ink-soft);border:1px solid var(--border);
+    min-height:40px;min-width:40px;padding:0 .7rem;cursor:pointer;border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:.35rem
+  }
+  .controls .grp button.ctl{border:none;border-radius:0;border-right:1px solid var(--border)}
+  .controls .grp button.ctl:last-child{border-right:none}
+  button.ctl:hover{background:var(--surface-2)}
+  .scale-read{font-size:.78rem;color:var(--muted);min-width:2.8rem;text-align:center;font-variant-numeric:tabular-nums}
+
+  /* ---------- Layout ---------- */
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.15rem 5rem}
+  section{margin-top:2.6rem;scroll-margin-top:5.5rem}
+  h1,h2,h3{line-height:1.25;color:var(--ink)}
+  h1{font-size:clamp(1.65rem,1.1rem + 2.4vw,2.35rem);margin:.2rem 0 .3rem;letter-spacing:-.01em}
+  h2{font-size:clamp(1.3rem,1rem + 1.2vw,1.6rem);margin:0 0 .9rem;padding-bottom:.4rem;border-bottom:2px solid var(--border)}
+  h3{font-size:1.08rem;margin:1.6rem 0 .5rem}
+  p{margin:.6rem 0}
+  .lede{font-size:1.08rem;color:var(--ink-soft)}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:1.8rem 0 .4rem}
+  .labno{display:inline-block;font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--accent-ink);
+    background:var(--accent-soft);padding:.25rem .6rem;border-radius:999px;letter-spacing:.03em}
+  .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 .2rem}
+  .chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--ink-soft);
+    background:var(--surface);border:1px solid var(--border);padding:.35rem .65rem;border-radius:var(--radius-sm)}
+  .chip b{color:var(--ink);font-weight:600}
+
+  /* ---------- Progress ---------- */
+  .progress-wrap{margin:1.4rem 0 .3rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem}
+  .progress-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;font-size:.85rem;color:var(--ink-soft)}
+  .progress-top b{color:var(--ink)}
+  progress{width:100%;height:9px;margin-top:.55rem;appearance:none;border:none;border-radius:999px;overflow:hidden;background:var(--surface-2)}
+  progress::-webkit-progress-bar{background:var(--surface-2);border-radius:999px}
+  progress::-webkit-progress-value{background:var(--accent);border-radius:999px}
+  progress::-moz-progress-bar{background:var(--accent);border-radius:999px}
+
+  /* ---------- On-this-page nav ---------- */
+  nav.toc{margin:1.4rem 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .5rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.2rem}
+  nav.toc a{display:block;padding:.4rem .7rem;font-size:.85rem;color:var(--ink-soft);text-decoration:none;border-radius:var(--radius-sm)}
+  nav.toc a:hover{background:var(--surface-2);color:var(--accent-ink)}
+
+  /* ---------- Callouts ---------- */
+  .call{border-left:4px solid var(--border-strong);background:var(--surface);padding:.85rem 1rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin:1rem 0}
+  .call .k{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:.25rem}
+  .call p{margin:.3rem 0}
+  .call.stuck{border-color:var(--warn);background:var(--warn-soft)}
+  .call.stuck .k{color:var(--warn)}
+  .call.tip{border-color:var(--accent);background:var(--accent-soft)}
+  .call.tip .k{color:var(--accent-ink)}
+  .call.defend{border-color:var(--blue);background:var(--blue-soft)}
+  .call.defend .k{color:var(--blue)}
+  .call.auth{border-color:var(--danger);background:var(--danger-soft)}
+  .call.auth .k{color:var(--danger)}
+
+  /* ---------- Command block ---------- */
+  .cmd{position:relative;background:var(--term-bg);border-radius:var(--radius-sm);margin:.7rem 0;border:1px solid #000}
+  .cmd pre{margin:0;padding:.85rem 3rem .85rem 1rem;overflow-x:auto;color:var(--term-ink);font-family:var(--mono);font-size:.92rem;line-height:1.5}
+  .cmd pre .p{color:var(--term-dim)}         /* prompt */
+  .cmd pre .fl{color:#7ee7da}                /* flags */
+  .cmd pre .ar{color:#f0c674}                /* args / targets */
+  .cmd pre .cm{color:var(--term-dim);font-style:italic} /* comment */
+  .copy{position:absolute;top:.5rem;right:.5rem;min-height:32px;min-width:32px;font-size:.72rem;
+    background:#20303c;color:#cfe3df;border:1px solid #33424e;border-radius:6px;cursor:pointer;padding:.2rem .5rem}
+  .copy:hover{background:#2a3d49}
+  .copy.ok{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  code.inl{font-family:var(--mono);font-size:.88em;background:var(--surface-2);padding:.08em .4em;border-radius:5px;color:var(--ink)}
+
+  /* ---------- Walkthrough step ---------- */
+  .step{border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;margin:1rem 0;background:var(--bg)}
+  .step h3{margin-top:0;display:flex;gap:.6rem;align-items:baseline}
+  .step h3 .n{font-family:var(--mono);font-size:.8rem;color:var(--accent-ink);background:var(--accent-soft);border-radius:6px;padding:.1rem .45rem}
+  .task-head{margin-top:2rem;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:.8rem 0;border:1px solid var(--border);border-radius:var(--radius)}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:30rem}
+  th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--border);vertical-align:top}
+  thead th{background:var(--surface);color:var(--ink);font-size:.82rem;letter-spacing:.02em}
+  tbody tr:last-child td{border-bottom:none}
+  td code,th code{font-family:var(--mono);font-size:.86em;color:var(--accent-ink);white-space:nowrap}
+
+  details.go{border:1px solid var(--border);border-radius:var(--radius-sm);padding:.3rem .9rem;margin:.8rem 0;background:var(--surface)}
+  details.go>summary{cursor:pointer;font-weight:600;color:var(--ink-soft);padding:.5rem 0;font-size:.92rem}
+  details.go[open]>summary{border-bottom:1px solid var(--border);margin-bottom:.6rem}
+
+  /* ---------- Self-check ---------- */
+  .q{border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;margin:.8rem 0;background:var(--bg)}
+  .q p.ask{font-weight:600;margin:.1rem 0 .3rem}
+  .q .reveal{font:inherit;font-size:.82rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .8rem;cursor:pointer;min-height:40px}
+  .q .reveal:hover{background:var(--surface-2)}
+  .q .ans{margin-top:.6rem;padding:.6rem .8rem;background:var(--accent-soft);border-radius:var(--radius-sm);font-size:.92rem;display:none}
+  .q .ans.show{display:block}
+
+  /* ---------- Section complete toggle ---------- */
+  .done-row{display:flex;align-items:center;gap:.55rem;margin-top:1rem;font-size:.88rem;color:var(--ink-soft)}
+  .done-row input{width:20px;height:20px;accent-color:var(--accent)}
+
+  /* ---------- Cheat sheet ---------- */
+  .cheat{background:var(--surface);border:1px dashed var(--border-strong);border-radius:var(--radius);padding:1.1rem 1.2rem}
+  .cheat .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1.1rem}
+  .cheat h3{margin:.2rem 0 .4rem}
+  .cheat ul{margin:.2rem 0;padding-left:0;list-style:none}
+  .cheat li{padding:.22rem 0;font-size:.88rem;border-bottom:1px dotted var(--border)}
+  .cheat li code{font-family:var(--mono);color:var(--accent-ink)}
+
+  footer.site{max-width:var(--maxw);margin:3rem auto 0;padding:1.6rem 1.15rem 0;border-top:1px solid var(--border);color:var(--muted);font-size:.84rem}
+  footer.site p{margin:.4rem 0}
+  footer.site .program{color:var(--ink-soft);font-weight:600}
+
+  /* ---------- Print ---------- */
+  @media print{
+    header.site,nav.toc,.controls,.copy,.progress-wrap,.done-row,.reveal{display:none !important}
+    body{background:#fff;color:#000}
+    .cmd{background:#f2f2f2;border:1px solid #bbb}
+    .cmd pre{color:#111}
+    .cmd pre .fl{color:#0a6b60}.cmd pre .ar{color:#8a5a00}.cmd pre .p,.cmd pre .cm{color:#555}
+    .q .ans{display:block;background:#f2f2f2}
+    a{color:#000;text-decoration:underline}
+    section{page-break-inside:avoid}
+  }
+
+  /* ---- screenshot + evidence (added) ---- */
+  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
+  .call.capture .k{color:var(--violet)}
+  .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
+  .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
+  .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
+  .evidence li:last-child{border-bottom:none}
+  .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
+  .evidence .shot{font-weight:600;color:var(--ink)}
+  @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="site">
+  <div class="bar">
+    <span class="crumb">CEH v13 · <a href="ceh_labs.html" style="color:var(--accent-ink);text-decoration:none">‹ All labs</a></span>
+    <div class="controls">
+      <div class="grp" role="group" aria-label="Text size">
+        <button class="ctl" id="text-dn" aria-label="Decrease text size">A−</button>
+        <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
+        <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
+      </div>
+      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="print-btn">🖨 Print</button>
+      <button class="ctl" id="clear-btn">Clear progress</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <div class="hero">
+    <span class="labno">LAB 01</span>
+    <h1>DNS Footprinting</h1>
+    <p class="lede">DNS quietly advertises a target's servers, mail hosts, and name servers — and, when misconfigured, its entire internal map. You'll pull that data with nslookup and dig, and learn why an open zone transfer is a finding worth reporting.</p>
+    <div class="chips">
+      <span class="chip">⏱ <b>30–40 min</b></span>
+      <span class="chip">📶 Difficulty: <b>Beginner</b></span>
+      <span class="chip">🧰 Tools: <b>nslookup · dig</b></span>
+      <span class="chip">🎯 Target: <b>mylab.com DNS (192.168.0.254)</b></span>
+      <span class="chip">📘 Maps to: <b>Module 2 — Footprinting &amp; Recon</b></span>
+    </div>
+  </div>
+
+  <div class="call auth">
+    <span class="k">Authorized testing only</span>
+    <p>Every command here runs inside your isolated NETLAB+ pod against machines built for practice. Scanning hosts or networks you do not own or have written permission to test is illegal in most jurisdictions.</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-top"><span>Lab progress</span><span><b id="pct">0%</b> · <span id="count">0 of 6</span> sections</span></div>
+    <progress id="bar" value="0" max="6" aria-label="Lab completion"></progress>
+  </div>
+  <nav class="toc" aria-label="On this page">
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#environment">The environment</a></li>
+      <li><a href="#walkthrough">Command walkthrough</a></li>
+      <li><a href="#reference">Options reference</a></li>
+      <li><a href="#stuck">Where people get stuck</a></li>
+      <li><a href="#defend">The defender's view</a></li>
+      <li><a href="#exam">CEH v13 exam relevance</a></li>
+      <li><a href="#check">Check yourself</a></li>
+      <li><a href="#evidence">Evidence</a></li>
+      <li><a href="#cheat">Cheat sheet</a></li>
+    </ol>
+  </nav>
+
+  <section id="overview" data-track>
+    <h2>Overview — what this lab is really teaching</h2>
+    <p>Before you ever send a packet at a target, DNS will tell you a surprising amount about it: the addresses of its servers, who handles its mail, which name servers are authoritative, and sometimes — through a misconfiguration — its entire internal map. That's <strong>DNS footprinting</strong>, and it sits in <strong>Module 2: Footprinting &amp; Reconnaissance</strong>.</p>
+    <p>You'll use the two tools every analyst reaches for:</p>
+    <ul>
+      <li><strong>nslookup</strong> — on every Windows and Linux box, with an interactive mode that's great for exploring record by record.</li>
+      <li><strong>dig</strong> — richer, more precise, and scriptable; the tool you'll graduate to.</li>
+    </ul>
+    <p>The headline concept to walk away with is the <strong>zone transfer (AXFR)</strong>: a replication feature that, left open, hands an attacker a complete list of a domain's records in one request. Finding a server that allows it is a genuine, reportable finding.</p>
+    <div class="done-row"><input type="checkbox" id="done-overview" data-done="overview"><label for="done-overview">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="environment" data-track>
+    <h2>The environment you're working in</h2>
+    <p>You work from <strong>Kali</strong>. The lab runs a DNS server that is authoritative for the domain <code class="inl">mylab.com</code> and is listening only on <code class="inl">192.168.0.254</code>. That last detail matters: unless you point your queries at that server explicitly, you'll be asking the wrong resolver and wondering why nothing comes back.</p>
+    <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="walkthrough" data-track>
+    <h2>Command walkthrough</h2>
+
+    <p class="task-head">Task 1 — Footprinting with nslookup</p>
+
+    <div class="step">
+      <h3><span class="n">1</span> Read the manual, then go interactive</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> man nslookup</pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nslookup</pre></div>
+      <p>Running <code class="inl">nslookup</code> with no arguments drops you into <strong>interactive mode</strong> — a little prompt where you set options and fire queries one after another. This is the mode the lab uses first.</p>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">2</span> See and set your query server</h3>
+      <div class="cmd"><pre><span class="p">></span> server</pre></div>
+      <div class="cmd"><pre><span class="p">></span> server <span class="ar">192.168.0.254</span></pre></div>
+      <p><code class="inl">server</code> on its own shows which resolver you're currently asking. <code class="inl">server 192.168.0.254</code> repoints you at the lab's authoritative DNS. <strong>Do this first</strong> — every query below depends on it.</p>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">3</span> Look up records by type</h3>
+      <div class="cmd"><pre><span class="p">></span> mylab.com</pre></div>
+      <div class="cmd"><pre><span class="p">></span> set type=ns
+<span class="p">></span> mylab.com</pre></div>
+      <div class="cmd"><pre><span class="p">></span> set type=mx
+<span class="p">></span> mylab.com</pre></div>
+      <div class="cmd"><pre><span class="p">></span> set type=a
+<span class="p">></span> opensuse.mylab.com</pre></div>
+      <p><code class="inl">set type=</code> changes what kind of record you're asking for. Each type exposes a different slice of the target:</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Type</th><th>Returns</th><th>Why an attacker cares</th></tr></thead>
+        <tbody>
+          <tr><td><code>A</code></td><td>IPv4 address of a hostname</td><td>Where to aim next</td></tr>
+          <tr><td><code>NS</code></td><td>Authoritative name servers</td><td>The servers that hold the zone — targets for the transfer below</td></tr>
+          <tr><td><code>MX</code></td><td>Mail exchangers</td><td>Mail infrastructure; phishing and spoofing surface</td></tr>
+          <tr><td><code>ANY</code></td><td>Everything the server will give</td><td>One query, maximum exposure (modern servers increasingly refuse it)</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">4</span> Attempt a zone transfer</h3>
+      <div class="cmd"><pre><span class="p">></span> set type=axfr
+<span class="p">></span> mylab.com</pre></div>
+      <p><code class="inl">AXFR</code> asks the server for a full copy of the zone — every record it holds. A properly configured server only allows this to its own secondaries and refuses you; a misconfigured one hands over the whole map.</p>
+      <div class="call tip"><span class="k">This is the money shot of DNS recon</span><p>A successful AXFR gives you hostnames you'd never guess and the internal structure of a network in one request. That's exactly why finding an open one goes straight into the report.</p></div>
+
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the result of the zone-transfer attempt (<code class="inl">set type=axfr</code>) — whether the server refuses it or dumps the whole zone. Either way it is a finding worth recording.</p></div>
+      <div class="cmd"><pre><span class="p">></span> exit</pre></div>
+    </div>
+
+    <p class="task-head">Task 2 — The same work, non-interactively, and with dig</p>
+    <div class="step">
+      <h3><span class="n">5</span> One-shot nslookup with debug</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nslookup <span class="fl">-type=ns</span> <span class="fl">-debug</span> <span class="ar">mylab.com 192.168.0.254</span></pre></div>
+      <p>Everything you did interactively collapses into one line: record type, the <code class="inl">-debug</code> flag (which shows the full response including the SOA and header flags), the name, and the server to ask — all as arguments. This is the form you'd drop into a script.</p>
+    </div>
+    <div class="step">
+      <h3><span class="n">6</span> The same query with dig</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> dig <span class="ar">@192.168.0.254 mylab.com ns</span></pre></div>
+      <p><code class="inl">dig</code>'s grammar is <code class="inl">dig @server name type</code>. The output is more detailed and far easier to parse than nslookup's — note the clearly labelled ANSWER, AUTHORITY, and ADDITIONAL sections. For a zone transfer with dig you'd write <code class="inl">dig @192.168.0.254 mylab.com axfr</code>.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture your <code class="inl">dig</code> output with the NS records visible in the labelled ANSWER section.</p></div>
+
+    </div>
+    <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="reference" data-track>
+    <h2>Options reference — beyond the lab</h2>
+    <h3>nslookup</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Command / flag</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>server IP</code></td><td>Change the resolver you're querying (interactive)</td></tr>
+        <tr><td><code>set type=TYPE</code></td><td>A, AAAA, NS, MX, SOA, TXT, PTR, CNAME, SRV, ANY, AXFR</td></tr>
+        <tr><td><code>set debug</code> / <code>-debug</code></td><td>Show the full packet, including SOA and flags</td></tr>
+        <tr><td><code>-type=TYPE name server</code></td><td>Non-interactive one-liner</td></tr>
+      </tbody>
+    </table></div>
+    <h3>dig</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Form</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>dig @server name TYPE</code></td><td>Query a specific server for a record type</td></tr>
+        <tr><td><code>dig name +short</code></td><td>Just the answer — ideal for scripts</td></tr>
+        <tr><td><code>dig name +trace</code></td><td>Walk the delegation from the root down</td></tr>
+        <tr><td><code>dig @server domain axfr</code></td><td>Attempt a zone transfer</td></tr>
+        <tr><td><code>dig -x IP</code></td><td>Reverse lookup (PTR)</td></tr>
+        <tr><td><code>whois domain</code></td><td>Registrar/ownership data — the other half of footprinting</td></tr>
+      </tbody>
+    </table></div>
+    <div class="done-row"><input type="checkbox" id="done-reference" data-done="reference"><label for="done-reference">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="stuck" data-track>
+    <h2>Where people get stuck</h2>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Queries return nothing / public answers</td><td>Still pointed at the default resolver</td><td>Run <code>server 192.168.0.254</code> first (or use <code>@192.168.0.254</code> with dig).</td></tr>
+        <tr><td>"Stuck" at the <code>&gt;</code> prompt</td><td>You're in nslookup interactive mode</td><td>Type <code>exit</code> to get your shell back.</td></tr>
+        <tr><td>Zone transfer refused</td><td>The server is configured correctly</td><td>That's the expected, secure result — note it. An <em>allowed</em> transfer is the finding.</td></tr>
+        <tr><td><code>set type=any</code> returns little</td><td>Modern servers restrict ANY (RFC 8482)</td><td>Query specific types instead.</td></tr>
+        <tr><td>nslookup output feels thin</td><td>It is — by design</td><td>Switch to <code>dig</code> for the full, labelled response.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="done-row"><input type="checkbox" id="done-stuck" data-done="stuck"><label for="done-stuck">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="defend" data-track>
+    <h2>The defender's view</h2>
+    <div class="call defend">
+      <span class="k">What the blue team does about this</span>
+      <p>DNS footprinting is mostly passive, so it rarely trips an alarm — which is exactly why hardening the data itself matters.</p>
+    </div>
+    <ul>
+      <li><strong>Restrict zone transfers</strong> — <code class="inl">allow-transfer</code> limited to known secondaries; never to the world. This single control closes the AXFR finding.</li>
+      <li><strong>Split-horizon DNS</strong> — serve internal names only to internal resolvers, so external queries can't map the inside.</li>
+      <li><strong>Minimize exposure</strong> — don't publish records that don't need to be public; avoid descriptive hostnames that leak purpose.</li>
+      <li><strong>Monitor</strong> — log and alert on AXFR attempts and high-volume querying; an IDS can flag them.</li>
+    </ul>
+    <div class="done-row"><input type="checkbox" id="done-defend" data-done="defend"><label for="done-defend">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="exam">
+    <h2>CEH v13 exam relevance</h2>
+    <p>Hands-on side of <strong>Module 2: Footprinting &amp; Reconnaissance</strong>. High-yield facts:</p>
+    <ul>
+      <li><strong>Record types</strong> and what each reveals: A, AAAA, CNAME, MX, NS, SOA, PTR, TXT, SRV.</li>
+      <li><strong>SOA fields</strong> — serial, refresh, retry, expire, minimum TTL.</li>
+      <li><strong>Zone transfer (AXFR)</strong> as a classic misconfiguration and finding; IXFR is the incremental version.</li>
+      <li><strong>nslookup vs dig</strong> — know both; know <code class="inl">dig</code>'s <code class="inl">@server name type</code> syntax.</li>
+      <li>Footprinting (passive, no direct contact needed) vs scanning (active) — which phase you're in.</li>
+    </ul>
+  </section>
+
+  <section id="check">
+    <h2>Check yourself</h2>
+    <div class="q"><p class="ask">1. Your lookups keep returning public internet answers, not <code class="inl">mylab.com</code> records. What did you skip?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">Pointing at the lab's authoritative server: <code class="inl">server 192.168.0.254</code> in nslookup, or <code class="inl">@192.168.0.254</code> with dig.</div></div>
+    <div class="q"><p class="ask">2. What does a successful AXFR give an attacker, and why is an open one a reportable finding?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">A complete copy of the zone — every hostname and record — in one request, exposing internal structure that should never be public. It should be restricted to authorized secondary servers.</div></div>
+    <div class="q"><p class="ask">3. Write the dig command to ask <code class="inl">192.168.0.254</code> for the MX records of <code class="inl">mylab.com</code>.</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans"><code class="inl">dig @192.168.0.254 mylab.com mx</code></div></div>
+    <div class="q"><p class="ask">4. Why might <code class="inl">set type=any</code> return less than you expect on a modern server?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">Many resolvers now minimize or refuse ANY queries (RFC 8482) to cut abuse and amplification, so you should query specific record types.</div></div>
+  </section>
+
+  <section id="evidence">
+    <h2>Evidence to capture</h2>
+    <p>Your instructor wants screenshots of the key steps as proof you ran the lab. Grab these as you go, tick each one off, then print or submit this list as your evidence cover sheet.</p>
+    <div class="evidence"><ul>
+        <li><input type="checkbox" data-evidence="lab01-1"><span><span class="shot">NS &amp; MX records.</span> The nslookup output for <code class="inl">set type=ns</code> and <code class="inl">set type=mx</code> on mylab.com.</span></li>
+        <li><input type="checkbox" data-evidence="lab01-2"><span><span class="shot">Zone-transfer attempt.</span> The result of <code class="inl">set type=axfr</code> — refused or dumped.</span></li>
+        <li><input type="checkbox" data-evidence="lab01-3"><span><span class="shot">dig confirmation.</span> The <code class="inl">dig @192.168.0.254 mylab.com ns</code> output.</span></li>
+    </ul></div>
+  </section>
+
+  <section id="cheat">
+    <h2>Cheat sheet</h2>
+    <div class="cheat"><div class="grid">
+      <div>
+        <h3>nslookup</h3>
+        <ul>
+          <li><code>nslookup</code> — interactive mode</li>
+          <li><code>server 192.168.0.254</code> — set resolver</li>
+          <li><code>set type=ns|mx|a|any|axfr</code></li>
+          <li><code>name.mylab.com</code> — run the lookup</li>
+          <li><code>exit</code> — leave interactive mode</li>
+          <li><code>nslookup -type=ns -debug name server</code></li>
+        </ul>
+      </div>
+      <div>
+        <h3>dig</h3>
+        <ul>
+          <li><code>dig @server name type</code></li>
+          <li><code>dig name +short</code> — answer only</li>
+          <li><code>dig name +trace</code> — from the root</li>
+          <li><code>dig @server domain axfr</code> — zone transfer</li>
+          <li><code>dig -x IP</code> — reverse lookup</li>
+          <li><code>whois domain</code> — ownership data</li>
+        </ul>
+      </div>
+    </div></div>
+  </section>
+
+</main>
+<footer class="site">
+  <p>Lab companion for <span class="program">CEH v13 — Lab 01</span>. Companion material © 2026; original explanatory content written to accompany the NDG <em>Ethical Hacking v2</em> lab series, which remains the property of its publisher.</p>
+  <p>Aligned to the EC-Council CEH v13 curriculum. An independent study companion — not affiliated with or endorsed by EC-Council or NDG.</p>
+  <p><span class="program">CEH v13 Course Series</span> · Brookdale Community College · 2026</p>
+</footer>
+<script>
+(function(){
+  "use strict";
+  var PREFIX="ceh-lab01-v1:",root=document.documentElement;
+  function save(k,v){try{localStorage.setItem(PREFIX+k,v);}catch(e){}}
+  function load(k){try{return localStorage.getItem(PREFIX+k);}catch(e){return null;}}
+  function del(k){try{localStorage.removeItem(PREFIX+k);}catch(e){}}
+
+  var themeBtn=document.getElementById("theme-toggle");
+  function applyTheme(mode){
+    root.setAttribute("data-theme",mode==="light"?"light":"dark");
+    var dark=mode!=="light";
+    themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
+    themeBtn.setAttribute("aria-pressed",dark?"true":"false");
+  }
+  applyTheme(load("theme")||"dark");
+  themeBtn.addEventListener("click",function(){
+    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+  });
+
+  var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));
+  if(!isNaN(stored)){var q=steps.indexOf(stored);if(q>=0)idx=q;}
+  var readout=document.getElementById("scale-read");
+  function applyScale(){root.style.setProperty("--text-scale",steps[idx]);readout.textContent=Math.round(steps[idx]*100)+"%";save("scale",steps[idx]);}
+  applyScale();
+  document.getElementById("text-up").addEventListener("click",function(){if(idx<steps.length-1){idx++;applyScale();}});
+  document.getElementById("text-dn").addEventListener("click",function(){if(idx>0){idx--;applyScale();}});
+  document.getElementById("print-btn").addEventListener("click",function(){window.print();});
+
+  document.querySelectorAll(".cmd").forEach(function(b){
+    var btn=document.createElement("button");
+    btn.className="copy";btn.type="button";btn.textContent="Copy";btn.setAttribute("aria-label","Copy command");
+    btn.addEventListener("click",function(){
+      var pre=b.querySelector("pre"),clone=pre.cloneNode(true);
+      clone.querySelectorAll(".p,.cm").forEach(function(e){e.parentNode.removeChild(e);});
+      var text=clone.textContent.replace(/[ \t]+\n/g,"\n").replace(/\n{2,}/g,"\n").trim();
+      var done=function(){btn.textContent="Copied";btn.classList.add("ok");setTimeout(function(){btn.textContent="Copy";btn.classList.remove("ok");},1400);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(fb);}else{fb();}
+      function fb(){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(ta);}
+    });
+    b.appendChild(btn);
+  });
+
+  document.querySelectorAll(".q .reveal").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var ans=btn.parentElement.querySelector(".ans"),open=ans.classList.toggle("show");
+      btn.setAttribute("aria-expanded",open?"true":"false");btn.textContent=open?"Hide answer":"Show answer";
+    });
+  });
+
+  var boxes=document.querySelectorAll('input[data-done]'),total=boxes.length;
+  var bar=document.getElementById("bar"),pct=document.getElementById("pct"),count=document.getElementById("count"),pct2=document.getElementById("pct2");
+  if(bar)bar.max=total;
+  function refresh(){
+    var n=0;boxes.forEach(function(b){if(b.checked)n++;});
+    if(bar)bar.value=n;var pc=total?Math.round(n/total*100):0;
+    if(pct)pct.textContent=pc+"%";if(pct2)pct2.textContent=pc+"%";if(count)count.textContent=n+" of "+total;
+  }
+  boxes.forEach(function(b){var k="done:"+b.getAttribute("data-done");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);refresh();});});
+  refresh();
+
+  var evs=document.querySelectorAll('input[data-evidence]');
+  evs.forEach(function(b){var k="ev:"+b.getAttribute("data-evidence");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);});});
+
+  var clr=document.getElementById("clear-btn");
+  if(clr)clr.addEventListener("click",function(){
+    boxes.forEach(function(b){b.checked=false;del("done:"+b.getAttribute("data-done"));});
+    evs.forEach(function(b){b.checked=false;del("ev:"+b.getAttribute("data-evidence"));});
+    document.querySelectorAll(".q .ans.show").forEach(function(a){a.classList.remove("show");});
+    document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
+    refresh();
+  });
+})();
+</script>
+</body>
+</html>

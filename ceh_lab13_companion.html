@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lab 13 Companion — Understanding Buffer Overflows · CEH v13</title>
+<meta name="description" content="Student companion for CEH Lab 13: writing and fixing a tiny vulnerable C program to understand buffer overflows, the stack and return address, mitigations (canaries, ASLR, DEP/NX), screenshots to submit, and CEH v13 exam relevance.">
+<style>  /* ===== Theme tokens — matched to the CEH v13 site (dark-first) ===== */
+  :root, :root[data-theme="dark"]{
+    --bg:#07090b;--surface:#141a20;--surface-2:#1b232b;
+    --ink:#e8eef2;--ink-soft:#c3ccd6;--muted:#9fb0bd;
+    --border:#26313b;--border-strong:#37444f;
+    --accent:#35e05f;--accent-soft:rgba(53,224,95,.14);--accent-ink:#6dff96;
+    --warn:#f0b429;--warn-soft:rgba(240,180,41,.13);
+    --danger:#ff6b6b;--danger-soft:rgba(255,107,107,.13);
+    --blue:#43d9d4;--blue-soft:rgba(67,217,212,.13);
+    --violet:#b58cff;--violet-soft:rgba(181,140,255,.15);
+    --term-bg:#05070a;--term-ink:#dbe7df;--term-dim:#6f8291;
+    --radius:10px;--radius-sm:7px;--maxw:62rem;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --text-scale:1;
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6f8;--surface:#ffffff;--surface-2:#eef2f5;
+    --ink:#10181f;--ink-soft:#33414f;--muted:#6b7c8c;
+    --border:#d3dbe2;--border-strong:#b4c0ca;
+    --accent:#0f7a34;--accent-soft:rgba(15,122,52,.10);--accent-ink:#0a5c26;
+    --warn:#8a5a00;--warn-soft:rgba(138,90,0,.10);
+    --danger:#b3261e;--danger-soft:rgba(179,38,30,.10);
+    --blue:#0b6d78;--blue-soft:rgba(11,109,120,.10);
+    --violet:#6d28d9;--violet-soft:rgba(109,40,217,.08);
+    --term-bg:#10181f;--term-ink:#dbe7df;--term-dim:#8a97a3;
+  }
+*{box-sizing:border-box}
+  html{font-size:calc(100% * var(--text-scale));scroll-behavior:smooth;scroll-padding-top:5.5rem}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-text-size-adjust:100%;
+  }
+  .skip-link{position:absolute;left:-999px;top:0;background:var(--accent);color:#fff;padding:.6rem 1rem;z-index:100;border-radius:0 0 var(--radius-sm) 0}
+  .skip-link:focus{left:0}
+
+  a{color:var(--accent-ink);text-underline-offset:2px}
+  a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{
+    outline:3px solid var(--accent);outline-offset:2px;border-radius:4px
+  }
+
+  /* ---------- Header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:50;background:var(--bg);
+    border-bottom:1px solid var(--border);backdrop-filter:saturate(1.2);
+  }
+  .bar{max-width:var(--maxw);margin:0 auto;padding:.55rem 1.15rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .crumb{font-size:.82rem;color:var(--muted);font-weight:600;letter-spacing:.01em;margin-right:auto}
+  .crumb b{color:var(--accent-ink)}
+  .controls{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+  .controls .grp{display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+  button.ctl{
+    font:inherit;font-size:.82rem;background:var(--surface);color:var(--ink-soft);border:1px solid var(--border);
+    min-height:40px;min-width:40px;padding:0 .7rem;cursor:pointer;border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:.35rem
+  }
+  .controls .grp button.ctl{border:none;border-radius:0;border-right:1px solid var(--border)}
+  .controls .grp button.ctl:last-child{border-right:none}
+  button.ctl:hover{background:var(--surface-2)}
+  .scale-read{font-size:.78rem;color:var(--muted);min-width:2.8rem;text-align:center;font-variant-numeric:tabular-nums}
+
+  /* ---------- Layout ---------- */
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.15rem 5rem}
+  section{margin-top:2.6rem;scroll-margin-top:5.5rem}
+  h1,h2,h3{line-height:1.25;color:var(--ink)}
+  h1{font-size:clamp(1.65rem,1.1rem + 2.4vw,2.35rem);margin:.2rem 0 .3rem;letter-spacing:-.01em}
+  h2{font-size:clamp(1.3rem,1rem + 1.2vw,1.6rem);margin:0 0 .9rem;padding-bottom:.4rem;border-bottom:2px solid var(--border)}
+  h3{font-size:1.08rem;margin:1.6rem 0 .5rem}
+  p{margin:.6rem 0}
+  .lede{font-size:1.08rem;color:var(--ink-soft)}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:1.8rem 0 .4rem}
+  .labno{display:inline-block;font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--accent-ink);
+    background:var(--accent-soft);padding:.25rem .6rem;border-radius:999px;letter-spacing:.03em}
+  .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 .2rem}
+  .chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--ink-soft);
+    background:var(--surface);border:1px solid var(--border);padding:.35rem .65rem;border-radius:var(--radius-sm)}
+  .chip b{color:var(--ink);font-weight:600}
+
+  /* ---------- Progress ---------- */
+  .progress-wrap{margin:1.4rem 0 .3rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem}
+  .progress-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;font-size:.85rem;color:var(--ink-soft)}
+  .progress-top b{color:var(--ink)}
+  progress{width:100%;height:9px;margin-top:.55rem;appearance:none;border:none;border-radius:999px;overflow:hidden;background:var(--surface-2)}
+  progress::-webkit-progress-bar{background:var(--surface-2);border-radius:999px}
+  progress::-webkit-progress-value{background:var(--accent);border-radius:999px}
+  progress::-moz-progress-bar{background:var(--accent);border-radius:999px}
+
+  /* ---------- On-this-page nav ---------- */
+  nav.toc{margin:1.4rem 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .5rem}
+  nav.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.2rem}
+  nav.toc a{display:block;padding:.4rem .7rem;font-size:.85rem;color:var(--ink-soft);text-decoration:none;border-radius:var(--radius-sm)}
+  nav.toc a:hover{background:var(--surface-2);color:var(--accent-ink)}
+
+  /* ---------- Callouts ---------- */
+  .call{border-left:4px solid var(--border-strong);background:var(--surface);padding:.85rem 1rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin:1rem 0}
+  .call .k{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:.25rem}
+  .call p{margin:.3rem 0}
+  .call.stuck{border-color:var(--warn);background:var(--warn-soft)}
+  .call.stuck .k{color:var(--warn)}
+  .call.tip{border-color:var(--accent);background:var(--accent-soft)}
+  .call.tip .k{color:var(--accent-ink)}
+  .call.defend{border-color:var(--blue);background:var(--blue-soft)}
+  .call.defend .k{color:var(--blue)}
+  .call.auth{border-color:var(--danger);background:var(--danger-soft)}
+  .call.auth .k{color:var(--danger)}
+
+  /* ---------- Command block ---------- */
+  .cmd{position:relative;background:var(--term-bg);border-radius:var(--radius-sm);margin:.7rem 0;border:1px solid #000}
+  .cmd pre{margin:0;padding:.85rem 3rem .85rem 1rem;overflow-x:auto;color:var(--term-ink);font-family:var(--mono);font-size:.92rem;line-height:1.5}
+  .cmd pre .p{color:var(--term-dim)}         /* prompt */
+  .cmd pre .fl{color:#7ee7da}                /* flags */
+  .cmd pre .ar{color:#f0c674}                /* args / targets */
+  .cmd pre .cm{color:var(--term-dim);font-style:italic} /* comment */
+  .copy{position:absolute;top:.5rem;right:.5rem;min-height:32px;min-width:32px;font-size:.72rem;
+    background:#20303c;color:#cfe3df;border:1px solid #33424e;border-radius:6px;cursor:pointer;padding:.2rem .5rem}
+  .copy:hover{background:#2a3d49}
+  .copy.ok{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  code.inl{font-family:var(--mono);font-size:.88em;background:var(--surface-2);padding:.08em .4em;border-radius:5px;color:var(--ink)}
+
+  /* ---------- Walkthrough step ---------- */
+  .step{border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;margin:1rem 0;background:var(--bg)}
+  .step h3{margin-top:0;display:flex;gap:.6rem;align-items:baseline}
+  .step h3 .n{font-family:var(--mono);font-size:.8rem;color:var(--accent-ink);background:var(--accent-soft);border-radius:6px;padding:.1rem .45rem}
+  .task-head{margin-top:2rem;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:.8rem 0;border:1px solid var(--border);border-radius:var(--radius)}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:30rem}
+  th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--border);vertical-align:top}
+  thead th{background:var(--surface);color:var(--ink);font-size:.82rem;letter-spacing:.02em}
+  tbody tr:last-child td{border-bottom:none}
+  td code,th code{font-family:var(--mono);font-size:.86em;color:var(--accent-ink);white-space:nowrap}
+
+  details.go{border:1px solid var(--border);border-radius:var(--radius-sm);padding:.3rem .9rem;margin:.8rem 0;background:var(--surface)}
+  details.go>summary{cursor:pointer;font-weight:600;color:var(--ink-soft);padding:.5rem 0;font-size:.92rem}
+  details.go[open]>summary{border-bottom:1px solid var(--border);margin-bottom:.6rem}
+
+  /* ---------- Self-check ---------- */
+  .q{border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;margin:.8rem 0;background:var(--bg)}
+  .q p.ask{font-weight:600;margin:.1rem 0 .3rem}
+  .q .reveal{font:inherit;font-size:.82rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .8rem;cursor:pointer;min-height:40px}
+  .q .reveal:hover{background:var(--surface-2)}
+  .q .ans{margin-top:.6rem;padding:.6rem .8rem;background:var(--accent-soft);border-radius:var(--radius-sm);font-size:.92rem;display:none}
+  .q .ans.show{display:block}
+
+  /* ---------- Section complete toggle ---------- */
+  .done-row{display:flex;align-items:center;gap:.55rem;margin-top:1rem;font-size:.88rem;color:var(--ink-soft)}
+  .done-row input{width:20px;height:20px;accent-color:var(--accent)}
+
+  /* ---------- Cheat sheet ---------- */
+  .cheat{background:var(--surface);border:1px dashed var(--border-strong);border-radius:var(--radius);padding:1.1rem 1.2rem}
+  .cheat .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1.1rem}
+  .cheat h3{margin:.2rem 0 .4rem}
+  .cheat ul{margin:.2rem 0;padding-left:0;list-style:none}
+  .cheat li{padding:.22rem 0;font-size:.88rem;border-bottom:1px dotted var(--border)}
+  .cheat li code{font-family:var(--mono);color:var(--accent-ink)}
+
+  footer.site{max-width:var(--maxw);margin:3rem auto 0;padding:1.6rem 1.15rem 0;border-top:1px solid var(--border);color:var(--muted);font-size:.84rem}
+  footer.site p{margin:.4rem 0}
+  footer.site .program{color:var(--ink-soft);font-weight:600}
+
+  /* ---------- Print ---------- */
+  @media print{
+    header.site,nav.toc,.controls,.copy,.progress-wrap,.done-row,.reveal{display:none !important}
+    body{background:#fff;color:#000}
+    .cmd{background:#f2f2f2;border:1px solid #bbb}
+    .cmd pre{color:#111}
+    .cmd pre .fl{color:#0a6b60}.cmd pre .ar{color:#8a5a00}.cmd pre .p,.cmd pre .cm{color:#555}
+    .q .ans{display:block;background:#f2f2f2}
+    a{color:#000;text-decoration:underline}
+    section{page-break-inside:avoid}
+  }
+
+  /* ---- screenshot + evidence (added) ---- */
+  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
+  .call.capture .k{color:var(--violet)}
+  .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
+  .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
+  .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
+  .evidence li:last-child{border-bottom:none}
+  .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
+  .evidence .shot{font-weight:600;color:var(--ink)}
+  @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="site">
+  <div class="bar">
+    <span class="crumb">CEH v13 · <a href="ceh_labs.html" style="color:var(--accent-ink);text-decoration:none">‹ All labs</a></span>
+    <div class="controls">
+      <div class="grp" role="group" aria-label="Text size">
+        <button class="ctl" id="text-dn" aria-label="Decrease text size">A−</button>
+        <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
+        <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
+      </div>
+      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="print-btn">🖨 Print</button>
+      <button class="ctl" id="clear-btn">Clear progress</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <div class="hero">
+    <span class="labno">LAB 13</span>
+    <h1>Understanding Buffer Overflows</h1>
+    <p class="lede">A buffer overflow is what happens when a program writes past the end of a fixed-size buffer. You write your own tiny vulnerable program, watch it misbehave, then fix it — understanding, not exploitation.</p>
+    <div class="chips">
+      <span class="chip">⏱ <b>45 min</b></span>
+      <span class="chip">📶 Difficulty: <b>Intermediate</b></span>
+      <span class="chip">🧰 Tools: <b>gcc · C</b></span>
+      <span class="chip">🎯 Target: <b>your own toy program</b></span>
+      <span class="chip">📘 Maps to: <b>Module 6 — System Hacking</b></span>
+    </div>
+  </div>
+
+  <div class="call auth">
+    <span class="k">Authorized testing only</span>
+    <p>Every command here runs inside your isolated NETLAB+ pod against machines built for practice. Scanning hosts or networks you do not own or have written permission to test is illegal in most jurisdictions.</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-top"><span>Lab progress</span><span><b id="pct">0%</b> · <span id="count">0 of 6</span> sections</span></div>
+    <progress id="bar" value="0" max="6" aria-label="Lab completion"></progress>
+  </div>
+  <nav class="toc" aria-label="On this page">
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#environment">The environment</a></li>
+      <li><a href="#walkthrough">Walkthrough</a></li>
+      <li><a href="#reference">Reference</a></li>
+      <li><a href="#stuck">Where people get stuck</a></li>
+      <li><a href="#defend">The defender's view</a></li>
+      <li><a href="#exam">CEH v13 exam relevance</a></li>
+      <li><a href="#check">Check yourself</a></li>
+      <li><a href="#evidence">Evidence</a></li>
+      <li><a href="#cheat">Cheat sheet</a></li>
+    </ol>
+  </nav>
+
+  <section id="overview" data-track>
+    <h2>Overview — what this lab is really teaching</h2>
+    <p>A <strong>buffer overflow</strong> is what happens when a program writes more data into a fixed-size buffer than it can hold, spilling into whatever memory sits next to it. This lab doesn't attack anything — you <em>write your own tiny vulnerable program</em>, watch it misbehave, then fix it. That's the clearest way to understand a bug class that has caused decades of real-world compromises. It underpins the exploitation content in <strong>Module 6: System Hacking</strong> (and web-server flaws in Module 13).</p>
+    <p>The goal here is understanding, not exploitation. Once you've seen why C happily writes past the end of an array, both the vulnerability and every mitigation that exists to stop it make immediate sense.</p>
+    <div class="done-row"><input type="checkbox" id="done-overview" data-done="overview"><label for="done-overview">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="environment" data-track>
+    <h2>The environment you're working in</h2>
+    <p>Everything is local on <strong>Kali</strong>: a text editor, the <strong>gcc</strong> compiler, and a terminal. You compile and run a small program you wrote yourself — nothing leaves the machine, and there's no target but your own code.</p>
+    <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="walkthrough" data-track>
+    <h2>Walkthrough</h2>
+
+    <div class="call stuck">
+      <span class="k">Read this before you copy anything</span>
+      <p>The compile commands in the source PDF use an <strong>en-dash</strong> (<code class="inl">–o</code>) instead of a hyphen (<code class="inl">-o</code>). Paste it and gcc complains. Retype the hyphen, or use the copy buttons.</p>
+    </div>
+
+    <p class="task-head">Task 1 — Write a vulnerable program</p>
+    <div class="step">
+      <h3><span class="n">1</span> The vulnerable pattern</h3>
+      <p>The program declares a small fixed buffer — say room for 8 integers — then reads however many values the user asks to enter, with <strong>no check</strong> that the count fits:</p>
+      <div class="cmd"><pre><span class="cm">// the vulnerable shape (illustrative)</span>
+int buffer[8];
+int n;  scanf("%d", &amp;n);           <span class="cm">// user says how many</span>
+for (int i = 0; i &lt; n; i++)         <span class="cm">// no bound on n!</span>
+    scanf("%d", &amp;buffer[i]);        <span class="cm">// writes past buffer when n &gt; 8</span></pre></div>
+      <p>The bug is the missing comparison between <code class="inl">n</code> and the buffer's size. C does no bounds checking of its own, so the loop will cheerfully write a 9th, 10th, 100th value into memory it was never given.</p>
+    </div>
+
+    <p class="task-head">Task 2 — Watch it overflow</p>
+    <div class="step">
+      <h3><span class="n">2</span> Compile and run</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> gcc vuln1.c <span class="fl">-o</span> vuln1</pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> ./vuln1</pre></div>
+      <p>When the program asks how many integers to enter, give it <strong>9</strong> — one more than the buffer holds. That 9th value lands outside the buffer, corrupting whatever was adjacent on the stack. Depending on what you clobber, you'll see garbage output or a <strong>segmentation fault</strong> (the OS killing the program for touching memory it shouldn't).</p>
+      <div class="call tip"><span class="k">Why this is the whole point</span><p>The memory next to a local buffer includes bookkeeping the program relies on — in a real exploit, the prize is the saved <strong>return address</strong>. Overwrite it and you can redirect where the program jumps next. The toy program only crashes; the <em>mechanism</em> is identical to the serious ones.</p></div>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the program overrunning — the corrupted output or the "Segmentation fault" message after entering 9.</p></div>
+    </div>
+
+    <p class="task-head">Task 3 — Fix it</p>
+    <div class="step">
+      <h3><span class="n">3</span> Add the bounds check</h3>
+      <div class="cmd"><pre><span class="cm">// the fix: refuse anything that won't fit</span>
+if (n &lt; 0 || n &gt; 8) { printf("too many\n"); return 1; }</pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> gcc fixed_vuln1.c <span class="fl">-o</span> fixed_vuln1
+<span class="p">root@kali:~#</span> ./fixed_vuln1</pre></div>
+      <p>The fixed version checks the count against the buffer's capacity before writing. Enter 9 now and it refuses instead of corrupting memory. One comparison is the entire difference between a vulnerability and safe code.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the fixed program safely rejecting the oversized input.</p></div>
+    </div>
+    <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="reference" data-track>
+    <h2>Reference — beyond the lab</h2>
+    <h3>The stack, roughly</h3>
+    <p>A function's local variables, saved frame pointer, and <strong>saved return address</strong> live together on the stack. A buffer that overflows writes <em>toward</em> those saved values — which is why overwriting the return address is the classic exploitation goal, and why the mitigations below exist to protect exactly that region.</p>
+    <h3>Dangerous functions → safer choices</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Avoid (no bounds)</th><th>Prefer (bounded)</th></tr></thead>
+      <tbody>
+        <tr><td><code>gets()</code></td><td><code>fgets()</code></td></tr>
+        <tr><td><code>strcpy()</code> · <code>strcat()</code></td><td><code>strncpy()</code> · <code>strncat()</code> (or <code>strlcpy</code>)</td></tr>
+        <tr><td><code>sprintf()</code></td><td><code>snprintf()</code></td></tr>
+        <tr><td><code>scanf("%s", ...)</code></td><td>width-limited <code>scanf("%7s", ...)</code> / <code>fgets</code></td></tr>
+      </tbody>
+    </table></div>
+    <h3>Compiler &amp; OS mitigations</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Mitigation</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><b>Stack canary</b> (<code>-fstack-protector</code>)</td><td>A guard value before the return address; the program aborts if it's altered</td></tr>
+        <tr><td><b>ASLR</b></td><td>Randomizes memory layout so addresses can't be predicted</td></tr>
+        <tr><td><b>DEP / NX</b></td><td>Marks the stack non-executable so injected code won't run</td></tr>
+        <tr><td><b>FORTIFY_SOURCE</b></td><td>Compiler-added bounds checks on common functions</td></tr>
+      </tbody>
+    </table></div>
+    <div class="done-row"><input type="checkbox" id="done-reference" data-done="reference"><label for="done-reference">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="stuck" data-track>
+    <h2>Where people get stuck</h2>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>gcc: unrecognized option</td><td>En-dash <code>–o</code> from the PDF</td><td>Retype <code>-o</code>, or use the copy buttons.</td></tr>
+        <tr><td>No crash even with too much input</td><td>Overflow is undefined behavior — it may corrupt silently</td><td>Try a larger overrun; a crash isn't guaranteed, which is itself the danger.</td></tr>
+        <tr><td>Behavior differs from the write-up</td><td>Modern protections (canary/ASLR) change what happens</td><td>Expected — note which protection intervened; that's the lesson.</td></tr>
+        <tr><td>"Why does C even allow this?"</td><td>C trades safety for speed and control</td><td>It does no automatic bounds checking — the programmer must.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="done-row"><input type="checkbox" id="done-stuck" data-done="stuck"><label for="done-stuck">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="defend" data-track>
+    <h2>The defender's view</h2>
+    <div class="call defend">
+      <span class="k">This whole class of bug is preventable</span>
+      <p>Buffer overflows are a <em>coding</em> problem with well-known engineering answers. Defense is mostly "write it right, then let the compiler and OS back you up."</p>
+    </div>
+    <ul>
+      <li><strong>Validate lengths</strong> — bounds-check every write into a fixed buffer, as the fix shows.</li>
+      <li><strong>Use safe functions</strong> — the bounded versions in the table; avoid <code class="inl">gets</code> entirely.</li>
+      <li><strong>Prefer memory-safe languages</strong> — Rust, Go, Java, Python don't expose this foot-gun for ordinary code.</li>
+      <li><strong>Turn on the protections</strong> — stack canaries, ASLR, DEP/NX, FORTIFY are on by default in modern toolchains; keep them on.</li>
+      <li><strong>Patch</strong> — real overflows in shipped software become CVEs; patching closes them before they're exploited.</li>
+    </ul>
+    <div class="done-row"><input type="checkbox" id="done-defend" data-done="defend"><label for="done-defend">Mark this section reviewed</label></div>
+  </section>
+
+  <section id="exam">
+    <h2>CEH v13 exam relevance</h2>
+    <p>Foundational memory-corruption concept behind much of <strong>Module 6</strong> and server-side exploitation. High-yield facts:</p>
+    <ul>
+      <li><strong>What an overflow is</strong> — writing beyond a buffer's bounds into adjacent memory.</li>
+      <li><strong>Stack vs. heap</strong> overflows, and the role of the saved <strong>return address</strong>.</li>
+      <li>Overwriting the return address → redirecting execution → potential code execution.</li>
+      <li><strong>Dangerous functions</strong> (<code class="inl">gets</code>, <code class="inl">strcpy</code>) and their safe replacements.</li>
+      <li><strong>Mitigations</strong>: stack canaries, ASLR, DEP/NX — know what each stops.</li>
+      <li>Why C/C++ are affected and memory-safe languages mostly aren't.</li>
+    </ul>
+  </section>
+
+  <section id="check">
+    <h2>Check yourself</h2>
+    <div class="q"><p class="ask">1. In the vulnerable program, exactly what is missing that causes the overflow?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">A bounds check — nothing compares the requested count against the buffer's size before writing, so the loop writes past the end.</div></div>
+    <div class="q"><p class="ask">2. Why is overwriting the saved return address the classic exploitation goal?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">The return address controls where the program jumps when the function finishes. Overwriting it lets an attacker redirect execution, potentially to code of their choosing.</div></div>
+    <div class="q"><p class="ask">3. What does a stack canary do?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">It places a known guard value just before the return address; if an overflow changes it, the program detects the tampering and aborts before returning.</div></div>
+    <div class="q"><p class="ask">4. Your program overflows but doesn't crash. Does that mean it's safe?</p>
+      <button class="reveal" aria-expanded="false">Show answer</button>
+      <div class="ans">No. Overflow is undefined behavior — it may silently corrupt memory without crashing, which is actually more dangerous than an obvious segfault.</div></div>
+  </section>
+
+  <section id="evidence">
+    <h2>Evidence to capture</h2>
+    <p>Your instructor wants screenshots of the key steps as proof you ran the lab. Grab these as you go, tick each one off, then print or submit this list as your evidence cover sheet.</p>
+    <div class="evidence"><ul>
+      <li><input type="checkbox" data-evidence="lab13-1"><span><span class="shot">The overflow.</span> The vulnerable program's corrupted output or segmentation fault.</span></li>
+      <li><input type="checkbox" data-evidence="lab13-2"><span><span class="shot">The fix.</span> The bounds-checked program safely rejecting oversized input.</span></li>
+    </ul></div>
+  </section>
+
+  <section id="cheat">
+    <h2>Cheat sheet</h2>
+    <div class="cheat"><div class="grid">
+      <div>
+        <h3>Concept &amp; build</h3>
+        <ul>
+          <li>Overflow = write past a fixed buffer</li>
+          <li>Prize in real exploits = saved return address</li>
+          <li><code>gcc vuln1.c -o vuln1</code> · <code>./vuln1</code></li>
+          <li>Fix = bounds-check before writing</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Defend</h3>
+        <ul>
+          <li>Avoid <code>gets/strcpy/sprintf</code> → use <code>fgets/strncpy/snprintf</code></li>
+          <li>Memory-safe languages where possible</li>
+          <li><code>-fstack-protector</code>, ASLR, DEP/NX, FORTIFY</li>
+          <li>Patch shipped software (overflows = CVEs)</li>
+        </ul>
+      </div>
+    </div></div>
+  </section>
+
+</main>
+<footer class="site">
+  <p>Lab companion for <span class="program">CEH v13 — Lab 13</span>. Companion material © 2026; original explanatory content written to accompany the NDG <em>Ethical Hacking v2</em> lab series, which remains the property of its publisher.</p>
+  <p>Aligned to the EC-Council CEH v13 curriculum. An independent study companion — not affiliated with or endorsed by EC-Council or NDG.</p>
+  <p><span class="program">CEH v13 Course Series</span> · Brookdale Community College · 2026</p>
+</footer>
+<script>
+(function(){
+  "use strict";
+  var PREFIX="ceh-lab13-v1:",root=document.documentElement;
+  function save(k,v){try{localStorage.setItem(PREFIX+k,v);}catch(e){}}
+  function load(k){try{return localStorage.getItem(PREFIX+k);}catch(e){return null;}}
+  function del(k){try{localStorage.removeItem(PREFIX+k);}catch(e){}}
+
+  var themeBtn=document.getElementById("theme-toggle");
+  function applyTheme(mode){
+    root.setAttribute("data-theme",mode==="light"?"light":"dark");
+    var dark=mode!=="light";
+    themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
+    themeBtn.setAttribute("aria-pressed",dark?"true":"false");
+  }
+  applyTheme(load("theme")||"dark");
+  themeBtn.addEventListener("click",function(){
+    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+  });
+
+  var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));
+  if(!isNaN(stored)){var q=steps.indexOf(stored);if(q>=0)idx=q;}
+  var readout=document.getElementById("scale-read");
+  function applyScale(){root.style.setProperty("--text-scale",steps[idx]);readout.textContent=Math.round(steps[idx]*100)+"%";save("scale",steps[idx]);}
+  applyScale();
+  document.getElementById("text-up").addEventListener("click",function(){if(idx<steps.length-1){idx++;applyScale();}});
+  document.getElementById("text-dn").addEventListener("click",function(){if(idx>0){idx--;applyScale();}});
+  document.getElementById("print-btn").addEventListener("click",function(){window.print();});
+
+  document.querySelectorAll(".cmd").forEach(function(b){
+    var btn=document.createElement("button");
+    btn.className="copy";btn.type="button";btn.textContent="Copy";btn.setAttribute("aria-label","Copy command");
+    btn.addEventListener("click",function(){
+      var pre=b.querySelector("pre"),clone=pre.cloneNode(true);
+      clone.querySelectorAll(".p,.cm").forEach(function(e){e.parentNode.removeChild(e);});
+      var text=clone.textContent.replace(/[ \t]+\n/g,"\n").replace(/\n{2,}/g,"\n").trim();
+      var done=function(){btn.textContent="Copied";btn.classList.add("ok");setTimeout(function(){btn.textContent="Copy";btn.classList.remove("ok");},1400);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(fb);}else{fb();}
+      function fb(){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(ta);}
+    });
+    b.appendChild(btn);
+  });
+
+  document.querySelectorAll(".q .reveal").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var ans=btn.parentElement.querySelector(".ans"),open=ans.classList.toggle("show");
+      btn.setAttribute("aria-expanded",open?"true":"false");btn.textContent=open?"Hide answer":"Show answer";
+    });
+  });
+
+  var boxes=document.querySelectorAll('input[data-done]'),total=boxes.length;
+  var bar=document.getElementById("bar"),pct=document.getElementById("pct"),count=document.getElementById("count"),pct2=document.getElementById("pct2");
+  if(bar)bar.max=total;
+  function refresh(){
+    var n=0;boxes.forEach(function(b){if(b.checked)n++;});
+    if(bar)bar.value=n;var pc=total?Math.round(n/total*100):0;
+    if(pct)pct.textContent=pc+"%";if(pct2)pct2.textContent=pc+"%";if(count)count.textContent=n+" of "+total;
+  }
+  boxes.forEach(function(b){var k="done:"+b.getAttribute("data-done");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);refresh();});});
+  refresh();
+
+  var evs=document.querySelectorAll('input[data-evidence]');
+  evs.forEach(function(b){var k="ev:"+b.getAttribute("data-evidence");if(load(k)==="1")b.checked=true;
+    b.addEventListener("change",function(){b.checked?save(k,"1"):del(k);});});
+
+  var clr=document.getElementById("clear-btn");
+  if(clr)clr.addEventListener("click",function(){
+    boxes.forEach(function(b){b.checked=false;del("done:"+b.getAttribute("data-done"));});
+    evs.forEach(function(b){b.checked=false;del("ev:"+b.getAttribute("data-evidence"));});
+    document.querySelectorAll(".q .ans.show").forEach(function(a){a.classList.remove("show");});
+    document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
+    refresh();
+  });
+})();
+</script>
+</body>
+</html>
