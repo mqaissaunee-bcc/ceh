@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -207,6 +207,13 @@
   .labcard .chk{display:flex;align-items:center;min-height:44px}
   .labcard .chk input{width:20px;height:20px;accent-color:var(--accent)}
   .labcard.soon .num{background:var(--surface-2);color:var(--muted)}
+  .sortbar{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:.2rem 0 1.1rem}
+  .sortbar .sortlabel{font-size:.85rem;color:var(--muted);margin-right:.2rem}
+  .sortbtn{font:inherit;font-size:.85rem;background:var(--surface);color:var(--ink-soft);border:1px solid var(--border);border-radius:999px;padding:.4rem .9rem;min-height:40px;cursor:pointer}
+  .sortbtn:hover{background:var(--surface-2)}
+  .sortbtn.is-active{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent)}
+  .grouphead{font-size:.82rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-ink);margin:1.5rem 0 .3rem;padding-bottom:.35rem;border-bottom:1px solid var(--border)}
+  .grouphead:first-child{margin-top:.3rem}
 </style>
 </head>
 <body>
@@ -220,7 +227,7 @@
         <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
         <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
       </div>
-      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
@@ -230,7 +237,7 @@
   <div class="hero">
     <span class="labno">LAB COMPANION</span>
     <h1>CEH v13 — Lab Companion</h1>
-    <p class="lede">A student companion to the hands-on lab series: an overview of each lab, every command explained with its options, the places people get stuck, the defender's view, and how each lab maps to your CEH v13 modules. Built to pair with the <a href="https://mqaissaunee-bcc.github.io/ceh/">CEH v13 course</a>.</p>
+    <p class="lede">A student companion to the hands-on lab series: an overview of each lab, every command explained with its options, the places people get stuck, the defender's view, and how each lab maps to your CEH v13 modules. Built to pair with the <a href="https://mqaissaunee-bcc.github.io/ceh/" target="_blank" rel="noopener">CEH v13 course</a>.</p>
     <div class="stats">
       <div class="stat"><div class="big">26</div><div class="lbl">Labs in the series</div></div>
       <div class="stat"><div class="big" id="ready">26</div><div class="lbl">Companions ready</div></div>
@@ -256,268 +263,312 @@
 
   <section id="labs">
     <h2>The labs</h2>
+    <div class="sortbar" role="group" aria-label="Sort labs">
+      <span class="sortlabel">Sort by:</span>
+      <button class="sortbtn is-active" type="button" data-sort="num" aria-pressed="true">Lab number</button>
+      <button class="sortbtn" type="button" data-sort="mod" aria-pressed="false">Module</button>
+      <button class="sortbtn" type="button" data-sort="group" aria-pressed="false">Related labs</button>
+    </div>
+    <div id="labgrid">
 
-    <div class="labcard">
+    <div class="labcard" data-num="01" data-mod="2" data-modlabel="Module 2 — Footprinting &amp; Reconnaissance" data-group="Reconnaissance &amp; Scanning" data-grouporder="1">
       <span class="num">01</span>
       <div class="body">
-        <h3><a href="ceh_lab01_companion.html">DNS Footprinting</a></h3>
+        <h3><a href="ceh_lab01_companion.html" target="_blank" rel="noopener">DNS Footprinting</a></h3>
         <span class="mod">Supports Module 2 — Footprinting &amp; Reconnaissance</span>
         <p>Query DNS with nslookup and dig; record types and the zone-transfer finding.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab01" aria-label="Mark Lab 01 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="02" data-mod="3" data-modlabel="Module 3 — Scanning Networks" data-group="Reconnaissance &amp; Scanning" data-grouporder="1">
       <span class="num">02</span>
       <div class="body">
-        <h3><a href="ceh_lab02_companion.html">Packet Crafting with Scapy</a></h3>
+        <h3><a href="ceh_lab02_companion.html" target="_blank" rel="noopener">Packet Crafting with Scapy</a></h3>
         <span class="mod">Supports Module 3 — Scanning Networks</span>
         <p>Build and send packets layer by layer in Python; read the replies.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab02" aria-label="Mark Lab 02 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="03" data-mod="3" data-modlabel="Module 3 — Scanning Networks" data-group="Reconnaissance &amp; Scanning" data-grouporder="1">
       <span class="num">03</span>
       <div class="body">
-        <h3><a href="ceh_lab03_companion.html">Reconnaissance with Nmap, Zenmap &amp; Masscan</a></h3>
+        <h3><a href="ceh_lab03_companion.html" target="_blank" rel="noopener">Reconnaissance with Nmap, Zenmap &amp; Masscan</a></h3>
         <span class="mod">Supports Module 3 — Scanning Networks</span>
         <p>Port scanning, OS/service fingerprinting, and trading depth for raw speed.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab03" aria-label="Mark Lab 03 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="04" data-mod="3" data-modlabel="Module 3 — Scanning Networks" data-group="Reconnaissance &amp; Scanning" data-grouporder="1">
       <span class="num">04</span>
       <div class="body">
-        <h3><a href="ceh_lab04_companion.html">Reconnaissance with Hping</a></h3>
+        <h3><a href="ceh_lab04_companion.html" target="_blank" rel="noopener">Reconnaissance with Hping</a></h3>
         <span class="mod">Supports Module 3 — Scanning Networks</span>
         <p>Command-line packet crafting, reading TCP flags, and firewalking.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab04" aria-label="Mark Lab 04 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="05" data-mod="5" data-modlabel="Module 5 — Vulnerability Analysis" data-group="Enumeration &amp; Vulnerability Analysis" data-grouporder="2">
       <span class="num">05</span>
       <div class="body">
-        <h3><a href="ceh_lab05_companion.html">Vulnerability Scanning with OpenVAS</a></h3>
+        <h3><a href="ceh_lab05_companion.html" target="_blank" rel="noopener">Vulnerability Scanning with OpenVAS</a></h3>
         <span class="mod">Supports Module 5 — Vulnerability Analysis</span>
         <p>Run a scanner, read the results, and rank findings by risk.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab05" aria-label="Mark Lab 05 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="06" data-mod="8" data-modlabel="Module 8 — Sniffing" data-group="Sniffing &amp; MiTM" data-grouporder="3">
       <span class="num">06</span>
       <div class="body">
-        <h3><a href="ceh_lab06_companion.html">Network Analysis</a></h3>
+        <h3><a href="ceh_lab06_companion.html" target="_blank" rel="noopener">Network Analysis</a></h3>
         <span class="mod">Supports Module 8 — Sniffing</span>
         <p>Capture and read traffic with Wireshark.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab06" aria-label="Mark Lab 06 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="07" data-mod="12" data-modlabel="Module 12 — Evading IDS, Firewalls &amp; Honeypots" data-group="Covering Tracks &amp; IDS Evasion" data-grouporder="7">
       <span class="num">07</span>
       <div class="body">
-        <h3><a href="ceh_lab07_companion.html">Evading IDS</a></h3>
+        <h3><a href="ceh_lab07_companion.html" target="_blank" rel="noopener">Evading IDS</a></h3>
         <span class="mod">Supports Module 12 — Evading IDS, Firewalls &amp; Honeypots</span>
         <p>Fragmentation, timing, and obfuscation to slip past sensors.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab07" aria-label="Mark Lab 07 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="08" data-mod="6" data-modlabel="Module 6 — System Hacking" data-group="Credential Attacks" data-grouporder="5">
       <span class="num">08</span>
       <div class="body">
-        <h3><a href="ceh_lab08_companion.html">Password Cracking with JTR &amp; Hashcat</a></h3>
+        <h3><a href="ceh_lab08_companion.html" target="_blank" rel="noopener">Password Cracking with JTR &amp; Hashcat</a></h3>
         <span class="mod">Supports Module 6 — System Hacking</span>
         <p>Offline cracking of captured hashes, and why some resist.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab08" aria-label="Mark Lab 08 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="09" data-mod="6" data-modlabel="Module 6 — System Hacking" data-group="System Hacking &amp; Exploitation" data-grouporder="4">
       <span class="num">09</span>
       <div class="body">
-        <h3><a href="ceh_lab09_companion.html">Metasploit Framework &amp; Armitage</a></h3>
+        <h3><a href="ceh_lab09_companion.html" target="_blank" rel="noopener">Metasploit Framework &amp; Armitage</a></h3>
         <span class="mod">Supports Module 6 — System Hacking</span>
         <p>Exploitation framework fundamentals (with a note on Armitage's status).</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab09" aria-label="Mark Lab 09 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="10" data-mod="14" data-modlabel="Module 14 — Hacking Web Applications" data-group="Web Application Attacks" data-grouporder="8">
       <span class="num">10</span>
       <div class="body">
-        <h3><a href="ceh_lab10_companion.html">Web Pentesting</a></h3>
+        <h3><a href="ceh_lab10_companion.html" target="_blank" rel="noopener">Web Pentesting</a></h3>
         <span class="mod">Supports Module 14 — Hacking Web Applications</span>
         <p>Finding and exploiting common web-app flaws.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab10" aria-label="Mark Lab 10 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="11" data-mod="7" data-modlabel="Module 7 — Malware Threats" data-group="System Hacking &amp; Exploitation" data-grouporder="4">
       <span class="num">11</span>
       <div class="body">
-        <h3><a href="ceh_lab11_companion.html">Client-Side Exploitations</a></h3>
+        <h3><a href="ceh_lab11_companion.html" target="_blank" rel="noopener">Client-Side Exploitations</a></h3>
         <span class="mod">Supports Module 7 — Malware Threats</span>
         <p>Attacking the user and the browser, not the server.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab11" aria-label="Mark Lab 11 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="12" data-mod="8" data-modlabel="Module 8 — Sniffing" data-group="Sniffing &amp; MiTM" data-grouporder="3">
       <span class="num">12</span>
       <div class="body">
-        <h3><a href="ceh_lab12_companion.html">ARP Spoofing &amp; MiTM Attacks</a></h3>
+        <h3><a href="ceh_lab12_companion.html" target="_blank" rel="noopener">ARP Spoofing &amp; MiTM Attacks</a></h3>
         <span class="mod">Supports Module 8 — Sniffing</span>
         <p>Poisoning ARP to sit in the middle of a conversation.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab12" aria-label="Mark Lab 12 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="13" data-mod="6" data-modlabel="Module 6 — System Hacking" data-group="System Hacking &amp; Exploitation" data-grouporder="4">
       <span class="num">13</span>
       <div class="body">
-        <h3><a href="ceh_lab13_companion.html">Understanding Buffer Overflows</a></h3>
+        <h3><a href="ceh_lab13_companion.html" target="_blank" rel="noopener">Understanding Buffer Overflows</a></h3>
         <span class="mod">Supports Module 6 — System Hacking</span>
         <p>How memory-corruption bugs happen, in a toy program.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab13" aria-label="Mark Lab 13 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="14" data-mod="15" data-modlabel="Module 15 — SQL Injection" data-group="Web Application Attacks" data-grouporder="8">
       <span class="num">14</span>
       <div class="body">
-        <h3><a href="ceh_lab14_companion.html">SQL Commands &amp; Injection</a></h3>
+        <h3><a href="ceh_lab14_companion.html" target="_blank" rel="noopener">SQL Commands &amp; Injection</a></h3>
         <span class="mod">Supports Module 15 — SQL Injection</span>
         <p>From SQL basics to in-band and blind injection.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab14" aria-label="Mark Lab 14 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="15" data-mod="6" data-modlabel="Module 6 — System Hacking" data-group="Maintaining Access &amp; Backdoors" data-grouporder="6">
       <span class="num">15</span>
       <div class="body">
-        <h3><a href="ceh_lab15_companion.html">Backdooring with Netcat</a></h3>
+        <h3><a href="ceh_lab15_companion.html" target="_blank" rel="noopener">Backdooring with Netcat</a></h3>
         <span class="mod">Supports Module 6 — System Hacking</span>
         <p>Bind and reverse shells with the "Swiss-army knife."</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab15" aria-label="Mark Lab 15 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="16" data-mod="6" data-modlabel="Module 6 — System Hacking" data-group="Maintaining Access &amp; Backdoors" data-grouporder="6">
       <span class="num">16</span>
       <div class="body">
-        <h3><a href="ceh_lab16_companion.html">VNC as a Backdoor</a></h3>
+        <h3><a href="ceh_lab16_companion.html" target="_blank" rel="noopener">VNC as a Backdoor</a></h3>
         <span class="mod">Supports Module 6 — System Hacking</span>
         <p>Remote GUI access as a persistence technique.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab16" aria-label="Mark Lab 16 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="17" data-mod="20" data-modlabel="Module 20 — Cryptography" data-group="Cryptography &amp; PKI" data-grouporder="11">
       <span class="num">17</span>
       <div class="body">
-        <h3><a href="ceh_lab17_companion.html">Creating &amp; Installing SSL Certificates</a></h3>
+        <h3><a href="ceh_lab17_companion.html" target="_blank" rel="noopener">Creating &amp; Installing SSL Certificates</a></h3>
         <span class="mod">Supports Module 20 — Cryptography</span>
         <p>Keys, CSRs, and certificates — PKI in practice.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab17" aria-label="Mark Lab 17 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="18" data-mod="9" data-modlabel="Module 9 — Social Engineering" data-group="Social Engineering" data-grouporder="9">
       <span class="num">18</span>
       <div class="body">
-        <h3><a href="ceh_lab18_companion.html">Social Engineering with SET</a></h3>
+        <h3><a href="ceh_lab18_companion.html" target="_blank" rel="noopener">Social Engineering with SET</a></h3>
         <span class="mod">Supports Module 9 — Social Engineering</span>
         <p>Phishing and payloads with the Social-Engineer Toolkit.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab18" aria-label="Mark Lab 18 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="19" data-mod="3" data-modlabel="Module 3 — Scanning Networks" data-group="Reconnaissance &amp; Scanning" data-grouporder="1">
       <span class="num">19</span>
       <div class="body">
-        <h3><a href="ceh_lab19_companion.html">Scanning Methodology</a></h3>
+        <h3><a href="ceh_lab19_companion.html" target="_blank" rel="noopener">Scanning Methodology</a></h3>
         <span class="mod">Supports Module 3 — Scanning Networks</span>
         <p>The disciplined, repeatable scanning process end to end.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab19" aria-label="Mark Lab 19 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="20" data-mod="4" data-modlabel="Module 4 — Enumeration" data-group="Enumeration &amp; Vulnerability Analysis" data-grouporder="2">
       <span class="num">20</span>
       <div class="body">
-        <h3><a href="ceh_lab20_companion.html">Enumeration</a></h3>
+        <h3><a href="ceh_lab20_companion.html" target="_blank" rel="noopener">Enumeration</a></h3>
         <span class="mod">Supports Module 4 — Enumeration</span>
         <p>Pulling users, shares, and services from exposed protocols.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab20" aria-label="Mark Lab 20 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="21" data-mod="6" data-modlabel="Module 6 — System Hacking" data-group="System Hacking &amp; Exploitation" data-grouporder="4">
       <span class="num">21</span>
       <div class="body">
-        <h3><a href="ceh_lab21_companion.html">System Hacking</a></h3>
+        <h3><a href="ceh_lab21_companion.html" target="_blank" rel="noopener">System Hacking</a></h3>
         <span class="mod">Supports Module 6 — System Hacking</span>
         <p>The full access → escalate → maintain → cover cycle.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab21" aria-label="Mark Lab 21 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="22" data-mod="6" data-modlabel="Module 6 — System Hacking" data-group="Credential Attacks" data-grouporder="5">
       <span class="num">22</span>
       <div class="body">
-        <h3><a href="ceh_lab22_companion.html">Windows Security Account Manager</a></h3>
+        <h3><a href="ceh_lab22_companion.html" target="_blank" rel="noopener">Windows Security Account Manager</a></h3>
         <span class="mod">Supports Module 6 — System Hacking</span>
         <p>Extracting and attacking Windows credentials.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab22" aria-label="Mark Lab 22 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="23" data-mod="6" data-modlabel="Module 6 — System Hacking" data-group="Covering Tracks &amp; IDS Evasion" data-grouporder="7">
       <span class="num">23</span>
       <div class="body">
-        <h3><a href="ceh_lab23_companion.html">Covering Your Tracks</a></h3>
+        <h3><a href="ceh_lab23_companion.html" target="_blank" rel="noopener">Covering Your Tracks</a></h3>
         <span class="mod">Supports Module 6 — System Hacking</span>
         <p>Clearing logs and artifacts — and why defenders watch for it.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab23" aria-label="Mark Lab 23 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="24" data-mod="11" data-modlabel="Module 11 — Session Hijacking" data-group="Web Application Attacks" data-grouporder="8">
       <span class="num">24</span>
       <div class="body">
-        <h3><a href="ceh_lab24_companion.html">Web-Based Hacking</a></h3>
+        <h3><a href="ceh_lab24_companion.html" target="_blank" rel="noopener">Web-Based Hacking</a></h3>
         <span class="mod">Supports Modules 11 &amp; 14 — Session Hijacking &amp; Web Apps</span>
         <p>Automated web scanning, then hijacking a session by spoofing an auth cookie.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab24" aria-label="Mark Lab 24 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="25" data-mod="17" data-modlabel="Module 17 — Hacking Mobile Platforms" data-group="Mobile Security" data-grouporder="10">
       <span class="num">25</span>
       <div class="body">
-        <h3><a href="ceh_lab25_companion.html">Mobile Hacking</a></h3>
+        <h3><a href="ceh_lab25_companion.html" target="_blank" rel="noopener">Mobile Hacking</a></h3>
         <span class="mod">Supports Module 17 — Hacking Mobile Platforms</span>
         <p>The Android/iOS attack surface and tooling.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab25" aria-label="Mark Lab 25 reviewed"></span>
     </div>
 
-    <div class="labcard">
+    <div class="labcard" data-num="26" data-mod="20" data-modlabel="Module 20 — Cryptography" data-group="Cryptography &amp; PKI" data-grouporder="11">
       <span class="num">26</span>
       <div class="body">
-        <h3><a href="ceh_lab26_companion.html">Cryptography</a></h3>
+        <h3><a href="ceh_lab26_companion.html" target="_blank" rel="noopener">Cryptography</a></h3>
         <span class="mod">Supports Module 20 — Cryptography</span>
         <p>Encryption, hashing, and the attacks that break implementations.</p>
       </div>
       <span class="chk"><input type="checkbox" data-done="lab26" aria-label="Mark Lab 26 reviewed"></span>
     </div>
 
+    </div>
   </section>
+
+<script>
+(function(){
+  "use strict";
+  var grid=document.getElementById("labgrid"); if(!grid) return;
+  var cards=Array.prototype.slice.call(grid.querySelectorAll(".labcard"));
+  var btns=Array.prototype.slice.call(document.querySelectorAll(".sortbtn"));
+  var SK="ceh-labs-sort-v1";
+  function load(){try{return localStorage.getItem(SK);}catch(e){return null;}}
+  function save(v){try{localStorage.setItem(SK,v);}catch(e){}}
+  function num(c){return c.getAttribute("data-num");}
+  function clearHeads(){Array.prototype.slice.call(grid.querySelectorAll(".grouphead")).forEach(function(h){h.parentNode.removeChild(h);});}
+  function head(text){var d=document.createElement("div");d.className="grouphead";d.textContent=text;return d;}
+  function render(mode){
+    clearHeads();
+    var list=cards.slice();
+    if(mode==="mod"){
+      list.sort(function(a,b){var d=(+a.getAttribute("data-mod"))-(+b.getAttribute("data-mod"));return d||num(a).localeCompare(num(b));});
+      var cur=null;
+      list.forEach(function(c){var m=c.getAttribute("data-modlabel");if(m!==cur){grid.appendChild(head(m));cur=m;}grid.appendChild(c);});
+    } else if(mode==="group"){
+      list.sort(function(a,b){var d=(+a.getAttribute("data-grouporder"))-(+b.getAttribute("data-grouporder"));return d||num(a).localeCompare(num(b));});
+      var cg=null;
+      list.forEach(function(c){var g=c.getAttribute("data-group");if(g!==cg){grid.appendChild(head(g));cg=g;}grid.appendChild(c);});
+    } else {
+      mode="num";
+      list.sort(function(a,b){return num(a).localeCompare(num(b));});
+      list.forEach(function(c){grid.appendChild(c);});
+    }
+    btns.forEach(function(b){var on=b.getAttribute("data-sort")===mode;b.classList.toggle("is-active",on);b.setAttribute("aria-pressed",on?"true":"false");});
+    save(mode);
+  }
+  btns.forEach(function(b){b.addEventListener("click",function(){render(b.getAttribute("data-sort"));});});
+  render(load()||"num");
+})();
+</script>
 
 </main>
 <footer class="site">
@@ -540,9 +591,9 @@
     themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
     themeBtn.setAttribute("aria-pressed",dark?"true":"false");
   }
-  applyTheme(load("theme")||"dark");
+  applyTheme(load("theme")||"light");
   themeBtn.addEventListener("click",function(){
-    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+    var next=(load("theme")||"light")==="light"?"dark":"light";save("theme",next);applyTheme(next);
   });
 
   var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));

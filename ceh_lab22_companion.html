@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -204,7 +204,7 @@
         <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
         <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
       </div>
-      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
@@ -290,7 +290,7 @@
     <div class="step">
       <h3><span class="n">4</span> Crack with John</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> john <span class="fl">--format=</span><span class="ar">LM</span> <span class="fl">--wordlist=</span><span class="ar">/usr/share/john/password.lst</span> <span class="ar">Desktop/Lab22/hash.txt</span></pre></div>
-      <p>Forcing <code class="inl">--format=LM</code> cracks the weak <strong>LM</strong> portion. LM is almost comically breakable: it uppercases the password, splits it into two 7-character halves, and hashes each independently with DES — so a 14-character password is really just two short ones. If LM is present, it usually falls fast. For the stronger hash you'd use <code class="inl">--format=NT</code> instead. (See <a href="ceh_lab08_companion.html">Lab 08</a> for the full cracking workflow.)</p>
+      <p>Forcing <code class="inl">--format=LM</code> cracks the weak <strong>LM</strong> portion. LM is almost comically breakable: it uppercases the password, splits it into two 7-character halves, and hashes each independently with DES — so a 14-character password is really just two short ones. If LM is present, it usually falls fast. For the stronger hash you'd use <code class="inl">--format=NT</code> instead. (See <a href="ceh_lab08_companion.html" target="_blank" rel="noopener">Lab 08</a> for the full cracking workflow.)</p>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
@@ -436,9 +436,9 @@
     themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
     themeBtn.setAttribute("aria-pressed",dark?"true":"false");
   }
-  applyTheme(load("theme")||"dark");
+  applyTheme(load("theme")||"light");
   themeBtn.addEventListener("click",function(){
-    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+    var next=(load("theme")||"light")==="light"?"dark":"light";save("theme",next);applyTheme(next);
   });
 
   var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));

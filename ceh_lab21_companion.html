@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -204,7 +204,7 @@
         <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
         <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
       </div>
-      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
@@ -318,7 +318,7 @@
     <div class="step">
       <h3><span class="n">7</span> Dump credentials and maintain access</h3>
       <div class="cmd"><pre><span class="p">meterpreter ></span> run hashdump</pre></div>
-      <p><code class="inl">run hashdump</code> reads the Windows account hashes out of the SAM — which only works once you're SYSTEM, and which is the attack <a href="ceh_lab22_companion.html">Lab 22</a> studies offline. Uploading a script to re-establish access later is the <strong>maintaining access</strong> phase. Each of these is a well-known step with a well-known countermeasure (see below) — that pairing is the point.</p>
+      <p><code class="inl">run hashdump</code> reads the Windows account hashes out of the SAM — which only works once you're SYSTEM, and which is the attack <a href="ceh_lab22_companion.html" target="_blank" rel="noopener">Lab 22</a> studies offline. Uploading a script to re-establish access later is the <strong>maintaining access</strong> phase. Each of these is a well-known step with a well-known countermeasure (see below) — that pairing is the point.</p>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
@@ -481,9 +481,9 @@
     themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
     themeBtn.setAttribute("aria-pressed",dark?"true":"false");
   }
-  applyTheme(load("theme")||"dark");
+  applyTheme(load("theme")||"light");
   themeBtn.addEventListener("click",function(){
-    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+    var next=(load("theme")||"light")==="light"?"dark":"light";save("theme",next);applyTheme(next);
   });
 
   var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));

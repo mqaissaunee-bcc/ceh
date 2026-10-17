@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -204,7 +204,7 @@
         <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
         <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
       </div>
-      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
@@ -331,7 +331,7 @@
         <tr><td>Injection does nothing</td><td>DVWA not on <em>low</em>, or wrong field</td><td>Set security to low; inject in the parameter the query actually uses.</td></tr>
         <tr><td>SQLmap: "unable to connect" / no session</td><td>Missing or expired cookie</td><td>Grab a fresh <code>PHPSESSID</code> from dev tools; pass it with <code>--cookie</code> (straight quotes).</td></tr>
         <tr><td>Shell rejects the SQLmap line</td><td>Curly quotes from the PDF</td><td>Retype with straight quotes.</td></tr>
-        <tr><td>Passwords look like gibberish</td><td>They're hashes</td><td>Crack them separately — see <a href="ceh_lab08_companion.html">Lab 08</a>.</td></tr>
+        <tr><td>Passwords look like gibberish</td><td>They're hashes</td><td>Crack them separately — see <a href="ceh_lab08_companion.html" target="_blank" rel="noopener">Lab 08</a>.</td></tr>
       </tbody>
     </table></div>
     <div class="done-row"><input type="checkbox" id="done-stuck" data-done="stuck"><label for="done-stuck">Mark this section reviewed</label></div>
@@ -438,9 +438,9 @@
     themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
     themeBtn.setAttribute("aria-pressed",dark?"true":"false");
   }
-  applyTheme(load("theme")||"dark");
+  applyTheme(load("theme")||"light");
   themeBtn.addEventListener("click",function(){
-    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+    var next=(load("theme")||"light")==="light"?"dark":"light";save("theme",next);applyTheme(next);
   });
 
   var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));

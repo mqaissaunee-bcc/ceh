@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-module="hub" data-theme="dark">
+<html lang="en" data-module="hub" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1908,7 +1908,7 @@ var CEH = (function () {
     sectionOrder = config.sections ||
       Array.prototype.map.call(document.querySelectorAll('.module-section'), function (s) { return s.id; });
 
-    applyTheme(prefs.theme || systemTheme());
+    applyTheme(prefs.theme || 'light');
     applyScale(typeof prefs.scaleIndex === 'number' ? prefs.scaleIndex : 1);
 
     var saved = getState();

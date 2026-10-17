@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -204,7 +204,7 @@
         <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
         <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
       </div>
-      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
@@ -296,7 +296,7 @@
     <p class="task-head">The backdoor idea (concept)</p>
     <div class="step">
       <h3><span class="n">4</span> Bind vs. reverse shell</h3>
-      <p>If instead of a file you connect netcat to a shell, the channel becomes remote command execution. A <strong>bind</strong> shell has the victim listen and the attacker connect in; a <strong>reverse</strong> shell has the victim connect out to a waiting attacker. Reverse wins in the real world because <strong>outbound connections are usually allowed while inbound ones are blocked</strong> — the same logic as the reverse payload in <a href="ceh_lab21_companion.html">Lab 21</a>.</p>
+      <p>If instead of a file you connect netcat to a shell, the channel becomes remote command execution. A <strong>bind</strong> shell has the victim listen and the attacker connect in; a <strong>reverse</strong> shell has the victim connect out to a waiting attacker. Reverse wins in the real world because <strong>outbound connections are usually allowed while inbound ones are blocked</strong> — the same logic as the reverse payload in <a href="ceh_lab21_companion.html" target="_blank" rel="noopener">Lab 21</a>.</p>
       <div class="call defend"><span class="k">A note on the <code style="color:inherit">-e</code> flag</span><p>The classic backdoor relied on netcat's <code class="inl">-e</code> ("execute") option. It was removed from the standard <code class="inl">nc</code> precisely because it was so dangerous; where an execute capability exists today (e.g. <code class="inl">ncat --exec</code>), EDR watches for exactly this pattern. The defensive point is more useful than the exact syntax: a shell riding a raw socket is a loud, detectable behavior.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
@@ -435,9 +435,9 @@
     themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
     themeBtn.setAttribute("aria-pressed",dark?"true":"false");
   }
-  applyTheme(load("theme")||"dark");
+  applyTheme(load("theme")||"light");
   themeBtn.addEventListener("click",function(){
-    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+    var next=(load("theme")||"light")==="light"?"dark":"light";save("theme",next);applyTheme(next);
   });
 
   var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));

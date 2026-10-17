@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -204,7 +204,7 @@
         <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
         <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
       </div>
-      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
@@ -304,7 +304,7 @@
       <div class="cmd"><pre><span class="p">root@kali:~#</span> hping3 <span class="fl">-c</span> <span class="ar">3</span> <span class="ar">192.168.0.20</span></pre></div>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> hping3 <span class="fl">-S</span> <span class="ar">192.168.0.20</span> <span class="fl">-p</span> <span class="ar">80</span> <span class="fl">-c</span> <span class="ar">5</span></pre></div>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> hping3 <span class="fl">-q</span> <span class="fl">--scan</span> <span class="ar">1-3000</span> <span class="fl">-S</span> <span class="ar">192.168.0.20</span> | grep <span class="fl">-v</span> <span class="ar">'Not res'</span></pre></div>
-      <p>A quick count-limited probe, then a SYN probe to port 80, then a quiet SYN sweep of ports 1–3000 with the unresponsive ports filtered out by <code class="inl">grep -v</code>. (See <a href="ceh_lab04_companion.html">Lab 04</a> for the full hping3 breakdown.)</p>
+      <p>A quick count-limited probe, then a SYN probe to port 80, then a quiet SYN sweep of ports 1–3000 with the unresponsive ports filtered out by <code class="inl">grep -v</code>. (See <a href="ceh_lab04_companion.html" target="_blank" rel="noopener">Lab 04</a> for the full hping3 breakdown.)</p>
       <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">--scan 1-3000</code> results showing the open ports found on the target.</p></div>
     </div>
     <div class="step">
@@ -468,9 +468,9 @@
     themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
     themeBtn.setAttribute("aria-pressed",dark?"true":"false");
   }
-  applyTheme(load("theme")||"dark");
+  applyTheme(load("theme")||"light");
   themeBtn.addEventListener("click",function(){
-    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+    var next=(load("theme")||"light")==="light"?"dark":"light";save("theme",next);applyTheme(next);
   });
 
   var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));

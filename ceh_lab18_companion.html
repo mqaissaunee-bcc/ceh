@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -204,7 +204,7 @@
         <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
         <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
       </div>
-      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
@@ -276,7 +276,7 @@
     <div class="step">
       <h3><span class="n">2</span> Clone a page and set the catcher</h3>
       <p>The credential harvester makes a <strong>copy of a real login page</strong> and serves it from your machine. You give it the address to capture credentials to (your Kali box) and the site to clone. When a victim types their username and password into the fake page, SET records them and then usually redirects to the real site — so the victim notices nothing.</p>
-      <div class="call tip"><span class="k">Why the clone is convincing</span><p>It's a pixel copy of the genuine page. The only tells are the <strong>URL</strong> and the missing valid certificate — which is exactly what you train users to check, and why the SSL work in <a href="ceh_lab17_companion.html">Lab 17</a> matters.</p></div>
+      <div class="call tip"><span class="k">Why the clone is convincing</span><p>It's a pixel copy of the genuine page. The only tells are the <strong>URL</strong> and the missing valid certificate — which is exactly what you train users to check, and why the SSL work in <a href="ceh_lab17_companion.html" target="_blank" rel="noopener">Lab 17</a> matters.</p></div>
     </div>
 
     <p class="task-head">Task 3 — Test it</p>
@@ -428,9 +428,9 @@
     themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
     themeBtn.setAttribute("aria-pressed",dark?"true":"false");
   }
-  applyTheme(load("theme")||"dark");
+  applyTheme(load("theme")||"light");
   themeBtn.addEventListener("click",function(){
-    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+    var next=(load("theme")||"light")==="light"?"dark":"light";save("theme",next);applyTheme(next);
   });
 
   var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));

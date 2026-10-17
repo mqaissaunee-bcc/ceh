@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -204,7 +204,7 @@
         <span class="scale-read" id="scale-read" aria-live="polite">100%</span>
         <button class="ctl" id="text-up" aria-label="Increase text size">A+</button>
       </div>
-      <button class="ctl" id="theme-toggle" aria-pressed="true">☀ Light</button>
+      <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
@@ -250,7 +250,7 @@
 
   <section id="overview" data-track>
     <h2>Overview — what this lab is really teaching</h2>
-    <p>The most valuable computer most people own is their phone. This lab builds a malicious <strong>Android app</strong>, installs it on a test device, and shows the remote control it grants — the mobile version of the system-hacking chain in <a href="ceh_lab21_companion.html">Lab 21</a>. It's <strong>Module 17: Hacking Mobile Platforms</strong>.</p>
+    <p>The most valuable computer most people own is their phone. This lab builds a malicious <strong>Android app</strong>, installs it on a test device, and shows the remote control it grants — the mobile version of the system-hacking chain in <a href="ceh_lab21_companion.html" target="_blank" rel="noopener">Lab 21</a>. It's <strong>Module 17: Hacking Mobile Platforms</strong>.</p>
     <p>As with Lab 21, the point is understanding and defense, not operational attack. The thing to really grasp is the <strong>one setting</strong> this whole attack depends on: installing an app from outside the official store (<em>sideloading</em>). Nearly every mobile defense comes back to not doing that.</p>
     <div class="call auth"><span class="k">Isolated range only</span><p>You build and install the app on a test Android VM in the pod. Installing malware on a device you don't own, or without authorization, is illegal. Understand the chain to defend phones against it.</p></div>
     <div class="done-row"><input type="checkbox" id="done-overview" data-done="overview"><label for="done-overview">Mark this section reviewed</label></div>
@@ -438,9 +438,9 @@
     themeBtn.textContent=dark?"\u2600 Light":"\uD83C\uDF19 Dark";
     themeBtn.setAttribute("aria-pressed",dark?"true":"false");
   }
-  applyTheme(load("theme")||"dark");
+  applyTheme(load("theme")||"light");
   themeBtn.addEventListener("click",function(){
-    var next=(load("theme")||"dark")==="light"?"dark":"light";save("theme",next);applyTheme(next);
+    var next=(load("theme")||"light")==="light"?"dark":"light";save("theme",next);applyTheme(next);
   });
 
   var steps=[0.9,1,1.1,1.25],idx=1,stored=parseFloat(load("scale"));
