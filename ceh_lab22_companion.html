@@ -191,6 +191,40 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+
+#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
+#fullsteps .step h3.fh .n{margin-right:.5rem}
+#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
+#fullsteps .shotmark b{color:var(--accent)}
+
+.pm-toggle.ctl{cursor:pointer}
+html[data-present="on"] nav.toc,
+html[data-present="on"] .hero .lede,
+html[data-present="on"] .hero .chips,
+html[data-present="on"] footer.site,
+html[data-present="on"] .done-row{display:none!important}
+html[data-present="on"] #main{max-width:100%}
+html[data-present="on"] .hero{margin-top:.6rem}
+html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
+html[data-present="on"] #main > section{display:none;margin-top:1rem}
+html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
+@keyframes pm-fade{from{opacity:0}to{opacity:1}}
+html[data-present="on"] .call.auth{display:none!important}
+html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
+.pm-dock{display:none}
+html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
+  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
+  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
+.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
+.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
+.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
+.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
+.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media print{.pm-dock,.pm-toggle{display:none!important}}
+html[data-present="on"] #ca-launch{display:none!important}
+
 </style>
 </head>
 <body>
@@ -206,6 +240,7 @@
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
+          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -238,6 +273,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Command walkthrough</a></li>
+      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -258,6 +294,7 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You use <strong>FTK Imager</strong> on Windows to locate and export the SAM and SYSTEM files (they're locked while Windows is running, which is why a forensic tool or offline access is needed), then move to <strong>Kali</strong> to extract and crack the hashes. The hand-off between the two machines is the realistic part: offline credential attacks almost always start with getting at the files some other way.</p>
+    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>WinOS</b></td><td><code>192.168.0.20</code></td><td><code>Administrator</code> / <code>Train1ng$</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -294,6 +331,63 @@
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
+
+<section id="fullsteps" data-track>
+<h2>Full lab steps</h2>
+<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
+<p class="task-head">Task 1 - Getting to Know FTK Imager</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Launch the WinOS virtual machine to access the graphical login screen. 1.1. Select Send CTRL+ALT+DEL from the dropdown menu to be prompted with the login screen. 1.2. Log in as Administrator using the password: Train1ng$</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Extracted hashes.</span> The <code class="inl">samdump2</code> output with usernames and hashes.</div><div class="step"><h3 class="fh"><span class="n">2</span> Once you are logged into the VM, launch the FTK Imager program from the Windows menu by navigating to Start Menu &gt; AccessData &gt; FTK Imager, as seen in items 1, 2, and 3 below. Alternatively, you can open it by clicking the icon from the Desktop, as seen in item 4.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> The following window will appear. Look at the sections highlighted in red. These are the different areas of the interface. 1       Evidence        In this area, the storage device or evidence item will be displayed in a tree 2       File list       This pane will display the list of files that are selected in the evidence tree 3       Properti        This pane contains various details about items selected in either the es              evidence tree or the file list panes 4       View            This is the box located in the bottom-right corner of the FTK Imager pane            window and displays the contents of files selected in the file list pane</h3><div class="cmd"><pre>Tree            format
+pane</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Now let us look at the menus to see some important options. We will start with the File menu. To access this, select the File button at the top left corner of the GUI, seen in item 1 below, which will reveal the menu, as seen below: The Add Evidence Item option allows the user to add a single The Add All Attached Devices option allows the user to add all storage devices attached to the computer (Beware as this option only adds live volumes) The Image Mounting option allows the user to mount an evidence item so that it can be viewed as an attached storage The Remove Evidence Item option allows a user to remove a single evidence item The Remove All Evidence Items option allows a user to remove all evidence items that are currently loaded. The Create Disk Image option allows a user to create a forensic image of a storage device The Export Disk Image option allows a user to create a disk image from a storage device that is already loaded in FTK Imager The Verify Drive/Image option allows a user to perform a hash comparison of a forensic image The Capture Memory option allows a user to capture an image of the RAM for the host that FTK Imager is running on The table above outlines the most common options highlighted in red on the menu. Please refer to the user manual located in the help tab highlighted in item 2 for definitions on the remainder.</h3><div class="cmd"><pre>evidence Item
+device</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Let us look at another important menu. This is the option called Mode. To get to it, select the Mode button at the top-left corner of the GUI, seen in item 1 below, to reveal the menu as seen below: Expand                      The Expand Compound Files option, Toggles the option to Compound Files              expand compound files such as Zip, tar, etc. Automatic                   The Automatic option affects the view pane and allows the software to choose how to display a file (using IE, Text view, or Hex view). Text                        The Text option switches the view pane to only show selected files in raw text Hex                         The Hex option switches the view pane to only show selected files in Hexadecimal</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> The remaining menus are equally as important, but we will not cover them in this lab. Now, let us move on to the good stuff, creating a forensic image!</h3></div>
+<p class="task-head">Task 2 - Locate the SAM File Using FTK Imager</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> FTK Imager should already be open. If not, reopen it and navigate to File &gt; Add Evidence Item as seen in items 1 and 2 below. This will open the Select Source window that will allow you to choose the disk image file.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> You will be brought to the Select Source window. Let us select Image File and click Next as highlighted in items 1 and 2 below:</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> In the Select File window, click Browse, as highlighted in the screenshot below. This will open the Select File window, which will allow you to browse to the appropriate disk image file.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> You are now at the Select File window. Browse to This PC &gt; Documents &gt; Lab 22. This will open the folder revealing the image file called C Drive.E01. Select the file called C Drive.E01 and click the Open button as highlighted in items 1, 2, 3, 4, and 5 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Review the source path of the file called C Drive.E01. In the Select File window, click Finish highlighted in item 1 below. This will take you back to the FTK Imager's main window, where the image file will be loaded.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> If you did everything correctly, you will now be back at FTK Imager's main window with C Drive.E01 listed under the Evidence Tree Pane. From the Evidence Tree pane, click the tree item C Drive.E01 highlighted below. This will select the image you are going to peruse.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> We will now browse the disk image file and view its contents. To begin, click the + sign beside the hard drive you added called C Drive.E01, as seen in item 1. This will expand the tree and display the partition on the drive. Click the + beside Partition 1, as seen in item 2 below. Now that you can see the partition, let us learn how to identify the operating system files on a normal installation of Microsoft Windows.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> You will now be presented with the file system that is being used on the partition. The file system in the screenshot below is called NONAME [NTFS], which indicates that the partition uses the New Technology File System (NTFS) file system. Let us expand the partition by clicking the + beside NONAME [NTFS], as seen in item 1 below. This will reveal three folders. The first folder is the orphan folder, and it contains deleted files that were recovered but have no parent folder. Next, there is the root folder that contains the operating system. The last folder is called unallocated space and represents free space as files. Let us expand the folder called root by clicking the + sign beside it, as seen in item 2. This root directory contains the Microsoft Windows operating system files, seen in item 3, and is represented as the C:\ drive in Windows File Explorer.</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">The files.</span> FTK Imager showing SAM and SYSTEM in the config folder.</div><div class="step"><h3 class="fh"><span class="n">9</span> Now let us navigate to the folder that contains the SAM file. To begin, click the + beside the Windows folder to expand it.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> The Windows folder has many files and folders. The folder that contains the registry files is found in the System32 folder and may require scrolling down to see it. Scroll until you see the System32 folder and click the + sign beside it, highlighted as item 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">11</span> The System32 folder is another folder that has many files and folders. We are looking for the folder called config. To get to it, you may need to scroll down in the File Tree pane. Once you see the config folder, click it as highlighted below:</h3></div>
+<div class="step"><h3 class="fh"><span class="n">12</span> Now, let us look in the File List pane to identify the registry files. These are the system-wide registry files and are unique because they do not have file extensions. The screenshot below lists the different registry files on this system.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">13</span> Now, let us export the SAM and SYSTEM files by holding CTRL + left-clicking on them, as seen in items 1 and 2 below. Once the files are highlighted, right-click on the highlighted area and select the Export Files… option from the context menu that appears, as seen in item 3 below. This will open the Browse For Folder window, which allows you to browse for the destination of the files.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">14</span> Navigate to the This PC &gt; Desktop folders and click the Make New Folder button as seen in items 1, 2, and 3. Name the folder shared and then click OK this will export the SAM registry file to the specified folder, as seen in items 4 and 5 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">15</span> You will be prompted with the export results. Click OK to continue. If you were unable to name the folder shared in step 14, please rename the New folder on the Desktop as shared before proceeding.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">16</span> Now, let us navigate to the Desktop and locate the folder we created called shared, as seen in item 1. Next, right-click on the folder and select Properties, as seen in item 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">17</span> The folder's properties window will appear. Next, select the tab Sharing as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">18</span> Let us set custom permissions for the folder. Select Advanced Sharing… as seen in item 1 below. This will open the Advanced Sharing window.</h3><div class="call tip"><span class="k">Note</span><p>If prompted by a User Account Control warning, click YES.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">19</span> In the Advanced Sharing window, select the checkbox beside Share this folder, as seen in item 1. Now, let us reduce the number of users that can access the shared folder. Change the value to one (1), click OK, and then Close as highlighted in items 2, 3, and 4 below.</h3></div>
+<p class="task-head">Task 3 - Accessing the SAM and SYSTEM Registry File from Kali Linux</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Launch the Kali Linux virtual machine to access the graphical login screen. 1.1. Log in as root using the password: toor</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Before starting the lab, ensure that the host machine is on the same network as the target machine. Select the Ethernet network connection from the navigation panel, as seen in item 1. Then click Wired connection eth1 to enable Kali Linux to configure with the IP address 192.168.0.2, as seen in item 2. The target machine is on the network 192.168.0.0/24. The Kali Linux</h3><div class="call tip"><span class="k">Note</span><p>VM is configured with both IP address and can easily interchanged.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Let us start by launching Terminal Emulator. To do this, navigate to Whisker Menu &gt; Favorites &gt; Terminal Emulator as seen in items 1, 2, and 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> To create a folder called share on the Desktop, type the command mkdir Desktop/share and press Enter. We will use this folder as the mount point to access the registry files from Windows VM.</h3><div class="cmd"><pre>root@kali:~# mkdir Desktop/share</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Now, Type the command sudo mount -t cifs -v -o //192.168.0.20/Users/Administrator/Desktop/shared /root/Desktop/share/ and press Enter. If done correctly, you should now have access to the files. root@kali:~# sudo mount -t cifs -v -o user=Administrator,password=Train1ng\$,vers=2.1 This command will mount the shared folder from the Windows VM to the created folder in Kali Linux.</h3><div class="cmd"><pre>user=Administrator,password=Train1ng\$,vers=2.1
+//192.168.0.20/Users/Administrator/Desktop/shared /root/Desktop/share/</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> Navigate to the Desktop and double-click the folder share, as seen in item 1 below. It will open the folder's File Manager window. Here you should see both SAM and SYSTEM registry files previously extracted from the Forensics Image file.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> Let us create a permanent location to store these files. To do this, select anywhere on the Desktop and right-click as seen in item 1. This will open a submenu, select Create Folder… as seen in item 2 below. This will open a Create New Folder window.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> Name the folder Lab22 and select Create, as seen in items 1 and 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> Switch to the command line terminal. Type the command cp -a Desktop/share/. Desktop/Lab22 and press Enter. This will copy the contents of the folder share to the newly created folder Lab22.</h3><div class="cmd"><pre>root@kali:~# cp -a Desktop/share/. Desktop/Lab22</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> We are now done with this exercise. Move on to the next section, where we will attempt to gain the user account password from the SAM file.</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">A crack.</span> John showing a recovered password from the hash file.</div><p class="task-head">Task 4 - Extracting Passwords from the SAM File</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Let us start by launching samdump2. To do this, navigate to Whisker Menu &gt; Password Attacks &gt; Offline Attacks &gt; samdump2 as seen in items 1, 2, 3, and 4 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> This will open a terminal emulator. Type the command samdump2 -o Desktop/Lab22/hash.txt Desktop/Lab22/system Desktop/Lab22/SAM and press Enter.</h3><div class="cmd"><pre>root@kali:~# samdump2 -o Desktop/Lab22/hash.txt Desktop/Lab22/system
+Desktop/Lab22/SAM</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> A breakdown of this command can be seen in the table below. 1     Item 1 is the command that fetches the SYSKEY and extracts the hashes from the SAM file 2     Item 2 is the option tag that outputs the parsed data to the provided file 3     Item 3 is the path for the System registry file 4     Item 4 is the path for the SAM registry file</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Let us look at the parsed results. Navigate to the Desktop and open the folder Lab22 highlighted in item 1. Then, double-click the output file hash.txt, as seen in item 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> A Mousepad window should open, displaying the contents of the file. We are only interested in the accounts highlighted as items 1 and 2, the Administrator and Mr. Evil. After observing the hashes for both, click the X to the right of the window to close it, as seen in item 3 below. Both hashes are the same, indicating that the passwords are identical.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> Go back to the terminal emulator. Type the command john --format=LM --wordlist= /usr/share/john/password.lst Desktop/Lab22/hash.txt and press Enter. This process will only work on the earlier versions of Windows XP/NT/Vista.</h3><div class="cmd"><pre>root@kali:~# john --format=LM --wordlist=
+/usr/share/john/password.lst Desktop/Lab22/hash.txt</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> The results indicated that the password is 123456. You are now at the end of the lab. Close all the open programs and windows.</h3></div>
+<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
+</section>
 
   <section id="reference" data-track>
     <h2>Reference — beyond the lab</h2>
@@ -498,5 +592,53 @@
 })();
 </script>
 <script src="assistant.js" defer></script>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
+  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
+  function show(i){
+    idx=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
+    root.setAttribute("data-pm-index",String(idx));
+    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
+    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
+    if(prevBtn)prevBtn.disabled=idx===0;
+    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
+    window.scrollTo(0,0);
+  }
+  function enter(){
+    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
+    if(!slides.length)return;
+    root.setAttribute("data-present","on");
+    if(dock)dock.setAttribute("aria-hidden","false");
+    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
+    show(0);
+  }
+  function exit(){
+    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
+    slides.forEach(function(s){s.classList.remove("pm-current");});
+    if(dock)dock.setAttribute("aria-hidden","true");
+    if(toggle)toggle.textContent="\u21E4 Lab mode";
+  }
+  toggle=document.getElementById("pmToggle");
+  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
+  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
+  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
+    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
+    '<button type="button" data-pm="next">Next \u25B6</button>'+
+    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
+  document.body.appendChild(dock);
+  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
+  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
+  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
+    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
+  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
+    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
+    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
+    else if(e.key==="Escape"){exit();}});
+})();
+</script>
 </body>
 </html>

@@ -191,6 +191,40 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+
+#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
+#fullsteps .step h3.fh .n{margin-right:.5rem}
+#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
+#fullsteps .shotmark b{color:var(--accent)}
+
+.pm-toggle.ctl{cursor:pointer}
+html[data-present="on"] nav.toc,
+html[data-present="on"] .hero .lede,
+html[data-present="on"] .hero .chips,
+html[data-present="on"] footer.site,
+html[data-present="on"] .done-row{display:none!important}
+html[data-present="on"] #main{max-width:100%}
+html[data-present="on"] .hero{margin-top:.6rem}
+html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
+html[data-present="on"] #main > section{display:none;margin-top:1rem}
+html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
+@keyframes pm-fade{from{opacity:0}to{opacity:1}}
+html[data-present="on"] .call.auth{display:none!important}
+html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
+.pm-dock{display:none}
+html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
+  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
+  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
+.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
+.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
+.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
+.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
+.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media print{.pm-dock,.pm-toggle{display:none!important}}
+html[data-present="on"] #ca-launch{display:none!important}
+
 </style>
 </head>
 <body>
@@ -206,6 +240,7 @@
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
+          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -238,6 +273,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Command walkthrough</a></li>
+      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Options reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -258,6 +294,7 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>From <strong>Kali</strong> you probe two targets: the OWASP BWA host at <code class="inl">192.168.68.12</code> and the <strong>pfSense firewall</strong> at <code class="inl">192.168.9.1</code> — probing the firewall is the point, since hping3 shines at inferring filter rules. You'll run <code class="inl">tcpdump</code> to watch the exchange on the wire.</p>
+    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>OWASP BWA</b></td><td><code>192.168.68.12</code></td><td><code>root</code> / <code>owaspbwa</code></td></tr><tr><td><b>pfSense</b></td><td><code>192.168.0.254 / 192.168.68.254</code></td><td><code>admin</code> / <code>pfsense</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -316,6 +353,32 @@
       <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture your two firewall probes (port 80 vs port 22 against pfSense) so the differing responses sit side by side.</p></div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
+
+<section id="fullsteps" data-track>
+<h2>Full lab steps</h2>
+<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
+<p class="task-head">Task 1 - Using hping as an ICMP Utility</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Click on the Kali tab.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Click within the console window and press Enter to display the login prompt.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Enter root as the username. Press Tab.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Enter toor as the password. Click Log In.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Open a new terminal by clicking on the Terminal icon located at the top of the page, if the terminal is not already opened.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> With hping, a packet can be crafted with a specific protocol. Type the command below using ICMP as the protocol followed by pressing the Enter key.</h3><div class="cmd"><pre>hping3 -1 192.168.68.12</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> After about 6 packets are transmitted, press CTRL+C to stop hping from running. Notice several ICMP messages (default is ICMP Type 0 echo) received a reply. If the target didn't reply, other ICMP requests can be used.</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Port state from flags.</span> A SYN reply showing <code class="inl">SA</code> (open) and one showing <code class="inl">RA</code> (closed).</div><div class="step"><h3 class="fh"><span class="n">8</span> Try a different ICMP type using a timestamp ICMP Type 13. Enter the command below, limiting the number of packets sent to 3 and get feedback using the verbose option.</h3><div class="cmd"><pre>hping3 -c 3 -1 -V -C 13 192.168.68.12</pre></div><div class="call tip"><span class="k">Note</span><p>Notice the retrieval of a timestamp, confirming the target is there.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> Enter the command below to perform traceroute functions using ICMP.</h3><div class="cmd"><pre>hping3 -c 5 -T -1 -V 192.168.68.12</pre></div></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Traceroute.</span> The <code class="inl">-T</code> hop output to the target.</div><p class="task-head">Task 2 - Using hping for Port Scanning</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Within the Terminal window, click File and select New Window to launch a new one.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Enter the command below in the new terminal to start capturing packets.</h3><div class="cmd"><pre>tcpdump -i eth0</pre></div><div class="call tip"><span class="k">Note</span><p>Let tcpdump run in the background uninterrupted.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Hping can craft packets sending various TCP flags set to test the ports being scanned. Send a packet with SYN set from a source port of 5151, which is arbitrarily chosen, to port 80 of the OWASP VM. Return to the other Terminal window and enter the command below to run a simple test.</h3><div class="cmd"><pre>hping3 -S -c 1 -s 5151 -p 80 -V 192.168.68.12</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Change focus to the terminal running tcpdump and notice a SYN [S] flag was sent with a received Reset [R] flag.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Change focus to the other terminal window and try the same scan against the firewall by entering the command below.</h3><div class="cmd"><pre>hping3 -S -c 1 -s 5151 -p 80 -V 192.168.9.1</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> Change focus to the terminal running tcpdump and notice a SYN [S] flag was sent with a received Reset [R] flag.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> Change focus to the other terminal and enter the command below to try a different port, SSH port 22, against the firewall.</h3><div class="cmd"><pre>hping3 -S -c 1 -s 5151 -p 22 -V 192.168.9.1</pre></div><div class="call tip"><span class="k">Note</span><p>Notice 100% packet loss due to port 22 being closed on the firewall.</p></div></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Firewalk comparison.</span> Your port 80 vs port 22 probes against pfSense.</div><div class="step"><h3 class="fh"><span class="n">8</span> Initiate a port scan against the firewall, defining a range. Enter the command below.</h3><div class="cmd"><pre>hping3 -S -8 20-80 -c 1 -s 5151 -V 192.168.9.1</pre></div><div class="call tip"><span class="k">Note</span><p>Based on the results, the firewall has ports 53 and 80 open.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> You may now end your reservation.</h3></div>
+<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
+</section>
 
   <section id="reference" data-track>
     <h2>Options reference — beyond the lab</h2>
@@ -533,5 +596,53 @@
 })();
 </script>
 <script src="assistant.js" defer></script>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
+  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
+  function show(i){
+    idx=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
+    root.setAttribute("data-pm-index",String(idx));
+    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
+    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
+    if(prevBtn)prevBtn.disabled=idx===0;
+    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
+    window.scrollTo(0,0);
+  }
+  function enter(){
+    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
+    if(!slides.length)return;
+    root.setAttribute("data-present","on");
+    if(dock)dock.setAttribute("aria-hidden","false");
+    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
+    show(0);
+  }
+  function exit(){
+    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
+    slides.forEach(function(s){s.classList.remove("pm-current");});
+    if(dock)dock.setAttribute("aria-hidden","true");
+    if(toggle)toggle.textContent="\u21E4 Lab mode";
+  }
+  toggle=document.getElementById("pmToggle");
+  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
+  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
+  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
+    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
+    '<button type="button" data-pm="next">Next \u25B6</button>'+
+    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
+  document.body.appendChild(dock);
+  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
+  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
+  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
+    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
+  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
+    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
+    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
+    else if(e.key==="Escape"){exit();}});
+})();
+</script>
 </body>
 </html>

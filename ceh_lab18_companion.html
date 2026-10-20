@@ -191,6 +191,40 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+
+#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
+#fullsteps .step h3.fh .n{margin-right:.5rem}
+#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
+#fullsteps .shotmark b{color:var(--accent)}
+
+.pm-toggle.ctl{cursor:pointer}
+html[data-present="on"] nav.toc,
+html[data-present="on"] .hero .lede,
+html[data-present="on"] .hero .chips,
+html[data-present="on"] footer.site,
+html[data-present="on"] .done-row{display:none!important}
+html[data-present="on"] #main{max-width:100%}
+html[data-present="on"] .hero{margin-top:.6rem}
+html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
+html[data-present="on"] #main > section{display:none;margin-top:1rem}
+html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
+@keyframes pm-fade{from{opacity:0}to{opacity:1}}
+html[data-present="on"] .call.auth{display:none!important}
+html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
+.pm-dock{display:none}
+html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
+  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
+  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
+.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
+.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
+.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
+.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
+.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media print{.pm-dock,.pm-toggle{display:none!important}}
+html[data-present="on"] #ca-launch{display:none!important}
+
 </style>
 </head>
 <body>
@@ -206,6 +240,7 @@
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
+          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -238,6 +273,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Walkthrough</a></li>
+      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -259,6 +295,7 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You run <strong>SET</strong> on <strong>Kali</strong> and "attack" a browser on another pod machine. SET hosts the cloned page on Kali; the victim machine browses to it. Nothing leaves the lab network.</p>
+    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>OpenSUSE</b></td><td><code>192.168.0.30</code></td><td><code>osboxes</code> / <code>osboxes.org</code></td></tr><tr><td><b>pfSense</b></td><td><code>192.168.0.254 / 192.168.68.254</code></td><td><code>admin</code> / <code>pfsense</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -287,6 +324,55 @@
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
+
+<section id="fullsteps" data-track>
+<h2>Full lab steps</h2>
+<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
+<p class="task-head">Task 1 - Using the Social Engineering Toolkit (SET)</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Click on the Kali tab.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Click within the console window and press Enter to display the login prompt.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Enter root as the username. Press Tab.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Enter toor as the password. Click Log In.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Open a new terminal by clicking on the Terminal icon located at the top of the page, if the terminal is not already opened.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> Type the command below, followed by pressing Enter to open the Social Engineering Toolkit.</h3><div class="cmd"><pre>setoolkit</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> Read through the Terms of Service and press the Y key, followed by pressing Enter to continue.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> On the SET main page, select the 1) Social-Engineering Attacks menu item by pressing 1, followed by pressing Enter.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> On the Social-Engineering Attacks page, select the 2) Website Attack Vectors menu item. Press 2, followed by pressing the Enter key.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> On the Website Attack Vectors page, select the 3) Credential Harvester Attack</h3><div class="call tip"><span class="k">Note</span><p>Method menu item. Press 3, followed by pressing the Enter key.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">11</span> On the Credential Harvester Attack Method page, select the 1) Web Templates menu item. Press 1, followed by pressing the Enter key.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">12</span> When prompted for an IP address for the POST back, enter the IP address [192.168.9.2] of the Kali machine. Press Enter.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">13</span> On the Select a template prompt, select the 2. Google menu item. Press 2, followed by pressing the Enter key.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">14</span> When asked if you understand, press Enter.</h3></div>
+<p class="task-head">Task 2 - Modifying the SET Parameters</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Open a new Terminal by clicking the File tab and selecting New Window.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> To edit the redirect settings and URL, type the following command</h3><div class="cmd"><pre>nano /etc/setoolkit/set.config</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Using the arrow keys, scroll down till you see the following. Edit the</h3><div class="call tip"><span class="k">Note</span><p>HARVESTER_REDIRECT and HARVESTER_URL to match below.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Once modified, press CTRL+X to exit.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> When prompted to save, press Y.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> When prompted for a file name, press Enter to save as set.config.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> Close this Terminal window, leaving the SETOOLKIT terminal window open.</h3></div>
+<p class="task-head">Task 3 - Test the SET Attack</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Click the OpenSUSE tab.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Log in with osboxes as the username and osboxes.org as the password. Press Enter.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Click on the Mozilla Firefox icon at the bottom.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> In the Firefox window, type 192.168.9.2 into the address bar. Press Enter. Before continuing to the next step, wait 2-5 minutes until you see a Google sign- in page appear.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> In the Email field, type John Smith.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> In the Password field, type Letmein.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> Click the Sign in button.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> Navigate back to the Kali tab.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> Focus on the Terminal window. Notice in red the captured Email and Password field captures.</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Captured credentials.</span> SET showing the test username/password it harvested.</div><div class="step"><h3 class="fh"><span class="n">10</span> Press CTRL-C to end and generate a report.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">11</span> Note the location of the file output in /root/.set/reports/. Press Enter to continue.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">12</span> Type 99 to exit.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">13</span> Type 99 to exit.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">14</span> Type 99 to exit.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">15</span> In the terminal, change to the reports directory with the following command:</h3><div class="cmd"><pre>cd /root/.set/reports</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">16</span> List the files to determine the filename with the following command:</h3><div class="cmd"><pre>ls</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">17</span> Type the command below to view the contents of the report file (replace &lt;rest of file name&gt; with the dynamic dated information in the filename). cat 2 and then press the Tab key for the system to complete the actual filename. Make sure to replace &lt;rest of file name&gt; with the dynamic dated information in the filename.</h3><div class="cmd"><pre>cat &lt;rest of file name&gt;.xml</pre></div><div class="call tip"><span class="k">Note</span><p>Note that it is easier to use the Tab command completion feature in Linux. Type</p></div></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">The cloned page.</span> The victim browser on the harvester page (note the URL).</div><div class="step"><h3 class="fh"><span class="n">18</span> Notice the email and password have been obtained successfully.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">19</span> You may now end your reservation.</h3></div>
+<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
+</section>
 
   <section id="reference" data-track>
     <h2>Reference — beyond the lab</h2>
@@ -490,5 +576,53 @@
 })();
 </script>
 <script src="assistant.js" defer></script>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
+  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
+  function show(i){
+    idx=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
+    root.setAttribute("data-pm-index",String(idx));
+    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
+    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
+    if(prevBtn)prevBtn.disabled=idx===0;
+    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
+    window.scrollTo(0,0);
+  }
+  function enter(){
+    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
+    if(!slides.length)return;
+    root.setAttribute("data-present","on");
+    if(dock)dock.setAttribute("aria-hidden","false");
+    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
+    show(0);
+  }
+  function exit(){
+    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
+    slides.forEach(function(s){s.classList.remove("pm-current");});
+    if(dock)dock.setAttribute("aria-hidden","true");
+    if(toggle)toggle.textContent="\u21E4 Lab mode";
+  }
+  toggle=document.getElementById("pmToggle");
+  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
+  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
+  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
+    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
+    '<button type="button" data-pm="next">Next \u25B6</button>'+
+    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
+  document.body.appendChild(dock);
+  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
+  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
+  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
+    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
+  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
+    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
+    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
+    else if(e.key==="Escape"){exit();}});
+})();
+</script>
 </body>
 </html>

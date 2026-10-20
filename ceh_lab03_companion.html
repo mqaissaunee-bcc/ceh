@@ -191,6 +191,40 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+
+#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
+#fullsteps .step h3.fh .n{margin-right:.5rem}
+#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
+#fullsteps .shotmark b{color:var(--accent)}
+
+.pm-toggle.ctl{cursor:pointer}
+html[data-present="on"] nav.toc,
+html[data-present="on"] .hero .lede,
+html[data-present="on"] .hero .chips,
+html[data-present="on"] footer.site,
+html[data-present="on"] .done-row{display:none!important}
+html[data-present="on"] #main{max-width:100%}
+html[data-present="on"] .hero{margin-top:.6rem}
+html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
+html[data-present="on"] #main > section{display:none;margin-top:1rem}
+html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
+@keyframes pm-fade{from{opacity:0}to{opacity:1}}
+html[data-present="on"] .call.auth{display:none!important}
+html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
+.pm-dock{display:none}
+html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
+  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
+  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
+.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
+.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
+.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
+.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
+.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media print{.pm-dock,.pm-toggle{display:none!important}}
+html[data-present="on"] #ca-launch{display:none!important}
+
 </style>
 </head>
 <body>
@@ -206,6 +240,7 @@
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
+          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -238,6 +273,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Command walkthrough</a></li>
+      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Options reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -282,6 +318,7 @@
       <p>The lab signs you in as root (<code class="inl">toor</code>) so that Nmap's raw-socket scan types just work. On your own machine you would run these with <code class="inl">sudo</code>. Remember that difference — it explains one of the most common "why doesn't this work" moments later.</p>
     </div>
     <p class="muted" style="font-size:.84rem;color:var(--muted)">Exact login credentials for every VM are in the Lab Settings table of your NETLAB+ lab document.</p>
+    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>OWASP BWA</b></td><td><code>192.168.68.12</code></td><td><code>root</code> / <code>owaspbwa</code></td></tr><tr><td><b>OpenSUSE</b></td><td><code>192.168.0.30</code></td><td><code>osboxes</code> / <code>osboxes.org</code></td></tr><tr><td><b>Security Onion</b></td><td><code>192.168.0.100</code></td><td><code>ndg</code> / <code>password123</code></td></tr><tr><td><b>pfSense</b></td><td><code>192.168.0.254 / 192.168.68.254</code></td><td><code>admin</code> / <code>pfsense</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -380,6 +417,47 @@
       <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the Masscan result for the <code class="inl">/24</code>, and note how much faster it returned than the Nmap scans.</p></div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
+
+<section id="fullsteps" data-track>
+<h2>Full lab steps</h2>
+<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
+<p class="task-head">Task 1 - Reconnaissance Using Nmap</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Click on the Kali tab.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Click within the console window and press Enter to display the login prompt.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Enter root as the username. Press Tab.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Enter toor as the password. Click Log In.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Open a new terminal by clicking on the Terminal icon located at the top of the page, if the terminal is not already opened.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> Before you begin, you will need to disable the Docker service on this machine as it interferes with this lab. Failure to do so will cause a segmentation fault on step</h3></div>
+<div class="step"><h3 class="fh"><span class="n">11</span> To disable the Docker service, type the command below, followed by pressing Enter.</h3><div class="cmd"><pre>systemctl stop docker</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> Open and review Nmap's manual by typing the command below, followed by pressing Enter. Nmap has many options, including its own scripting engine. Review the man pages to get familiar with the switches and options. Press the Spacebar to go to the next page or press Enter to go to the next line.</h3><div class="cmd"><pre>man nmap</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> Once finished reviewing the man page, press the Q character to quit and bring the shell prompt back.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> In the Terminal window, initiate a general Nmap scan on the OWASP BWA machine, with no options.</h3><div class="cmd"><pre>nmap 192.168.68.12</pre></div><div class="call tip"><span class="k">Note</span><p>Press Enter and wait for the scan to complete.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> This time, initiate a specific TCP connect scan. Type the command below, followed by pressing Enter.</h3><div class="cmd"><pre>nmap -sT 192.168.68.12</pre></div><div class="call tip"><span class="k">Note</span><p>Notice the results are not different as the host only has TCP ports open.</p></div></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Aggressive scan.</span> The <code class="inl">nmap -A</code> output with OS and service/version detection.</div><div class="step"><h3 class="fh"><span class="n">11</span> Nmap scans can be noisy at times with its default port scanning range. Limit</h3><div class="cmd"><pre>nmap -F 192.168.68.12</pre></div><div class="call tip"><span class="k">Note</span><p>Nmap to only scan the most popular ports by initiating the command below. Notice that port 5001 is missing from this output. This is a non-standard port.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">12</span> Use Nmap to try to identify versions of software running on the ports. Type the command below, followed by pressing Enter. Notice there is more information about the target machine. This command will take some time to execute.</h3><div class="cmd"><pre>nmap -A 192.168.68.12</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">13</span> Nmap has a set of scripts installed we can use to test for vulnerabilities. Initiate the command below to run a general set of default scripts.</h3><div class="cmd"><pre>nmap -sC 192.168.68.12</pre></div><div class="call tip"><span class="k">Note</span><p>This command may take some time to execute.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">14</span> Leave the Terminal window open for the next task.</h3></div>
+<p class="task-head">Task 2 - Reconnaissance Using Zenmap</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Using the same Terminal window, open Zenmap by typing the command below, followed by pressing Enter.</h3><div class="cmd"><pre>zenmap</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> In the Target field, enter 192.168.68.12 and select Quick scan from the Profile dropdown. Notice the Command field and compare it to what you did in the last task. Click Scan to begin.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> In the Nmap Output tab, note the output is similar to the command you ran earlier.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Click on the Ports / Hosts tab. Notice the clean, organized output.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Click on Scan menu and then click Save Scan. This allows you to save the scan information for use later.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> In the Name field, type scan1.xml and click the Save button in the lower-right. By saving the scan, you can load the results later. You can also combine multiple scans together to collect more information.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> You can also scan an entire network. In the Target field, type 192.168.0.0/24 and click Scan. Leave the Profile field set to Quick scan.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> On the left, notice the additional hosts that were found. You may need to expand the column to see the full IP addresses.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> Click on the Topology tab. You can zoom in and change the view. This is helpful during an audit as you can save this image and add it to your report.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> Click on the Scans tab. Notice the second scan is not saved. If you saved prior scans, you could load them in here, so you end up creating a database with all the information collected. In our case, notice that all the information you collected from both scans is combined.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">11</span> Click the X in the upper-right to close Zenmap. Click on Close anyway to ignore the results of the second scan.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">12</span> You can leave the terminal window open for the next task.</h3></div>
+<p class="task-head">Task 3 - Reconnaissance Using Masscan</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Open and review masscan's manual by typing the command below, followed by pressing Enter. Masscan has many options. Review the man pages to get familiar with the switches and options. Press the Spacebar to go to the next page or press Enter to go to the next line.</h3><div class="cmd"><pre>man masscan</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Once finished reviewing the man page, press the Q character to quit and bring the shell prompt back.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Masscan also has many nmap-like features. In the Terminal window, review these features by typing the following command, press Enter, and review the output:</h3><div class="cmd"><pre>masscan --nmap</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> To get started, let's do a simple scan of the 192.168.0.0/24 LAN network in our topology. We will only scan for devices that have port 80 open, using a TCP SYN scan technique. Type the following command, followed by pressing Enter: end to allow for responses.</h3><div class="cmd"><pre>masscan -sS 192.168.0.0/24 -p 80</pre></div><div class="call tip"><span class="k">Note</span><p>Note the scan is over in a very short amount of time, there is just a delay at the</p></div></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Masscan speed.</span> The <code class="inl">masscan</code> result for port 80 across the subnet.</div><div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Zenmap topology.</span> The Topology tab for the <code class="inl">/24</code> sweep.</div><div class="step"><h3 class="fh"><span class="n">5</span> You may now end your reservation.</h3></div>
+<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
+</section>
 
   <!-- ===================== REFERENCE ===================== -->
   <section id="reference" data-track>
@@ -628,5 +706,53 @@
 })();
 </script>
 <script src="assistant.js" defer></script>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
+  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
+  function show(i){
+    idx=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
+    root.setAttribute("data-pm-index",String(idx));
+    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
+    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
+    if(prevBtn)prevBtn.disabled=idx===0;
+    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
+    window.scrollTo(0,0);
+  }
+  function enter(){
+    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
+    if(!slides.length)return;
+    root.setAttribute("data-present","on");
+    if(dock)dock.setAttribute("aria-hidden","false");
+    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
+    show(0);
+  }
+  function exit(){
+    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
+    slides.forEach(function(s){s.classList.remove("pm-current");});
+    if(dock)dock.setAttribute("aria-hidden","true");
+    if(toggle)toggle.textContent="\u21E4 Lab mode";
+  }
+  toggle=document.getElementById("pmToggle");
+  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
+  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
+  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
+    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
+    '<button type="button" data-pm="next">Next \u25B6</button>'+
+    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
+  document.body.appendChild(dock);
+  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
+  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
+  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
+    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
+  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
+    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
+    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
+    else if(e.key==="Escape"){exit();}});
+})();
+</script>
 </body>
 </html>

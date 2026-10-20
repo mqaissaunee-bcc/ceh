@@ -191,6 +191,40 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+
+#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
+#fullsteps .step h3.fh .n{margin-right:.5rem}
+#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
+#fullsteps .shotmark b{color:var(--accent)}
+
+.pm-toggle.ctl{cursor:pointer}
+html[data-present="on"] nav.toc,
+html[data-present="on"] .hero .lede,
+html[data-present="on"] .hero .chips,
+html[data-present="on"] footer.site,
+html[data-present="on"] .done-row{display:none!important}
+html[data-present="on"] #main{max-width:100%}
+html[data-present="on"] .hero{margin-top:.6rem}
+html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
+html[data-present="on"] #main > section{display:none;margin-top:1rem}
+html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
+@keyframes pm-fade{from{opacity:0}to{opacity:1}}
+html[data-present="on"] .call.auth{display:none!important}
+html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
+.pm-dock{display:none}
+html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
+  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
+  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
+.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
+.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
+.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
+.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
+.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media print{.pm-dock,.pm-toggle{display:none!important}}
+html[data-present="on"] #ca-launch{display:none!important}
+
 </style>
 </head>
 <body>
@@ -206,6 +240,7 @@
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
+          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -238,6 +273,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Walkthrough</a></li>
+      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -258,6 +294,7 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You work with cryptography utilities on the pod's workstation — a hashing tool and an encrypt/decrypt tool — entering text and watching the output. Everything is local and hands-on; there's no target, just the math.</p>
+    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>WinOS</b></td><td><code>192.168.0.20</code></td><td><code>Administrator</code> / <code>Train1ng$</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -287,6 +324,60 @@
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
+
+<section id="fullsteps" data-track>
+<h2>Full lab steps</h2>
+<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
+<p class="task-head">Task 1 - Learn How Hash Values Change When Text is Edited</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Launch the WinOS virtual machine to access the graphical login screen. 1.1. Select Send CTRL+ALT+DEL from the dropdown menu to be prompted with the login screen. 1.2. Log in as Administrator using the password: Train1ng$</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Let's begin by opening the software called Cryptool by clicking the Start Menu button seen in item 1 below. Next, navigate to and click the folder called Cryptool and then click the Cryptool icon seen in items 2 and 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> The Cryptool window will appear. This is a free educational tool that is great for learning about the wonders of cryptography. This tool has many features and a detailed help file, so we will not do a familiarization for this one. Instead, we will go directly to the feature we will be using in this lab. Begin by reading the How to Start window and then clicking the Close button once you are done, as highlighted below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> The main window will display a sample text file, but we will not be using that for this exercise. Instead, click the X at the top-right corner of that window to close it, then click the New icon from the toolbar to create a new file, as seen in items 1 and 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> A new blank file will appear, so let's type some text in this window. Type the following text (Or text of your choice): This is an example of how data hashing works!! in the new window as seen below:</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> Next, navigate to and click Indiv. Procedures from the Menu bar as seen in item 1 below. Next, hover over Hash from the dropdown menu that appears and then click Hash Demonstration… from the submenu that appears, as seen in items 2 and 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> The Hash Demonstration window will appear. In this window, we will be able to see the hexadecimal, decimal, and binary hash values of the data we typed earlier. We can also compare the hash of the data we typed with the hash of the same data after we modify it a little. The table below the following screenshot provides a quick outline of the features we will be using in this exercise. #        Name             Description 1        Selection of hashThis option allows you to choose between different hash 2        Base of hash     The radio buttons here allow you to choose what base values           the hash value should be represented in 3        Modified         This shows the text of the document that is being hashed document         and allows you to make changes to the document 4        Hash value of theThis is the hash value of the data represented in the original file    Modified document field 5        Hash value of theThis is the hash value of the data represented in the modified file    Modified document field after you add text or make changes to it 6        Difference       This display shows the differences between the old file between the hash and the new one values of the original and the 7        Close            This is the option to close the window</h3><div class="cmd"><pre>function         algorithms
+modified file</pre></div></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Encrypt/decrypt.</span> The ciphertext and the recovered original after decryption.</div><div class="step"><h3 class="fh"><span class="n">8</span> Now that you are a bit more familiar with the interface, let's add some data to the modified document field and see what happens. First, pay attention to the data in the Hash value of the original file field seen in item 1 below; this is the MD5 hash value of the data you typed earlier. Now, go back to the Modified document field and type the following text (or text of your choice), as seen in item 2: This example shows the differences between the old file and the new one. Notice as you type, the hash value in the hash value of the modified file field, seen in item 3, changes simultaneously. The red values in the Difference between the hash values of the original and the modified file field, seen in item 4, also change simultaneously and represent the new values that cause the hash to be different. When you compare the hashes in items 1 and 3, you can see that the difference is significant, even when you add just one character.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> Now let's take a look at what this data looks like when hashed using a different algorithm. To do this, click the arrow to open the Selection of hash function dropdown menu, as seen in item 1. There are several different options there, but we'll just look at one. Click on SHA-256 to choose that hash algorithm, as seen in item 2. The hash values in the respective fields are now completely different, as seen in item 3. They are much longer as well, which means that this algorithm is a lot more secure. Feel free to look at different algorithm outputs and make some changes to the options and text to see how it affects the hash values. When you are done, click the Close button seen in item 4 below. Next, we will use CrypTool to see how to encrypt and decrypt text.</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Avalanche effect.</span> Two hashes of near-identical text showing how different they are.</div><p class="task-head">Task 2 - Encrypting and Decrypting Text</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> To begin, navigate to Encrypt/Decrypt &gt; Symmetric (modern) &gt; AES (CBC) as seen in items 1, 2, and 3 below:</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> The Key Entry window will appear, which allows you to set the encryption key and its length. As you can see in item 1, the key length is 128bits which means the key will have 32 characters. Let's make a simple encryption key to use for encrypting our text. Begin by clicking on the first character in the text box, as seen in item 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Type the following text in the textbox: AA AA AA BB BB BB CC CC CC as seen in item 1 below. In normal circumstances, you must ensure that you type the key correctly because this key is used to encrypt the document. A mistake here would normally mean that the data will be unrecoverable. Because CrypTool is designed for learning, the key is displayed on the window of the encrypted data. Once you have verified that the key is typed correctly, click the Encrypt button seen in item 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Since we're encrypting a very small amount of text, the process will be extremely fast. You should see the following window appear with ciphertext, as seen in item 1 below. It is unreadable and can only be reverted using the key we typed before. The hexadecimal representation of the data can be seen in item 2. Item 3 shows the encryption algorithm and the key.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Now, let's decrypt this text using our key. To do this, navigate to Encrypt/Decrypt &gt; Symmetric (modern) &gt; AES (CBC) as seen in items 1, 2, and 3 below:</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> The Key Entry will appear again. Type the key we created earlier AA AA AA BB BB BB CC CC CC as seen in item 1 below. Once you have verified that the key is correct, click Decrypt seen in item 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> You have successfully encrypted and decrypted data using the symmetric algorithm AES. You can compare the contents by switching between the windows. Once you are done, close all the windows open windows seen in items 1, 2, and 3 below by clicking the X at the top-right corner of each one.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> Now we will encrypt the original text using an Asymmetric algorithm. To begin, navigate to Encrypt/Decrypt &gt; Asymmetric &gt; RSA Demonstration as seen in items 1, 2, and 3 below:</h3></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> Please note, the following process can be very complicated. In this exercise, we will try to stick to simpler explanations to make it easier to understand. The RSA Demonstration window should now be open. This window contains several fields and options. We will go through the exercise gradually. The first 2 options are the RSA using the private and public key or using only the public key radio buttons. We will leave the first option selected as seen in item 1. This indicates that we want to generate both a public and private key.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> RSA encryption requires the use of prime numbers to help in the calculation of the public and private keys. You can choose 2 prime numbers in the Prime number entry fields seen in item 1, or you can use the tool to generate prime numbers. In this exercise, we will generate the prime numbers. Do this by clicking the Generate prime numbers button seen in item 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">11</span> The Private Number Generation window will appear, and we will use this window to generate our odd numbers. We will leave all the options as they are, but let's take a quick look at their purpose. The Amount of prime numbers to be generated radio button seen in item 1 allows you to choose different options for generating random prime numbers based on a designated range. The Algorithms for prime number generation radio buttons seen in item 2 show you what type of algorithm will be used to generate the prime number. The Value range of the prime numbers p and q radio buttons seen in item 3 allow you to choose between entering unrelated prime numbers or ones that are equal.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">12</span> The Prime number p and Prime number q fields seen in item 1 allow you to change the value range and generate larger or smaller prime numbers. We will leave all these options as they are and click the Generate prime numbers as seen in item 2 below. You can press it several times to generate different prime numbers. Once you have 2 prime numbers you want to use, click the Apply Primes button seen in item 3.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">13</span> You will be taken back to the RSA Demonstration window with the new prime numbers entered. The RSA parameters fields contain the parameters for the generation of the public and private keys. The private key can be seen in the field seen in item 2 and is the key that will be needed to decrypt the encrypted data. The RSA encryption using e / decryption using d section is where we will enter the data we will encrypt. Let's type the following text as seen in the Enter the message for encryption or decryption either as text or as hex dump field seen in item 3: This is RSA encryption at work. Finally, click the Encrypt button seen in item 4 to see the encryption process.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">14</span> The fields below the text that we input reveal the way the data is encrypted. The first field shows the message broken down in blocks, as seen in item 1 below. In Item 2, the Numbers input in base 10 format field is a numeric conversion of the letters in the Input text field. The last field is the Encryption into ciphertext field, and this is the field that shows the ciphertext seen in item 3. This ciphertext would be the message that is being transmitted. The recipient would need the private and public keys in order to decrypt this message.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">15</span> Now let's decrypt the ciphertext. To begin, highlight the encrypted data by clicking and sweeping from the beginning of the ciphertext to the end, as seen in item 1. Next, right-click on the highlighted text and click the Copy from the context menu seen in items 2 and 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">16</span> Now that the data is copied to the clipboard, let's delete the data in the Input text field by highlighting it and pressing the Backspace or Delete key. Before pasting the data, click the numbers radio button seen in item 1 to change the type of data we can paste in the Input text field. Once you are done, right-click in the Input text field and click Paste from the context menu, as seen in items 2 and 3 below. Finally, click the Decrypt button seen in item 4 below. As you can see in the Plaintext field in item 5 below, the message was decrypted.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">17</span> Now that you see how both symmetric and asymmetric encryption works, let's take a look at the hybrid encryption method. Let's start by closing the windows that are currently open by clicking the Close button seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">18</span> Now navigate to Encrypt/Decrypt &gt; Hybrid &gt; RSA-AES Encryption as seen in items 1, 2, and 3 below:</h3></div>
+<div class="step"><h3 class="fh"><span class="n">19</span> The Hybrid Encryption with RSA-AES - Visualization with a Flow Chart window will appear. Each step in the flow chart can be clicked to continue the process or reveal data. Let's begin by clicking Open document as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">20</span> The Open window will appear; use it to navigate to Documents &gt; Lab 26 as seen in item 1 below. Click the single txt file there called Encrypt Me.txt and then click the Open button seen in items 2 and 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">21</span> You will be taken back to the flow chart, where the Document step is now highlighted. Click the Document button to reveal the raw unencrypted text in the pane at the bottom, as seen in items 1 and 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">22</span> The next step is to generate the session key, which will be used to encrypt the document using the AES algorithm. To generate the key, click Generate session key button, as seen in item 1 below. This will generate a random symmetric session key. You will see the Session key step highlighted now. Click the Session key step to reveal the data in the pane at the bottom of the window seen in items 2 and 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">23</span> Next, let's select an asymmetric key by clicking the Select asymmetr. key step, as seen in item 1, to open the RSA key for the hybrid encryption window. This list contains the public key of the recipient and is the key that will be used to encrypt the session key we generated in the last step. Click the single entry in this window and click OK, as seen in items 2 and 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">24</span> You will be taken back to the flow chart once again, but this time the Asymmetr. key step is highlighted. Let's click Asymmetr. key as seen in item 1 to see what the public key looks like in item 2. Once you are done, close the window by clicking Back as seen in item 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">25</span> Now let's Encrypt the document using the symmetric session key by clicking the Encrypt document symmetr. button, seen in item 1 below. Next, click the Encrypted document step to view the encrypted document's contents in the pane at the bottom of the window seen in items 2 and 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">26</span> Since the document is encrypted using the session key, let's encrypt the session key now, using the public key. To do this, click Encrypt session key asymmetry as seen in item 1. Next, click the Encrypted session key step to reveal it in the pane at the bottom of the window seen in items 2 and 3.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">27</span> The final step is to save the encrypted data. This will create a file that has the encrypted data along with the encrypted session key. To do this, click Save, as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">28</span> You will be taken back to CrypTool's main window, where you can see the encrypted data in hexadecimal and plain text. As you can see in item 1, the encrypted session key is at the top of the document. In item 2, you can see the encrypted data and the encryption methods. Let's decrypt this data now. To do this, navigate to Encrypt/Decrypt &gt; Hybrid &gt; RSA-AES Decryption as seen in items 3, 4, and 5 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">29</span> The Hybrid Decryption with RSA-AES window will appear. The first thing we'll do is select the certificate associated with the private key to start the decryption process.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">30</span> The RSA key for Hybrid decryption window will appear. Like before, click the one entry in the window as seen in item 1. Next, type the PIN from the Key identifier row in the PIN code field in item 2. Once you are done, click OK to go back to the Hybrid Decryption with RSA-AES window.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">31</span> In the Hybrid Decryption with RSA-AES window, the Show certificate button will now be highlighted. Click Show certificate, seen in item 1, to view the contents of the certificate.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">32</span> The Certificate Data window will appear. You can read through it to get an understanding of what the certificate contains. Once you are done, click Close, as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">33</span> Back in the Hybrid Decryption with RSA-AES window, click the Continue button seen in item 1 to reveal the private key, which will be revealed in the window as seen in item 2. Next, click the Continue button seen in item 1 once again to decrypt the symmetric session key that we used to encrypt the document.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">34</span> You will now see the decrypted session key appear, as seen in item 1. This is the key that is needed to decrypt the document. Click Decrypt as seen in item 2 to begin the decryption process.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">35</span> You will be taken back to the main window, where you will see the decrypted data in item 1. There will also be the encrypted data in the other window seen in item 2. You can use these windows to compare the encrypted data before and after. In this exercise, we covered encrypting data using the symmetric, asymmetric, and hybrid approaches. In the complex hybrid method, we generated a session key then encrypted a document with the session key. Next, we encrypted the session key using a public key. Then, we decrypted the session key using the pre-shared private key. Finally, we decrypted the encrypted document using the decrypted session key.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">36</span> As you can see, the encryption process can be very technical, but it is ideal for protecting data. This lab is now over. To exit CrypTool, click the X at the top-right corner of the window to close it, as seen in item 1.</h3></div>
+<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
+</section>
 
   <section id="reference" data-track>
     <h2>Reference — beyond the lab</h2>
@@ -491,5 +582,53 @@
 })();
 </script>
 <script src="assistant.js" defer></script>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
+  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
+  function show(i){
+    idx=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
+    root.setAttribute("data-pm-index",String(idx));
+    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
+    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
+    if(prevBtn)prevBtn.disabled=idx===0;
+    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
+    window.scrollTo(0,0);
+  }
+  function enter(){
+    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
+    if(!slides.length)return;
+    root.setAttribute("data-present","on");
+    if(dock)dock.setAttribute("aria-hidden","false");
+    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
+    show(0);
+  }
+  function exit(){
+    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
+    slides.forEach(function(s){s.classList.remove("pm-current");});
+    if(dock)dock.setAttribute("aria-hidden","true");
+    if(toggle)toggle.textContent="\u21E4 Lab mode";
+  }
+  toggle=document.getElementById("pmToggle");
+  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
+  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
+  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
+    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
+    '<button type="button" data-pm="next">Next \u25B6</button>'+
+    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
+  document.body.appendChild(dock);
+  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
+  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
+  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
+    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
+  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
+    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
+    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
+    else if(e.key==="Escape"){exit();}});
+})();
+</script>
 </body>
 </html>

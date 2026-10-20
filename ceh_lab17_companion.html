@@ -191,6 +191,40 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+
+#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
+#fullsteps .step h3.fh .n{margin-right:.5rem}
+#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
+#fullsteps .shotmark b{color:var(--accent)}
+
+.pm-toggle.ctl{cursor:pointer}
+html[data-present="on"] nav.toc,
+html[data-present="on"] .hero .lede,
+html[data-present="on"] .hero .chips,
+html[data-present="on"] footer.site,
+html[data-present="on"] .done-row{display:none!important}
+html[data-present="on"] #main{max-width:100%}
+html[data-present="on"] .hero{margin-top:.6rem}
+html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
+html[data-present="on"] #main > section{display:none;margin-top:1rem}
+html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
+@keyframes pm-fade{from{opacity:0}to{opacity:1}}
+html[data-present="on"] .call.auth{display:none!important}
+html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
+.pm-dock{display:none}
+html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
+  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
+  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
+.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
+.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
+.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
+.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
+.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media print{.pm-dock,.pm-toggle{display:none!important}}
+html[data-present="on"] #ca-launch{display:none!important}
+
 </style>
 </head>
 <body>
@@ -206,6 +240,7 @@
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
+          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -238,6 +273,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Command walkthrough</a></li>
+      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -258,6 +294,7 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You work on <strong>Kali</strong> with <strong>OpenSSL</strong> to create the certificate, then configure <strong>Apache</strong> to serve HTTPS with it and test in a browser. Because the certificate is self-signed, the browser will warn — which is itself a lesson about how trust is established.</p>
+    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -296,6 +333,47 @@
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
+
+<section id="fullsteps" data-track>
+<h2>Full lab steps</h2>
+<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
+<p class="task-head">Task 1 - Creating a Self-Signed Certificate</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Click on the Kali tab.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Click within the console window and press Enter to display the login prompt.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Enter root as the username. Press Tab.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Enter toor as the password. Click Log In.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Open a new terminal by clicking on the Terminal icon located at the top of the page, if the terminal is not already opened.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> In the new Terminal window, type the command below to generate an SSL key. Press Enter.</h3><div class="cmd"><pre>openssl genrsa -out ca.key 2048</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> Generate a new Certificate Signing Request (CSR). Type the command below, followed by pressing the Enter key. a.   When prompted for Country Name, type US. Press Enter. b.   State, type North Carolina. Press Enter. c.   Locality Name, type Raleigh. Press Enter. d.   Organization Name, type XYZ. Press Enter. e.   Organization Unit Name, leave blank. Press Enter. f.   Common Name, type Sally. Press Enter. g.   Email Address, type sally@xyz.corp. Press Enter h.   Challenge Password, type sally. Press Enter. i.   Company Name, leave blank. Press Enter.</h3><div class="cmd"><pre>openssl req -new -key ca.key -out ca.csr</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> Generate a self-signed key by entering the command below.</h3><div class="cmd"><pre>openssl x509 -req -days 365 -in ca.csr -signkey ca.key -out ca.crt</pre></div></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">The three files.</span> <code class="inl">ca.key</code>, <code class="inl">ca.csr</code>, and <code class="inl">ca.crt</code> created with OpenSSL.</div><div class="step"><h3 class="fh"><span class="n">9</span> Copy the ca.crt file from the current directory to the /etc/ssl/certs/ directory.</h3><div class="cmd"><pre>cp ca.crt /etc/ssl/certs/ca.crt</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> Copy the ca.key file from the current directory to the /etc/ssl/private, directory.</h3><div class="cmd"><pre>cp ca.key /etc/ssl/private/ca.key</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">11</span> Copy the ca.csr file from the current directory to the /etc/ssl/private/ directory.</h3><div class="cmd"><pre>cp ca.csr /etc/ssl/private/ca.csr</pre></div></div>
+<p class="task-head">Task 2 - Configuring the Apache SSL File</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Using the Terminal, navigate to the /etc/apache2/sites-available/ directory.</h3><div class="cmd"><pre>cd /etc/apache2/sites-available</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Copy the default-ssl.conf file.</h3><div class="cmd"><pre>cp default-ssl.conf localhost-ssl.conf</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Edit the localhost-ssl.conf file using the Mousepad file editor.</h3><div class="cmd"><pre>mousepad localhost-ssl.conf</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> The Mousepad window appears. Change the SSLCertificateFile and SSLCertificateKeyFile paths.</h3><div class="cmd"><pre>SSLCertificateFile /etc/ssl/certs/ca.crt
+SSLCertificateKeyFile /etc/ssl/private/ca.key</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Once modified, select File &gt; Save.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> Close the Mousepad window.</h3></div>
+<p class="task-head">Task 3 - Testing the SSL Certificate</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> Using the Terminal, enter the following command to change to the sites-enabled directory:</h3><div class="cmd"><pre>cd /etc/apache2/sites-enabled/</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Enter the following command to enable the localhost-ssl site:</h3><div class="cmd"><pre>ln -s /etc/apache2/sites-available/localhost-ssl.conf</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> Enter the following command to enable the SSL Apache Mod:</h3><div class="cmd"><pre>a2enmod ssl</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> Restart the Apache service.</h3><div class="cmd"><pre>service apache2 restart</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> Open the Mozilla Firefox browser by clicking on the Application Menu &gt; Web Browser from the top.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> In the address field located towards the top, type https://localhost and press the Enter key.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> Notice the warning message. Click on Advanced.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> Scroll down and click Accept the Risk and Continue.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> Once the page finishes loading, notice the padlock icon in the address field. A self-signed SSL certificate has been successfully implemented. Click on the padlock icon in the address bar.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> Click on the arrow next to Connection.</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">HTTPS connection.</span> The browser connected over HTTPS with your certificate's details shown.</div><div class="step"><h3 class="fh"><span class="n">11</span> Click on More Information.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">12</span> In the page info popup window, click on View Certificate.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">13</span> Notice the information on the General tab matches the information you entered when creating the certificate.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">14</span> You may now end your reservation.</h3></div>
+<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
+</section>
 
   <section id="reference" data-track>
     <h2>Reference — beyond the lab</h2>
@@ -502,5 +580,53 @@
 })();
 </script>
 <script src="assistant.js" defer></script>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
+  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
+  function show(i){
+    idx=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
+    root.setAttribute("data-pm-index",String(idx));
+    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
+    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
+    if(prevBtn)prevBtn.disabled=idx===0;
+    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
+    window.scrollTo(0,0);
+  }
+  function enter(){
+    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
+    if(!slides.length)return;
+    root.setAttribute("data-present","on");
+    if(dock)dock.setAttribute("aria-hidden","false");
+    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
+    show(0);
+  }
+  function exit(){
+    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
+    slides.forEach(function(s){s.classList.remove("pm-current");});
+    if(dock)dock.setAttribute("aria-hidden","true");
+    if(toggle)toggle.textContent="\u21E4 Lab mode";
+  }
+  toggle=document.getElementById("pmToggle");
+  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
+  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
+  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
+    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
+    '<button type="button" data-pm="next">Next \u25B6</button>'+
+    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
+  document.body.appendChild(dock);
+  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
+  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
+  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
+    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
+  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
+    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
+    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
+    else if(e.key==="Escape"){exit();}});
+})();
+</script>
 </body>
 </html>

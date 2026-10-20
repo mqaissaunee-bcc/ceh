@@ -191,6 +191,40 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+
+#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
+#fullsteps .step h3.fh .n{margin-right:.5rem}
+#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
+#fullsteps .shotmark b{color:var(--accent)}
+
+.pm-toggle.ctl{cursor:pointer}
+html[data-present="on"] nav.toc,
+html[data-present="on"] .hero .lede,
+html[data-present="on"] .hero .chips,
+html[data-present="on"] footer.site,
+html[data-present="on"] .done-row{display:none!important}
+html[data-present="on"] #main{max-width:100%}
+html[data-present="on"] .hero{margin-top:.6rem}
+html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
+html[data-present="on"] #main > section{display:none;margin-top:1rem}
+html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
+@keyframes pm-fade{from{opacity:0}to{opacity:1}}
+html[data-present="on"] .call.auth{display:none!important}
+html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
+.pm-dock{display:none}
+html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
+  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
+  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
+.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
+.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
+.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
+.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
+.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media print{.pm-dock,.pm-toggle{display:none!important}}
+html[data-present="on"] #ca-launch{display:none!important}
+
 </style>
 </head>
 <body>
@@ -206,6 +240,7 @@
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
+          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -238,6 +273,7 @@
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Walkthrough</a></li>
+      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -258,6 +294,7 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You work in a browser against the pod's vulnerable web application, with <strong>Vega</strong> (the Subgraph scanner) on the Windows VM for the scanning half. For the cookie work you'll log in with the app's own accounts and inspect cookies through the browser's developer tools.</p>
+    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>WinOS</b></td><td><code>192.168.0.20</code></td><td><code>Administrator</code> / <code>Train1ng$</code></td></tr><tr><td><b>OWASP BWA</b></td><td><code>192.168.68.12</code></td><td><code>root</code> / <code>owaspbwa</code></td></tr><tr><td><b>OpenSUSE</b></td><td><code>192.168.0.30</code></td><td><code>osboxes</code> / <code>osboxes.org</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -289,6 +326,66 @@
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
+
+<section id="fullsteps" data-track>
+<h2>Full lab steps</h2>
+<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
+<p class="task-head">Task 1 - Vulnerability Scanning with Subgraph's Vega</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> launch the WinOS virtual machine to access the graphical login screen. 1.1. Select Send CTRL+ALT+DEL from the dropdown menu to be prompted with the login screen. 1.2. Log in as Administrator using the password: Train1ng$</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> Let us begin by opening the Vega software. To do this, navigate to Start &gt; Vega &gt; Vega, as seen in items 1, 2, and 3 below. Alternatively, you can open it by clicking the Vega icon from the Desktop.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> The Vega main window will open, as seen below. The table below the following screenshot outlines the different features that we will be using in this exercise. #     Name            Description 1     Menu bar        Contains options to reset the windows, start a scan and adjust preferences etc. 2     Toolbar         Has quick access icons that you can use to run/stop a scan or edit the scan parameters 3     Website View Contains the IP address or URLs of the scanned systems 4     Scan     Alerts Contains details of vulnerabilities 5     Scanner/Proxy Allows you to choose between a vulnerability scanner or a proxy 6     Scan Info pane Shows the scan progress and gives a summary of the identified 7     Identities      Allows you to add user credentials to allow automated login and</h3><div class="cmd"><pre>pane
+pane
+tab             server
+vulnerabilities
+scanning</pre></div></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Vega findings.</span> The scan results with vulnerabilities and severities.</div><div class="step"><h3 class="fh"><span class="n">4</span> Now that you are more familiar with the tool, let us test it out by scanning a specific web page. To begin, navigate to Scan and click Start New Scan, as seen in items 1 and 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> The Select a Scan Target window will appear as seen below. Enter the following IP address 192.168.68.12 in the Scan Target field as seen in item 1 below. Once it is entered, click Finish, as seen in item 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> The scan will begin, and you can see the progress in the Scan Info window. This scan will take a long time, so we will stop the scan after it displays 11 out of, as seen in item 1 below. To stop the scan, click the Stop icon seen in item 2 below. This will stop the scan abruptly. In the real world, we would allow it to run until complete or until practicable.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> Now let us look at some of the results from the scan. The results can be seen in the Scan Info window seen in item 1. As you can see, the scan revealed several results even though it was running for a short time. The name of the vulnerabilities can be seen in item 2, and their severity can be seen in item 3. You can scroll down using the scroll bar or the down arrow button seen in item 4. This will reveal additional categories of results.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> As you can see from the summary, there are lots of vulnerabilities in this target system, and there are several severe/critical vulnerabilities, which fall under the category High, that should be patched as soon as possible. Let us learn some more about one of these vulnerabilities. To do this, go to the Scan Alerts pane seen in item 1, and click the arrow beside the entry for the scan you just ran to expand it as seen in item 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> Next, click the arrows beside http://192.168.68.12 to reveal the different categories of results, as seen in item 1 below. Once done, click the arrow beside High to expand it and reveal the vulnerabilities that are considered critical, as seen in item 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> Now that we see the list of vulnerabilities, you can click on each one and view the details of the vulnerability in the Scan Info pane. Let us look at the results for item 1. As you can see, the different web resources where the vulnerabilities were found are listed. Click any of the results and then view the details in the Scan Info pane as seen in items 2 and 3 below.</h3><div class="cmd"><pre>Session Cookie Without HttpOnly Flag by clicking the arrow beside it, as seen in</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">11</span> In the Scan Info pane, you can see the name of the vulnerability seen in item 1, the AT A GLANCE row that contains a summary of the details seen in item 2, the REQUEST row that shows the request that Vega made seen in item 3 and the RESOURCE CONTENT row that shows the data inside the resource seen in item 4.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">12</span> To see more information, use the scroll bar or the down arrow button as seen in item 1 to scroll down. There you will see the DISCUSSION row, which provides the specific details of the vulnerability as seen in item 2. Next is the REMEDIATION row that tells you (generally) how to fix the problem, as seen in item 3. Finally, the REFERENCES column provides links to the source of information about the vulnerabilities, as seen in item 4.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">13</span> Feel free to review the different vulnerabilities that were identified and see what you can learn about them. Once you are done, close the Vega by clicking the X at the top-right corner of the main window to close it.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">14</span> In the next exercise, we will perform some web hacking using the Web Goat platform.</h3></div>
+<p class="task-head">Task 2 - Spoofing an Authentication Cookie</p>
+<div class="step"><h3 class="fh"><span class="n">1</span> To do this, navigate to Start &gt; Firefox, as seen in items 1 and 2 below. Alternatively, you can click the Firefox icon from the taskbar, as seen in item 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">2</span> The Firefox web browser will appear. Navigate to the address bar, click inside it and type 192.168.68.12 as seen in item 1 below. This will open the OWASP server main window. Click the OWASP WebGoat option, as seen in item 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">3</span> You will be prompted to enter a username and password. Log in with root and owaspbwa in the login window that appears, as seen in item 1, to log in to the WebGoat server.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">4</span> The WebGoat main window will appear. WebGoat is an intentionally vulnerable web application that contains several different exercises and is designed for teaching penetration testing. Once you are done reading the information on the main window, click Start WebGoat, as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">5</span> You will be taken to the Introduction window, which will teach you how to navigate WebGoat. Once you are done reading through the information on the page, navigate to Session Management Flaws &gt; Spoof an Authentication Cookie as seen in items 1 and 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">6</span> You will be taken to the Spoof an Authentication Cookie page, where you will see the instructions for the exercise. Read the instructions before beginning. Now type webgoat in the User Name and Password fields as seen in items 1 and 2 below. Once you are done typing, click Login, as seen in item 3.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">7</span> You will be authenticated and taken to a private page that displays the message, "*Your identity has been remembered." Now, let us look at the authentication cookie to see if the session ID can be identified. The session ID is the value we need to use to imitate the authentication cookie. To begin, click on the Open Menu button at the top-right corner of Firefox's main window, as seen in item 1. Next, click the Web Developer option from the dropdown menu that appears, as seen in item 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">8</span> The Web Developer menu will appear. Click Storage Inspector to open it, as seen in item 1. Since this view has several different options that we will not be using for this exercise, we will get to know the features as we go.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">9</span> The Storage Inspector is one of the web developer tools provided by the Firefox web browser and allows you to inspect different types of storage that a web page uses. Since we are focused on the authentication cookie, the storage type we will focus on is the Cookies storage. Once the Storage Inspector opens, a pane will appear at the bottom of the Firefox main window, as seen in item 1. Click the Cookies option on the left side of the pane, as seen in item 2 to reveal the contents. As you can see, there is one entry that shows the top-level domain name for the page. Click the option http://192.168.68.12 as seen in item 3 to reveal all the cookies loaded for the page, as seen in item 4.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">10</span> As you can see from the list, there are a variety of cookies. The one we are interested in is the one called AuthCookie. Click AuthCookie to view the contents of the cookie in the Data pane on the right, as seen in items 1 and 2.</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">The weak tokens.</span> Two AuthCookie values showing the matching prefix.</div><div class="step"><h3 class="fh"><span class="n">11</span> The details of the cookie are shown in the Data pane, as seen in the following screenshot. The table below the following screenshot provides details about the data within the cookie. #               Name                     Description 1               AuthCookie               contains the value that is used to generate the 2               Created                  the date and time the cookie was generated 3               Domain                   the domain name of the web page 4               Expires / Max            the length of time the cookie is valid 5               HostOnly                 a flag that specifies if the cookie can be accessed by subdomains as well. 6               HttpOnly                 a flag included in the cookie that helps to mitigate the risk of client-side scripting. 7               LastAccessed             the last time the cookie was accessed 8               Path                     the path the cookie is stored 9               Samesite                 a flag that can further restrict the cookie to a specific domain or subdomains. 10              Secure                   Determines whether the cookie can be transmitted over less secure protocols like HTTP. 11              Size                     The size of the cookie.</h3><div class="cmd"><pre>Session ID
+Age</pre></div></div>
+<div class="step"><h3 class="fh"><span class="n">12</span> To continue, we need to copy the value in the AuthCookie field. Do this by double- clicking the Value field, right-click the highlighted data and select Copy from the context menu as seen in items 1 and 2 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">13</span> Let us open Notepad++ so we can copy the text there. To do this, click the Start button and select Notepad++ from the Start Menu, as seen in items 1 and 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">14</span> Once Notepad++ opens, type the username webgoat as seen in item 1. We will paste the copied text beside the username to help us remember what account the value is associated with. To paste the data, right-click in the space beside the word webgoat and click Paste from the context menu, as seen in items 2 and 3.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">15</span> Let us save this data before going any further. To do this, navigate to File &gt; Save as seen in items 1 and 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">16</span> The Save As window will appear. Navigate to Documents &gt; Lab 24 as seen in items 1 and 2. Then, type the name cookie.txt in the File name field and click Save as seen in items 3 and 4 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">17</span> Now let us go back to the web browser and continue our exercise. To do this, minimize Notepad++ by clicking the _ button at the top-right corner of the window, as seen in item 1 below. If the Firefox window was minimized, maximize it by clicking the Firefox icon on the taskbar.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">18</span> The Storage Inspector pane should still be open, click the X at the top-right corner of the Storage Inspector pane, as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">19</span> We are done with the account called webgoat for now, so let us log out and use the next account called aspect to log in. To log out, click the Logout option seen in item 1.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">20</span> You will be taken back to the login screen. Type the word aspect in both the User Name and Password fields and then click Login as seen in items 1, 2, and 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">21</span> Once again you will be authenticated and taken to a private page that displays the message "* Your identity has been remembered." Let us look at the authentication cookie for this account as well. To begin, click on the Open Menu button at the top- right corner of Firefox's main window, as seen in item 1. Next, click the Web Developer option from the dropdown menu that appears, as seen in item 2.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">22</span> The Web Developer menu will appear. Click Storage Inspector to open it, as seen in item 1.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">23</span> Let us copy the value in the AuthCookie field as we did before. Do this by double- clicking the Value field, as seen in item 1. Now, copy the highlighted data by right- clicking on it and clicking Copy from the context menu that appears, as seen in items 2 and 3 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">24</span> Now maximize Notepad++ by clicking the Notepad++ icon from the taskbar, as seen in item 1 below.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">25</span> Once it is maximized, press the Enter key to start a new line and type the word aspect as seen in item 1. Now, paste the data we copied from the cookie. To do this, right-click in the space beside the word aspect and click Paste from the context menu, as seen in items 2 and 3.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">26</span> If you look at the values for both cookies, you can see that the first 5 characters are similar, 65432 as seen in item 1. This means we just need to learn how to decode the data after 65432. This data is encoded by reversing the username and then shifting one letter alphabetically. Let us look at the word webgoat. First, reverse it and it will become taogbew. Now, let us change each letter into the next letter alphabetically: t &gt; u, a &gt; b, o &gt; p, g &gt; h, b &gt; c, e &gt; f, w &gt; x. As you can see, the result is ubphcfx, which is the same value as the webgoat session cookie value. Since we are trying to get into the account called alice, we need to reverse and shift the characters for the word alice. Do this calculation using the same method as we did before. "ecila" e &gt; f, c &gt; d, i &gt; j, l &gt; m, a &gt; b</h3></div>
+<div class="step"><h3 class="fh"><span class="n">27</span> Since you have the value, press the Enter key to go to a new line in Notepad++ and then type the username alice as seen in items 1 and 2. Now, type 65432 and the value you calculated from the username, which is fdjmb as seen in item 3.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">28</span> Now that we have the session cookie value for the account called alice, we can use it to trick the website into giving us access to alice's account without the password. First, we must log in using a legitimate account. Let us use the aspect account since we are already logged in. For now, minimize Notepad++ by clicking the _ button at the top-right corner of the window.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">29</span> Firefox should now be in focus. However, if the Firefox window was minimized, maximize it by clicking the Firefox icon on the taskbar. You should still be logged in as aspect and the Storage Inspector pane should still be open.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">30</span> Let us change the AuthCookie value and replace it with alice's value. Begin by double-clicking the AuthCookie value as seen in item 1 below. Once it is highlighted, click the end of the value, and delete the letters and then replace them with fdjmb as seen in items 2 and 3 below. Once you are done, click in an empty area outside the field or press the Enter key to confirm the change.</h3></div>
+<div class="step"><h3 class="fh"><span class="n">31</span> Now that the cookie has been changed, click the Refresh option in the webpage area, as seen in item 1.</h3><div class="call tip"><span class="k">Note</span><p>This will reload the web page and send the new cookie we modified. When prompted by the browser, select Resend to confirm the action.</p></div></div>
+<div class="step"><h3 class="fh"><span class="n">32</span> If everything was done correctly, you will be successfully logged into alice's account. Close the Storage Inspector pane by clicking the X at the top-right corner of the Storage Inspector pane to close it and get a better view of the page's contents. As you can see on the web page, there is a congratulatory message that states "* Congratulations. You have successfully completed this lesson." You have successfully modified/spoofed a session cookie and got unauthorized access to the user account called alice.</h3></div>
+<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Impersonation.</span> The app showing you logged in as the other user after the cookie swap.</div><div class="step"><h3 class="fh"><span class="n">33</span> Close all open windows and applications to complete the lab.</h3></div>
+<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
+</section>
 
   <section id="reference" data-track>
     <h2>Reference — beyond the lab</h2>
@@ -491,5 +588,53 @@
 })();
 </script>
 <script src="assistant.js" defer></script>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
+  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
+  function show(i){
+    idx=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
+    root.setAttribute("data-pm-index",String(idx));
+    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
+    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
+    if(prevBtn)prevBtn.disabled=idx===0;
+    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
+    window.scrollTo(0,0);
+  }
+  function enter(){
+    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
+    if(!slides.length)return;
+    root.setAttribute("data-present","on");
+    if(dock)dock.setAttribute("aria-hidden","false");
+    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
+    show(0);
+  }
+  function exit(){
+    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
+    slides.forEach(function(s){s.classList.remove("pm-current");});
+    if(dock)dock.setAttribute("aria-hidden","true");
+    if(toggle)toggle.textContent="\u21E4 Lab mode";
+  }
+  toggle=document.getElementById("pmToggle");
+  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
+  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
+  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
+    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
+    '<button type="button" data-pm="next">Next \u25B6</button>'+
+    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
+  document.body.appendChild(dock);
+  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
+  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
+  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
+    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
+  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
+    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
+    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
+    else if(e.key==="Escape"){exit();}});
+})();
+</script>
 </body>
 </html>
