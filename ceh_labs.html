@@ -196,7 +196,15 @@
   .pm-dock{display:none}
   html[data-present="on"] header.site{display:none !important}
   html[data-present="on"] #main{max-width:62rem;padding-bottom:92px}
-  html[data-present="on"] #main > *:not(section){display:none !important}
+  /* keep a slim lab title on every step; hide only the non-essential chrome */
+  html[data-present="on"] .call.auth,
+  html[data-present="on"] .progress-wrap,
+  html[data-present="on"] nav.toc{display:none !important}
+  html[data-present="on"] .hero{padding:.9rem 0 .3rem;margin:0}
+  html[data-present="on"] .hero .lede,
+  html[data-present="on"] .hero .chips{display:none !important}
+  html[data-present="on"] .hero h1{font-size:clamp(1.2rem,1rem + 1.6vw,1.55rem);margin:.15rem 0}
+  html[data-present="on"] .hero .labno{font-size:.72rem}
   html[data-present="on"] #main > section{display:none;font-size:1.04rem}
   html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease}
   @keyframes pm-fade{from{opacity:0}to{opacity:1}}
@@ -726,6 +734,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>
