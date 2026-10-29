@@ -191,6 +191,32 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
+
+  /* ---- lab mode (section-by-section focus; ported from the Security+ companions) ---- */
+  .pm-dock{display:none}
+  html[data-present="on"] header.site{display:none !important}
+  html[data-present="on"] #main{max-width:62rem;padding-bottom:92px}
+  html[data-present="on"] #main > *:not(section){display:none !important}
+  html[data-present="on"] #main > section{display:none;font-size:1.04rem}
+  html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease}
+  @keyframes pm-fade{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion: reduce){html[data-present="on"] #main > section.pm-current{animation:none}}
+  html[data-present="on"] .done-row{display:none}
+  html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:200;display:flex;
+    align-items:center;gap:8px;padding:8px 12px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));
+    background:var(--surface);border-top:1px solid var(--border)}
+  .pm-dock button{flex:0 0 auto;min-height:44px;min-width:44px;padding:0 14px;cursor:pointer;
+    font:700 .9rem/1 var(--sans);border-radius:9px;background:var(--surface-2);color:var(--ink);border:1px solid var(--border)}
+  .pm-dock button:hover{background:var(--accent);color:var(--bg)}
+  .pm-dock button:disabled{opacity:.4;cursor:not-allowed}
+  .pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
+  .pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font:600 .82rem/1.25 var(--sans);
+    color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pm-dock .pm-exit{background:transparent}
+  #pm-toggle .pmi{font-family:var(--mono);font-weight:700}
+  html[data-present="on"] footer.site{display:none !important}
+  @media print{.pm-dock,#pm-toggle{display:none !important}}
 </style>
 </head>
 <body>
@@ -207,6 +233,7 @@
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
+      <button class="ctl" id="pm-toggle" aria-pressed="false" title="Lab mode — one section at a time (Shift+L)"><span class="pmi" aria-hidden="true">⇥</span> Lab mode</button>
     </div>
   </div>
 </header>
@@ -409,7 +436,7 @@
   </section>
 
 </main>
-<footer class="site">
+<div class="pm-dock" id="pmDock" aria-hidden="true"><button type="button" data-pm="prev" aria-label="Previous section">◀</button><div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div><button type="button" data-pm="next" aria-label="Next section">▶</button><button type="button" data-pm="exit" class="pm-exit" aria-label="Exit lab mode">✕</button></div><footer class="site">
   <p>Lab companion for <span class="program">CEH v13 — Lab 24</span>. Companion material © 2026; original explanatory content written to accompany the NDG <em>Ethical Hacking v2</em> lab series, which remains the property of its publisher.</p>
   <p>Aligned to the EC-Council CEH v13 curriculum. An independent study companion — not affiliated with or endorsed by EC-Council or NDG.</p>
   <p><span class="program">CEH v13 Course Series</span> · Brookdale Community College · 2026</p>
@@ -488,6 +515,54 @@
     document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
     refresh();
   });
+  /* ---- lab mode (section-by-section focus) ---- */
+  (function(){
+    var toggle=document.getElementById("pm-toggle"), dock=document.getElementById("pmDock");
+    if(!toggle||!dock) return;
+    var secs=[], pi=0;
+    var countEl=document.getElementById("pmCount"), nameEl=document.getElementById("pmName");
+    var prevB=dock.querySelector('[data-pm="prev"]'), nextB=dock.querySelector('[data-pm="next"]');
+    function labelOf(sec){var h=sec.querySelector("h2");return h?(h.textContent||"").replace(/\s+/g," ").trim():(sec.id||"Section");}
+    function show(n){
+      if(!secs.length)return;
+      pi=Math.max(0,Math.min(secs.length-1,n));
+      secs.forEach(function(sct,k){sct.classList.toggle("pm-current",k===pi);});
+      if(countEl)countEl.textContent=(pi+1)+" / "+secs.length;
+      if(nameEl)nameEl.textContent=labelOf(secs[pi]);
+      if(prevB)prevB.disabled=pi===0; if(nextB)nextB.disabled=pi===secs.length-1;
+      window.scrollTo(0,0);
+    }
+    function enter(){
+      secs=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
+      root.setAttribute("data-present","on"); dock.setAttribute("aria-hidden","false");
+      toggle.setAttribute("aria-pressed","true");
+      try{localStorage.setItem("ceh:labmode:v1","1");}catch(e){}
+      show(0);
+    }
+    function exit(){
+      root.removeAttribute("data-present");
+      secs.forEach(function(sct){sct.classList.remove("pm-current");});
+      dock.setAttribute("aria-hidden","true"); toggle.setAttribute("aria-pressed","false");
+      try{localStorage.setItem("ceh:labmode:v1","0");}catch(e){}
+    }
+    function tog(){root.getAttribute("data-present")==="on"?exit():enter();}
+    toggle.addEventListener("click",tog);
+    dock.addEventListener("click",function(e){
+      var t=e.target.closest("[data-pm]"); if(!t)return;
+      var a=t.getAttribute("data-pm");
+      if(a==="prev")show(pi-1); else if(a==="next")show(pi+1); else if(a==="exit")exit();
+    });
+    document.addEventListener("keydown",function(e){
+      if(e.shiftKey&&(e.key==="L"||e.key==="l")){
+        var tg=(e.target&&e.target.tagName)||""; if(tg==="INPUT"||tg==="TEXTAREA"||(e.target&&e.target.isContentEditable))return;
+        e.preventDefault(); tog(); return;
+      }
+      if(root.getAttribute("data-present")!=="on")return;
+      if(e.key==="ArrowRight"||e.key==="PageDown"){e.preventDefault();show(pi+1);}
+      else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();show(pi-1);}
+      else if(e.key==="Escape"){e.preventDefault();exit();}
+    });
+  })();
 })();
 </script>
 </body>
