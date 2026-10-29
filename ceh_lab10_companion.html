@@ -191,40 +191,6 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
-
-#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
-#fullsteps .step h3.fh .n{margin-right:.5rem}
-#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
-#fullsteps .shotmark b{color:var(--accent)}
-
-.pm-toggle.ctl{cursor:pointer}
-html[data-present="on"] nav.toc,
-html[data-present="on"] .hero .lede,
-html[data-present="on"] .hero .chips,
-html[data-present="on"] footer.site,
-html[data-present="on"] .done-row{display:none!important}
-html[data-present="on"] #main{max-width:100%}
-html[data-present="on"] .hero{margin-top:.6rem}
-html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
-html[data-present="on"] #main > section{display:none;margin-top:1rem}
-html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
-@keyframes pm-fade{from{opacity:0}to{opacity:1}}
-html[data-present="on"] .call.auth{display:none!important}
-html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
-.pm-dock{display:none}
-html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
-  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
-  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
-.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
-  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
-.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
-.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
-.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
-.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
-.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media print{.pm-dock,.pm-toggle{display:none!important}}
-html[data-present="on"] #ca-launch{display:none!important}
-
 </style>
 </head>
 <body>
@@ -240,7 +206,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
-          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -273,7 +238,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Command walkthrough</a></li>
-      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Options reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -294,7 +258,6 @@ html[data-present="on"] #ca-launch{display:none!important}
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You work from <strong>Kali</strong> against the <strong>OWASP BWA</strong> web app at <code class="inl">192.168.68.12</code> — a server built to be full of holes. Nikto runs from the terminal; Burp runs as a GUI with your browser pointed through it as a proxy.</p>
-    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>OWASP BWA</b></td><td><code>192.168.68.12</code></td><td><code>root</code> / <code>owaspbwa</code></td></tr><tr><td><b>pfSense</b></td><td><code>192.168.0.254 / 192.168.68.254</code></td><td><code>admin</code> / <code>pfsense</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -306,7 +269,12 @@ html[data-present="on"] #ca-launch{display:none!important}
       <h3><span class="n">1</span> A baseline web-server scan</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-host</span> <span class="ar">192.168.68.12</span></pre></div>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-host</span> <span class="ar">192.168.68.12</span> <span class="fl">-output</span> <span class="ar">report.html</span></pre></div>
-      <p>Nikto checks a web server for outdated software, dangerous files, and misconfigurations, then (with <code class="inl">-output</code>) saves a shareable report. You can narrow the run to specific plugin categories — <code class="inl">-list-plugins</code> shows them, and e.g. <code class="inl">-Plugins outdated -host IP</code> runs just that check. (See <a href="ceh_lab19_companion.html" target="_blank" rel="noopener">Lab 19</a> for Nikto in the scanning methodology.)</p>
+      <p>Nikto checks a web server for outdated software, dangerous files, and misconfigurations, then (with <code class="inl">-output</code>) saves a shareable report. After the broad scan, the lab narrows in with specific plugin categories (<code class="inl">-list-plugins</code> shows them all):</p>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-Plugins</span> <span class="ar">outdated</span> <span class="fl">-host</span> <span class="ar">192.168.68.12</span></pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-Plugins</span> <span class="ar">httpoptions</span> <span class="fl">-host</span> <span class="ar">192.168.68.12</span></pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-Plugins</span> <span class="ar">msgs</span> <span class="fl">-host</span> <span class="ar">192.168.68.12</span></pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-Plugins</span> <span class="ar">tests</span> <span class="fl">-host</span> <span class="ar">192.168.68.12</span></pre></div>
+      <p>Each targets one thing: <code class="inl">outdated</code> flags stale software, <code class="inl">httpoptions</code> reveals the server accepts all HTTP methods (susceptible to <strong>cross-site tracing</strong>), <code class="inl">msgs</code> checks server messages, and <code class="inl">tests</code> runs standard checks (here flagging a <strong>buffer-overflow</strong> exposure). (See <a href="ceh_lab19_companion.html" target="_blank" rel="noopener">Lab 19</a> for Nikto in the scanning methodology.)</p>
       <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture a few Nikto findings (the <code class="inl">+</code> lines) for the target.</p></div>
     </div>
 
@@ -314,7 +282,7 @@ html[data-present="on"] #ca-launch{display:none!important}
     <div class="step">
       <h3><span class="n">2</span> Launch Burp and proxy the browser</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> burpsuite</pre></div>
-      <p>Burp's <strong>Proxy</strong> listens on <code class="inl">127.0.0.1:8080</code>. Point the browser's proxy settings at it, and now every request the browser makes passes through Burp first. With <strong>Intercept</strong> on, Burp pauses each request so you can read or edit it before it reaches the server; with it off, requests flow but are still recorded.</p>
+      <p>Burp's <strong>Proxy</strong> listens on <code class="inl">127.0.0.1:8080</code>. Point the browser's proxy settings at it, and now every request the browser makes passes through Burp first. With <strong>Intercept</strong> on, Burp pauses each request so you can read or edit it before it reaches the server; the lab turns <strong>Intercept off</strong> so traffic just flows and is logged. Point Firefox's proxy at <code class="inl">127.0.0.1:8080</code> (Preferences → Network Settings → Manual proxy, "Use this proxy for all protocols"), browse to <code class="inl">192.168.68.12</code>, then on the <strong>Target</strong> tab right-click the host and <strong>Add to scope</strong> so the site map and intercept focus on it. The lab then opens <strong>Damn Vulnerable Web Application</strong> and logs in with <code class="inl">admin</code> / <code class="inl">admin</code> to map it further.</p>
       <div class="call tip"><span class="k">The one setup gotcha</span><p>To intercept HTTPS without certificate errors, install Burp's CA certificate in the browser. Without it, TLS sites throw warnings and won't load cleanly.</p></div>
     </div>
     <div class="step">
@@ -332,97 +300,6 @@ html[data-present="on"] #ca-launch{display:none!important}
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
-
-<section id="fullsteps" data-track>
-<h2>Full lab steps</h2>
-<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
-<p class="task-head">Task 1 - Scanning With Nikto</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Click on the Kali tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Click within the console window and press Enter to display the login prompt.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Enter root as the username. Press Tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Enter toor as the password. Click Log In.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Open a new terminal by clicking on the Terminal icon located at the top of the page if the terminal is not already opened.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> In the new Terminal window, observe the options available for nikto. Type the command below, followed by pressing the Enter key.</h3><div class="cmd"><pre>nikto -help</pre></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Nikto findings.</span> A few flagged issues for the target.</div><div class="step"><h3 class="fh"><span class="n">7</span> Type the nikto command below to initiate a host scan with no options followed by pressing the Enter key.</h3><div class="cmd"><pre>nikto -host 192.168.68.12</pre></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Intruder result.</span> The brute-force table with the successful attempt standing out.</div><div class="step"><h3 class="fh"><span class="n">8</span> Once the scan completes, notice the large amount of information given. To narrow down the scan, first check which nikto plugins are available. Enter the command below.</h3><div class="cmd"><pre>nikto -list-plugins</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> After examining the plugins, test the versions of software on the server. Enter the command below. Make sure to include a capital "P" in the word Plugins; otherwise, the command will not be accepted properly.</h3><div class="cmd"><pre>nikto -Plugins outdated -host 192.168.68.12</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Check for the HTTP options the server accepts.</h3><div class="cmd"><pre>nikto -Plugins -httpoptions -host 192.168.68.12</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> Notice the server accepts all HTTP options and is susceptible to cross-site tracing.</h3><div class="cmd"><pre>nikto -Plugins msgs -host 192.168.68.12</pre></div><div class="call tip"><span class="k">Note</span><p>Check which client policies the server accepts. Enter the command below.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> Notice the server is susceptible to buffer overflow. Try a set of standard nikto tests against the server. After the scan completes, notice a number of vulnerabilities from the Open Source Vulnerability Database (OSVDB).</h3><div class="cmd"><pre>nikto -Plugins tests -host 192.168.68.12</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> Now that a number of tests have been established, generate a comprehensive report in HTML. Type the command below, followed by pressing the Enter key.</h3><div class="cmd"><pre>nikto -host 192.168.68.12 -output report.html</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">14</span> Once the operation completes, click on the Folder &gt; Open Folder located at the top of the Desktop.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">15</span> While viewing the root directory (default), right-click on report.html file and select Open With &gt; Open with "Firefox ESR". The file does not seem to launch with the Chromium Web Browser, which is the default browser.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">16</span> Analyze the contents of the report.html file. When finished, close the Mozilla</h3><div class="call tip"><span class="k">Note</span><p>Firefox browser and the File Manager.</p></div></div>
-<p class="task-head">Task 2 - Setting up Burp Suite</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Open a terminal and type the following command:</h3><div class="cmd"><pre>burpsuite</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> In the Java popup, click OK to continue.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Review the Terms and Conditions, then click I Accept to continue.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Make sure Temporary project is selected and then click Next.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Make sure Use Burp defaults is selected and then click Start Burp.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> In the Burp Suite is out of date window, click OK to continue. This will not affect the lab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Burp Suite primarily functions with the Proxy and the Target tabs. Burp Suite functions as a proxy to capture traffic. Before we can start capturing traffic, we need to enable the proxy in Mozilla Firefox. Click on the Applications &gt; Web Browser link from the Desktop.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Click on the Menu icon in the upper right, then select Preferences.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Scroll to the bottom and click on Settings… under Network Settings.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Select Manual proxy configuration and add the information below: HTTP Proxy                                           Port</h3><div class="cmd"><pre>127.0.0.1                                            8080</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> Click the checkbox for Use this proxy server for all protocols.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> Click on OK to save settings.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> Click on the X to close the preferences tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">14</span> Click back on the Burp Suite tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">15</span> Click on the Proxy tab. You may notice a request to http://detectportal.firefox.com. Right now, Burp Suite is intercepting all traffic outbound through the browser. You could drop individual requests or forward them on.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">16</span> For the purposes of this lab, we want to turn intercept off, and just allow Burp</h3><div class="call tip"><span class="k">Note</span><p>Suite to log information. Click on Intercept is on to turn it off.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">17</span> Click back on the Mozilla Firefox tab at the top.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">18</span> In the address bar, type 192.168.68.12 and press Enter.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">19</span> Once the page has loaded, click on the Burp Suite tab at the top to switch back.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">20</span> Click on the Target tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">21</span> If you were to browse various sites, they would start showing up on the left pane. Because this lab is a sandbox environment without internet access, there will be minimal traffic here. However, you want to focus your attention on the 192.168.68.12 web server. You will need to add this host to the scope for filtering. Right-click on the http://192.168.68.12 host and select Add to scope.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">22</span> In the popup window, it asks if you want to stop logging items outside of the scope. Click on Yes so we can focus on the OWASP web server.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">23</span> Click on the Scope tab under the Target tab and see that the host has been added to the Include in scope.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">24</span> This will filter the site map, but it will not filter the intercept mode of the proxy unless you specify it to. Click on the Proxy tab, then click on the Options tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">25</span> Under the Intercept Client Requests section, click on the checkbox for And URL</h3><div class="call tip"><span class="k">Note</span><p>Is in target scope. This will filter down to just the scope you specified before.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">26</span> You will use this later to gather information from the website.</h3></div>
-<p class="task-head">Task 3 - Building a site map with Burp Suite</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Click on the Target tab and then click on the Site map tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Note that Burp Suite is creating a site map of the site. To see this, right-click on http://192.168.68.12 host and select Expand branch.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Even though you just went to the main page, Burp Suite has collected quite a bit of information. Items are grey when you have not requested them, while those in black you have requested. Notice that the dvwa file is grey. To expand this further, click on the Mozzilla Firefox tab at the top.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Scroll down and click on Damn Vulnerable Web Application.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Log in to the page with the username admin and the password admin.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Click back on the Burp Suite tab at the top.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Notice that dvwa is now black and shows a folder. Right-click on the dvwa folder and select Expand branch.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Burp Suite has started mapping out the web server even further, including logging information such as usernames and passwords, as indicated under the login.php file. Click on the username=admin&amp;password=admin link below login.php.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Under the Request tab, click on the Params tab to clearly view the request parameters. Here you can access the cookie information, as well as the username and password information.</h3><div class="call tip"><span class="k">Note</span><p>You will see this information used in a later lab about SQL injections.</p></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Burp site map.</span> The discovered pages and parameters.</div><p class="task-head">Task 4 - Brute Forcing a Web Application</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Click on the Proxy tab, and then click on the HTTP history tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Right-click anywhere in the list in the middle pane and select Clear history.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Click on the Yes button to confirm.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Click on the Mozilla Firefox tab at the top of the screen to switch back to the DVWA application.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> In the left pane, click on Brute Force.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> In the Username field, type admin and in the Password field, type pass. Click on the Login button to continue. Notice the application gives the feedback, "Username and/or password</h3><div class="cmd"><pre>incorrect."</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Click on the Burp Suite tab at the top of the screen.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Click on the line with a GET method that has the Params column with a check.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> In the Raw tab below, we can see it highlights different variables. Right-click on the line you selected in the middle and select Send to Intruder.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Notice the Intruder tab went orange in color. Click on the Intruder tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> The Target tab has been filled out based on the information from the previous screen. Click on the Positions tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> In the Attack type dropdown, select Cluster bomb.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> In the pane below, notice all the variables are highlighted. You only want to focus on $admin$ and $pass$ as they were the options you tried on the page.</h3><div class="call tip"><span class="k">Note</span><p>Click on the Clear $ button on the right to clear the selected variables.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">14</span> Double-click on the word admin. Then, click the Add $ button.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">15</span> Double-click on the word pass. Then, click the Add $ button.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">16</span> Click on the Payloads tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">17</span> The first payload set will be for the username. You are looking to just brute force for a single user, admin. In the Add box under Payload Options, enter admin then click the Add button. You should see admin added to the list above.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">18</span> Click on the dropdown for Payload set under the Payload Sets section. Select 2.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">19</span> This will allow you to manipulate the password field. Change the dropdown for</h3><div class="call tip"><span class="k">Note</span><p>Payload type to Runtime file. This will allow you to use a dictionary list.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">20</span> In the Payload Options section, click on the Select file… button.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">21</span> In the Look In dropdown, select the / directory.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">22</span> Navigate to the /usr/share/wordlists/metaploit/ folder and double-click on the unix_passwords.txt file.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">23</span> Click the Options tab. Scroll down to the Grep - Match section. You need to add a rule so we can determine if the password used is correct. Remember the feedback from Step 7 had the phrase, "Username and/or password incorrect", when there was an invalid entry. We need to grep on the word "incorrect" to mark the invalid passwords, leaving those not marked as valid passwords.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">24</span> Click the Clear button to clear the existing flags. In the Confirm window, click Yes.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">25</span> In the Add field, type incorrect and then click the Add button. You should see incorrect added to the list.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">26</span> You are now ready to begin your attack. Click on the Intruder tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">27</span> Then click on the Start attack button.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">28</span> In this Community Edition of Burp Suite, the attacks are time throttled. Click on OK to continue.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">29</span> As it starts to attack, look in the incorrect column for any passwords without a checkmark. You should see the password in the Payload2 column of admin. This is a valid password for the DVWA application. This attack will continue with the many passwords on the list. You can close this window at any time. The output may differ from the screenshot.</h3><div class="call tip"><span class="k">Note</span><p>Burp Suite has many more features available for web application analysis. However, many of those will require the use of the Pro edition.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">30</span> You may now end your reservation.</h3></div>
-<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
-</section>
 
   <section id="reference" data-track>
     <h2>Options reference — beyond the lab</h2>
@@ -626,55 +503,6 @@ html[data-present="on"] #ca-launch{display:none!important}
     document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
     refresh();
   });
-})();
-</script>
-<script src="assistant.js" defer></script>
-
-<script>
-(function(){
-  "use strict";
-  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
-  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
-  function show(i){
-    idx=Math.max(0,Math.min(slides.length-1,i));
-    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
-    root.setAttribute("data-pm-index",String(idx));
-    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
-    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
-    if(prevBtn)prevBtn.disabled=idx===0;
-    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
-    window.scrollTo(0,0);
-  }
-  function enter(){
-    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
-    if(!slides.length)return;
-    root.setAttribute("data-present","on");
-    if(dock)dock.setAttribute("aria-hidden","false");
-    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
-    show(0);
-  }
-  function exit(){
-    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
-    slides.forEach(function(s){s.classList.remove("pm-current");});
-    if(dock)dock.setAttribute("aria-hidden","true");
-    if(toggle)toggle.textContent="\u21E4 Lab mode";
-  }
-  toggle=document.getElementById("pmToggle");
-  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
-  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
-  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
-    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
-    '<button type="button" data-pm="next">Next \u25B6</button>'+
-    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
-  document.body.appendChild(dock);
-  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
-  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
-  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
-    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
-  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
-    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
-    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
-    else if(e.key==="Escape"){exit();}});
 })();
 </script>
 </body>

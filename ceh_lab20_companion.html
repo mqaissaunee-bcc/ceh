@@ -191,40 +191,6 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
-
-#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
-#fullsteps .step h3.fh .n{margin-right:.5rem}
-#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
-#fullsteps .shotmark b{color:var(--accent)}
-
-.pm-toggle.ctl{cursor:pointer}
-html[data-present="on"] nav.toc,
-html[data-present="on"] .hero .lede,
-html[data-present="on"] .hero .chips,
-html[data-present="on"] footer.site,
-html[data-present="on"] .done-row{display:none!important}
-html[data-present="on"] #main{max-width:100%}
-html[data-present="on"] .hero{margin-top:.6rem}
-html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
-html[data-present="on"] #main > section{display:none;margin-top:1rem}
-html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
-@keyframes pm-fade{from{opacity:0}to{opacity:1}}
-html[data-present="on"] .call.auth{display:none!important}
-html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
-.pm-dock{display:none}
-html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
-  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
-  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
-.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
-  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
-.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
-.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
-.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
-.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
-.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media print{.pm-dock,.pm-toggle{display:none!important}}
-html[data-present="on"] #ca-launch{display:none!important}
-
 </style>
 </head>
 <body>
@@ -240,7 +206,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
-          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -273,7 +238,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Command walkthrough</a></li>
-      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Options reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -294,7 +258,6 @@ html[data-present="on"] #ca-launch{display:none!important}
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>From <strong>Kali</strong> you enumerate hosts on the <code class="inl">192.168.0.0/24</code> network, with the deeper SMB/LDAP work aimed at the domain machine at <code class="inl">192.168.0.20</code>. A couple of enumeration tools (<strong>SuperScan</strong>, <strong>NetBIOS Enumerator</strong>) run on the <strong>Windows</strong> VM, but the heavy lifting is <code class="inl">nmap</code> and <code class="inl">enum4linux</code> from the command line.</p>
-    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>WinOS</b></td><td><code>192.168.0.20</code></td><td><code>Administrator</code> / <code>Train1ng$</code></td></tr><tr><td><b>OWASP BWA</b></td><td><code>192.168.68.12</code></td><td><code>root</code> / <code>owaspbwa</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -332,48 +295,6 @@ html[data-present="on"] #ca-launch{display:none!important}
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
-
-<section id="fullsteps" data-track>
-<h2>Full lab steps</h2>
-<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
-<p class="task-head">Task 1 - Enumeration Services on a Target Machine</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> To begin, launch the Kali Linux virtual machine to access the graphical login screen.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Log in as root using the password: toor</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Launch the WinOS to access the graphical login screen. This will be the target machine. 3.1. Select Send CTRL+ALT+DEL from the dropdown menu to be prompted with the login screen. 3.2. Log in as Administrator using the password: Train1ng$</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Now, let us switch back to the Kali machine. Before starting the lab, ensure that the host machine is on the same network as the target machine. Select the Ethernet network connection from the navigation panel, as seen in item 1. Then, click Wired connection eth1 to allow Kali Linux to use the interface with the IP address 192.168.0.2, as seen in item 2. The target machine is on the network 192.168.0.0/24. The Kali Linux VM is configured with both IP addresses and can be easily interchanged.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Let us start by launching nmap. To do this, navigate to Whisker Menu &gt; Information Gathering &gt; Network &amp; Port Scanners &gt; nmap as seen in items 1, 2, 3, and 4 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Once started, the Nmap application will appear in a command line terminal, displaying all the switches that can be used to perform scanning. Review the instructions/switches to become more familiar with the tool.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Now, type nmap -sP &lt;IP address of the target subnet&gt; then press Enter. The target subnet will be 192.168.0.0/24. -sP means Ping Sweep scan, the result will list the hosts within the specific range that responded to a ping. More details can be viewed under Scan Techniques/Types.</h3><div class="cmd"><pre>root@kali:~# nmap -sP 192.168.0.0/24</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Nmap scans all nodes on the given network range and displays all active hosts. Let us see the results from the subnet 192.168.0.0/24. It appears that IP addresses .20 .30 .100, and .254 are active, as seen at items 1, 2, 3, and 4 below. The IP address 192.168.0.2 is the Kali Linux host and will not be included in the list, however, it is a part of this subnet.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Great, there are four (4) active hosts on the network. Now that we obtained open ports, along with the services running, we can now attempt to enumerate the versions of each running service on the ports by performing a SYN scan with the version detection switch enabled.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Type nmap -sSV -O &lt;IP address of the target subnet&gt; then press Enter. The IP address used in this lab is 192.168.0.30. This command initiates a stealthy SYN scan with version detection along with OS detection. Version detection collects information about the specific service running on an open port, including the product name and version number.</h3><div class="cmd"><pre>root@kali:~# nmap -sSV -O 192.168.0.30</pre></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Services &amp; OS.</span> The <code class="inl">nmap -sSV -O</code> output with versions and OS guess.</div><div class="step"><h3 class="fh"><span class="n">11</span> NMAP performs the scan and displays the versions of the services, along with the OS fingerprint, as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> Change the target IP address as identified in step 9 and repeat the process to identify the remaining active hosts. a. Type nmap -sSV -O 192.168.0.20 and then press Enter. b. Type nmap -sSV -O 192.168.0.100 and then press Enter. c. Type nmap -sSV -O 192.168.0.254 and then press Enter.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> By performing services enumeration, we are now able to research vulnerability associated with that particular application and exploit them to gain access to the target machine.</h3></div>
-<p class="task-head">Task 2 - Enumerating a Network Using SuperScan</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Switch back to the Windows VM. Navigate to and double-click the Toolbox directory located on the desktop, as seen in item 1 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> In Windows File Explorer, double-click the folder SuperScan and double-click SuperScan4.1.exe to launch the application as highlighted in items 1 and 2.</h3><div class="call tip"><span class="k">Note</span><p>If prompted by the User Access Control, click Run.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> The SuperScan window will appear, it has a simple-looking interface that allows you to gather some useful information about the target systems on the network. First, let us click on the Windows Enumeration tab, as seen in item 1. Next, enter the IP address 192.168.0.20 of the target machine in the Hostname/IP/URL textbox and click Enumerate as seen in item 2 and 3 below. SuperScan will start enumerating the provided target and displays the results. After the scan is completed, a message will be displayed at the end of the enumeration results, as seen in item 4 below. By default, the Enumeration types are selected. We can leave it as is to obtain all the information we can.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Now, scroll the window as seen in item 1 to see the results of the enumeration. As you can see from the results, the Windows VM is vulnerable to a null session attack, as seen in item 2. At item 3, you will see records from a Remote Procedure Calls (RPC) endpoint. RPC endpoint is a network-specific address of a server process, using an RPC endpoint mapper an attacker can establish a TCP/IP connection and use it to determine the port number currently assigned to the service. However, that will not be covered in this lab.</h3></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">GUI enumeration.</span> SuperScan or NetBIOS Enumerator showing host details.</div><div class="step"><h3 class="fh"><span class="n">5</span> Now, scroll the window until you locate Domains on 192.168.0.20, as seen in item 1. Here SuperScan identified that WINOS as the Primary Domain Controller seen in item 2 and a list of remote services both stopped and running as seen in item 3.</h3><div class="call tip"><span class="k">Note</span><p>Additional information can be gleaned from the enumeration scan. Please feel free to review the results further.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> The previous enumeration scan was specific to Windows. Let us try to perform a new enumeration scan against a Linux host. Before we go ahead, click on the Host and Service Discovery tab seen in item 1. Once there, click the Connect radio button as seen in item 2 to change the scan type from a SYN (half-open/stealth) scan to a TCP connect scan. The TCP connect scan attempts to perform a full 3-way handshake with the target ports and determines whether a port is open based on the response. A SYN (half-open/stealth) scan does not perform the full 3-way handshake and is used to evade older intrusion detection systems. Some applications listening on the target ports may not capture the attempted connection from SYN scans as well, since it was not a complete connection. For this purpose, it is considered a stealthier scan than a TCP connect scan.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Now, let us set up and run the scan. To do this, click on the Scan tab as seen in item</h3></div>
-<div class="step"><h3 class="fh"><span class="n">1</span> Next, enter the IP address 192.168.68.12 of the target machine in the Hostname/IP/URL textbox and click the import arrow to insert the target IP address under the Start IP column, as seen in items 3 and 4. Now click the Start button located at the bottom-left corner of the application to initiate the Enumeration scan, as seen in item 5. At the end of the scan, the View HTML Results will become visible; click this to see the results in a web browser, as seen in item 6 below. If your scan did not identify a UDP port, please proceed to step 8 below. Otherwise continue to step 10.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Optional: Let us reboot the OWASP BWA machine and try running the scan again. Select the dropdown arrow beside OWASP BWA machine. Then click Power Off as seen in items 1 and 2. If prompted for confirmation, click Power OFF, as seen in item 3 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Optional: Now, start the machine by clicking Power On as seen in item 1 below. After the OWASP BWA machine has successfully started, try running the scan again from the WinOS VM and observe the results. If your scan identified a UDP port after the reboot, please proceed to step 10 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> The report from the scan will open in the default web browser, and you will see the information displayed as seen below. In item 1, the scan captured the NetBIOS name OWASPBWA and indicates that it is part of a workgroup and not a domain. In item 2, you can see the details about the open TCP ports and the services they are running. Item 3 lists the open UDP ports and the services they are running. As you can see, UDP port 137 is running the NetBIOS service, which is where SuperScan got the NetBIOS name.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> The next section of the SuperScan report shows the banner grabbing attempt for each of the ports mentioned above. In item 1 below, we can see that SSH port 22 is running Open SSH on Debian Ubuntu. Item 2 shows that port 80 is running Apache server on Ubuntu. It also lists a last modified date for the "web page" and provides details such as content length and type. Item 3 shows that port 443 is running Internet Message Access Protocol (IMAP) which is used for email. The service is Courier-IMAP. Items 4 and 5 show that Apache server is running on both port 443 and 8080 as well. Based on what the above banner information is showing, we can safely assume that the host is running Ubuntu and is a web and email server.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> The banner information for the UDP port reveals the NetBIOS Name Table as seen in item 1. It shows the NetBIOS names, workgroup, and domain names.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> In this exercise, we enumerated NetBIOS names and grabbed banners. In the next exercise, we will perform LDAP enumeration and scan some more interesting data.</h3></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">enum4linux users/shares.</span> Enumerated accounts or shares, plus the null-session confirmation.</div><p class="task-head">Task 3 - LDAP Enumeration</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Switch back to the Kali Linux VM. Before starting this task, ensure that the host machine is on the same network as the target machine. Select the Ethernet network connection from the navigation panel, as seen in item 1. Then Click Wired connection eth1 to allow Kali Linux to use the interface with the IP address 192.168.0.2, as seen in item 2.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Let us begin by clicking the Terminal icon on the navigator panel, as seen in item 1. Once the terminal window appears, type enum4linux -a -v -l 192.168.0.20 and press Enter as seen in item 2. root@kali:~# enum4linux -a -v -l 192.168.0.20 The -a switch instructs enum4linux to do a simple enumeration by grabbing userlist, sharelist, group and member list, password policy, RID cycle, OS information, nmb and printer information. The -v switch is verbose mode and the -l grabs ldap information. a stealthy SYN scan with version detection along with OS detection. Version detection collects information about the specific service running on an open port, including the product name and version number.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> The results will populate the Terminal window. Let us scroll to the top using the mouse wheel or the scroll bar on the right, as seen in item 1. The data highlighted in item 2 list the information being targeted. The next section highlighted in item 3 lists the known domain or workgroup. As you can see, the domain's name is ETHICAL. The Nbtstat information listed in the next section lists the NetBIOS name for the host, the domain group, and the MAC address, as seen in item 4. As you can see, the host is in the Domain Controllers group, which indicates that it is a Domain Controller.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Let us scroll down a bit, as seen in item 1. The next heading is Session Check which checks if a null session is possible. As you are already aware from the previous exercise, the null session is possible, as seen in item 2. Below that, is the LDAP information seen in item 3. This indicates that the long name for the host is Ethical.local. It also indicates that the host appears to be a root/parent DC. This is a great sign as it means it will have tons of information and can provide access to other accounts and devices. The heading below that is the Security Identifier (SID), as seen in item 4. This SID uniquely identifies the domain.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> The rest of the report did not show any results due to varying reasons; however, you can still scroll through it to see the commands that were used. It is important to note that these commands may provide more information if ran against more vulnerable systems.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> This is the end of the lab; please close all windows and terminals to complete the lab.</h3></div>
-<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
-</section>
 
   <section id="reference" data-track>
     <h2>Options reference — beyond the lab</h2>
@@ -579,55 +500,6 @@ html[data-present="on"] #ca-launch{display:none!important}
     document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
     refresh();
   });
-})();
-</script>
-<script src="assistant.js" defer></script>
-
-<script>
-(function(){
-  "use strict";
-  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
-  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
-  function show(i){
-    idx=Math.max(0,Math.min(slides.length-1,i));
-    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
-    root.setAttribute("data-pm-index",String(idx));
-    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
-    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
-    if(prevBtn)prevBtn.disabled=idx===0;
-    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
-    window.scrollTo(0,0);
-  }
-  function enter(){
-    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
-    if(!slides.length)return;
-    root.setAttribute("data-present","on");
-    if(dock)dock.setAttribute("aria-hidden","false");
-    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
-    show(0);
-  }
-  function exit(){
-    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
-    slides.forEach(function(s){s.classList.remove("pm-current");});
-    if(dock)dock.setAttribute("aria-hidden","true");
-    if(toggle)toggle.textContent="\u21E4 Lab mode";
-  }
-  toggle=document.getElementById("pmToggle");
-  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
-  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
-  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
-    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
-    '<button type="button" data-pm="next">Next \u25B6</button>'+
-    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
-  document.body.appendChild(dock);
-  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
-  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
-  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
-    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
-  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
-    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
-    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
-    else if(e.key==="Escape"){exit();}});
 })();
 </script>
 </body>

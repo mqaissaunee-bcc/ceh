@@ -191,40 +191,6 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
-
-#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
-#fullsteps .step h3.fh .n{margin-right:.5rem}
-#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
-#fullsteps .shotmark b{color:var(--accent)}
-
-.pm-toggle.ctl{cursor:pointer}
-html[data-present="on"] nav.toc,
-html[data-present="on"] .hero .lede,
-html[data-present="on"] .hero .chips,
-html[data-present="on"] footer.site,
-html[data-present="on"] .done-row{display:none!important}
-html[data-present="on"] #main{max-width:100%}
-html[data-present="on"] .hero{margin-top:.6rem}
-html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
-html[data-present="on"] #main > section{display:none;margin-top:1rem}
-html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
-@keyframes pm-fade{from{opacity:0}to{opacity:1}}
-html[data-present="on"] .call.auth{display:none!important}
-html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
-.pm-dock{display:none}
-html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
-  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
-  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
-.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
-  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
-.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
-.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
-.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
-.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
-.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media print{.pm-dock,.pm-toggle{display:none!important}}
-html[data-present="on"] #ca-launch{display:none!important}
-
 </style>
 </head>
 <body>
@@ -240,7 +206,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
-          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -273,7 +238,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Command walkthrough</a></li>
-      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Options reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -294,7 +258,6 @@ html[data-present="on"] #ca-launch{display:none!important}
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You drive Nmap, hping3, and Nikto from <strong>Kali</strong> against the pod's two subnets (<code class="inl">192.168.0.0/24</code> and <code class="inl">192.168.9.0/24</code>). The GUI scanners run on the <strong>Windows</strong> VM. Along the way you'll save scan output to files on the Desktop and feed them from one tool to the next — which is exactly how real assessments chain together.</p>
-    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>WinOS</b></td><td><code>192.168.0.20</code></td><td><code>Administrator</code> / <code>Train1ng$</code></td></tr><tr><td><b>pfSense</b></td><td><code>192.168.0.254 / 192.168.68.254</code></td><td><code>admin</code> / <code>pfsense</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -360,74 +323,6 @@ html[data-present="on"] #ca-launch{display:none!important}
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
-
-<section id="fullsteps" data-track>
-<h2>Full lab steps</h2>
-<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> To begin, launch the WinOS virtual machine to access the graphical login screen. 1.1. Select Send CTRL+ALT+DEL from the dropdown menu to be prompted with the login screen. 1.2. Log in as Administrator using the password: Train1ng$</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Once you are logged in, navigate to Start Menu &gt; Advanced IP Scanner v2 &gt; Advanced IP Scanner as seen in items 1, 2, and 3 below:</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> The Advanced IP Scanner GUI will appear. It is a simple-looking interface that allows you to gather some useful information about the live systems in the network. The table below the following screenshot provides details about the different features of this software. Item Name                   Description no. 1    Menu Bar               This contains dropdown lists that allow you to save, change view options, adjust settings, and get help 2         Scan              This button starts the scanning process 3         Pause             This button pauses the scanning process 4         IP                This button scans the subnet of the current computer 5         C                 This button scans the class C subnet 6         Expand and        These buttons allow you to expand and contract the results contract all      of the scan 7         IP Range          This field lists the IP address range to be scanned 8         Search            This allows you to search the results 9         Results           This pane lists the results of the scan in column view 10        Favorites         This tab lists the IP addresses that were favorited by the user</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Now that you are familiar with the interface, let us jump right in and start scanning with Advanced IP Scanner. Let us begin by typing the IP range 192.168.0.1 - 254 in the IP Range field, as seen in item 1 below. Once you are done, click Scan, as seen in item 2.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Advanced IP Scanner will begin scanning for live IP addresses, and the list will populate each time it identifies one. The column in item 1 below lists the IP address or hostname of the live system. Item 2 lists only the IP address, and item 3 details the name of the manufacturer of the network card for each live system. Item 4 is the MAC address of the live system. This information is extremely helpful in gathering information as it helps you to identify the systems and network services that they are running.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> The WinOS.Ethical.local system seen in the list and in item 1 below is the hostname of Windows OS that you are currently using. There is some additional information that can be gained from one of the IP addresses in the list. We can determine that one of the systems is running a service by looking for the arrow beside it, as seen in item 2. Click the arrow to expand the entry. The running service will appear below the entry, as seen in item 3. This indicates that the system with IP address 192.168.0.254 is running HTTP service. This means you should be able to invoke a webpage by visiting the IP address with a web browser and attempt using the default password for pfSense or any other password you think could work.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> As you saw in this exercise, scanning with Advanced IP Scanner is great for getting data about systems in the network. It can be a great starting point when identifying a workstation to target. Drawing Network Topology Using Simple Network Scans</h3></div>
-<div class="step"><h3 class="fh"><span class="n">1</span> Switch to the Kali Linux virtual machine to access the graphical login screen. 1.1. Log in as root using the password: toor If a terminal window appears when you log in, close it by clicking the X at the top-right corner of the window.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Before starting, we need to ensure that the host machine is on the same network as the target machine. Select the Ethernet network connection from the navigation panel, as seen in item 1. Then click Wired connection eth1 to enable Kali Linux to configure with the IP address 192.168.0.2 as seen in item 2. The target machine is on the network 192.168.0.0/24. The Kali Linux</h3><div class="call tip"><span class="k">Note</span><p>VM is configured with both IP addresses and can easily interchanged.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> In this exercise, we will use Nmap to scan the network and create a map based on the feedback we get. A typical scan of multiple subnets would be ideal in this case; however, due to time constraints, we will assume that all the hosts on the network were already discovered. We will list the target IP addresses and perform the scan. Let us start by launching nmap. To do this, navigate to Whisker Menu &gt; Information Gathering &gt; Network &amp; Port Scanners &gt; nmap as seen in items 1, 2, 3, and 4 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Once Nmap starts, type sudo nmap -sn -Pn --traceroute 192.168.0.2,20,30,100,254 192.168.9.1,2 192.168.68.12,254 then press Enter. root@kali:~# sudo nmap -sn -Pn --traceroute 192.168.0.2,20,30,100,254</h3><div class="cmd"><pre>192.168.9.1,2 192.168.68.12,254
-       Subnet 192.168.0.0/24 (192.168.0.2,20,30,100,254)
-       Subnet 192.168.9.0/24 (192.168.9.1,2)
-       Subnet 192.168.68.0/24 (192.168.68.12,254)</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> The command will list the round-trip Time (RTT) and the number of hops it takes to get to each host. This will allow us to determine the structure of the network, such as gateways, separate LANs, etc. Each scan can provide a different round-trip time and latency. Take the scan below, for example. As you can see from the screenshot, the IP addresses 192.168.0.20, 192.168.0.30, and 192.168.0.100 all have a round-trip time (RTT) between 0.21 and 0.33 milliseconds, as seen in item 1. The node 192.168.0.254 has the shortest response time, 0.17 milliseconds, as seen in item 2, which suggests that it is the network's gateway. Similarly, your scan should show results where the gateway has the shortest RTT. We also know from previous exercises that this IP address is a pfSense host. The node 192.168.0.2 only returned with the result, host is up, as seen in item 3. This is because the host we are scanning is the Kali Linux host we are using. Due to the way that Standard Transport Control Protocol (TCP) is defined, it inherently causes variations in RTT. The RTT is the amount of time it takes for a signal to be sent plus the amount of time it takes for it to be acknowledged having received it. Variations are very common in a live environment, and you should examine each on a case-by-case basis.</h3></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Nikto findings.</span> A few flagged issues for one web host.</div><div class="step"><h3 class="fh"><span class="n">6</span> As you are aware, the results of the scans for the network 192.168.0.0/24 coincide with the network diagram for this lab, as seen in the diagram below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> The next section we will look at is the result for the network 192.168.9.0/24. As you can see in item 2, The IP address 192.168.9.2 responded with host is up, which we know is our Kali Linux host. Since we know that the round-trip time (RTT) can vary, we will use the example in the screenshot below. The round-trip time for the IP address 192.168.9.1 as seen in item 1, is 0.15 milliseconds. This is indicative that that node is a gateway as well. We can do further checks to see if it is the same pfSense host being used as a router.</h3><div class="cmd"><pre> 192.168.9.2
- 192.168.0.2</pre></div><div class="call tip"><span class="k">Note</span><p>Remember the Kali host has 2 network interfaces:</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> To do this, open a new Terminal window by clicking the icon from the navigator panel as seen in item 1 below. Then type sudo nmap -sV -script=banner 192.168.9.1 and press Enter, as seen in item 2. Look at the results to see what we can learn about this host. The command shows the open ports and the services that are running on the host. It is also supposed to get the operating system but is not always successful at this. If you notice, item 3 lists open HTTP (80) and DNS (53) ports and their versions Nginx and ISC BIND 9.11, respectively. Nginx is a webserver like Apache and is known to be used with pfSense. ISC BIND is an implementation of the Domain Name System (DNS). It performs both main DNS server roles and acts as an authoritative name server for domains. This is enough evidence to determine that it is the same pfSense host that we identified before. root@kali:~# sudo nmap -sV -script=banner 192.168.9.1 We can go further by browsing to the IP address, but that will not be covered in this lab. Feel free to type the IP address (192.168.9.1) and observe the results.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Looking at the diagram, we can determine that the results of the scans for the network 192.168.9.0/24 coincides with the network diagram for this lab, as seen in the diagram below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Switch back to the first terminal window to continue reviewing the results of the traceroute scan. The last part of the scan lists the results for the network 192.168.68.0/24. As you can see in item 1, the scan shows that there are 2 hops to get to the host at IP Address 192.168.68.12. This is normal since we know that the Kali Linux host does not have an interface directly connected to that network, so it must go through a gateway to get there. The next host in item 2 is 192.168.68.254, but it is 1 hop away. This suggests that this is a gateway node. We can confirm this by taking a closer look at the round-trip time value. Remember that the round-trip time (RTT) can vary; we will use the example in the screenshot below. As you can see, the response time for 192.168.68.12 is 0.34 milliseconds, while the time for 192.168.68.254 is 0.15 milliseconds. Let us run the banner grabbing command we did in step 7 to learn more about it.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> Switch back to the second terminal window we used to scan the pfSense host in step</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Once there, type sudo nmap -sV -script=banner 192.168.68.254 and press Enter as seen in item 1. The results of the scan are the same as the ones from step 7. This means the host is the same pfSense host, and it has 3 IP addresses and is used as a router on this network. root@kali:~# sudo nmap -sV -script=banner 192.168.68.254 The option: --script=banner refers to the technique used to gain information about a computer system on a network and the services running on its open ports. It is referred to as Banner grabbing.</h3></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Service banners.</span> The <code class="inl">-sV --script=banner</code> output with versions.</div><div class="step"><h3 class="fh"><span class="n">12</span> Going back to our diagram, we can determine that the results of the scans for the network 192.168.68.0/24 coincides with the network diagram for this lab, as seen in the diagram below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> This completes our network diagram and gives us more insight into the time of hosts running on the network. It also gives us an idea of the best routes to take and helps us determine how difficult the target will be to hack. Scanning a Network with Angry IP Scanner</h3></div>
-<div class="step"><h3 class="fh"><span class="n">1</span> Switch back to the WinOS virtual machine. Another great scanning tool is Angry IP Scanner. Let us jump right into it by navigating to Start Menu &gt; Angry IP Scanner, as seen in items 1 and 2 below:</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> The Angry IP Scanner GUI will appear. Like the last scanner you used, this is a simple- looking interface as well. The table below the following screenshot provides details about the different features of this software. Item Name                    Description no. 1    Menu Bar                This contains dropdown lists that allow you to save, change view options, adjust settings and get help. 2         IP Range           This field lists the IP address range to be scanned 3         IP Feeder          This dropdown menu lists the different IP sources. You can menu               type the range or switch to a text file with IP addresses in it or choose a random IP. 4         Preferences        This button contains additional settings. 5         Hostname           This field contains the target hostname 6         IP Source          This button allows you to choose IP addresses from the network adapters in the computer. 7         Netmask            This dropdown menu allows you to choose the subnet mask for the intended target range. 8         Start              This button starts the scanning process. 9         Fetchers           This button provides options to recover different types of data from the scanned hosts. 10        List               This pane lists the results of the scan in column view.</h3></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Live hosts.</span> The host-discovery results showing which addresses are Up.</div><div class="step"><h3 class="fh"><span class="n">3</span> Now that you are familiar with the interface, let us start scanning with Angry IP Scanner. Let us begin by typing the IP address 192.168.0.0 in the first IP Range field seen item 1 below. Next, type the IP address 192.168.0.255 in the second IP Range field seen in item 2 below. Once you are done, click the Fetchers button seen in item 3 so we can choose what kind of data we want to scan for.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> The Fetchers window will open. The items listed in the left pane, seen in item 1, are the default and currently selected fetchers. You can use the buttons in item 2 to select, remove, reorder, and configure the different fetchers. The pane on the right, seen in item 3, contains the available fetchers. The results for each fetcher will appear as additional columns in the main GUI results pane.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Now let us select 4 of these fetchers for our scan. If your selected fetchers already include TTL, MAC Address, MAC Vendor, and Filtered Ports, please jump this step and go to step 6. If they are not presented in the selected fetchers, double-click on each of the following fetchers TTL, MAC Address, MAC Vendor, and Filtered Ports. They are also highlighted as item 1 below. Once you select them, they will move to the Selected fetchers pane on the left side.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Your Selected fetchers pane should look like the one in item 1 below. Once you verify that they are all there, click OK, as seen in item 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> The last thing we will do is select the subnet mask. To do this, click the dropdown arrow Netmask as seen in item 1 below. Select /24 from the dropdown list, as seen in item 2. Once that is done, we can go ahead and start the scan by clicking Start, as seen in item 3.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> This scan is normally pretty quick. Once it is done, the Scan Statistics window will appear. It provides a summary of the scan, including the scanning speed seen in item 1, the scanned IP range seen in item 2, and the status of the hosts seen in item 3. Click Close as seen in item 4 to review the findings.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Let us look at the results. We will look at 1 of the live systems. As you can see, the live hosts appear as a blue circle in the IP column. Let us scroll down using the arrow or scroll bar, seen in item 1, until you get to the IP address 192.168.0.30, as seen in item 2 below. Once there, double-click the row to open an information window.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> The IP address details window will appear and list all the information that the fetchers collected from this system. The important thing to note in this window is the response time of the ping. This one is 0ms, seen in item 1, and can give you an idea of the workstation's location on the network. The hostname field provides the name for the system, and the Ports field indicates the open ports, as seen in item 2. The MAC address and Vendor fields, seen in item 3, provide the physical address of the network card and the possible manufacturer. Finally, the Filtered Ports field, also seen in item 3, will provide the list of ports that are monitored by a firewall or router.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> As you can see, these seemingly simple scanning tools contain powerful information- gathering capabilities. We are now done with this exercise. Move on to the next section, where you will find some more advanced scanning tools. TCP and UDP Packet Crafting Using HPING3 As you continue to scan the network, we will now use the tool HPING3. This tool is a scriptable program that uses TCL language, and packets can be received and sent via binary or string representation describing the packets.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">1</span> Switch to the Kali Linux virtual machine to access the graphical login screen. 1.1. Log in as root using the password: toor, if prompted.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Let us start by launching HPING3. To do this, navigate to Whisker Menu &gt; Information Gathering &gt; Live Host identification &gt; hping3, as seen in items 1, 2, 3, and 4 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Now, type hping3 -c 3 &lt;IP address of the target machine&gt; and then press Enter. The target machine will be the Windows machine IP address. -c --count means stop after sending (and receiving) count response packets. So, -c 3 means that we will only want to send 3 packets to the target machine.</h3><div class="cmd"><pre>root@kali:~# hping3 -c 3 192.168.0.20</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> The output from the above command should have three packets sent and received, as seen below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Now, let us scan the target machine, type hping3 -q --scan 1-3000 -S 192.168.0.20 | grep -v 'Not res'. The results can be overwhelming; as such, we will pipe a grep function into the string using -v --invert-match to select the non- matching lines 'Not res'; this will only display the active replies. root@kali:~# hping3 -q --scan 1-3000 -S 192.168.0.20 | grep -v 'Not res' --scan parameter defines the port range to scan and the -S represents SYN flag.</h3></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">hping3 port sweep.</span> The <code class="inl">--scan 1-3000</code> open-port results.</div><div class="step"><h3 class="fh"><span class="n">6</span> The output from the above command should have sent and received a packet similar to the example shown below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Now that we a familiar with hping3, let's perform UDP packet crafting. Packet crafting is a technique that allows the Pen Tester to probe firewall rule sets and find entry points into a targeted system or network. This is done by manually generating packets to test the network devices instead of using existing network traffic.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Type hping3 192.168.0.20 --udp --rand-source --data 500. root@kali:~# hping3 192.168.0.20 --udp --rand-source --data 500</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Now, log into Windows VM, if not already logged in, and launch Wireshark to start capturing the packets. Double-click Wireshark on the Desktop to start the software, as seen in item 1 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Once Wireshark has started, select vEthernet (External), then right-click and choose Start capture from the welcome screen, as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> Switch to Kali Linux and execute the previously typed command. If the terminal was closed, open it again and retype the command at step 9 above.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> The output from the above command will be seen on the target machine. Switch any UDP packet and observe the details as seen in items 1 and 2. After viewing the packet, click Close, as seen in item 3 below.</h3><div class="cmd"><pre>back to the WinOS machine to observe the UDP packets in Wireshark. Double-click</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> The UDP packets are still being sent to the target machine. Let us stop this before proceeding to the next task. Change focus to the Kali machine and press Ctrl+C to stop the command, as seen in item 1 below. If this is not done before starting the next task, Wireshark will continue to capture the sent UDP packets from the Kali Linux machine.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">14</span> Let us move on to the next task. Switch to the WinOS machine and browse to the Wireshark navigation panel and select the Restart current capture icon. When prompted to save, click Continue without Saving as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">15</span> Next, we will be sending a TCP SYN Request to the target machine. To start, go back to the Kali machine, type hping3 -S 192.168.0.20 -p 80 -c 5 and press Enter, as seen in item 1 below. root@kali:~# hping3 -S 192.168.0.20 -p 80 -c 5 -S will perform a TCP SYN request on the target machine -p will pass the traffic through which port is assigned, and -c is the count of the packets being sent.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">16</span> The output from the above command shows that five TCP packets were sent through port 80 to the target machine.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">17</span> Let us confirm the receipt of the packets on the target machine. The output from the above command shows that three TCP packets were sent through port 80 to the target machine, as seen in items 1, 2, and 3 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">18</span> Wireshark detects the TCP packets sent by the attacker's machine. This is the end of the exercise. Close all windows; if prompted to save, click Stop and Quit without saving, as seen in items 1, 2, and 3 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">19</span> Switch to Kali and move on to the next lab. Vulnerability Scanning with Nikto We will now perform a vulnerability scan to see what kind of vulnerabilities we can identify on the hosts on this network. Let us begin by using Nmap to create a list of hosts that we can feed to Nikto.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">1</span> To begin, open a Terminal window by clicking the icon from the navigator panel, as seen in item 1. Once there, type sudo nmap -p80,53,22 192.168.0.0/24 192.168.9.0/24 192.168.68.0/24 -oG Desktop/list.txt and press Enter. This command will output the results of the scan to a text file called list.txt on the Desktop. root@kali:~# sudo nmap -p80,53,22 192.168.0.0/24 192.168.9.0/24 The -oG switch refers to the Greppable Output. The output is formatted so that each host is listed in one line which makes it easy to search and parse.</h3><div class="cmd"><pre>192.168.68.0/24 -oG Desktop/list.txt</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Now that the scan is complete, we can parse the list to prepare it to be ingested by Nikto. Type the command cat Desktop/list.txt and press Enter as seen in item 1. You will see what the list in greppable format looks like, as shown in item 2.</h3><div class="cmd"><pre>root@kali:~# cat Desktop/list.txt</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Next, enter the following command to remove the unwanted data cat Desktop/list.txt | awk '/Up$/{print $2}' | cat &gt;&gt; Desktop/targets.txt and press Enter as seen in item 1. This will parse only the IP addresses of the hosts that are up and save the results to a file on the Desktop called targets.txt. root@kali:~# cat Desktop/list.txt | awk '/Up$/{print $2}' | cat &gt;&gt; awk is an awesome programming language that scans the input (list.txt) for lines that match any of the set patterns, in this case the machine Status (Up)</h3><div class="cmd"><pre>Desktop/targets.txt</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Now, type cat Desktop/targets.txt and press Enter as seen in item 1, to see what the output looks like. As you can see in item 2, the list is significantly condensed to just the IP addresses from the previous file.</h3><div class="cmd"><pre>root@kali:~# cat Desktop/targets.txt</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Next, we will use Nikto to scan the hosts in our targets.txt file. To do this, type the command nikto -h Desktop/targets and press Enter as seen in item 1. This scan will take some time to complete. As it progresses, you will see the results populate the terminal window, as seen in item 2.</h3><div class="cmd"><pre>root@kali:~# nikto -h Desktop/targets.txt</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> The results will be lengthy, but you can scroll through them to see what kind of vulnerabilities it found for the associated IP addresses. These vulnerabilities will be useful to note when moving to the next stages of the penetration test. The scan was limited to ports 80, 53 and 22, however; you may add or substitute other common ports such as 20, 21, 23, 25, 110, and 443 and run the scan again and observe the results.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> This is the end of the lab; please close all windows and terminals to complete the lab.</h3></div>
-<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
-</section>
 
   <section id="reference" data-track>
     <h2>Options reference — beyond the lab</h2>
@@ -632,55 +527,6 @@ html[data-present="on"] #ca-launch{display:none!important}
     document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
     refresh();
   });
-})();
-</script>
-<script src="assistant.js" defer></script>
-
-<script>
-(function(){
-  "use strict";
-  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
-  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
-  function show(i){
-    idx=Math.max(0,Math.min(slides.length-1,i));
-    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
-    root.setAttribute("data-pm-index",String(idx));
-    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
-    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
-    if(prevBtn)prevBtn.disabled=idx===0;
-    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
-    window.scrollTo(0,0);
-  }
-  function enter(){
-    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
-    if(!slides.length)return;
-    root.setAttribute("data-present","on");
-    if(dock)dock.setAttribute("aria-hidden","false");
-    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
-    show(0);
-  }
-  function exit(){
-    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
-    slides.forEach(function(s){s.classList.remove("pm-current");});
-    if(dock)dock.setAttribute("aria-hidden","true");
-    if(toggle)toggle.textContent="\u21E4 Lab mode";
-  }
-  toggle=document.getElementById("pmToggle");
-  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
-  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
-  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
-    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
-    '<button type="button" data-pm="next">Next \u25B6</button>'+
-    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
-  document.body.appendChild(dock);
-  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
-  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
-  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
-    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
-  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
-    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
-    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
-    else if(e.key==="Escape"){exit();}});
 })();
 </script>
 </body>

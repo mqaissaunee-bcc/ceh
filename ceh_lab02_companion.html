@@ -191,40 +191,6 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
-
-#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
-#fullsteps .step h3.fh .n{margin-right:.5rem}
-#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
-#fullsteps .shotmark b{color:var(--accent)}
-
-.pm-toggle.ctl{cursor:pointer}
-html[data-present="on"] nav.toc,
-html[data-present="on"] .hero .lede,
-html[data-present="on"] .hero .chips,
-html[data-present="on"] footer.site,
-html[data-present="on"] .done-row{display:none!important}
-html[data-present="on"] #main{max-width:100%}
-html[data-present="on"] .hero{margin-top:.6rem}
-html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
-html[data-present="on"] #main > section{display:none;margin-top:1rem}
-html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
-@keyframes pm-fade{from{opacity:0}to{opacity:1}}
-html[data-present="on"] .call.auth{display:none!important}
-html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
-.pm-dock{display:none}
-html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
-  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
-  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
-.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
-  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
-.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
-.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
-.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
-.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
-.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media print{.pm-dock,.pm-toggle{display:none!important}}
-html[data-present="on"] #ca-launch{display:none!important}
-
 </style>
 </head>
 <body>
@@ -240,7 +206,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
-          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -273,7 +238,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Command walkthrough</a></li>
-      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Options reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -294,7 +258,6 @@ html[data-present="on"] #ca-launch{display:none!important}
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You run Scapy on <strong>Kali</strong> (as root — crafting raw packets needs it) and send toward the OWASP BWA host at <code class="inl">192.168.68.12</code>. You'll open <strong>Wireshark</strong> alongside so you can watch the packets you craft actually leave the machine — the "oh, that's what that does" moment of the whole lab.</p>
-    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>OWASP BWA</b></td><td><code>192.168.68.12</code></td><td><code>root</code> / <code>owaspbwa</code></td></tr><tr><td><b>pfSense</b></td><td><code>192.168.0.254 / 192.168.68.254</code></td><td><code>admin</code> / <code>pfsense</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -337,7 +300,10 @@ html[data-present="on"] #ca-launch{display:none!important}
       <h3><span class="n">4</span> Stack a TCP layer</h3>
       <div class="cmd"><pre><span class="p">>>></span> ip/TCP()</pre></div>
       <div class="cmd"><pre><span class="p">>>></span> tcp=TCP(sport=1025, dport=80)</pre></div>
-      <p>The <code class="inl">/</code> operator stacks layers: <code class="inl">IP()/TCP()</code> is a TCP segment riding on an IP packet. Here you build a TCP layer with a source port of 1025 and a destination of 80 — a packet headed for a web server.</p>
+      <div class="cmd"><pre><span class="p">>>></span> (tcp/ip).show()</pre></div>
+      <p>The <code class="inl">/</code> operator stacks layers: <code class="inl">IP()/TCP()</code> is a TCP segment riding on an IP packet. Here you build a TCP layer with a source port of 1025 and a destination of 80, then <code class="inl">(tcp/ip).show()</code> prints the full stacked packet field by field so you can confirm the TCP header sits on top of the IP header.</p>
+      <div class="cmd"><pre><span class="p">>>></span> Ether()/ip</pre></div>
+      <p>Prepending <code class="inl">Ether()</code> adds a layer-2 Ethernet frame beneath the IP packet — a reminder that a real frame on the wire is layers all the way down (Ethernet → IP → TCP → payload). Anything with an <code class="inl">Ether()</code> layer is sent with the layer-2 functions (<code class="inl">srp</code>/<code class="inl">sendp</code>), not <code class="inl">sr1</code>.</p>
     </div>
 
     <p class="task-head">Task 2 — Send packets and read the replies</p>
@@ -346,7 +312,7 @@ html[data-present="on"] #ca-launch{display:none!important}
       <div class="cmd"><pre><span class="p">root@kali:~#</span> wireshark</pre></div>
       <div class="cmd"><pre><span class="p">>>></span> packet=sr1(IP(dst="192.168.68.12")/ICMP()/"XXXXXXXXXXX")</pre></div>
       <div class="cmd"><pre><span class="p">>>></span> packet</pre></div>
-      <p><code class="inl">sr1()</code> means <strong>send one packet and return the first reply</strong>. This one is an ICMP echo (a ping) with a custom payload of X's — look for it in Wireshark. Inspecting <code class="inl">packet</code> shows the response that came back.</p>
+      <p>In Wireshark, select the <code class="inl">eth0</code> interface and press <kbd>Ctrl+E</kbd> to start capturing before you send. <code class="inl">sr1()</code> means <strong>send one packet and return the first reply</strong>. This one is an ICMP echo (a ping) with a custom payload of X's — look for it in Wireshark. Inspecting <code class="inl">packet</code> shows the response that came back.</p>
       <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the Wireshark row for your crafted ICMP packet — the one carrying the <code class="inl">XXXXXXXXXXX</code> payload. It proves the packet you built actually left the machine.</p></div>
 
     </div>
@@ -360,54 +326,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">sr1</code> SYN reply (run <code class="inl">packet.show()</code>) with the TCP flags visible — <code class="inl">SA</code> means the port is open.</p></div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
-
-<section id="fullsteps" data-track>
-<h2>Full lab steps</h2>
-<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
-<p class="task-head">Task 1 - Creating Packets with Scapy</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Click on the Kali tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Click within the console window and press Enter to display the login prompt.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Enter root as the username. Press Tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Enter toor as the password. Click Log In.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Open a new terminal by clicking on the Terminal icon located at the top of the page, if the terminal is not already opened.</h3></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">The SYN reply.</span> The <code class="inl">sr1</code> response flags — <code class="inl">SA</code> open or <code class="inl">RA</code> closed.</div><div class="step"><h3 class="fh"><span class="n">6</span> In the new Terminal window, type the command below to initialize the Scapy application. Press Enter.</h3><div class="cmd"><pre>scapy</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> List out all of the protocols and layers available for packet manipulation by typing the command below, followed by pressing the Enter key.</h3><div class="cmd"><pre>ls()</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Enter the command below to list the available commands.</h3><div class="cmd"><pre>lsc()</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> To build a simple IP packet, use the RFC 791 to define the IP protocol. The diagram below lists the fields in an IP packet header.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Enter the command below within the Scapy prompt to set the Time to Live for the IP packet.</h3><div class="cmd"><pre>ip=IP(ttl=10)</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> Check to ensure the previous modification took effect by entering the command below.</h3><div class="cmd"><pre>ip</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> Identify the current IP destination by entering the command below.</h3><div class="cmd"><pre>ip.dst</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> Identify the current IP source by entering the command below.</h3><div class="cmd"><pre>ip.src</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">14</span> Change the IP destination.</h3><div class="cmd"><pre>ip.dst="192.168.9.1"</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">15</span> Verify the modifications.</h3><div class="cmd"><pre>ip</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">16</span> Change the IP source address.</h3><div class="cmd"><pre>ip.src="192.168.9.2"</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">17</span> Verify the modifications, including the source, destination, and TTL values.</h3><div class="cmd"><pre>ip</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">18</span> With the TTL, source address, and destination address populated, remove the</h3><div class="cmd"><pre>del(ip.ttl)</pre></div><div class="call tip"><span class="k">Note</span><p>TTL and set it to the default TTL specified in the RFC. Enter the command below.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">19</span> Verify the removal.</h3><div class="cmd"><pre>ip</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">20</span> Verify the TTL is the RFC value of 64.</h3><div class="cmd"><pre>ip.ttl</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">21</span> Add additional protocol layers by adding TCP on top of IP.</h3><div class="cmd"><pre>ip/TCP()</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">22</span> Analyze the TCP header from the RFC 793.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">23</span> Add some information to the TCP protocol fields.</h3><div class="cmd"><pre>tcp=TCP(sport=1025, dport=80)</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">24</span> Show the TCP stack. Notice the packet should now have a TCP header with a configured source port of 1025 and a destination port of 80 stacked on the IP protocol.</h3><div class="cmd"><pre>(tcp/ip).show()</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">25</span> Add an Ethernet layer.</h3><div class="cmd"><pre>Ether()/ip</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">26</span> Leave the Terminal open for the next task.</h3></div>
-<p class="task-head">Task 2 - Sending Crafted Packets</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Launch a new Terminal by clicking the File dropdown menu option from the already existing Terminal window and select New Window.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> In the new Terminal window, type the command below, followed by pressing the Enter key.</h3><div class="cmd"><pre>wireshark</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> If prompted with a warning message about running Wireshark as the root user, click OK.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Within the Wireshark window, select the eth0 interface from the Capture panel and press CTRL+E to start capturing.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Navigate back to the Terminal window with the Scapy prompt.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Generate a single ICMP packet to be sent to the OWASP machine. Enter the command below.</h3><div class="cmd"><pre>packet=sr1(IP(dst="192.168.68.12")/ICMP()/"XXXXXXXXXXX")</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Navigate back to the Wireshark window.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Notice the Scapy crafted packet has successfully sent an ICMP request to the OWASP VM with a response.</h3></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">On the wire.</span> Wireshark showing your crafted ICMP packet with the <code class="inl">XXXX</code> payload.</div><div class="step"><h3 class="fh"><span class="n">9</span> Navigate back to the Terminal with the Scapy prompt.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Enter the command below to show the contents of the packet, which was created.</h3><div class="cmd"><pre>packet</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> Enter the command below in an attempt to initiate a simple SYN scan on a single port.</h3><div class="cmd"><pre>packet=sr1(IP(dst="192.168.68.12")/TCP(dport=80,flags="S"))</pre></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">A crafted packet.</span> The layered packet from <code class="inl">IP()/TCP()</code> (or <code class="inl">p.show()</code>) showing its fields.</div><div class="step"><h3 class="fh"><span class="n">12</span> Navigate back to the Wireshark window.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> Analyze the given Wireshark output and notice a SYN packet was sent with a</h3><div class="call tip"><span class="k">Note</span><p>SYN, ACK packet being received indicating that port 80 is open.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">14</span> You may now end your reservation.</h3></div>
-<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
-</section>
 
   <section id="reference" data-track>
     <h2>Options reference — beyond the lab</h2>
@@ -610,55 +528,6 @@ html[data-present="on"] #ca-launch{display:none!important}
     document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
     refresh();
   });
-})();
-</script>
-<script src="assistant.js" defer></script>
-
-<script>
-(function(){
-  "use strict";
-  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
-  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
-  function show(i){
-    idx=Math.max(0,Math.min(slides.length-1,i));
-    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
-    root.setAttribute("data-pm-index",String(idx));
-    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
-    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
-    if(prevBtn)prevBtn.disabled=idx===0;
-    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
-    window.scrollTo(0,0);
-  }
-  function enter(){
-    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
-    if(!slides.length)return;
-    root.setAttribute("data-present","on");
-    if(dock)dock.setAttribute("aria-hidden","false");
-    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
-    show(0);
-  }
-  function exit(){
-    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
-    slides.forEach(function(s){s.classList.remove("pm-current");});
-    if(dock)dock.setAttribute("aria-hidden","true");
-    if(toggle)toggle.textContent="\u21E4 Lab mode";
-  }
-  toggle=document.getElementById("pmToggle");
-  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
-  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
-  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
-    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
-    '<button type="button" data-pm="next">Next \u25B6</button>'+
-    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
-  document.body.appendChild(dock);
-  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
-  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
-  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
-    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
-  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
-    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
-    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
-    else if(e.key==="Escape"){exit();}});
 })();
 </script>
 </body>

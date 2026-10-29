@@ -191,40 +191,6 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
-
-#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
-#fullsteps .step h3.fh .n{margin-right:.5rem}
-#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
-#fullsteps .shotmark b{color:var(--accent)}
-
-.pm-toggle.ctl{cursor:pointer}
-html[data-present="on"] nav.toc,
-html[data-present="on"] .hero .lede,
-html[data-present="on"] .hero .chips,
-html[data-present="on"] footer.site,
-html[data-present="on"] .done-row{display:none!important}
-html[data-present="on"] #main{max-width:100%}
-html[data-present="on"] .hero{margin-top:.6rem}
-html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
-html[data-present="on"] #main > section{display:none;margin-top:1rem}
-html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
-@keyframes pm-fade{from{opacity:0}to{opacity:1}}
-html[data-present="on"] .call.auth{display:none!important}
-html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
-.pm-dock{display:none}
-html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
-  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
-  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
-.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
-  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
-.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
-.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
-.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
-.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
-.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media print{.pm-dock,.pm-toggle{display:none!important}}
-html[data-present="on"] #ca-launch{display:none!important}
-
 </style>
 </head>
 <body>
@@ -240,7 +206,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
-          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -273,7 +238,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Command walkthrough</a></li>
-      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Options reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -299,7 +263,6 @@ html[data-present="on"] #ca-launch{display:none!important}
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You work from <strong>Kali</strong>. The lab runs a DNS server that is authoritative for the domain <code class="inl">mylab.com</code> and is listening only on <code class="inl">192.168.0.254</code>. That last detail matters: unless you point your queries at that server explicitly, you'll be asking the wrong resolver and wondering why nothing comes back.</p>
-    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>OpenSUSE</b></td><td><code>192.168.0.30</code></td><td><code>osboxes</code> / <code>osboxes.org</code></td></tr><tr><td><b>pfSense</b></td><td><code>192.168.0.254 / 192.168.68.254</code></td><td><code>admin</code> / <code>pfsense</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -331,6 +294,8 @@ html[data-present="on"] #ca-launch{display:none!important}
 <span class="p">></span> mylab.com</pre></div>
       <div class="cmd"><pre><span class="p">></span> set type=a
 <span class="p">></span> opensuse.mylab.com</pre></div>
+      <div class="cmd"><pre><span class="p">></span> set type=any
+<span class="p">></span> mylab.com</pre></div>
       <p><code class="inl">set type=</code> changes what kind of record you're asking for. Each type exposes a different slice of the target:</p>
       <div class="tbl-wrap"><table>
         <thead><tr><th>Type</th><th>Returns</th><th>Why an attacker cares</th></tr></thead>
@@ -341,16 +306,19 @@ html[data-present="on"] #ca-launch{display:none!important}
           <tr><td><code>ANY</code></td><td>Everything the server will give</td><td>One query, maximum exposure (modern servers increasingly refuse it)</td></tr>
         </tbody>
       </table></div>
+      <div class="call stuck"><span class="k">Two results worth noticing</span><p>The <code class="inl">mx</code> query returns <strong>no answer</strong> — this server is deliberately configured not to respond to every request type, even though an MX record <em>does</em> exist (the zone transfer below reveals it). And on modern servers <code class="inl">any</code> no longer returns "everything." Neither is a dead end; it's the server hiding what a transfer would expose.</p></div>
     </div>
 
     <div class="step">
-      <h3><span class="n">4</span> Attempt a zone transfer</h3>
+      <h3><span class="n">4</span> Attempt a zone transfer — refused, then allowed</h3>
       <div class="cmd"><pre><span class="p">></span> set type=axfr
 <span class="p">></span> mylab.com</pre></div>
-      <p><code class="inl">AXFR</code> asks the server for a full copy of the zone — every record it holds. A properly configured server only allows this to its own secondaries and refuses you; a misconfigured one hands over the whole map.</p>
-      <div class="call tip"><span class="k">This is the money shot of DNS recon</span><p>A successful AXFR gives you hostnames you'd never guess and the internal structure of a network in one request. That's exactly why finding an open one goes straight into the report.</p></div>
-
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the result of the zone-transfer attempt (<code class="inl">set type=axfr</code>) — whether the server refuses it or dumps the whole zone. Either way it is a finding worth recording.</p></div>
+      <p><code class="inl">AXFR</code> asks the server for a full copy of the zone — every record it holds. From Kali you get a <strong>REFUSED</strong> response (a refusal, not "no answer"): the server won't transfer to you, because a properly configured server allows transfers only to its own secondaries.</p>
+      <div class="call tip"><span class="k">Now try it from a machine that's allowed</span><p>The lab's <strong>OpenSUSE</strong> host <em>is</em> permitted to pull transfers. Log into it (user <code class="inl">osboxes</code> / password <code class="inl">osboxes.org</code>), open Konsole, and run <code class="inl">nslookup</code> again:</p></div>
+      <div class="cmd"><pre><span class="p">></span> set type=axfr
+<span class="p">></span> mylab.com   <span class="cm"># on OpenSUSE — this time it succeeds</span></pre></div>
+      <p>From OpenSUSE the transfer <strong>succeeds</strong> and dumps the entire zone — every A, SOA, CNAME, TXT, MX, and NS record, including the MX that was hidden earlier. The contrast between the two machines is the whole lesson: <em>who is allowed to transfer</em> is the finding.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture both results — the <strong>REFUSED</strong> transfer on Kali, and the <strong>successful</strong> zone dump on OpenSUSE showing the full record set.</p></div>
       <div class="cmd"><pre><span class="p">></span> exit</pre></div>
     </div>
 
@@ -363,55 +331,12 @@ html[data-present="on"] #ca-launch{display:none!important}
     <div class="step">
       <h3><span class="n">6</span> The same query with dig</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> dig <span class="ar">@192.168.0.254 mylab.com ns</span></pre></div>
-      <p><code class="inl">dig</code>'s grammar is <code class="inl">dig @server name type</code>. The output is more detailed and far easier to parse than nslookup's — note the clearly labelled ANSWER, AUTHORITY, and ADDITIONAL sections. For a zone transfer with dig you'd write <code class="inl">dig @192.168.0.254 mylab.com axfr</code>.</p>
+      <p><code class="inl">dig</code>'s grammar is <code class="inl">dig @server name type</code>. The output is more detailed and far easier to parse than nslookup's — note the clearly labelled ANSWER, AUTHORITY, and ADDITIONAL sections. For a zone transfer with dig you'd write <code class="inl">dig @192.168.0.254 mylab.com axfr</code>. (The lab runs dig from the OpenSUSE terminal; note that dig isn't installed on Windows by default.)</p>
       <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture your <code class="inl">dig</code> output with the NS records visible in the labelled ANSWER section.</p></div>
 
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
-
-<section id="fullsteps" data-track>
-<h2>Full lab steps</h2>
-<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
-<p class="task-head">Task 1 - Footprinting using nslookup</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Click on the Kali tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Click within the console window and press Enter to display the login prompt.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Enter root as the username. Press Tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Enter toor as the password. Click Log In.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Open a new terminal by clicking on the Terminal icon located at the top of the page, if the terminal is not already opened.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Open and review nslookup's manual by typing the command below, followed by pressing Enter. nslookup has many commands. Review the man pages to get familiar with them.</h3><div class="cmd"><pre>man nslookup</pre></div><div class="call tip"><span class="k">Note</span><p>Press the Spacebar to go to the next page or press Enter to go to the next line.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Once finished reviewing the man page, press the Q character to quit and bring the shell prompt back.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> In the Terminal window, initiate nslookup interactive mode by typing the following command, then press Enter.</h3><div class="cmd"><pre>nslookup</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> At the prompt, we can type server to see our current lookup server:</h3><div class="cmd"><pre>server</pre></div><div class="call tip"><span class="k">Note</span><p>Notice the default server listed is the pfSense firewall from the topology.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> For this lab environment, the DNS server we want to query is only listening on IP address 192.168.0.254. Change the default server by typing the following command and pressing Enter.</h3><div class="cmd"><pre>server 192.168.0.254</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> In the lab environment, we have a domain called mylab.com, and we want to see what the root domain resolves to. To do a domain lookup, type the following command and press Enter.</h3><div class="cmd"><pre>mylab.com</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> DNS has multiple record types. Below is a table of common types: Brief Description                                Explanation Type Maps an alias to the canonical name. Often used to point multiple systems to one IP without CNAME             Canonical Name              assigning an A record to each hostname. The DNS lookup will continue by retrying the lookup with the new name. MX               Mail Exchanger             Maps a domain name to a list of message transfer agents. NS                 Nameserver               Delegates a DNZ zone to use the given authoritative name servers. Points to a canonical name. Unlike CNAME, the PTR                    Pointer               DNS lookup process stops, and just the name is returned. SOA              Start of Authority          Specifies authoritative information about a DNS zone. Originally for arbitrary human-readable text in a TXT                     Text                 DNS record, it is now used for several other machine-readable data types. To explore these, we use the set command. Type the following command to set the type to ns (nameserver) and press Enter.</h3><div class="cmd"><pre>Record
-set type=ns</pre></div><div class="call tip"><span class="k">Note</span><p>A           Host Address for IPv4          This is generally an IPv4 address. AAAA           Host Address for IPv6          This is generally an IPv6 address. SRV              Service Location            Generalized service location record.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> Once the type has been set, type in the following command to check the domain again and press Enter. The output here shows the nameserver for the mylab.com domain. In this case, it is 192.168.0.254. If doing this with a public domain, the server would typically return the nameserver different than the server you are using for lookups, unless that DNS server is hosting that domain.</h3><div class="cmd"><pre>mylab.com</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">14</span> By default, nslookup returns a records. Here we will look up the a record for the line. The output here shows us that the IP address for opensuse.mylab.com is 192.168.0.30.</h3><div class="cmd"><pre>host opensuse.mylab.com by typing the following and pressing Enter after each
-set type=a
-opensuse.mylab.com</pre></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">NS &amp; MX records.</span> The nslookup output for <code class="inl">set type=ns</code> and <code class="inl">set type=mx</code> on mylab.com.</div><div class="step"><h3 class="fh"><span class="n">15</span> Now try to return mx (mail servers) records for the domain. Type each command below, pressing Enter after each line: Notice there is "no answer" from the DNS server. This DNS server is configured to not respond to all request types. There is, in fact, an mx record, which you will find later.</h3><div class="cmd"><pre>set type=mx
-mylab.com</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">16</span> One lookup type not on the list is any. Instinctively, you may want to set the type to any and get everything back! Newer DNS servers do not return everything for the zone. While getting some good information, you will not see all the hosts or a records on that domain. Type each command below, pressing Enter after each line:</h3><div class="cmd"><pre>set type=any
-mylab.com</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">17</span> In order to get to see EVERYTHING, you need to be able to access an axfr (transfer) record. Normally, these are not available. You can test this on the Kali machine by typing each command below, pressing Enter after each line: Notice this is not a "no answer" response from the DNS server, but rather a REFUSED response.</h3><div class="cmd"><pre>set type=axfr
-mylab.com</pre></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Zone-transfer attempt.</span> The result of <code class="inl">set type=axfr</code> — refused or dumped.</div><div class="step"><h3 class="fh"><span class="n">18</span> The OpenSUSE machine has been allowed to pull transfer records. Click on the OpenSUSE tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">19</span> Enter osboxes as the username.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">20</span> Enter osboxes.org as the password. Press Enter.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">21</span> Click on the Konsole icon in the lower-right to launch a new terminal.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">22</span> In the Konsole window, initiate nslookup by typing the following command, then press Enter.</h3><div class="cmd"><pre>nslookup</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">23</span> In order to get to see EVERYTHING, try again to access an axfr (transfer) record. Test this on the OpenSUSE machine by typing each command below, pressing Enter after each line: In the output, you will see every record on the domain, including A, SOA,</h3><div class="cmd"><pre>set type=axfr
-mylab.com</pre></div><div class="call tip"><span class="k">Note</span><p>CNAME, TXT, MX, and NS records.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">24</span> To exit from the nslookup utility, type the following command and press Enter:</h3><div class="cmd"><pre>exit</pre></div></div>
-<p class="task-head">Task 2 - Comparing nslookup with dig</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Dig is a similar tool used for viewing DNS information. Type the following command into the OpenSUSE terminal to see the nslookup equivalent of a nameserver lookup and press Enter: dig             The program you are using. @192.168.0.254         The server to lookup from. mylab.com            The name you are looking for. ns             The type of record. Notice we had to enable debug mode to see similar output. Dig is not installed on Windows systems by default and must be downloaded.</h3><div class="cmd"><pre>dig @192.168.0.254 mylab.com ns
-Command                                                Explanation
-nslookup -type=ns -debug mylab.com 192.168.0.254</pre></div><div class="call tip"><span class="k">Note</span><p>The equivalent one-line command for nslookup is:</p></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">dig confirmation.</span> The <code class="inl">dig @192.168.0.254 mylab.com ns</code> output.</div><div class="step"><h3 class="fh"><span class="n">2</span> You may now end your reservation.</h3></div>
-<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
-</section>
 
   <section id="reference" data-track>
     <h2>Options reference — beyond the lab</h2>
@@ -616,55 +541,6 @@ nslookup -type=ns -debug mylab.com 192.168.0.254</pre></div><div class="call tip
     document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
     refresh();
   });
-})();
-</script>
-<script src="assistant.js" defer></script>
-
-<script>
-(function(){
-  "use strict";
-  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
-  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
-  function show(i){
-    idx=Math.max(0,Math.min(slides.length-1,i));
-    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
-    root.setAttribute("data-pm-index",String(idx));
-    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
-    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
-    if(prevBtn)prevBtn.disabled=idx===0;
-    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
-    window.scrollTo(0,0);
-  }
-  function enter(){
-    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
-    if(!slides.length)return;
-    root.setAttribute("data-present","on");
-    if(dock)dock.setAttribute("aria-hidden","false");
-    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
-    show(0);
-  }
-  function exit(){
-    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
-    slides.forEach(function(s){s.classList.remove("pm-current");});
-    if(dock)dock.setAttribute("aria-hidden","true");
-    if(toggle)toggle.textContent="\u21E4 Lab mode";
-  }
-  toggle=document.getElementById("pmToggle");
-  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
-  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
-  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
-    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
-    '<button type="button" data-pm="next">Next \u25B6</button>'+
-    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
-  document.body.appendChild(dock);
-  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
-  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
-  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
-    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
-  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
-    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
-    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
-    else if(e.key==="Escape"){exit();}});
 })();
 </script>
 </body>

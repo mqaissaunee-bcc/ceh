@@ -191,40 +191,6 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
-
-#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
-#fullsteps .step h3.fh .n{margin-right:.5rem}
-#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
-#fullsteps .shotmark b{color:var(--accent)}
-
-.pm-toggle.ctl{cursor:pointer}
-html[data-present="on"] nav.toc,
-html[data-present="on"] .hero .lede,
-html[data-present="on"] .hero .chips,
-html[data-present="on"] footer.site,
-html[data-present="on"] .done-row{display:none!important}
-html[data-present="on"] #main{max-width:100%}
-html[data-present="on"] .hero{margin-top:.6rem}
-html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
-html[data-present="on"] #main > section{display:none;margin-top:1rem}
-html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
-@keyframes pm-fade{from{opacity:0}to{opacity:1}}
-html[data-present="on"] .call.auth{display:none!important}
-html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
-.pm-dock{display:none}
-html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
-  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
-  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
-.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
-  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
-.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
-.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
-.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
-.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
-.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media print{.pm-dock,.pm-toggle{display:none!important}}
-html[data-present="on"] #ca-launch{display:none!important}
-
 </style>
 </head>
 <body>
@@ -240,7 +206,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
-          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -273,7 +238,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Scan walkthrough</a></li>
-      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Settings &amp; CVSS reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -295,7 +259,6 @@ html[data-present="on"] #ca-launch{display:none!important}
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>OpenVAS runs on <strong>Kali</strong> and is driven through a <strong>web interface</strong> in the browser, not the terminal. Your target is the deliberately vulnerable <strong>OWASP BWA</strong> host, which will light the report up nicely. The one thing to know going in: the scanner is only as good as its <strong>feed</strong> (its NVT database), and that feed has to finish syncing before results mean anything.</p>
-    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>OWASP BWA</b></td><td><code>192.168.68.12</code></td><td><code>root</code> / <code>owaspbwa</code></td></tr><tr><td><b>pfSense</b></td><td><code>192.168.0.254 / 192.168.68.254</code></td><td><code>admin</code> / <code>pfsense</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -303,74 +266,43 @@ html[data-present="on"] #ca-launch{display:none!important}
     <h2>Scan walkthrough</h2>
     <p>This lab is driven through the Greenbone web interface. Here's the workflow and what each choice means.</p>
 
-    <p class="task-head">Task 1 — Start the service</p>
+    <p class="task-head">Task 1 — Initial setup</p>
     <div class="step">
-      <h3><span class="n">1</span> Launch OpenVAS and sign in</h3>
-      <p>From the Kali menu: <strong>Vulnerability Analysis &gt; openvas start</strong> (equivalently <code class="inl">gvm-start</code>). The services take a moment to come up; then open the web interface and log in. Your browser will warn about a self-signed certificate — that's expected on a local scanner, so continue through it.</p>
+      <h3><span class="n">1</span> Start OpenVAS and sign in</h3>
+      <p>From the Kali Application Launcher: <strong>02-Vulnerability Analysis &gt; openvas start</strong> (equivalently <code class="inl">gvm-start</code>). It takes a few minutes to bring all the services up. Then log into the <strong>Greenbone Security Assistant</strong> web interface with username <code class="inl">admin</code> and password <code class="inl">password</code>.</p>
+    </div>
+    <div class="step">
+      <h3><span class="n">2</span> Explore SecInfo and the CVSS Calculator</h3>
+      <p>Open <strong>SecInfo &gt; Dashboard</strong> to see the scanner's knowledge base — the <strong>Network Vulnerability Tests (NVTs)</strong> and <strong>CVEs</strong> charted by severity and CVSS. Then open <strong>Extras &gt; CVSS Calculator</strong>: feed it the base-metric vectors (attack vector, complexity, privileges, user interaction, and the CIA impacts) and watch it derive the 0–10 score. This is exactly how "High" and "Critical" are calculated.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the CVSS Calculator showing the base metrics and the resulting score.</p></div>
     </div>
 
-    <p class="task-head">Task 2 — Define what to scan</p>
+    <p class="task-head">Task 2 — Quick scan with the Task Wizard</p>
     <div class="step">
-      <h3><span class="n">2</span> Create a Target</h3>
-      <p>Under <strong>Configuration &gt; Targets</strong>, add a new target: give it a name, set <strong>Hosts</strong> to the OWASP BWA address, and set <strong>Alive Test</strong> to <em>Consider Alive</em> so the scanner doesn't skip a host that's ignoring pings.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture your Target configuration showing the host address and the Alive Test setting.</p></div>
+      <h3><span class="n">3</span> One-click scan</h3>
+      <p>Go to <strong>Scans &gt; Tasks</strong> and click the purple <strong>Task Wizard</strong> icon (top-left). In the <strong>Quick start</strong> field, type the OWASP target <code class="inl">192.168.68.12</code> and click <strong>Start Scan</strong>. The wizard uses the <em>Full and fast</em> config by default. The scan takes 10–20 minutes; wait for the progress bar to reach <strong>100% / Done</strong>.</p>
+      <div class="call stuck"><span class="k">If you hit an authentication error</span><p>The page refreshes periodically, and the small SQLite install has a known permission quirk. If an auth error appears, click <strong>"Assumed sane state"</strong> and the page reloads — it's a product bug, not your mistake.</p></div>
+    </div>
+    <div class="step">
+      <h3><span class="n">4</span> Read the report</h3>
+      <p>When the scan finishes, click the <strong>1</strong> under the <strong>Reports Total</strong> column, then the date to open the full report. Findings are grouped by <strong>severity</strong>, each tied to a <strong>CVE</strong> and a <strong>CVSS</strong> score, with a <strong>QoD</strong> (Quality of Detection) showing how confident the scanner is.</p>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the report grouped by severity (the High/Critical findings especially).</p></div>
     </div>
 
-    <p class="task-head">Task 3 — Run a scan and read the report</p>
+    <p class="task-head">Task 3 — Customized scan</p>
     <div class="step">
-      <h3><span class="n">3</span> Pick a Scan Config, then scan</h3>
-      <p>The <strong>Scan Config</strong> decides how deep and how loud the scan is. <em>Full and fast</em> is the everyday default; <em>Full and very deep ultimate</em> runs far more NVTs (including potentially disruptive ones) and takes much longer. Create a task with your target and config, then run it and watch the progress bar reach 100% / Done.</p>
-      <div class="call tip"><span class="k">Depth vs. time vs. safety</span><p>"Ultimate" configs include checks that can crash fragile services. On production you'd think twice; on the practice target, go deep to see more.</p></div>
-    </div>
-    <div class="step">
-      <h3><span class="n">4</span> Open the report</h3>
-      <p>When the scan finishes, open the report and review the findings — grouped by <strong>severity</strong>, each tied to a <strong>CVE</strong> and a <strong>CVSS</strong> score, with a <strong>QoD</strong> (Quality of Detection) that tells you how confident the scanner is.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the report summary showing vulnerabilities grouped by severity (the High/Critical findings especially).</p></div>
-    </div>
-    <div class="step">
-      <h3><span class="n">5</span> Understand the score</h3>
-      <p>Open <strong>Extras &gt; CVSS Calculator</strong> and reproduce the score for one finding. Walk the base metrics — attack vector, complexity, privileges, user interaction, and the CIA impacts — and watch the 0–10 number move. This is how "High" and "Critical" are actually derived.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the CVSS Calculator showing the base metrics and resulting score for one vulnerability you investigated.</p></div>
+      <h3><span class="n">5</span> Inspect a config, then build a target and task by hand</h3>
+      <p>Open <strong>Configuration &gt; Scan Configs</strong> and click <strong>Full and very deep ultimate</strong> — scroll the NVT families it enables (including Nmap scripts) to see how much deeper it reaches than the quick scan. Then create the pieces manually:</p>
+      <ul>
+        <li><strong>Configuration &gt; Targets → New Target</strong> (star icon): Name <code class="inl">OWASP</code>, Hosts → Manual → <code class="inl">192.168.68.12</code>, <strong>Alive Test → Consider Alive</strong> (so a host ignoring pings isn't skipped) → <strong>Create</strong>.</li>
+        <li><strong>Scans &gt; Tasks → New Task</strong> (star icon): Name <code class="inl">OWASP-Scan</code>, Scan Targets <code class="inl">OWASP</code>, Scan Config <strong>Full and very deep ultimate</strong> → <strong>Create</strong>.</li>
+        <li>Click the <strong>OWASP-Scan</strong> task, then the green <strong>Start</strong> arrow. This runs much longer than the quick scan; use the yellow <strong>Stop</strong> square when you've seen enough.</li>
+      </ul>
+      <div class="call tip"><span class="k">Depth vs. time vs. safety</span><p>"Ultimate" configs include checks that can crash fragile services — on production you'd think twice, but on the practice target, go deep to see more.</p></div>
+      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture your Target configuration (host + Consider Alive) and the running OWASP-Scan task.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
-
-<section id="fullsteps" data-track>
-<h2>Full lab steps</h2>
-<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
-<p class="task-head">Task 1 - OpenVAS Initial Setup</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Click on the Kali tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Click within the console window and press Enter to display the login prompt.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Enter root as the username. Press Tab.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Enter toor as the password. Click Log In.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Launch OpenVAS by clicking on the Application Launcher and selecting 02- Vulnerability Analysis &gt; openvas start.</h3><div class="call tip"><span class="k">Note</span><p>This may take a few minutes to launch all of the services.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Log into the Greenbone Security Assistant using the following credentials. a. Username: admin b. Password: password c. Click Login.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Select SecInfo &gt; Dashboard from the top pane. Notice the categorized network vulnerability tests (NVT) by severity and common vulnerability scoring system (CVSS). Also, notice the common vulnerabilities and exposures (CVE) by CVSS and severity.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Select Extras &gt; CVSS Calculator from the top pane. The calculator shown here can make calculations based on several different vectors to derive a CVSS score that is used for rating CVEs.</h3></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">CVSS calculator.</span> The base metrics and score for one finding you investigated.</div><p class="task-head">Task 2 - Quick Scanning with OpenVAS</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Select Scans &gt; Tasks from the top pane.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> A popup will appear, last for 10 seconds, and close. Notice it goes to the purple icon in the upper-left. Click on the purple wizard icon to open the Task Wizard.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Configure a default scan against the OWASP server by typing the IP address 192.168.68.12 into the Quick start text field.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Click Start Scan. This scan will take 10-20 minutes depending on your system; wait until the scan finishes before moving on to the next step. The scan will finish once the progress bar reaches 100% or "Done". Notice the screen will refresh periodically. If you see an authentication error, click on Assumed sane state and the page will refresh. This is a permission bug in the Openvas product with the small SQLite install.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Once the scan finishes, click the number 1 under the Reports Total column.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Click on the specified date under the Date column to view the full report.</h3></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Scan report.</span> The finished report grouped by severity, High/Critical visible.</div><div class="step"><h3 class="fh"><span class="n">7</span> Analyze the vulnerabilities listed in the report.</h3></div>
-<p class="task-head">Task 3 - Customized Scanning with OpenVAS</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Select Configuration &gt; Scan Configs from the top pane.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Click on the Full and very deep ultimate link. Analyze and scroll down through the options made available. There are many different types of NVTs (Network Vulnerability Tests) that can be initiated including Nmap scripts.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Select Configuration &gt; Targets from the top pane.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Click the New Target (star) icon.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Configure the new target with the information below: a. Name: OWASP b. Hosts: Manual c. Alive Test: Consider Alive d. Leave the rest as defaults.</h3><div class="cmd"><pre>192.168.68.12</pre></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Target configuration.</span> The target with the OWASP host and Alive Test setting.</div><div class="step"><h3 class="fh"><span class="n">6</span> Click Create.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Click on Scans &gt; Tasks from the top pane.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Click the New Task (star) icon.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Configure the new task with the information below: a. Name: OWASP-Scan b. Scan Targets: OWASP c. Scan Config: Full and very deep ultimate d. Leave the rest as defaults</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Click Create.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> At the bottom of the window, click on the OWASP-Scan task.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> Click the Start (green arrow) icon to initiate the scan. This particular scan will take more time than the first quick scan that was initiated at the beginning of the lab. If you wish, you may choose to run the scan for a period of time for analysis. When ready, click the Stop (yellow square) icon to stop the scan.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> You may now end your reservation.</h3></div>
-<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
-</section>
 
   <section id="reference" data-track>
     <h2>Settings &amp; CVSS reference</h2>
@@ -586,55 +518,6 @@ html[data-present="on"] #ca-launch{display:none!important}
     document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
     refresh();
   });
-})();
-</script>
-<script src="assistant.js" defer></script>
-
-<script>
-(function(){
-  "use strict";
-  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
-  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
-  function show(i){
-    idx=Math.max(0,Math.min(slides.length-1,i));
-    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
-    root.setAttribute("data-pm-index",String(idx));
-    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
-    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
-    if(prevBtn)prevBtn.disabled=idx===0;
-    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
-    window.scrollTo(0,0);
-  }
-  function enter(){
-    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
-    if(!slides.length)return;
-    root.setAttribute("data-present","on");
-    if(dock)dock.setAttribute("aria-hidden","false");
-    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
-    show(0);
-  }
-  function exit(){
-    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
-    slides.forEach(function(s){s.classList.remove("pm-current");});
-    if(dock)dock.setAttribute("aria-hidden","true");
-    if(toggle)toggle.textContent="\u21E4 Lab mode";
-  }
-  toggle=document.getElementById("pmToggle");
-  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
-  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
-  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
-    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
-    '<button type="button" data-pm="next">Next \u25B6</button>'+
-    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
-  document.body.appendChild(dock);
-  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
-  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
-  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
-    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
-  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
-    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
-    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
-    else if(e.key==="Escape"){exit();}});
 })();
 </script>
 </body>

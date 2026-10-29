@@ -191,40 +191,6 @@
   .evidence li input{width:20px;height:20px;margin-top:.12rem;accent-color:var(--violet);flex:none}
   .evidence .shot{font-weight:600;color:var(--ink)}
   @media print{.evidence li input{-webkit-appearance:checkbox;appearance:checkbox}}
-
-#fullsteps .step h3.fh{font-weight:600;font-size:.95rem;line-height:1.5;margin:0;display:block}
-#fullsteps .step h3.fh .n{margin-right:.5rem}
-#fullsteps .shotmark{margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:6px;font-size:.88rem;color:var(--ink)}
-#fullsteps .shotmark b{color:var(--accent)}
-
-.pm-toggle.ctl{cursor:pointer}
-html[data-present="on"] nav.toc,
-html[data-present="on"] .hero .lede,
-html[data-present="on"] .hero .chips,
-html[data-present="on"] footer.site,
-html[data-present="on"] .done-row{display:none!important}
-html[data-present="on"] #main{max-width:100%}
-html[data-present="on"] .hero{margin-top:.6rem}
-html[data-present="on"] .hero h1{font-size:1.25rem;margin-top:.2rem}
-html[data-present="on"] #main > section{display:none;margin-top:1rem}
-html[data-present="on"] #main > section.pm-current{display:block;animation:pm-fade .18s ease;font-size:1.04rem}
-@keyframes pm-fade{from{opacity:0}to{opacity:1}}
-html[data-present="on"] .call.auth{display:none!important}
-html[data-present="on"][data-pm-index="0"] .call.auth{display:block!important}
-.pm-dock{display:none}
-html[data-present="on"] .pm-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147483100;display:flex;
-  align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--border);
-  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
-.pm-dock button{flex:0 0 auto;min-height:40px;min-width:44px;padding:0 14px;cursor:pointer;background:var(--surface-2);
-  color:var(--ink);border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
-.pm-dock button:hover{background:var(--accent);color:var(--accent-ink,#06240f)}
-.pm-dock button:disabled{opacity:.4;cursor:not-allowed}
-.pm-dock button:disabled:hover{background:var(--surface-2);color:var(--ink)}
-.pm-dock .pm-where{flex:1 1 auto;text-align:center;min-width:0;font-size:.78rem;color:var(--muted)}
-.pm-dock .pm-where b{color:var(--ink);display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media print{.pm-dock,.pm-toggle{display:none!important}}
-html[data-present="on"] #ca-launch{display:none!important}
-
 </style>
 </head>
 <body>
@@ -240,7 +206,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       </div>
       <button class="ctl" id="theme-toggle" aria-pressed="false">🌙 Dark</button>
       <button class="ctl" id="print-btn">🖨 Print</button>
-          <button class="ctl pm-toggle" id="pmToggle" type="button">⇤ Lab mode</button>
       <button class="ctl" id="clear-btn">Clear progress</button>
     </div>
   </div>
@@ -273,7 +238,6 @@ html[data-present="on"] #ca-launch{display:none!important}
       <li><a href="#overview">Overview</a></li>
       <li><a href="#environment">The environment</a></li>
       <li><a href="#walkthrough">Command walkthrough</a></li>
-      <li><a href="#fullsteps">Full lab steps</a></li>
       <li><a href="#reference">Reference</a></li>
       <li><a href="#stuck">Where people get stuck</a></li>
       <li><a href="#defend">The defender's view</a></li>
@@ -294,7 +258,6 @@ html[data-present="on"] #ca-launch{display:none!important}
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You work across <strong>Windows</strong> (NTFS streams, ADS Spy, OpenStego) and <strong>Kali/Linux</strong> (extended attributes and log files). Every command touches files and logs on the practice machines only.</p>
-    <div class="tbl-wrap"><table id="cred-table"><thead><tr><th>Machine</th><th>Address</th><th>Sign-in (user / pass)</th></tr></thead><tbody><tr><td><b>Kali Linux</b></td><td><code>192.168.9.2 / 192.168.0.2</code></td><td><code>root</code> / <code>toor</code></td></tr><tr><td><b>WinOS</b></td><td><code>192.168.0.20</code></td><td><code>Administrator</code> / <code>Train1ng$</code></td></tr></tbody></table></div><p class="muted" style="font-size:.84rem;color:var(--muted)">Fixed NETLAB+ pod logins for this lab (case-sensitive); the same every time the pod resets.</p>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -318,7 +281,8 @@ html[data-present="on"] #ca-launch{display:none!important}
       <h3><span class="n">2</span> Stash data in xattrs</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> setfattr <span class="fl">-n</span> <span class="ar">user.attribute1</span> <span class="fl">-v</span> <span class="ar">'data hidden here'</span> lab23.txt</pre></div>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> getfattr <span class="fl">-d</span> lab23.txt</pre></div>
-      <p><code class="inl">setfattr</code> attaches named <strong>extended attributes</strong> to a file — metadata that ordinary tools like <code class="inl">cat</code> and <code class="inl">ls</code> don't display. <code class="inl">getfattr -d</code> dumps them back. It's the Linux analogue of NTFS streams: data riding invisibly alongside a file.</p>
+      <p><code class="inl">setfattr</code> attaches named <strong>extended attributes</strong> to a file — metadata that ordinary tools like <code class="inl">cat</code> and <code class="inl">ls</code> don't display. <code class="inl">getfattr -d</code> dumps them back (the lab adds a second, <code class="inl">user.attribute2</code>, to show you can stack them). It’s the Linux analogue of NTFS streams: data riding invisibly alongside a file.</p>
+      <div class="call stuck"><span class="k">attr may not be installed</span><p>The <code class="inl">setfattr</code>/<code class="inl">getfattr</code> tools come from the <strong>attr</strong> package, which isn’t present on every distro. On Debian/Ubuntu/Kali: <code class="inl">sudo apt install attr</code>.</p></div>
     </div>
 
     <p class="task-head">Task 3 — Destroying evidence (Linux logs)</p>
@@ -335,90 +299,6 @@ html[data-present="on"] #ca-launch{display:none!important}
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
-
-<section id="fullsteps" data-track>
-<h2>Full lab steps</h2>
-<p>Every step from the NDG lab guide, in order — enough to run the lab end to end from this page. The command walkthrough above explains the key commands and the <em>why</em>; this is the complete click-by-click checklist. Watch for the 📸 markers — those are the moments worth a screenshot.</p>
-<p class="task-head">Task 1 - Covering Your Tracks - NTFS Streams</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Launch the WinOS virtual machine to access the graphical login screen. 1.1. Select Send CTRL+ALT+DEL from the dropdown menu to be prompted with the login screen. 1.2. Log in as Administrator using the password: Train1ng$</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Let us begin by looking at the properties of the hard drive. Most Windows Operating System's configured hard drives will always be formatted to NTFS; however, for the purposes of the exercise, we will confirm the file system by double- clicking on This PC or opening Windows File Explorer, as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> In File Explorer, select This PC as highlighted in item 1. There you will see Local Disk (C:) under Devices and Drives. Right-click the drive to open the context menu, then navigate to Properties as seen in items 2 and 3 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> The Local Disk (C:) Properties window should appear. Select the General tab to locate the file system, then click OK to close the properties as seen highlighted at items 1, 2, and 3 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Minimize Windows File Explorer to view the Desktop, then right-click any empty spot to open a context menu, navigate to New, and select Folder to create a new folder on the Desktop, as highlighted in items 1, 2, 3, and 4.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Name the newly created folder LAB23 and double-click the folder to open it, as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> Windows File Explorer should still be open. Use the cursor and hover over Windows File Explorer; this will display both currently active windows. Select the window titled This PC, as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Now double-click Local Disk (C:) then navigate to the path C:\Windows\System32 as seen in items 1 and 2.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Double-click the folder called System32, then select the search bar called Search System32 located at the top-right side of the window, as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> Type calc.exe in the search bar to filter the results and locate the Calculator executable. Click the file called calc to select it, then right-click on it to open a context menu and then select Copy as highlighted in items 1, 2, and 3 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> Use the cursor and hover over Windows File Explorer again. Select the window titled LAB23 as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> Now right-click inside the empty folder to open the context menu, navigate to and select Paste to copy the file called calc.exe to the LAB23 folder, as seen in items 1 and 2.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> Next, right-click on the Start button and click the Run option from the context menu that appears, as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">14</span> When the Run window appears, type cmd and click OK, as seen in items 1 and 2 below. This will launch the Windows command prompt with Administrative privileges.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">15</span> Once the command line window appears, we will change the directory to the path where the files we want to manipulate are located. First, let us change to the Desktop and then to the folder LAB23 by typing the following command:</h3><div class="cmd"><pre>C:\Users\Administrator&gt;cd Desktop\LAB23</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">16</span> Now let us create a new text file by typing notepad lab23.txt and press Enter.</h3><div class="cmd"><pre>C:\Users\Administrator\Desktop\LAB23&gt;notepad lab23.txt</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">17</span> If you typed the command correctly, Notepad should launch; click the Yes button when prompted to create the new lab23.txt file, as highlighted below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">18</span> In the newly created text file, type This is a secret message hidden from the average user! as seen below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">19</span> Now, navigate to the main menu and select File &gt; Save to save the lab23.txt notepad file, then close Notepad by clicking the X in the top-right corner as seen in items 1, 2, and 3 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">20</span> Let us go back to the Command Prompt and type dir and press Enter to list all present files in the LAB23 folder. See the command in item 1 in the screenshot below. This should reveal the executable file called calc.exe and the text file called lab23.txt, as seen in item 2. We will use the NTFS Stream, Alternative Data Stream (ADS), to hide the application called calc.exe into the text file called lab23.txt.</h3><div class="cmd"><pre>C:\Users\Administrator\Desktop\LAB23&gt;dir</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">21</span> Now, hide calc.exe inside the lab23.txt file by typing the following at the command prompt: type calc.exe &gt; lab23.txt:calc.exe then press Enter. The exercise should not be performed on live host systems without written permission, it can severely compromise the authenticity of a file, hence the reason a copy of the file was made.</h3><div class="cmd"><pre>C:\Users\Administrator\Desktop\LAB23&gt;type calc.exe &gt; lab23.txt:calc.exe</pre></div><div class="call tip"><span class="k">Note</span><p>It is important to point out that you can damage files by doing this.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">22</span> Type dir and press Enter. Note the file size of lab23.txt, which should have no visible change.</h3><div class="cmd"><pre>C:\Users\Administrator\Desktop\LAB23&gt;dir</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">23</span> Let us switch back. We will use the cursor and hover over Windows File Explorer again and select the window titled LAB23, as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">24</span> Navigate to the file calc.exe, right-click and select Delete as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">25</span> Go back to the Command Prompt and type mklink exploit.exe lab23.txt:calc.exe and press Enter.</h3><div class="cmd"><pre>C:\Users\Administrator\Desktop\LAB23&gt;mklink exploit.exe lab23.txt:calc.exe</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">26</span> Now, let us say the system was compromised by a hacker. The hacker hid a malicious exploit within the lab23.txt text file in order to execute it on the target system later. By using the NTFS streams, the file was invisible to the legitimate user(s) of the computer. The hacker can now execute the malicious file as required.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">27</span> Type exploit.exe and press Enter. The Calculator application will be executed, and the attacker would have successfully launched the malicious executable.</h3><div class="cmd"><pre>C:\Users\Administrator\Desktop\LAB23&gt;exploit.exe</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">28</span> You may close all opened windows now. Before you move to the next part, please delete the LAB23 folder and its contents by right-clicking the folder and selecting Delete as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">29</span> Then, navigate to the Recycle Bin and right-click on it, and select Empty Recycle Bin as seen in items 1 and 2. Click Yes if prompted.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">30</span> This exercise is now complete.</h3></div>
-<p class="task-head">Task 2 - Locating Hidden Files Using ADS Spy</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Navigate to and double-click the Toolbox directory located on the Desktop, as seen in item 1 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> In Windows File Explorer, double-click ADSSpy.exe to launch the application, as highlighted in item 1.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> The ADS Spy main window should appear.</h3><div class="call tip"><span class="k">Note</span><p>If prompted by an Open File Security warning, click RUN.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Let us select Full scan (All NTFS drives), check the option to Ignore safe system info data streams ('encryptable', 'SummaryInformation', etc), and then click Scan the system for alternate data streams as seen in items 1, 2, and 3 below. Selecting Calculate MD5 checksums of the streams' contents would be an important step if you were review a live host. The MD5 checksum generated could then be used to search sandboxes and flag dangerous files.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> ADS Spy will search the entire NTFS and list all hidden streams. As you can see, ADS Spy was able to identify three (3) hidden streams; note the paths as highlighted in items 1 and 2 below. At times, the scanner may identify miscellaneous or false positive files, however, we are only interested in the files identified above.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Here you would select and delete unwanted/malicious streams from the file system by selecting each checkbox and click Remove select streams. However, let us leave them as is until the end of the next task. Minimize the window by clicking the - as seen in item 1 below.</h3><div class="call tip"><span class="k">Note</span><p>Note the path to each ADS stream file.</p></div></div>
-<p class="task-head">Task 3 - Extract ADS File Using OpenStego</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> Navigate to and double-click Run OpenStego located on the Desktop to launch the application, as seen in item 1 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> The OpenStego main window should appear.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Since we located three (3) ADS files from the previous exercise, we will now be extracting the data and examining the content. As we outlined, ADS files can contain malicious files, and we should take due care when attempting to examine the stream files. Click Extract Data under the Data Hiding pane, as seen in item 1 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> Next, click the ellipsis button to the right of the Input Stego File box, as seen in item 1 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> The Open - Select Input Stego File window will open. Navigate to the Documents directory, select 09260002.png and click Open as seen in items 1, 2, and 3 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Click the ellipsis button to the right of the Output Folder for Message File box, as seen in item 1 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> The Select Output Folder for Message File window will appear. Navigate to the Desktop, select Create New Folder and name it openstego export and click Open as seen in items 1, 2, 3, and 4 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Click Extract Data as seen in item 1. This will extract the file from within the image and saves it to the destination folder.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> A success dialog box prompt should appear, stating that the message file has been successfully extracted from the cover file Click OK as seen in item 1 below. The message file will be displayed in the destination folder specified in step 7.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> If you did everything correctly, the file should be saved. Now, navigate to the Desktop and double-click the folder openstego export to open it, as seen at items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> Since the extracted ADS file is a text file, there is no risk of harming the computer. However, if the files were malicious, you would first generate the MD5 hashes before attempting to move the files to a sandbox. So, let's double-click the file to view the content, as seen in items 1 and 2 below.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> Maximize ADS Spy and select the malicious streams' checkboxes malicious.txt and virus.txt and click Remove selected streams.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> This is the end of the exercise. Close all windows to complete the lab.</h3></div>
-<p class="task-head">Task 4 - Using Extended File Attributes on Linux to Hide Data</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> To begin, switch to the Kali Linux VM and log in as root using the password toor. Then, click the terminal icon from the navigator panel, as seen in item 1. Once the Terminal window opens, type touch lab23.txt and press Enter as seen in item 2.</h3><div class="cmd"><pre>root@kali:~# touch lab23.txt</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> Now let us add the text we intend to hide in the extended attributes of this file. To do this, type setfattr -n user.attribute1 -v "data hidden here" lab23.txt and press Enter as seen in item 1. root@kali:~# setfattr -n user.attribute1 -v "data hidden here" lab23.txt</h3></div>
-<div class="step"><h3 class="fh"><span class="n">3</span> Next, we will add another attribute by typing setfattr -n user.attribute2 -v "data also hidden here" lab23.txt and press Enter as seen in item 1. root@kali:~# setfattr -n user.attribute2 -v "data also hidden here" lab23.txt</h3><div class="call tip"><span class="k">Note</span><p>The -n option refers to the name of the attribute we will be creating. The -v option is the value of the attribute.</p></div></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> The attributes are now set for the file. These attributes will not be seen by the user in the File Manager or in a file list. To view the attributes, type getfattr -d lab23.txt and press Enter as seen in item 1. As you can see in item 2, the attribute names and their related data are printed in the Terminal. The -v option is the value of the attribute. The -d option lists all extended attributes.</h3><div class="cmd"><pre>root@kali:~# getfattr -d lab23.txt</pre></div><div class="call tip"><span class="k">Note</span><p>The -n option refers to the name of the attribute we will be creating.</p></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Hidden data.</span> ADS Spy finding the NTFS stream, or <code class="inl">getfattr -d</code> revealing the xattrs.</div><div class="step"><h3 class="fh"><span class="n">5</span> This is a quick and simple way of hiding data on Linux systems and can be used to store a small amount of information for various purposes. attr is not installed on all Linux distributions by default. Use sudo apt install attr on Ubuntu systems. (Research the installation for attr on other systems).</h3></div>
-<p class="task-head">Task 5 - Covering Tracks by Deleting Linux Logs</p>
-<div class="step"><h3 class="fh"><span class="n">1</span> The Terminal should still be open; if not, reopen it by clicking the Terminal icon on the navigation panel as seen in item 1.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">2</span> The first log we will review is from the btmp file, which provides details about the last login sessions on the system. The btmp file is not a raw text file, so let us type the command last -f /var/log/btmp and press Enter as seen in item 1. The results will populate the terminal window (your output may differ from the screenshot). The entry seen in item 2 indicates the username of the user, the time of login, and the duration of the session. It indicates that the user that logged in on Thursday, April 1 at 23:21 is still logged in. tty7 is a service used by Gnome desktop manager and other desktop environments. It is an indicator that the log in was through graphical user interface and not terminal etc.</h3><div class="cmd"><pre>root@kali:~# last -f /var/log/btmp</pre></div></div>
-<div class="shotmark">📸 <b>Screenshot for your report:</b> <span class="shot">Logs before/after.</span> <code class="inl">last</code> showing records, then empty after wiping <code class="inl">wtmp</code>.</div><div class="step"><h3 class="fh"><span class="n">3</span> Next, we will look at the wtmp file, which is similar to the btmp but contains additional system data such as reboots. To view the contents, type last -f /var/log/wtmp and press Enter as seen in item 1. The results will appear in the Terminal window and will provide additional login dates and times as well as system boots and reboots, as seen in item 2.</h3><div class="cmd"><pre>root@kali:~# last -f /var/log/wtmp</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">4</span> To remove this data and further cover our tracks, type cat /dev/null &gt; /var/log/wtmp and press Enter as seen in item 1 to replace wtmp with a blank file. Then type cat /dev/null &gt; /var/log/btmp and press Enter as seen in item 2 to replace btmp with a blank file. The command cat /dev/null command is used for discarding unwanted data from files and is a safe way to ensure the data is deleted while keeping the system functioning.</h3><div class="cmd"><pre>root@kali:~# cat /dev/null &gt; /var/log/wtmp
-root@kali:~# cat /dev/null &gt; /var/log/btmp</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">5</span> Now that the commands appeared to run successfully, let us verify that the contents are cleared. To do this, type last -f /var/log/btmp and press Enter as seen in item</h3></div>
-<div class="step"><h3 class="fh"><span class="n">1</span> As you can see in item 2, the log indicates that the btmp begins at the current date and time.</h3><div class="cmd"><pre>root@kali:~# last -f /var/log/btmp</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">6</span> Next, type last -f /var/log/wtmp and press Enter as seen in item 1. As you can see in item 2, this log is also cleared.</h3><div class="cmd"><pre>root@kali:~# last -f /var/log/wtmp"</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">7</span> The next log we will look at is the sudo log. This can be found in auth.log file and shows the specific commands typed as a privileged user. The auth.log file can contain lots of data that makes it hard to read. We will use the grep command to focus on only the instances that the sudo command was used. First, let us ensure we will get some results by running a command using sudo. Do this by typing sudo ifconfig and pressing Enter as seen in item 1. root@kali:~# sudo ifconfig The sudo command allows the user to request root privileges to execute the command that follows. However, we are already logged in as root so the reason for sudo now is to allow the command to be placed inside the auth.log file.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">8</span> Now that we are sure there is a sudo command for this session, type sudo grep sudo /var/log/auth.log and press Enter as seen in item 1. Alternatively, you can type the command sudo cat /var/log/auth.log | grep sudo both commands will produce the similar results.</h3><div class="cmd"><pre>root@kali:~# sudo grep sudo /var/log/auth.log</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">9</span> Now, look at the results to see if you can identify the ifconfig command you typed earlier. As you can see in item 1, the command shows up in the log. The reason why it looks different is that the auth.log shows the path the command was run from. In this case, ifconfig was run from sbin, which is a folder that stores binaries for privileged users. The entry in item 1 also shows the directory the command was run from, which is /root, and the user that ran the command, which is root. Item 2 shows the date and time the session was opened and closed, which gives an idea of how long the session was active. Finally, in item 3, is the command we ran to show these results. Notice the working directory and user are the same, but the path of the binary is bin instead of sbin. This is because the grep command is not stored in the privileged users' binaries.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">10</span> As you saw in the previous step, this data is very detailed and should be removed to cover tracks as well. To remove the contents of this file, type cat /dev/null &gt; /var/log/auth.log and press Enter as seen in item 1. To verify that it was emptied, type cat /var/log/auth.log and press Enter as seen in item 2. If nothing appears, then you have successfully cleared the sudo logs.</h3><div class="cmd"><pre>root@kali:~# cat /dev/null &gt; /var/log/auth.log
-root@kali:~# cat /var/log/auth.log</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">11</span> The last, but one of the most important logs we will look at, is the Bash history which is found in each user's root directory. Since we are already in the root directory, let us locate it by typing ls -al and pressing Enter as seen in item 2. Notice the file called .bash_history seen in item 3. This file stores all the commands typed in the Terminal window and can give away the attacker's activity on the system. This is also the reason why this log should be cleared when you are about to exit the system. root@kali:~# ls -al</h3></div>
-<div class="step"><h3 class="fh"><span class="n">12</span> Let us look at the contents of this file. Type cat .bash_history and press Enter as seen in item 1. The results will appear, with a command listed on each line. Look at the list to see if you are familiar with the commands.</h3><div class="cmd"><pre>root@kali:~# cat .bash_history</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">13</span> Now that you are aware of the content, you can see why attackers would not want forensic examiners to find this information. To remove the data without deleting the file, simply type &gt; .bash_history and press Enter as seen in item 1.</h3><div class="cmd"><pre>root@kali:~# &gt; .bash_history</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">14</span> Now type cat .bash_history and press Enter to verify whether the contents were overwritten, as seen in item 1. As you can see, there is no data in this file. There is a bash_history file for each user account including the root user. Check all files to ensure that you are not leaving any data in the files.</h3><div class="cmd"><pre>root@kali:~# cat .bash_history</pre></div></div>
-<div class="step"><h3 class="fh"><span class="n">15</span> There are many other log files that can be used to prove attackers accessed the system, but the ones we covered focused on removing evidence of the attacker's login and Terminal activity. To learn more, you can research other types of logs that can help prove the attacker's access.</h3></div>
-<div class="step"><h3 class="fh"><span class="n">16</span> This is the end of the lab; please close all windows and terminals to complete the lab.</h3></div>
-<div class="done-row"><input type="checkbox" id="done-fullsteps" data-done="fullsteps"><label for="done-fullsteps">Mark this section reviewed</label></div>
-</section>
 
   <section id="reference" data-track>
     <h2>Reference — beyond the lab</h2>
@@ -619,55 +499,6 @@ root@kali:~# cat /var/log/auth.log</pre></div></div>
     document.querySelectorAll(".q .reveal").forEach(function(btn){btn.setAttribute("aria-expanded","false");btn.textContent="Show answer";});
     refresh();
   });
-})();
-</script>
-<script src="assistant.js" defer></script>
-
-<script>
-(function(){
-  "use strict";
-  var root=document.documentElement,slides=[],idx=0,toggle,dock,prevBtn,nextBtn,countEl,nameEl;
-  function labelFor(s){var h=s.querySelector("h2");return h?h.textContent.trim():s.id;}
-  function show(i){
-    idx=Math.max(0,Math.min(slides.length-1,i));
-    slides.forEach(function(s,n){s.classList.toggle("pm-current",n===idx);});
-    root.setAttribute("data-pm-index",String(idx));
-    if(countEl)countEl.textContent=(idx+1)+" / "+slides.length;
-    if(nameEl)nameEl.textContent=labelFor(slides[idx]);
-    if(prevBtn)prevBtn.disabled=idx===0;
-    if(nextBtn)nextBtn.disabled=idx===slides.length-1;
-    window.scrollTo(0,0);
-  }
-  function enter(){
-    slides=Array.prototype.slice.call(document.querySelectorAll("#main > section"));
-    if(!slides.length)return;
-    root.setAttribute("data-present","on");
-    if(dock)dock.setAttribute("aria-hidden","false");
-    if(toggle)toggle.textContent="\u21E4 Exit lab mode";
-    show(0);
-  }
-  function exit(){
-    root.removeAttribute("data-present");root.removeAttribute("data-pm-index");
-    slides.forEach(function(s){s.classList.remove("pm-current");});
-    if(dock)dock.setAttribute("aria-hidden","true");
-    if(toggle)toggle.textContent="\u21E4 Lab mode";
-  }
-  toggle=document.getElementById("pmToggle");
-  if(toggle)toggle.addEventListener("click",function(){root.getAttribute("data-present")==="on"?exit():enter();});
-  dock=document.createElement("div");dock.className="pm-dock";dock.id="pmDock";dock.setAttribute("aria-hidden","true");
-  dock.innerHTML='<button type="button" data-pm="prev">\u25C0 Prev</button>'+
-    '<div class="pm-where"><span id="pmCount"></span><b id="pmName"></b></div>'+
-    '<button type="button" data-pm="next">Next \u25B6</button>'+
-    '<button type="button" data-pm="exit" aria-label="Exit lab mode">\u2715</button>';
-  document.body.appendChild(dock);
-  prevBtn=dock.querySelector('[data-pm="prev"]');nextBtn=dock.querySelector('[data-pm="next"]');
-  countEl=dock.querySelector("#pmCount");nameEl=dock.querySelector("#pmName");
-  dock.addEventListener("click",function(e){var t=e.target.closest("[data-pm]");if(!t)return;
-    var a=t.getAttribute("data-pm");if(a==="prev")show(idx-1);else if(a==="next")show(idx+1);else exit();});
-  document.addEventListener("keydown",function(e){if(root.getAttribute("data-present")!=="on")return;
-    if(e.key==="ArrowRight"||e.key==="PageDown"){show(idx+1);e.preventDefault();}
-    else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(idx-1);e.preventDefault();}
-    else if(e.key==="Escape"){exit();}});
 })();
 </script>
 </body>
