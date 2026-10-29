@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -321,7 +328,7 @@
       <div class="cmd"><pre><span class="p">root@kali:~#</span> smbclient <span class="fl">-L</span> <span class="ar">192.168.68.12</span> <span class="fl">--option=</span><span class="ar">'client min protocol=NT1'</span></pre></div>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> smbclient <span class="ar">\\\\192.168.68.12\\owaspbwa</span> <span class="fl">--option=</span><span class="ar">'client min protocol=NT1'</span></pre></div>
       <p>In a second terminal, <code class="inl">-L</code> lists the shares on the host, then you connect to the <code class="inl">owaspbwa</code> share. When prompted for root's password, enter <code class="inl">owaspbwa</code>. <code class="inl">--option='client min protocol=NT1'</code> forces the ancient <strong>SMBv1</strong> dialect, which is unencrypted — exactly what makes the traffic readable in the next step. Inside the <code class="inl">smb:\></code> prompt you can run <code class="inl">help</code>, <code class="inl">ls</code>, and <code class="inl">exit</code>.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">smbclient -L</code> output listing the shares on the target.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the <code class="inl">smbclient -L</code> output listing the shares on the target.</p></div>
     </div>
     <div class="step">
       <h3><span class="n">4</span> Generate some web traffic too, then stop capturing</h3>
@@ -333,13 +340,13 @@
       <h3><span class="n">5</span> Open the capture and read the SMB traffic</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> wireshark</pre></div>
       <p>Launch Wireshark, then <strong>File → Open</strong>, go to the <strong>root</strong> folder, and open <code class="inl">testdump.pcap</code>. Type <code class="inl">smb</code> in the display filter and click Apply to narrow to the file-sharing traffic, then <strong>right-click a packet → Follow → TCP Stream</strong> to reassemble the whole conversation into readable text.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture Wireshark filtered to <code class="inl">smb</code>, and a Follow-TCP-Stream view showing the share name or other cleartext from your session.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture Wireshark filtered to <code class="inl">smb</code>, and a Follow-TCP-Stream view showing the share name or other cleartext from your session.</p></div>
       <div class="call tip"><span class="k">The whole point in one view</span><p>Follow TCP Stream turns a pile of packets back into the conversation. On an unencrypted protocol, that conversation is plain text — share names, filenames, sometimes credentials.</p></div>
     </div>
     <div class="step">
       <h3><span class="n">6</span> Now read the HTTP traffic</h3>
       <p>Clear the filter, type <code class="inl">http</code>, and Apply. Select any <strong>GET</strong> packet and, in the middle (detail) panel, expand <strong>Hypertext Transfer Protocol</strong> to read the request — host, path, user-agent, all in the clear. Clear the filter again and Follow → TCP Stream on a TCP packet to see the full HTTP exchange. This is the same lesson as SMB: plain HTTP hides nothing from a sniffer.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture Wireshark filtered to <code class="inl">http</code> with a GET request's details expanded.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture Wireshark filtered to <code class="inl">http</code> with a GET request's details expanded.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

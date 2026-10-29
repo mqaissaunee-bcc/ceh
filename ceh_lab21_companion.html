@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -306,7 +313,7 @@
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nmap <span class="fl">-sn</span> <span class="ar">192.168.0.0/24</span>
 <span class="p">root@kali:~#</span> nmap <span class="fl">-sSV</span> <span class="fl">-O</span> <span class="ar">TARGET</span></pre></div>
       <p>Same discovery and fingerprinting as Labs 03 and 20 — find the host, learn its OS and services. (The lab's <code class="inl">-sP</code> is the old name for <code class="inl">-sn</code>.) You need the OS and architecture because the payload has to match them.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the scan identifying the target's OS and open services.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the scan identifying the target's OS and open services.</p></div>
     </div>
 
     <p class="task-head">Step 2 — Choose a payload</p>
@@ -339,7 +346,7 @@
 <span class="p">msf6 ></span> show options
 <span class="p">msf6 ></span> exploit <span class="fl">-j</span> <span class="fl">-z</span></pre></div>
       <p>The <strong>handler</strong> is just a listener waiting for the victim's callback — its payload and <code class="inl">LHOST</code>/<code class="inl">LPORT</code> must match what you put in the file. <code class="inl">exploit -j -z</code> runs it as a background job. When the victim runs the file, a session appears.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the handler reporting a Meterpreter session opened (the "session 1 opened" line).</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the handler reporting a Meterpreter session opened (the "session 1 opened" line).</p></div>
     </div>
 
     <p class="task-head">Step 5 — Post-exploitation</p>
@@ -351,7 +358,7 @@
       <div class="cmd"><pre><span class="p">meterpreter ></span> getsystem
 <span class="p">meterpreter ></span> getuid</pre></div>
       <p>Once the session opens, a hacker learns the target first — <code class="inl">sysinfo</code> (OS, architecture), <code class="inl">ifconfig</code> (interfaces, MAC/IP), and <code class="inl">getuid</code> (you land as <code class="inl">Administrator</code>, the account the file ran from). This is the handoff back into the <em>enumeration</em> phase. Then <code class="inl">getsystem</code> attempts <strong>privilege escalation</strong> to the <code class="inl">SYSTEM</code> account; run <code class="inl">getuid</code> again to confirm it worked. Whether it succeeds depends entirely on how the box is configured — a patched, least-privilege host often says no.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture <code class="inl">getuid</code> before and after <code class="inl">getsystem</code>, showing the privilege change (or that escalation failed).</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture <code class="inl">getuid</code> before and after <code class="inl">getsystem</code>, showing the privilege change (or that escalation failed).</p></div>
     </div>
     <div class="step">
       <h3><span class="n">7</span> Dump credentials and maintain access</h3>

@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -304,12 +311,12 @@
       <h3><span class="n">1</span> Start BeEF and hook a browser</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> beef</pre></div>
       <p>Launch BeEF (it runs in a Docker container and takes 1–2 minutes to come up) and log into its control panel with <code class="inl">beef</code> / <code class="inl">password</code>. BeEF serves a <strong>hook</strong> (<code class="inl">hook.js</code>); any browser that loads a page containing it becomes <em>hooked</em>. The lab demonstrates this with its built-in demo: from the <strong>OpenSUSE</strong> VM (login <code class="inl">osboxes</code> / <code class="inl">osboxes.org</code>), open Firefox and browse to <code class="inl">192.168.9.2:3000/demos/basic.html</code>. Getting that script in front of a real victim would be the <strong>social-engineering</strong> step (<a href="ceh_lab18_companion.html" target="_blank" rel="noopener">Lab 18</a>) or an <strong>XSS</strong> flaw (<a href="ceh_lab24_companion.html" target="_blank" rel="noopener">Lab 24</a>).</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the BeEF panel with the hooked browser (<code class="inl">192.168.9.1</code>) appearing under "Online Browsers".</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the BeEF panel with the hooked browser (<code class="inl">192.168.9.1</code>) appearing under "Online Browsers".</p></div>
     </div>
     <div class="step">
       <h3><span class="n">2</span> See what the hook reveals</h3>
       <p>Back on Kali, select the hooked browser (<code class="inl">192.168.9.1</code>) and read its details — the <strong>Browser UA String</strong> shows it's Firefox 43, along with OS and plugins. That inventory is reconnaissance: it tells the attacker which client-side weaknesses apply. Then generate an event: on the victim, type <code class="inl">secret</code> into the demo's "Insert your secret here" field, refresh BeEF (<kbd>F5</kbd>), and open the <strong>Logs</strong> tab — BeEF has <strong>captured the keystrokes</strong>.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the Logs tab showing the captured keystrokes from the hooked browser.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the Logs tab showing the captured keystrokes from the hooked browser.</p></div>
     </div>
 
     <p class="task-head">Task 2 — Run client-side modules</p>
@@ -317,7 +324,7 @@
       <h3><span class="n">3</span> Operate against the browser</h3>
       <p>Open the <strong>Commands</strong> tab and the <strong>Module Tree</strong>. Modules are color-coded for the current browser: <strong>green</strong> = should work, <strong>orange</strong> = may not work, <strong>red</strong> = won't work. The lab runs several: <strong>Detect Toolbars</strong> and <strong>Fingerprint Browser (PoC)</strong> from Browser inventory, then <strong>Fake Notification Bar (Firefox)</strong> under Social Engineering — select a module, click <strong>Execute</strong>, and read the entry in the <strong>Module Results History</strong>.</p>
       <div class="call tip"><span class="k">The social-engineering payoff</span><p>Fake Notification Bar shows the victim a convincing "install a plug-in" prompt. The lab then drives them to a fake order form (the "BeEF-Hamper"), where typed details — name, address, even a card number — are captured back in BeEF's Logs. A hooked browser is a position <em>inside</em> the user's session, often behind the firewall, from which to phish, map the network, or pivot.</p></div>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture a module's Module Results History entry (e.g. Fingerprint Browser or Fake Notification Bar).</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture a module's Module Results History entry (e.g. Fingerprint Browser or Fake Notification Bar).</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

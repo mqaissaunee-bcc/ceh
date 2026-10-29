@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -310,7 +317,7 @@
       <h3><span class="n">2</span> Identify services and the OS</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nmap <span class="fl">-sSV</span> <span class="fl">-O</span> <span class="ar">192.168.0.30</span></pre></div>
       <p><code class="inl">-sSV</code> is two flags in one: <code class="inl">-sS</code> (SYN scan) plus <code class="inl">-sV</code> (service/version detection). Add <code class="inl">-O</code> for OS detection and you get, in one command, the open ports, the software and versions behind them, and the operating system. That service-and-version list is the menu you enumerate from.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">-sSV -O</code> output showing the services, their versions, and the OS guess.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the <code class="inl">-sSV -O</code> output showing the services, their versions, and the OS guess.</p></div>
     </div>
 
     <p class="task-head">Task 2 — Enumerate SMB &amp; LDAP with enum4linux</p>
@@ -318,7 +325,7 @@
       <h3><span class="n">3</span> Pull everything the target will give</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> enum4linux <span class="fl">-a</span> <span class="fl">-v</span> <span class="fl">-l</span> <span class="ar">192.168.0.20</span></pre></div>
       <p>This is the centerpiece. <code class="inl">-a</code> runs "all" of enum4linux's checks, <code class="inl">-v</code> is verbose, and <code class="inl">-l</code> adds LDAP enumeration. Against a target that permits a null session, it returns <strong>users, groups, shares, the password policy, RID-cycled account names, OS details, and LDAP/domain information</strong> — often with no credentials at all.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture a section of the enum4linux output — the enumerated <em>users</em> or <em>shares</em>, and the line confirming the null session succeeded.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture a section of the enum4linux output — the enumerated <em>users</em> or <em>shares</em>, and the line confirming the null session succeeded.</p></div>
       <div class="call tip"><span class="k">What "RID cycling" means in that output</span><p>Every Windows account has a Relative Identifier (RID). By walking RIDs in sequence, enum4linux coaxes the system into naming account after account — a classic way to build a username list for later password attacks.</p></div>
     </div>
 
@@ -326,7 +333,7 @@
     <div class="step">
       <h3><span class="n">4</span> SuperScan &amp; NetBIOS Enumerator (Windows)</h3>
       <p>On the Windows VM, <strong>SuperScan</strong> performs port scanning plus host/NetBIOS enumeration, and <strong>NetBIOS Enumerator</strong> pulls NetBIOS names, shares, and domain data through a GUI. Same information as the SMB/NetBIOS parts of enum4linux — useful to see the concept from a Windows attacker's perspective.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the SuperScan (or NetBIOS Enumerator) results showing the enumerated host details.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the SuperScan (or NetBIOS Enumerator) results showing the enumerated host details.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

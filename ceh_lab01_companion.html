@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -353,7 +360,7 @@
       <div class="cmd"><pre><span class="p">></span> set type=axfr
 <span class="p">></span> mylab.com   <span class="cm"># on OpenSUSE — this time it succeeds</span></pre></div>
       <p>From OpenSUSE the transfer <strong>succeeds</strong> and dumps the entire zone — every A, SOA, CNAME, TXT, MX, and NS record, including the MX that was hidden earlier. The contrast between the two machines is the whole lesson: <em>who is allowed to transfer</em> is the finding.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture both results — the <strong>REFUSED</strong> transfer on Kali, and the <strong>successful</strong> zone dump on OpenSUSE showing the full record set.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture both results — the <strong>REFUSED</strong> transfer on Kali, and the <strong>successful</strong> zone dump on OpenSUSE showing the full record set.</p></div>
       <div class="cmd"><pre><span class="p">></span> exit</pre></div>
     </div>
 
@@ -367,7 +374,7 @@
       <h3><span class="n">6</span> The same query with dig</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> dig <span class="ar">@192.168.0.254 mylab.com ns</span></pre></div>
       <p><code class="inl">dig</code>'s grammar is <code class="inl">dig @server name type</code>. The output is more detailed and far easier to parse than nslookup's — note the clearly labelled ANSWER, AUTHORITY, and ADDITIONAL sections. For a zone transfer with dig you'd write <code class="inl">dig @192.168.0.254 mylab.com axfr</code>. (The lab runs dig from the OpenSUSE terminal; note that dig isn't installed on Windows by default.)</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture your <code class="inl">dig</code> output with the NS records visible in the labelled ANSWER section.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture your <code class="inl">dig</code> output with the NS records visible in the labelled ANSWER section.</p></div>
 
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>

@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -319,7 +326,7 @@
       <h3><span class="n">3</span> Traceroute mode</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> hping3 <span class="fl">-c</span> <span class="ar">5</span> <span class="fl">-T</span> <span class="fl">-1</span> <span class="fl">-V</span> <span class="ar">192.168.68.12</span></pre></div>
       <p><code class="inl">-T</code> turns on <strong>traceroute</strong>: hping3 increments the TTL and reports each hop. Because you can run traceroute over TCP or ICMP of your choosing, it slips past filters that block the standard UDP traceroute.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the traceroute (<code class="inl">-T</code>) output showing the hops to the target.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the traceroute (<code class="inl">-T</code>) output showing the hops to the target.</p></div>
 
     </div>
 
@@ -333,7 +340,7 @@
       <h3><span class="n">5</span> A single SYN to a port</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> hping3 <span class="fl">-S</span> <span class="fl">-c</span> <span class="ar">1</span> <span class="fl">-s</span> <span class="ar">5151</span> <span class="fl">-p</span> <span class="ar">80</span> <span class="fl">-V</span> <span class="ar">192.168.68.12</span></pre></div>
       <p>One SYN (<code class="inl">-S</code>), from source port 5151 (<code class="inl">-s</code>), to destination port 80 (<code class="inl">-p</code>). Read the reply flags: <strong><code class="inl">flags=SA</code> → open</strong>, <strong><code class="inl">flags=RA</code> → closed</strong>, <strong>no reply → filtered</strong>.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture one SYN reply with <code class="inl">flags=SA</code> (open) and one with <code class="inl">RA</code> (closed), so the difference is on the record.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture one SYN reply with <code class="inl">flags=SA</code> (open) and one with <code class="inl">RA</code> (closed), so the difference is on the record.</p></div>
 
     </div>
     <div class="step">
@@ -348,7 +355,7 @@
       <p><code class="inl">-8</code> (scan mode) sweeps the port range <code class="inl">20-80</code> and summarizes which responded. It's hping3's answer to a quick Nmap scan — slower, but entirely under your control.</p>
     </div>
 
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture your two firewall probes (port 80 vs port 22 against pfSense) so the differing responses sit side by side.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture your two firewall probes (port 80 vs port 22 against pfSense) so the differing responses sit side by side.</p></div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
 

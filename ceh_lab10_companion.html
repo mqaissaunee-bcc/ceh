@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -310,7 +317,7 @@
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-Plugins</span> <span class="ar">msgs</span> <span class="fl">-host</span> <span class="ar">192.168.68.12</span></pre></div>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-Plugins</span> <span class="ar">tests</span> <span class="fl">-host</span> <span class="ar">192.168.68.12</span></pre></div>
       <p>Each targets one thing: <code class="inl">outdated</code> flags stale software, <code class="inl">httpoptions</code> reveals the server accepts all HTTP methods (susceptible to <strong>cross-site tracing</strong>), <code class="inl">msgs</code> checks server messages, and <code class="inl">tests</code> runs standard checks (here flagging a <strong>buffer-overflow</strong> exposure). (See <a href="ceh_lab19_companion.html" target="_blank" rel="noopener">Lab 19</a> for Nikto in the scanning methodology.)</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture a few Nikto findings (the <code class="inl">+</code> lines) for the target.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture a few Nikto findings (the <code class="inl">+</code> lines) for the target.</p></div>
     </div>
 
     <p class="task-head">Task 2 — Put Burp in the middle</p>
@@ -323,14 +330,14 @@
     <div class="step">
       <h3><span class="n">3</span> Build a site map</h3>
       <p>Just browse the application normally. Burp passively records every page, parameter, and endpoint into the <strong>Target &gt; Site map</strong> — a complete inventory of the app's attack surface, including links you'd never have clicked. This is reconnaissance without a single extra request.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the Burp Site map showing the discovered pages and parameters of the app.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the Burp Site map showing the discovered pages and parameters of the app.</p></div>
     </div>
 
     <p class="task-head">Task 3 — Brute force a login</p>
     <div class="step">
       <h3><span class="n">4</span> Automate guesses with Intruder</h3>
       <p>Send a login request to <strong>Intruder</strong>, mark the username/password fields as <strong>payload positions</strong>, load a wordlist, and run the attack. Burp replays the request hundreds of times, swapping in each guess, and you sort the results by response length or status to spot the one that worked.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the Intruder results table with the successful attempt standing out (different length or status code).</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the Intruder results table with the successful attempt standing out (different length or status code).</p></div>
       <div class="call tip"><span class="k">Why the "odd one out" works</span><p>A failed login and a successful one almost always return different-sized responses. Sorting by length surfaces the hit without reading every row.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>

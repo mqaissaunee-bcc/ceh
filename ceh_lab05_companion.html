@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -309,7 +316,7 @@
     <div class="step">
       <h3><span class="n">2</span> Explore SecInfo and the CVSS Calculator</h3>
       <p>Open <strong>SecInfo &gt; Dashboard</strong> to see the scanner's knowledge base — the <strong>Network Vulnerability Tests (NVTs)</strong> and <strong>CVEs</strong> charted by severity and CVSS. Then open <strong>Extras &gt; CVSS Calculator</strong>: feed it the base-metric vectors (attack vector, complexity, privileges, user interaction, and the CIA impacts) and watch it derive the 0–10 score. This is exactly how "High" and "Critical" are calculated.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the CVSS Calculator showing the base metrics and the resulting score.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the CVSS Calculator showing the base metrics and the resulting score.</p></div>
     </div>
 
     <p class="task-head">Task 2 — Quick scan with the Task Wizard</p>
@@ -321,7 +328,7 @@
     <div class="step">
       <h3><span class="n">4</span> Read the report</h3>
       <p>When the scan finishes, click the <strong>1</strong> under the <strong>Reports Total</strong> column, then the date to open the full report. Findings are grouped by <strong>severity</strong>, each tied to a <strong>CVE</strong> and a <strong>CVSS</strong> score, with a <strong>QoD</strong> (Quality of Detection) showing how confident the scanner is.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the report grouped by severity (the High/Critical findings especially).</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the report grouped by severity (the High/Critical findings especially).</p></div>
     </div>
 
     <p class="task-head">Task 3 — Customized scan</p>
@@ -334,7 +341,7 @@
         <li>Click the <strong>OWASP-Scan</strong> task, then the green <strong>Start</strong> arrow. This runs much longer than the quick scan; use the yellow <strong>Stop</strong> square when you've seen enough.</li>
       </ul>
       <div class="call tip"><span class="k">Depth vs. time vs. safety</span><p>"Ultimate" configs include checks that can crash fragile services — on production you'd think twice, but on the practice target, go deep to see more.</p></div>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture your Target configuration (host + Consider Alive) and the running OWASP-Scan task.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture your Target configuration (host + Consider Alive) and the running OWASP-Scan task.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

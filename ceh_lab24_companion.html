@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -303,7 +310,7 @@
     <div class="step">
       <h3><span class="n">1</span> Run an automated web scan</h3>
       <p>Open <strong>Vega</strong>, point a scan at the target URL, and let it crawl and test. Like Nikto or ZAP, it reports likely issues — cross-site scripting, injection, insecure cookies — each with a severity and the request that triggered it. Expand a finding to read the detail — the scan of <code class="inl">192.168.68.12</code> turns up many issues, including a telling one for the next task: <strong>Session Cookie Without HttpOnly Flag</strong>.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the Vega scan results listing the vulnerabilities it found, with severities.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the Vega scan results listing the vulnerabilities it found, with severities.</p></div>
     </div>
 
     <p class="task-head">Task 2 — Spoof an authentication cookie</p>
@@ -314,13 +321,13 @@
     <div class="step">
       <h3><span class="n">3</span> Compare two users' cookies</h3>
       <p>Capture the AuthCookie for a second account (the lab uses <em>alice</em>) and line the two values up. The giveaway: <strong>the first several characters are identical</strong>. That shared, predictable structure means the token isn't random — it's guessable, and therefore forgeable.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the two AuthCookie values side by side, showing the matching leading characters that reveal the weak pattern.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the two AuthCookie values side by side, showing the matching leading characters that reveal the weak pattern.</p></div>
       <div class="call tip"><span class="k">Why "they share a prefix" is the whole finding</span><p>A secure session token is long and random, so two users' tokens should look nothing alike. Shared structure means the server is deriving the token from something predictable — exactly what lets an attacker craft a valid one.</p></div>
     </div>
     <div class="step">
       <h3><span class="n">4</span> Become the other user</h3>
       <p>Replace the value of <em>your</em> AuthCookie with <em>alice's</em> value (editing the cookie in dev tools) and reload. The server reads the cookie, believes you're alice, and logs you into her account — no password required. That's session hijacking by cookie substitution.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the app showing you logged in as alice after swapping the cookie value.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the app showing you logged in as alice after swapping the cookie value.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -344,7 +351,7 @@
       <h3><span class="n">6</span> Hashcat</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> hashcat <span class="fl">--force</span> <span class="fl">-m</span> <span class="ar">1800</span> <span class="fl">-a</span> <span class="ar">0</span> <span class="ar">hashes3.txt mylist.txt</span> <span class="fl">-d</span> <span class="ar">1</span></pre></div>
       <p>Hashcat is the GPU-accelerated heavyweight. The flags are the whole skill: <code class="inl">-m 1800</code> is the <strong>hash mode</strong> (1800 = sha512crypt, the <code class="inl">$6$</code> you saw), <code class="inl">-a 0</code> is the <strong>attack mode</strong> (0 = straight dictionary), <code class="inl">mylist.txt</code> is your wordlist, and <code class="inl">-d 1</code> selects a compute device (add it only if Hashcat errors that it can't reach one). Picking the right <code class="inl">-m</code> is the step beginners most often get wrong. While it runs, press <kbd>s</kbd> for a status line (hash type, estimated time, speed) and <kbd>q</kbd> to quit — it saves progress and resumes where it left off.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture Hashcat (or <code class="inl">john --show</code>) displaying a cracked password next to its hash.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture Hashcat (or <code class="inl">john --show</code>) displaying a cracked password next to its hash.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

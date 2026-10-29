@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -330,7 +337,7 @@
 <span class="p">meterpreter ></span> ls
 <span class="p">meterpreter ></span> rm android.apk</pre></div>
       <p><code class="inl">sysinfo</code> profiles the OS, <code class="inl">ifconfig</code> shows the device's interface (<code class="inl">wlan0</code>), and <code class="inl">app_list</code> enumerates installed apps. Browsing to <code class="inl">/sdcard/Download</code> finds the downloaded <code class="inl">android.apk</code>, and <code class="inl">rm android.apk</code> deletes it to cover tracks. Each is a documented post-exploitation command — and each has a matching defense below.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the Android Meterpreter session with <code class="inl">sysinfo</code> output showing the compromised device's details.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the Android Meterpreter session with <code class="inl">sysinfo</code> output showing the compromised device's details.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

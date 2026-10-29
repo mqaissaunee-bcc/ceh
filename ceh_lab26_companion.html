@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -308,7 +315,7 @@
 <span class="p">root@kali:~#</span> echo <span class="fl">-n</span> <span class="ar">"hellp"</span> | sha256sum   <span class="cm"># one letter changed</span></pre></div>
       <p>Notice too that the hash is always the <strong>same length</strong> regardless of input size, and that you can't run it backwards — there's no "un-hash." That one-way property is the whole point.</p>
       <div class="call tip"><span class="k">How the lab shows it</span><p>The lab uses <strong>CrypTool</strong> on WinOS: type a line, open <strong>Indiv. Procedures → Hash → Hash Demonstration</strong>, and watch the <strong>MD5</strong> hash and the live "difference" field change as you edit even one character. Then switch the algorithm to <strong>SHA-256</strong> — the hash is completely different and noticeably longer.</p></div>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the two hashes side by side — the original text and the one-character edit — showing how different they are.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the two hashes side by side — the original text and the one-character edit — showing how different they are.</p></div>
     </div>
 
     <p class="task-head">Task 2 — Encrypt and decrypt</p>
@@ -319,7 +326,7 @@
 <span class="p">root@kali:~#</span> openssl enc <span class="fl">-aes-256-cbc</span> <span class="fl">-pbkdf2</span> <span class="fl">-in</span> <span class="ar">msg.txt</span> <span class="fl">-out</span> <span class="ar">msg.enc</span>
 <span class="p">root@kali:~#</span> openssl enc <span class="fl">-d</span> <span class="fl">-aes-256-cbc</span> <span class="fl">-pbkdf2</span> <span class="fl">-in</span> <span class="ar">msg.enc</span> <span class="fl">-out</span> <span class="ar">msg.dec</span></pre></div>
       <p>This is <strong>symmetric</strong> encryption: one shared key both locks and unlocks. The catch it raises — how do two parties share that key safely? — is exactly what <strong>asymmetric</strong> crypto (the public/private pairs of Lab 17) was invented to solve.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the encrypt→decrypt round trip: the scrambled ciphertext, then the recovered original text.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the encrypt→decrypt round trip: the scrambled ciphertext, then the recovered original text.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

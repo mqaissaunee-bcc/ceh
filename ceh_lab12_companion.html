@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -315,18 +322,18 @@
     <div class="step">
       <h3><span class="n">3</span> Capture cleartext credentials</h3>
       <p>By default ettercap watches for HTTP logins and records the usernames and passwords, at the packet level on the wire. The lab tests this by logging into the <strong>pfSense</strong> web interface from the victim — browse to <code class="inl">http://192.168.0.254</code> and sign in with <code class="inl">admin</code> / <code class="inl">pfsense</code> — and the credentials appear at the bottom of the ettercap window on Kali. Nothing is decrypted; it's readable because it was never encrypted. (This works for HTTP only; capturing HTTPS needs extra setup and is out of scope.)</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture ettercap displaying the username/password it harvested from the pfSense login.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture ettercap displaying the username/password it harvested from the pfSense login.</p></div>
     </div>
     <div class="step">
       <h3><span class="n">4</span> Rewrite images with a filter</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> service apache2 start</pre></div>
       <p>Because you're relaying the traffic, you can also <strong>change</strong> it with an ettercap <strong>filter</strong>. First start Apache on Kali so it can host the replacement image (<code class="inl">logo.jpg</code> in <code class="inl">/var/www/html</code>). The lab's <code class="inl">logo.filter</code> rewrites every <code class="inl">&lt;img src&gt;</code> in HTTP responses to point at <code class="inl">http://192.168.0.2/logo.jpg</code>. Load the <em>compiled</em> version via ettercap's <strong>Filters → Load a filter → logo.ef</strong> (the <code class="inl">.filter</code> is the readable source; the <code class="inl">.ef</code> is the compiled form ettercap runs). Browse to <code class="inl">http://192.168.68.12</code> from the victim and every image on the page is swapped.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the victim's browser showing all the OWASP page images replaced.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the victim's browser showing all the OWASP page images replaced.</p></div>
     </div>
     <div class="step">
       <h3><span class="n">5</span> Inject JavaScript with another filter</h3>
       <p>Load a second filter, <strong><code class="inl">hacked-alert.ef</code></strong> — its source finds the closing <code class="inl">&lt;/head&gt;</code> tag and inserts a JavaScript <code class="inl">alert()</code>. Browse the OWASP page again and a pop-up fires (and the images are <em>still</em> swapped — filters chain, so you keep each one small and combine them). The alert is harmless here, but the same injection point is how a real attacker would drop a BeEF hook (<a href="ceh_lab11_companion.html" target="_blank" rel="noopener">Lab 11</a>) into the page.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the injected JavaScript alert popping up in the victim's browser.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the injected JavaScript alert popping up in the victim's browser.</p></div>
       <div class="call stuck"><span class="k">Notice what you can't touch</span><p>HTTPS pages don't reveal credentials and can't be silently rewritten — the browser detects the tampering. That failure is the single most important observation in the lab.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>

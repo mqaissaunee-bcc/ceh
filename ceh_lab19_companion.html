@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -309,7 +316,7 @@
       <h3><span class="n">1</span> Host discovery with traceroute</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> sudo nmap <span class="fl">-sn</span> <span class="fl">-Pn</span> <span class="fl">--traceroute</span> <span class="ar">192.168.0.2,20,30,100,254</span></pre></div>
       <p><code class="inl">-sn</code> says "discover hosts, don't port-scan"; <code class="inl">-Pn</code> says "assume they're up, skip the ping"; <code class="inl">--traceroute</code> maps the path to each. The target is a comma-separated list of last octets — a quick way to probe several hosts at once. The GUI scanners (Advanced IP Scanner, Angry IP Scanner) do the same live-host sweep with a point-and-click interface.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the live-host results showing which addresses came back Up.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the live-host results showing which addresses came back Up.</p></div>
     </div>
 
     <p class="task-head">Step 2 — Map ports and services</p>
@@ -322,7 +329,7 @@
       <h3><span class="n">3</span> Grab service banners</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> sudo nmap <span class="fl">-sV</span> <span class="fl">--script=</span><span class="ar">banner</span> <span class="ar">192.168.9.1</span></pre></div>
       <p><code class="inl">-sV</code> identifies the service and version; the <code class="inl">banner</code> NSE script pulls the text a service announces on connect. Versions and banners are what you'll later match against known vulnerabilities.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the version/banner output for one host, showing the service and version strings.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the version/banner output for one host, showing the service and version strings.</p></div>
     </div>
 
     <p class="task-head">Step 3 — Build a target list from your results</p>
@@ -340,7 +347,7 @@
       <div class="cmd"><pre><span class="p">root@kali:~#</span> hping3 <span class="fl">-S</span> <span class="ar">192.168.0.20</span> <span class="fl">-p</span> <span class="ar">80</span> <span class="fl">-c</span> <span class="ar">5</span></pre></div>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> hping3 <span class="fl">-q</span> <span class="fl">--scan</span> <span class="ar">1-3000</span> <span class="fl">-S</span> <span class="ar">192.168.0.20</span> | grep <span class="fl">-v</span> <span class="ar">'Not res'</span></pre></div>
       <p>A quick count-limited probe, then a SYN probe to port 80, then a quiet SYN sweep of ports 1–3000 with the unresponsive ports filtered out by <code class="inl">grep -v</code>. (See <a href="ceh_lab04_companion.html" target="_blank" rel="noopener">Lab 04</a> for the full hping3 breakdown.)</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">--scan 1-3000</code> results showing the open ports found on the target.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the <code class="inl">--scan 1-3000</code> results showing the open ports found on the target.</p></div>
     </div>
     <div class="step">
       <h3><span class="n">6</span> UDP packet crafting</h3>
@@ -354,7 +361,7 @@
       <h3><span class="n">7</span> Scan web hosts with Nikto</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-h</span> <span class="ar">Desktop/targets.txt</span></pre></div>
       <p><code class="inl">nikto -h</code> runs a web-server vulnerability scan against every host in your list — outdated software, dangerous files, misconfigurations, missing headers. It closes the methodology loop: discovery fed a target list, and the target list fed the vuln scan.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture a few Nikto findings for one host (the <code class="inl">+</code> lines flagging issues).</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture a few Nikto findings for one host (the <code class="inl">+</code> lines flagging issues).</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

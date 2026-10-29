@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -316,7 +323,7 @@
 <span class="p">msf6 ></span> wmap_run <span class="fl">-e</span> <span class="ar">/root/profile</span>
 <span class="p">msf6 ></span> wmap_vulns <span class="fl">-l</span></pre></div>
       <p>WMAP is an <strong>auxiliary</strong> module — a scanner, not an exploit. You <code class="inl">load</code> it, register the OWASP site with <code class="inl">wmap_sites -a</code>, then run it. The lab uses a <strong>predefined profile</strong> (<code class="inl">/root/profile</code>, which <code class="inl">cat</code> shows is a curated list of WMAP modules) via <code class="inl">wmap_run -e /root/profile</code>, and lists the findings with <code class="inl">wmap_vulns -l</code>. They land in the database for the next step. (<code class="inl">help</code> and <code class="inl">wmap_sites -h</code> show the full command set.)</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">wmap_vulns -l</code> output for the target site.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the <code class="inl">wmap_vulns -l</code> output for the target site.</p></div>
     </div>
 
     <p class="task-head">Task 3 — Configure and run an exploit</p>
@@ -331,7 +338,7 @@
 <span class="p">msf6 ></span> show options
 <span class="p">msf6 ></span> exploit</pre></div>
       <p><code class="inl">RHOST</code> is the victim; the <strong>payload</strong> (<code class="inl">php/reverse_php</code>) is what runs after the exploit lands, calling back to your <code class="inl">LHOST</code>/<code class="inl">LPORT</code> — an in-memory reverse connection that leaves nothing on disk. A successful <code class="inl">exploit</code> reports a <strong>command shell session opened</strong>. (Interact within ~30 seconds or the session times out; if no session is created, just run <code class="inl">exploit</code> again.) This is a documented module against an intentionally vulnerable training app in the isolated pod.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the "session opened" message confirming the exploit succeeded.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the "session opened" message confirming the exploit succeeded.</p></div>
     </div>
 
     <p class="task-head">Task 4 — Armitage, the GUI</p>
@@ -339,7 +346,7 @@
       <h3><span class="n">4</span> Visualize — and repeat — the same framework</h3>
       <p>Armitage is a graphical front-end to Metasploit: it draws hosts on a canvas and exposes the same modules through menus. In the lab you <strong>Clear Database</strong>, then <strong>Hosts → Nmap scan → Intense scan</strong> to rediscover <code class="inl">192.168.68.12</code>, select the host, choose <strong>Attacks → Find Attacks</strong>, and then run the <em>same</em> exploit from the tree (<strong>exploit → unix → webapp → tikiwiki_graph_formula_exec</strong>) — proof the GUI is just a skin over the console commands you already ran.</p>
       <details class="go"><summary>Currency note — Armitage in 2026</summary><p>Armitage is <strong>no longer actively maintained</strong> and isn't in current Kali by default; the modern graphical option for team engagements is <em>Metasploit Pro</em> or a C2 framework. Learn Armitage here to <em>see</em> the workflow, but expect to live in <code class="inl">msfconsole</code> in practice — the CLI is where the framework actually stays current.</p></details>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture Armitage's host view after a scan, showing the discovered targets on the canvas.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture Armitage's host view after a scan, showing the discovered targets on the canvas.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

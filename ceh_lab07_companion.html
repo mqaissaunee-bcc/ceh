@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -308,7 +315,7 @@
     <div class="step">
       <h3><span class="n">1</span> Set up the IDS side first</h3>
       <p>Log into the <strong>Security Onion</strong> sensor (user <code class="inl">ndg</code> / password <code class="inl">password123</code>) and launch its analyst tools — <strong>Squert</strong>, <strong>Snorby</strong>, and <strong>Sguil</strong> — in Chromium (click through the "Proceed to localhost (unsafe)" certificate warning). These are the dashboards you'll return to after <em>each</em> scan to see what the IDS caught. The whole lab is this loop: run a scan from Kali, then read the alerts on Security Onion.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture one of the analyst tools (Squert/Snorby/Sguil) open and ready.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture one of the analyst tools (Squert/Snorby/Sguil) open and ready.</p></div>
     </div>
 
     <p class="task-head">Step 2 — Fragmentation</p>
@@ -323,7 +330,7 @@
       <h3><span class="n">3</span> Hide in a crowd</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nmap <span class="fl">-D</span> <span class="ar">192.168.9.20,192.168.9.30,192.168.9.40 192.168.0.30</span></pre></div>
       <p><code class="inl">-D</code> makes the scan appear to come from several source addresses at once — the <strong>decoys</strong> — so your real IP is buried among them in the logs. It doesn't stop detection; it muddies <em>attribution</em>, forcing the analyst to work out which source was real. In this lab, Squert still flags the scan (it even labels it <code class="inl">ET SCAN Potential VNC Scan 5800-5820</code>), and Sguil displays only the <em>decoy</em> IPs — not the real Kali address — which is exactly the attribution problem decoys are meant to create.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the IDS showing the scan appearing to come from multiple sources (the decoys alongside your real one).</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the IDS showing the scan appearing to come from multiple sources (the decoys alongside your real one).</p></div>
     </div>
 
     <p class="task-head">Step 4 — Spoofed MAC</p>

@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -370,7 +377,7 @@
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nmap <span class="fl">-A</span> <span class="ar">192.168.68.12</span></pre></div>
       <p><code class="inl">-A</code> is a bundle — one flag that turns on four things at once: <strong>OS detection</strong> (<code class="inl">-O</code>), <strong>service/version detection</strong> (<code class="inl">-sV</code>), <strong>default scripts</strong> (<code class="inl">-sC</code>), and <strong>traceroute</strong>. You get far more detail about the target.</p>
       <div class="call stuck"><span class="k">"It froze / is taking forever"</span><p>It isn't frozen — <code class="inl">-A</code> is doing a lot of work and is the slowest command in this task. It's also the <em>loudest</em> thing you can do to a target. Give it time.</p></div>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">nmap -A</code> output showing the OS guess and the service/version detail.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the <code class="inl">nmap -A</code> output showing the OS guess and the service/version detail.</p></div>
 
     </div>
 
@@ -393,7 +400,7 @@
         <li><b>Topology tab</b> — a network map you can export straight into an assessment report.</li>
       </ul>
       <div class="call tip"><span class="k">The /24 means</span><p><code class="inl">192.168.0.0/24</code> is CIDR for "all 256 addresses from .0 to .255." One target just became the whole LAN.</p></div>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture Zenmap’s <strong>Topology</strong> tab — that network map is exactly the kind of figure that belongs in an assessment report.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture Zenmap’s <strong>Topology</strong> tab — that network map is exactly the kind of figure that belongs in an assessment report.</p></div>
 
       <details class="go"><summary>Currency note — Zenmap in 2026</summary><p>Zenmap is still a fine learning aid, but it's no longer installed by default in current Kali, and modern workflows lean on the Nmap CLI (its XML output feeds other tools). Learn the GUI to <em>see</em> the flags; live on the command line.</p></details>
     </div>
@@ -412,7 +419,7 @@
       <div class="call stuck"><span class="k">Why Masscan feels dangerous</span><p>Masscan sends packets <em>asynchronously</em> at whatever rate you allow (<code class="inl">--rate</code>, default is very high). On a real network that can saturate links or trip every alarm. In the pod it's safe; in the wild, always set a sane <code class="inl">--rate</code> and have written authorization.</p></div>
     </div>
 
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the Masscan result for the <code class="inl">/24</code>, and note how much faster it returned than the Nmap scans.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the Masscan result for the <code class="inl">/24</code>, and note how much faster it returned than the Nmap scans.</p></div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
 

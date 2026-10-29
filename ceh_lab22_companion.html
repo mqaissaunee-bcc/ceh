@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -303,7 +310,7 @@
     <div class="step">
       <h3><span class="n">1</span> Find and export SAM and SYSTEM with FTK Imager</h3>
       <p>On the <strong>WinOS</strong> machine (log in as <code class="inl">Administrator</code> / <code class="inl">Train1ng$</code>), open <strong>FTK Imager</strong>. The lab works from a forensic image: <strong>File → Add Evidence Item → Image File</strong>, then browse the image's file system to <code class="inl">Windows\System32\config</code>. Export both <strong>SAM</strong> and <strong>SYSTEM</strong> (FTK reaches files Windows keeps locked while running — the same technique works on a live system). You need the pair — the SAM alone is useless without the SYSTEM hive's key.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture FTK Imager showing the SAM and SYSTEM files in the <code class="inl">config</code> folder before you export them.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture FTK Imager showing the SAM and SYSTEM files in the <code class="inl">config</code> folder before you export them.</p></div>
     </div>
 
     <p class="task-head">Task 2 — Get the files onto Kali</p>
@@ -321,7 +328,7 @@
       <h3><span class="n">3</span> Pull the hashes with samdump2</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> samdump2 <span class="fl">-o</span> <span class="ar">Desktop/Lab22/hash.txt</span> <span class="ar">Desktop/Lab22/system Desktop/Lab22/SAM</span></pre></div>
       <p>The lab's order is <code class="inl">samdump2 -o OUTPUT SYSTEM SAM</code>: <code class="inl">-o</code> names the output file, then the <strong>SYSTEM</strong> hive (for the bootkey/SYSKEY) and the <strong>SAM</strong> (the encrypted hashes). It fetches the SYSKEY, decrypts the SAM, and writes the account hashes to <code class="inl">hash.txt</code>. Giving it only one of the two files is the classic mistake — it needs both.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">hash.txt</code> contents showing the extracted account hashes (usernames and hash values).</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the <code class="inl">hash.txt</code> contents showing the extracted account hashes (usernames and hash values).</p></div>
     </div>
     <div class="step">
       <h3><span class="n">4</span> Crack with John</h3>

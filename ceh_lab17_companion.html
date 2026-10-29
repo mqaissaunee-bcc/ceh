@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -319,7 +326,7 @@
       <h3><span class="n">3</span> Sign it yourself</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> openssl x509 <span class="fl">-req</span> <span class="fl">-days</span> <span class="ar">365</span> <span class="fl">-in</span> <span class="ar">ca.csr</span> <span class="fl">-signkey</span> <span class="ar">ca.key</span> <span class="fl">-out</span> <span class="ar">ca.crt</span></pre></div>
       <p>Here you sign the CSR with your own key to produce the certificate (<code class="inl">ca.crt</code>), valid for 365 days. Because <em>you</em> signed it rather than a trusted CA, browsers won't trust it automatically — that's what "self-signed" means.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the three OpenSSL commands completing and the resulting <code class="inl">ca.key</code>, <code class="inl">ca.csr</code>, and <code class="inl">ca.crt</code> files.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the three OpenSSL commands completing and the resulting <code class="inl">ca.key</code>, <code class="inl">ca.csr</code>, and <code class="inl">ca.crt</code> files.</p></div>
     </div>
 
     <p class="task-head">Task 2 — Install the files and configure Apache</p>
@@ -345,7 +352,7 @@ SSLCertificateKeyFile /etc/ssl/private/ca.key</pre></div>
 <span class="p">root@kali:~#</span> service apache2 restart</pre></div>
       <p>The symlink into <code class="inl">sites-enabled</code> activates your SSL site, <code class="inl">a2enmod ssl</code> enables Apache's SSL module, and the restart loads it all. Then browse to the site over <code class="inl">https://</code>. You'll get a certificate warning (expected for self-signed — and the Common Name you entered was <code class="inl">Sally</code>, not the hostname, so it won't match either); accept it, then inspect the certificate's General tab — it matches the details you typed into the CSR.</p>
       <div class="call tip"><span class="k">The warning is the trust model working</span><p>The browser trusts a short list of CAs. A certificate signed by anyone else — including you — is flagged. That's not a bug; it's the entire point of a chain of trust.</p></div>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the browser connected over HTTPS, with the certificate details (matching your CSR) shown.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the browser connected over HTTPS, with the certificate details (matching your CSR) shown.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

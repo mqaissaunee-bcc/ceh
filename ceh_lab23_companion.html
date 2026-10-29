@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -308,7 +315,7 @@
     <div class="step">
       <h3><span class="n">1</span> Alternate Data Streams</h3>
       <p>NTFS lets a file carry hidden <strong>alternate data streams</strong> — extra content attached to a file that doesn't show in a normal directory listing or change the visible size. The lab hides data in a stream, then uses <strong>ADS Spy</strong> to locate it and <strong>OpenStego</strong> to pull steganographically-hidden content back out. The lesson: a clean-looking file can carry a payload.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture ADS Spy finding the hidden alternate data stream on the file.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture ADS Spy finding the hidden alternate data stream on the file.</p></div>
     </div>
 
     <p class="task-head">Task 2 — Hiding data (Linux extended attributes)</p>
@@ -330,7 +337,7 @@
       <div class="cmd"><pre><span class="p">root@kali:~#</span> &gt; .bash_history</pre></div>
       <p><code class="inl">last</code> reads the login records in <code class="inl">wtmp</code>/<code class="inl">btmp</code>; <code class="inl">cat /dev/null &gt; file</code> truncates a log to empty; <code class="inl">&gt; .bash_history</code> wipes the shell history. Run <code class="inl">last</code> again and the records are gone. This is the "erase the camera footage" step.</p>
       <div class="call defend"><span class="k">But notice what you can't undo</span><p>On a properly run network these logs were already <strong>shipped off the machine</strong> the moment they were written. Clearing the local copy changes nothing on the log server — and the clearing itself is logged. Keep that in mind as you watch the local files empty; it's the point of the whole lab.</p></div>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture <code class="inl">last</code> before and after wiping <code class="inl">wtmp</code> — the login records present, then gone.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture <code class="inl">last</code> before and after wiping <code class="inl">wtmp</code> — the login records present, then gone.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>

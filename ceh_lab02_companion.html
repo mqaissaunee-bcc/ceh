@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -348,7 +355,7 @@
       <div class="cmd"><pre><span class="p">>>></span> packet=sr1(IP(dst="192.168.68.12")/ICMP()/"XXXXXXXXXXX")</pre></div>
       <div class="cmd"><pre><span class="p">>>></span> packet</pre></div>
       <p>In Wireshark, select the <code class="inl">eth0</code> interface and press <kbd>Ctrl+E</kbd> to start capturing before you send. <code class="inl">sr1()</code> means <strong>send one packet and return the first reply</strong>. This one is an ICMP echo (a ping) with a custom payload of X's — look for it in Wireshark. Inspecting <code class="inl">packet</code> shows the response that came back.</p>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the Wireshark row for your crafted ICMP packet — the one carrying the <code class="inl">XXXXXXXXXXX</code> payload. It proves the packet you built actually left the machine.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the Wireshark row for your crafted ICMP packet — the one carrying the <code class="inl">XXXXXXXXXXX</code> payload. It proves the packet you built actually left the machine.</p></div>
 
     </div>
     <div class="step">
@@ -358,7 +365,7 @@
       <div class="call tip"><span class="k">Inspect it properly</span><p><code class="inl">packet.show()</code> prints every field of the response, layer by layer — the best way to confirm which flags came back.</p></div>
     </div>
 
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture the <code class="inl">sr1</code> SYN reply (run <code class="inl">packet.show()</code>) with the TCP flags visible — <code class="inl">SA</code> means the port is open.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the <code class="inl">sr1</code> SYN reply (run <code class="inl">packet.show()</code>) with the TCP flags visible — <code class="inl">SA</code> means the port is open.</p></div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
 

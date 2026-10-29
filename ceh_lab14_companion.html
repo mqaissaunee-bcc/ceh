@@ -182,8 +182,15 @@
   }
 
   /* ---- screenshot + evidence (added) ---- */
-  .call.capture{border-color:var(--violet);background:var(--violet-soft)}
-  .call.capture .k{color:var(--violet)}
+  /* screenshot marker — deliberately loud so students never miss a capture */
+  .call.capture{border:2px dashed var(--violet);background:var(--violet-soft);border-radius:var(--radius-sm);
+    padding:.9rem 1rem .9rem 3.1rem;position:relative}
+  .call.capture::before{content:"\1F4F8";position:absolute;left:.85rem;top:.82rem;font-size:1.5rem;line-height:1}
+  .call.capture .k{display:inline-block;color:var(--bg);background:var(--violet);
+    font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:.22rem .6rem;border-radius:999px;
+    margin:0 0 .45rem;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .call.capture p{color:var(--ink);margin:0}
+  html[data-present="on"] .call.capture{padding-top:1rem;padding-bottom:1rem}
   .evidence{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem}
   .evidence ul{list-style:none;margin:.3rem 0 0;padding:0}
   .evidence li{display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:.92rem}
@@ -324,7 +331,7 @@
       <div class="cmd"><pre><span class="ar">1' or 1=1 union select user, password from users#</span></pre></div>
       <p>Piece by piece: the <code class="inl">'</code> closes the original string; <code class="inl">or 1=1</code> is always true, so the filter stops filtering; <code class="inl">union select</code> appends a second result set of <em>your</em> choosing (version, database name, even the users table); and <code class="inl">#</code> comments out whatever the app tacked on the end. The last one pulls credentials straight out of the database.</p>
       <div class="call tip"><span class="k">Why UNION needs matching columns</span><p>A <code class="inl">UNION</code> only works if both SELECTs return the <em>same number of columns</em> — which is why attackers probe with <code class="inl">null</code> placeholders until it lines up. Getting that count right is the usual sticking point.</p></div>
-      <div class="call capture"><span class="k">📸 Screenshot for your report</span><p>Capture one injection returning data it shouldn't — the database version/name, or a row from the users table.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture one injection returning data it shouldn't — the database version/name, or a row from the users table.</p></div>
     </div>
 
     <p class="task-head">Task 3 — Automate with SQLmap</p>
