@@ -232,6 +232,11 @@
   #pm-toggle .pmi{font-family:var(--mono);font-weight:700}
   html[data-present="on"] footer.site{display:none !important}
   @media print{.pm-dock,#pm-toggle{display:none !important}}
+
+  /* VM / credentials table — slightly emphasized header */
+  .vm-tbl table{font-size:.88rem}
+  .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
+  .vm-tbl td code{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -300,6 +305,13 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>Everything is local on <strong>Kali</strong>: a text editor, the <strong>gcc</strong> compiler, and a terminal. You compile and run a small program you wrote yourself — nothing leaves the machine, and there's no target but your own code.</p>
+      <p>The virtual machines you'll use in this lab, with their addresses and logins:</p>
+      <div class="tbl-wrap vm-tbl"><table>
+        <thead><tr><th>Virtual Machine</th><th>IP Address</th><th>Account</th><th>Password</th></tr></thead>
+        <tbody>
+        <tr><td><b>Kali Linux</b></td><td><code>192.168.9.2</code> / <code>192.168.0.2</code></td><td><code>root</code></td><td><code>toor</code></td></tr>
+        </tbody>
+      </table></div>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -595,6 +607,5 @@ if (n &lt; 0 || n &gt; 8) { printf("too many\n"); return 1; }</pre></div>
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>

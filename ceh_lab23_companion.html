@@ -232,6 +232,11 @@
   #pm-toggle .pmi{font-family:var(--mono);font-weight:700}
   html[data-present="on"] footer.site{display:none !important}
   @media print{.pm-dock,#pm-toggle{display:none !important}}
+
+  /* VM / credentials table — slightly emphasized header */
+  .vm-tbl table{font-size:.88rem}
+  .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
+  .vm-tbl td code{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -300,6 +305,14 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You work across <strong>Windows</strong> (NTFS streams, ADS Spy, OpenStego) and <strong>Kali/Linux</strong> (extended attributes and log files). Every command touches files and logs on the practice machines only.</p>
+      <p>The virtual machines you'll use in this lab, with their addresses and logins:</p>
+      <div class="tbl-wrap vm-tbl"><table>
+        <thead><tr><th>Virtual Machine</th><th>IP Address</th><th>Account</th><th>Password</th></tr></thead>
+        <tbody>
+        <tr><td><b>WinOS (Windows)</b></td><td><code>192.168.0.20</code></td><td><code>Administrator</code></td><td><code>Train1ng$</code></td></tr>
+        <tr><td><b>Kali Linux</b></td><td><code>192.168.9.2</code> / <code>192.168.0.2</code></td><td><code>root</code></td><td><code>toor</code></td></tr>
+        </tbody>
+      </table></div>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -321,23 +334,36 @@
     <p class="task-head">Task 2 — Hiding data (Linux extended attributes)</p>
     <div class="step">
       <h3><span class="n">2</span> Stash data in xattrs</h3>
-      <div class="cmd"><pre><span class="p">root@kali:~#</span> setfattr <span class="fl">-n</span> <span class="ar">user.attribute1</span> <span class="fl">-v</span> <span class="ar">'data hidden here'</span> lab23.txt</pre></div>
-      <div class="cmd"><pre><span class="p">root@kali:~#</span> getfattr <span class="fl">-d</span> lab23.txt</pre></div>
-      <p><code class="inl">setfattr</code> attaches named <strong>extended attributes</strong> to a file — metadata that ordinary tools like <code class="inl">cat</code> and <code class="inl">ls</code> don't display. <code class="inl">getfattr -d</code> dumps them back (the lab adds a second, <code class="inl">user.attribute2</code>, to show you can stack them). It’s the Linux analogue of NTFS streams: data riding invisibly alongside a file.</p>
-      <div class="call stuck"><span class="k">attr may not be installed</span><p>The <code class="inl">setfattr</code>/<code class="inl">getfattr</code> tools come from the <strong>attr</strong> package, which isn’t present on every distro. On Debian/Ubuntu/Kali: <code class="inl">sudo apt install attr</code>.</p></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> touch lab23.txt
+<span class="p">root@kali:~#</span> setfattr <span class="fl">-n</span> <span class="ar">user.attribute1</span> <span class="fl">-v</span> <span class="ar">'data hidden here'</span> lab23.txt
+<span class="p">root@kali:~#</span> setfattr <span class="fl">-n</span> <span class="ar">user.attribute2</span> <span class="fl">-v</span> <span class="ar">'data also hidden here'</span> lab23.txt
+<span class="p">root@kali:~#</span> getfattr <span class="fl">-d</span> lab23.txt</pre></div>
+      <p>Create a file, then <code class="inl">setfattr</code> attaches named <strong>extended attributes</strong> to it (the lab adds two) — metadata that ordinary tools like <code class="inl">cat</code> and <code class="inl">ls</code> don't display. <code class="inl">getfattr -d</code> dumps them back. It's the Linux analogue of NTFS streams: data riding invisibly alongside a file.</p>
+      <div class="call stuck"><span class="k">attr may not be installed</span><p>The <code class="inl">setfattr</code>/<code class="inl">getfattr</code> tools come from the <strong>attr</strong> package, which isn't present on every distro. On Debian/Ubuntu/Kali: <code class="inl">sudo apt install attr</code>.</p></div>
     </div>
 
     <p class="task-head">Task 3 — Destroying evidence (Linux logs)</p>
     <div class="step">
-      <h3><span class="n">3</span> View, then wipe, the logs</h3>
-      <div class="cmd"><pre><span class="p">root@kali:~#</span> last <span class="fl">-f</span> <span class="ar">/var/log/wtmp</span></pre></div>
-      <div class="cmd"><pre><span class="p">root@kali:~#</span> cat /dev/null &gt; <span class="ar">/var/log/wtmp</span>
-<span class="p">root@kali:~#</span> cat /dev/null &gt; <span class="ar">/var/log/btmp</span>
-<span class="p">root@kali:~#</span> cat /dev/null &gt; <span class="ar">/var/log/auth.log</span></pre></div>
-      <div class="cmd"><pre><span class="p">root@kali:~#</span> &gt; .bash_history</pre></div>
-      <p><code class="inl">last</code> reads the login records in <code class="inl">wtmp</code>/<code class="inl">btmp</code>; <code class="inl">cat /dev/null &gt; file</code> truncates a log to empty; <code class="inl">&gt; .bash_history</code> wipes the shell history. Run <code class="inl">last</code> again and the records are gone. This is the "erase the camera footage" step.</p>
-      <div class="call defend"><span class="k">But notice what you can't undo</span><p>On a properly run network these logs were already <strong>shipped off the machine</strong> the moment they were written. Clearing the local copy changes nothing on the log server — and the clearing itself is logged. Keep that in mind as you watch the local files empty; it's the point of the whole lab.</p></div>
-      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture <code class="inl">last</code> before and after wiping <code class="inl">wtmp</code> — the login records present, then gone.</p></div>
+      <h3><span class="n">3</span> Make some activity, then find it in the logs</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> sudo ifconfig
+<span class="p">root@kali:~#</span> sudo grep sudo <span class="ar">/var/log/auth.log</span>
+<span class="p">root@kali:~#</span> cat <span class="ar">/var/log/auth.log</span></pre></div>
+      <p>Running a <code class="inl">sudo</code> command writes an entry to <code class="inl">/var/log/auth.log</code>; <code class="inl">grep sudo</code> pulls out those entries so you can see the trail you just left. <code class="inl">last -f</code> reads the login records in <code class="inl">wtmp</code> (successful) and <code class="inl">btmp</code> (failed).</p>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> last <span class="fl">-f</span> <span class="ar">/var/log/wtmp</span>
+<span class="p">root@kali:~#</span> last <span class="fl">-f</span> <span class="ar">/var/log/btmp</span></pre></div>
+    </div>
+    <div class="step">
+      <h3><span class="n">4</span> Wipe the logs and the shell history</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> cat /dev/null &gt; <span class="ar">/var/log/auth.log</span>
+<span class="p">root@kali:~#</span> cat /dev/null &gt; <span class="ar">/var/log/wtmp</span>
+<span class="p">root@kali:~#</span> cat /dev/null &gt; <span class="ar">/var/log/btmp</span></pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> ls -al
+<span class="p">root@kali:~#</span> cat .bash_history
+<span class="p">root@kali:~#</span> &gt; .bash_history
+<span class="p">root@kali:~#</span> cat .bash_history</pre></div>
+      <p><code class="inl">cat /dev/null &gt; file</code> truncates a log to empty (run <code class="inl">last</code> again and the records are gone). Then <code class="inl">ls -al</code> reveals the hidden <code class="inl">.bash_history</code> (every user has one), <code class="inl">cat</code> shows the commands it recorded, <code class="inl">&gt; .bash_history</code> empties it, and the final <code class="inl">cat</code> verifies it's clear. This is the "erase the camera footage" step.</p>
+      <div class="call defend"><span class="k">But notice what you can't undo</span><p>On a properly run network these logs were already <strong>shipped off the machine</strong> the moment they were written. Clearing the local copy changes nothing on the log server — and the clearing itself is logged. That's the point of the whole lab.</p></div>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture <code class="inl">cat .bash_history</code> (or <code class="inl">last</code>) before and after wiping — the records present, then gone.</p></div>
     </div>
     <div class="done-row"><input type="checkbox" id="done-walkthrough" data-done="walkthrough"><label for="done-walkthrough">Mark this section reviewed</label></div>
   </section>
@@ -591,6 +617,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>

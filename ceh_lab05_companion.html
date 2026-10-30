@@ -232,6 +232,11 @@
   #pm-toggle .pmi{font-family:var(--mono);font-weight:700}
   html[data-present="on"] footer.site{display:none !important}
   @media print{.pm-dock,#pm-toggle{display:none !important}}
+
+  /* VM / credentials table — slightly emphasized header */
+  .vm-tbl table{font-size:.88rem}
+  .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
+  .vm-tbl td code{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -301,6 +306,15 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>OpenVAS runs on <strong>Kali</strong> and is driven through a <strong>web interface</strong> in the browser, not the terminal. Your target is the deliberately vulnerable <strong>OWASP BWA</strong> host, which will light the report up nicely. The one thing to know going in: the scanner is only as good as its <strong>feed</strong> (its NVT database), and that feed has to finish syncing before results mean anything.</p>
+      <p>The virtual machines you'll use in this lab, with their addresses and logins:</p>
+      <div class="tbl-wrap vm-tbl"><table>
+        <thead><tr><th>Virtual Machine</th><th>IP Address</th><th>Account</th><th>Password</th></tr></thead>
+        <tbody>
+        <tr><td><b>Kali Linux</b></td><td><code>192.168.9.2</code> / <code>192.168.0.2</code></td><td><code>root</code></td><td><code>toor</code></td></tr>
+        <tr><td><b>pfSense</b></td><td><code>192.168.0.254</code> / <code>192.168.68.254</code> / <code>192.168.9.1</code></td><td><code>admin</code></td><td><code>pfsense</code></td></tr>
+        <tr><td><b>OWASP Broken Web App</b></td><td><code>192.168.68.12</code></td><td><code>root</code></td><td><code>owaspbwa</code></td></tr>
+        </tbody>
+      </table></div>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -610,6 +624,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>

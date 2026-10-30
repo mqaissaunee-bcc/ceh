@@ -232,6 +232,11 @@
   #pm-toggle .pmi{font-family:var(--mono);font-weight:700}
   html[data-present="on"] footer.site{display:none !important}
   @media print{.pm-dock,#pm-toggle{display:none !important}}
+
+  /* VM / credentials table — slightly emphasized header */
+  .vm-tbl table{font-size:.88rem}
+  .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
+  .vm-tbl td code{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -300,6 +305,15 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>Everything runs on <strong>Kali</strong>. You create a couple of throwaway Linux accounts, read their hashes out of <code class="inl">/etc/shadow</code>, build wordlists, and crack those hashes you own. Nothing here touches a real credential — the point is the mechanics on accounts you made yourself.</p>
+      <p>The virtual machines you'll use in this lab, with their addresses and logins:</p>
+      <div class="tbl-wrap vm-tbl"><table>
+        <thead><tr><th>Virtual Machine</th><th>IP Address</th><th>Account</th><th>Password</th></tr></thead>
+        <tbody>
+        <tr><td><b>Kali Linux</b></td><td><code>192.168.9.2</code> / <code>192.168.0.2</code></td><td><code>root</code></td><td><code>toor</code></td></tr>
+        <tr><td><b>pfSense</b></td><td><code>192.168.0.254</code> / <code>192.168.68.254</code> / <code>192.168.9.1</code></td><td><code>admin</code></td><td><code>pfsense</code></td></tr>
+        <tr><td><b>OWASP Broken Web App</b></td><td><code>192.168.68.12</code></td><td><code>root</code></td><td><code>owaspbwa</code></td></tr>
+        </tbody>
+      </table></div>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -324,7 +338,8 @@
     <div class="step">
       <h3><span class="n">2</span> Combine passwd + shadow for John</h3>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> unshadow <span class="ar">/etc/passwd /etc/shadow</span> &gt; hashes.txt</pre></div>
-      <div class="cmd"><pre><span class="p">root@kali:~#</span> cat hashes.txt | grep <span class="ar">fake*</span> &gt; hashes2.txt</pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> cat hashes.txt | grep <span class="ar">fake*</span> &gt; hashes2.txt
+<span class="p">root@kali:~#</span> cat hashes2.txt</pre></div>
       <p><code class="inl">unshadow</code> merges the two files into the single format John expects, then you filter down to just the test accounts you created.</p>
     </div>
     <div class="step">
@@ -349,6 +364,7 @@
     </div>
     <div class="step">
       <h3><span class="n">6</span> Hashcat</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> hashcat <span class="fl">-h</span> | more</pre></div>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> hashcat <span class="fl">--force</span> <span class="fl">-m</span> <span class="ar">1800</span> <span class="fl">-a</span> <span class="ar">0</span> <span class="ar">hashes3.txt mylist.txt</span> <span class="fl">-d</span> <span class="ar">1</span></pre></div>
       <p>Hashcat is the GPU-accelerated heavyweight. The flags are the whole skill: <code class="inl">-m 1800</code> is the <strong>hash mode</strong> (1800 = sha512crypt, the <code class="inl">$6$</code> you saw), <code class="inl">-a 0</code> is the <strong>attack mode</strong> (0 = straight dictionary), <code class="inl">mylist.txt</code> is your wordlist, and <code class="inl">-d 1</code> selects a compute device (add it only if Hashcat errors that it can't reach one). Picking the right <code class="inl">-m</code> is the step beginners most often get wrong. While it runs, press <kbd>s</kbd> for a status line (hash type, estimated time, speed) and <kbd>q</kbd> to quit — it saves progress and resumes where it left off.</p>
       <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture Hashcat (or <code class="inl">john --show</code>) displaying a cracked password next to its hash.</p></div>
@@ -610,6 +626,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>

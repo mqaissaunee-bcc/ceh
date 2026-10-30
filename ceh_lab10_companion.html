@@ -232,6 +232,11 @@
   #pm-toggle .pmi{font-family:var(--mono);font-weight:700}
   html[data-present="on"] footer.site{display:none !important}
   @media print{.pm-dock,#pm-toggle{display:none !important}}
+
+  /* VM / credentials table — slightly emphasized header */
+  .vm-tbl table{font-size:.88rem}
+  .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
+  .vm-tbl td code{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -300,6 +305,15 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You work from <strong>Kali</strong> against the <strong>OWASP BWA</strong> web app at <code class="inl">192.168.68.12</code> — a server built to be full of holes. Nikto runs from the terminal; Burp runs as a GUI with your browser pointed through it as a proxy.</p>
+      <p>The virtual machines you'll use in this lab, with their addresses and logins:</p>
+      <div class="tbl-wrap vm-tbl"><table>
+        <thead><tr><th>Virtual Machine</th><th>IP Address</th><th>Account</th><th>Password</th></tr></thead>
+        <tbody>
+        <tr><td><b>Kali Linux</b></td><td><code>192.168.9.2</code> / <code>192.168.0.2</code></td><td><code>root</code></td><td><code>toor</code></td></tr>
+        <tr><td><b>pfSense</b></td><td><code>192.168.0.254</code> / <code>192.168.68.254</code> / <code>192.168.9.1</code></td><td><code>admin</code></td><td><code>pfsense</code></td></tr>
+        <tr><td><b>OWASP Broken Web App</b></td><td><code>192.168.68.12</code></td><td><code>root</code></td><td><code>owaspbwa</code></td></tr>
+        </tbody>
+      </table></div>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -309,6 +323,7 @@
     <p class="task-head">Task 1 — Scan with Nikto</p>
     <div class="step">
       <h3><span class="n">1</span> A baseline web-server scan</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-help</span></pre></div>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-host</span> <span class="ar">192.168.68.12</span></pre></div>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nikto <span class="fl">-host</span> <span class="ar">192.168.68.12</span> <span class="fl">-output</span> <span class="ar">report.html</span></pre></div>
       <p>Nikto checks a web server for outdated software, dangerous files, and misconfigurations, then (with <code class="inl">-output</code>) saves a shareable report. After the broad scan, the lab narrows in with specific plugin categories (<code class="inl">-list-plugins</code> shows them all):</p>
@@ -595,6 +610,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>

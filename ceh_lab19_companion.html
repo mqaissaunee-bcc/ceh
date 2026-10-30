@@ -232,6 +232,11 @@
   #pm-toggle .pmi{font-family:var(--mono);font-weight:700}
   html[data-present="on"] footer.site{display:none !important}
   @media print{.pm-dock,#pm-toggle{display:none !important}}
+
+  /* VM / credentials table — slightly emphasized header */
+  .vm-tbl table{font-size:.88rem}
+  .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
+  .vm-tbl td code{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -300,6 +305,14 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You drive Nmap, hping3, and Nikto from <strong>Kali</strong> against the pod's two subnets (<code class="inl">192.168.0.0/24</code> and <code class="inl">192.168.9.0/24</code>). The GUI scanners run on the <strong>Windows</strong> VM. Along the way you'll save scan output to files on the Desktop and feed them from one tool to the next — which is exactly how real assessments chain together.</p>
+      <p>The virtual machines you'll use in this lab, with their addresses and logins:</p>
+      <div class="tbl-wrap vm-tbl"><table>
+        <thead><tr><th>Virtual Machine</th><th>IP Address</th><th>Account</th><th>Password</th></tr></thead>
+        <tbody>
+        <tr><td><b>WinOS (Windows)</b></td><td><code>192.168.0.20</code></td><td><code>Administrator</code></td><td><code>Train1ng$</code></td></tr>
+        <tr><td><b>Kali Linux</b></td><td><code>192.168.9.2</code> / <code>192.168.0.2</code></td><td><code>root</code></td><td><code>toor</code></td></tr>
+        </tbody>
+      </table></div>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -619,6 +632,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>

@@ -232,6 +232,11 @@
   #pm-toggle .pmi{font-family:var(--mono);font-weight:700}
   html[data-present="on"] footer.site{display:none !important}
   @media print{.pm-dock,#pm-toggle{display:none !important}}
+
+  /* VM / credentials table — slightly emphasized header */
+  .vm-tbl table{font-size:.88rem}
+  .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
+  .vm-tbl td code{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -300,6 +305,15 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You use two machines in the pod and run <code class="inl">nc</code> on both — one as a <strong>listener</strong> (server) and one as a <strong>connector</strong> (client). Getting that server/client direction straight is most of the skill here.</p>
+      <p>The virtual machines you'll use in this lab, with their addresses and logins:</p>
+      <div class="tbl-wrap vm-tbl"><table>
+        <thead><tr><th>Virtual Machine</th><th>IP Address</th><th>Account</th><th>Password</th></tr></thead>
+        <tbody>
+        <tr><td><b>Kali Linux</b></td><td><code>192.168.9.2</code> / <code>192.168.0.2</code></td><td><code>root</code></td><td><code>toor</code></td></tr>
+        <tr><td><b>pfSense</b></td><td><code>192.168.0.254</code> / <code>192.168.68.254</code> / <code>192.168.9.1</code></td><td><code>admin</code></td><td><code>pfsense</code></td></tr>
+        <tr><td><b>OpenSUSE</b></td><td><code>192.168.0.30</code></td><td><code>osboxes</code></td><td><code>osboxes.org</code></td></tr>
+        </tbody>
+      </table></div>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -321,18 +335,27 @@
     <p class="task-head">Task 2 — Make a connection</p>
     <div class="step">
       <h3><span class="n">2</span> Listener and connector</h3>
-      <div class="cmd"><pre><span class="p">root@kali:~#</span> nc <span class="fl">-l</span> <span class="ar">53</span></pre></div>
+      <p>On the <strong>OpenSUSE</strong> VM (login <code class="inl">osboxes</code> / <code class="inl">osboxes.org</code>), open a terminal and become root, then listen:</p>
+      <div class="cmd"><pre><span class="p">osboxes:~></span> sudo su
+<span class="p">osboxes:~ #</span> nc <span class="fl">-l</span> <span class="ar">53</span></pre></div>
+      <p>(When prompted, root's password is <code class="inl">osboxes.org</code>.) Back on <strong>Kali</strong>, connect to it:</p>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nc <span class="ar">192.168.0.30 53</span></pre></div>
-      <p>One side <strong>listens</strong> with <code class="inl">-l</code> on a port; the other <strong>connects</strong> to that host and port. Type on either end and it appears on the other — a raw two-way channel. That channel is everything netcat does; the rest is just what you pipe through it.</p>
+      <p>There's no confirmation — just type <code class="inl">Hello</code> and press Enter, and it appears on the OpenSUSE listener. That proves a raw two-way channel is open through the firewall. Press <kbd>Ctrl-C</kbd> to close it. That channel is everything netcat does; the rest is just what you pipe through it.</p>
     </div>
 
     <p class="task-head">Task 3 — Transfer a file</p>
     <div class="step">
-      <h3><span class="n">3</span> Pipe a file across</h3>
-      <div class="cmd"><pre><span class="p">root@kali:~#</span> nc <span class="fl">-l</span> <span class="ar">53</span> &gt; testfile</pre></div>
+      <h3><span class="n">3</span> Create a file, then pipe it across</h3>
+      <p>On OpenSUSE, listen and redirect incoming data into a file:</p>
+      <div class="cmd"><pre><span class="p">osboxes:~ #</span> nc <span class="fl">-l</span> <span class="ar">53</span> &gt; testfile</pre></div>
+      <p>On Kali, make a file with <code class="inl">nano</code> (type <code class="inl">This is my test transfer file</code>, then <kbd>Ctrl-O</kbd>, Enter, <kbd>Ctrl-X</kbd>), and send it:</p>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> nano testfile</pre></div>
       <div class="cmd"><pre><span class="p">root@kali:~#</span> nc <span class="fl">-w</span> <span class="ar">3</span> <span class="ar">192.168.0.30 53</span> &lt; testfile</pre></div>
-      <p>Redirect a file <em>into</em> the connector (<code class="inl">&lt; testfile</code>) and <em>out of</em> the listener (<code class="inl">&gt; testfile</code>), and netcat moves it across the channel. The same move delivers tools onto a compromised host — which is why file transfer and backdoors are the same skill.</p>
-      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the file transfer working — the listener receiving and the file appearing on the other side.</p></div>
+      <p>Redirect the file <em>into</em> the connector (<code class="inl">&lt; testfile</code>) and <em>out of</em> the listener (<code class="inl">&gt; testfile</code>), and netcat moves it across. Back on OpenSUSE, confirm it arrived:</p>
+      <div class="cmd"><pre><span class="p">osboxes:~ #</span> ls
+<span class="p">osboxes:~ #</span> cat testfile</pre></div>
+      <p>The same move delivers tools onto a compromised host — which is why file transfer and backdoors are the same skill.</p>
+      <div class="call capture"><span class="k">Screenshot for your report</span><p>Capture the transferred file's contents (<code class="inl">cat testfile</code>) on the OpenSUSE side.</p></div>
     </div>
 
     <p class="task-head">The backdoor idea (concept)</p>
@@ -586,6 +609,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>

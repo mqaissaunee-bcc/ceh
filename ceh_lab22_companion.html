@@ -232,6 +232,11 @@
   #pm-toggle .pmi{font-family:var(--mono);font-weight:700}
   html[data-present="on"] footer.site{display:none !important}
   @media print{.pm-dock,#pm-toggle{display:none !important}}
+
+  /* VM / credentials table — slightly emphasized header */
+  .vm-tbl table{font-size:.88rem}
+  .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
+  .vm-tbl td code{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -300,6 +305,14 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>You use <strong>FTK Imager</strong> on Windows to locate and export the SAM and SYSTEM files (they're locked while Windows is running, which is why a forensic tool or offline access is needed), then move to <strong>Kali</strong> to extract and crack the hashes. The hand-off between the two machines is the realistic part: offline credential attacks almost always start with getting at the files some other way.</p>
+      <p>The virtual machines you'll use in this lab, with their addresses and logins:</p>
+      <div class="tbl-wrap vm-tbl"><table>
+        <thead><tr><th>Virtual Machine</th><th>IP Address</th><th>Account</th><th>Password</th></tr></thead>
+        <tbody>
+        <tr><td><b>WinOS (Windows)</b></td><td><code>192.168.0.20</code></td><td><code>Administrator</code></td><td><code>Train1ng$</code></td></tr>
+        <tr><td><b>Kali Linux</b></td><td><code>192.168.9.2</code> / <code>192.168.0.2</code></td><td><code>root</code></td><td><code>toor</code></td></tr>
+        </tbody>
+      </table></div>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -316,10 +329,9 @@
     <p class="task-head">Task 2 — Get the files onto Kali</p>
     <div class="step">
       <h3><span class="n">2</span> Copy the exported files to Kali</h3>
-      <p>Move the exported <code class="inl">SAM</code> and <code class="inl">SYSTEM</code> files to Kali (into a <code class="inl">Desktop/Lab22</code> folder) — via a shared folder or an SMB share. One command-line way to pull them from a Windows share:</p>
-      <div class="cmd"><pre><span class="p">root@kali:~#</span> mkdir -p Desktop/Lab22
-<span class="p">root@kali:~#</span> sudo mount <span class="fl">-t</span> cifs <span class="fl">-o</span> <span class="ar">user=Administrator,password=PASSWORD</span> <span class="ar">//HOST/share /mnt</span>
-<span class="p">root@kali:~#</span> cp /mnt/SAM /mnt/system Desktop/Lab22/</pre></div>
+      <p>From Kali, mount the Windows share that holds the exported files onto <code class="inl">Desktop/share</code>, then copy them into a working folder with <code class="inl">cp -a</code> (which preserves the files exactly):</p>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> sudo mount <span class="fl">-t</span> cifs <span class="fl">-v</span> <span class="fl">-o</span> <span class="ar">user=Administrator,password=PASSWORD,vers=2.1</span> <span class="ar">//HOST/share Desktop/share</span></pre></div>
+      <div class="cmd"><pre><span class="p">root@kali:~#</span> cp -a Desktop/share/. Desktop/Lab22</pre></div>
       <p>Both files are required for the next step — the extractor combines them.</p>
     </div>
 
@@ -588,6 +600,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>

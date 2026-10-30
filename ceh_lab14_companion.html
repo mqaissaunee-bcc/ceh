@@ -232,6 +232,11 @@
   #pm-toggle .pmi{font-family:var(--mono);font-weight:700}
   html[data-present="on"] footer.site{display:none !important}
   @media print{.pm-dock,#pm-toggle{display:none !important}}
+
+  /* VM / credentials table — slightly emphasized header */
+  .vm-tbl table{font-size:.88rem}
+  .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
+  .vm-tbl td code{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -300,6 +305,15 @@
   <section id="environment" data-track>
     <h2>The environment you're working in</h2>
     <p>From <strong>Kali</strong> you first run plain SQL against a local <strong>MySQL</strong> test database, then attack a deliberately vulnerable web app (DVWA, set to <em>low</em> security) through the browser and with SQLmap. Everything targets the practice app — the point is the mechanics of a query gone wrong.</p>
+      <p>The virtual machines you'll use in this lab, with their addresses and logins:</p>
+      <div class="tbl-wrap vm-tbl"><table>
+        <thead><tr><th>Virtual Machine</th><th>IP Address</th><th>Account</th><th>Password</th></tr></thead>
+        <tbody>
+        <tr><td><b>Kali Linux</b></td><td><code>192.168.9.2</code> / <code>192.168.0.2</code></td><td><code>root</code></td><td><code>toor</code></td></tr>
+        <tr><td><b>pfSense</b></td><td><code>192.168.0.254</code> / <code>192.168.68.254</code> / <code>192.168.9.1</code></td><td><code>admin</code></td><td><code>pfsense</code></td></tr>
+        <tr><td><b>OWASP Broken Web App</b></td><td><code>192.168.68.12</code></td><td><code>root</code></td><td><code>owaspbwa</code></td></tr>
+        </tbody>
+      </table></div>
     <div class="done-row"><input type="checkbox" id="done-environment" data-done="environment"><label for="done-environment">Mark this section reviewed</label></div>
   </section>
 
@@ -314,12 +328,25 @@
       <div class="cmd"><pre><span class="p">mysql></span> create database test;
 <span class="p">mysql></span> use test;
 <span class="p">mysql></span> create table users (name varchar(30), account integer, balance decimal(10,2));
-<span class="p">mysql></span> insert into users values ('John', 123, 10.00);</pre></div>
-      <p>The lab starts MySQL, logs in, and builds a <code class="inl">test</code> database with <code class="inl">users</code> and <code class="inl">personal</code> tables to practice on. Then you read and change rows:</p>
-      <div class="cmd"><pre><span class="p">mysql></span> SELECT name, balance FROM personal;</pre></div>
-      <div class="cmd"><pre><span class="p">mysql></span> INSERT INTO personal VALUES (...);
-<span class="p">mysql></span> DELETE FROM personal WHERE id = 1;</pre></div>
-      <p>Before you can break a query, you have to read one. <code class="inl">SELECT</code> retrieves, <code class="inl">INSERT</code> adds, <code class="inl">DELETE</code> removes, and <code class="inl">WHERE</code> filters — and <code class="inl">drop table</code> / <code class="inl">drop database</code> wipe them entirely. Note how much power a single statement has — that's what injection hijacks.</p>      <div class="call tip"><span class="k">Stuck at a <code style="color:inherit">-&gt;</code> prompt?</span><p>If MySQL shows <code class="inl">-&gt;</code>, it's waiting for you to finish a statement (you forgot the <code class="inl">;</code>). Type <code class="inl">\c</code> and Enter to cancel the line and get back to <code class="inl">mysql&gt;</code>.</p></div>
+<span class="p">mysql></span> insert into users values ('John', 123, 10.00);
+<span class="p">mysql></span> select * from users;
+<span class="p">mysql></span> insert into users values ('Joe', 456, 20.00);
+<span class="p">mysql></span> select * from users;</pre></div>
+      <p>The lab starts MySQL, logs in, and builds a <code class="inl">test</code> database. You create the <code class="inl">users</code> table, add two rows, and <code class="inl">select *</code> to see them. Then a second table and a <strong>join</strong> across both:</p>
+      <div class="cmd"><pre><span class="p">mysql></span> create table personal (name varchar(30), address varchar(30), telephone varchar(30));
+<span class="p">mysql></span> insert into personal values ('John', '1313 Mockingbird Lane', '555-1234');
+<span class="p">mysql></span> insert into personal values ('Joe', '1313 Cemetery Lane', '555-5678');
+<span class="p">mysql></span> select * from personal;
+<span class="p">mysql></span> select name, balance from users;
+<span class="p">mysql></span> select name, telephone from personal;
+<span class="p">mysql></span> select users.name, users.balance, personal.telephone from users, personal where users.name = personal.name;</pre></div>
+      <p>The join pulls columns from both tables where the names match. Then you remove and wipe:</p>
+      <div class="cmd"><pre><span class="p">mysql></span> delete from personal where name='Joe';
+<span class="p">mysql></span> select * from personal;
+<span class="p">mysql></span> drop table personal;
+<span class="p">mysql></span> drop database test;</pre></div>
+      <p>Before you can break a query, you have to read one. <code class="inl">SELECT</code> retrieves, <code class="inl">INSERT</code> adds, <code class="inl">DELETE</code> removes, <code class="inl">WHERE</code> filters, a join combines tables, and <code class="inl">drop</code> wipes them. Note how much power a single statement has — that's what injection hijacks.</p>
+      <div class="call tip"><span class="k">Stuck at a <code style="color:inherit">-&gt;</code> prompt?</span><p>If MySQL shows <code class="inl">-&gt;</code>, it's waiting for you to finish a statement (you forgot the <code class="inl">;</code>). Type <code class="inl">\c</code> and Enter to cancel the line and get back to <code class="inl">mysql&gt;</code>.</p></div>
     </div>
 
     <p class="task-head">Task 2 — Make input become code</p>
@@ -596,6 +623,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>

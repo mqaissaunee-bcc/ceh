@@ -233,6 +233,11 @@
   html[data-present="on"] footer.site{display:none !important}
   @media print{.pm-dock,#pm-toggle{display:none !important}}
 
+  /* VM / credentials table — slightly emphasized header */
+  .vm-tbl table{font-size:.88rem}
+  .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
+  .vm-tbl td code{white-space:nowrap}
+
   .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:.8rem;margin:1.5rem 0 .3rem}
   .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
   .stat .big{font-size:1.9rem;font-weight:700;color:var(--accent-ink);line-height:1;font-variant-numeric:tabular-nums}
@@ -741,6 +746,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>
