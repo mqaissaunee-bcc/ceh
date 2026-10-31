@@ -237,6 +237,19 @@
   .vm-tbl table{font-size:.88rem}
   .vm-tbl thead th{background:var(--accent-soft);color:var(--accent-ink)}
   .vm-tbl td code{white-space:nowrap}
+
+  /* ---- machine band — labels which VM a run of steps happens on ---- */
+  .machine{display:flex;align-items:center;gap:.5rem;margin:1.6rem 0 .5rem;padding:.5rem .85rem;
+    border-radius:9px;border-left:4px solid var(--mc,var(--accent));background:var(--mcs,var(--accent-soft));
+    font:800 .95rem/1.2 var(--sans);color:var(--ink)}
+  .machine .mi{font-size:1.15rem;line-height:1}
+  .machine[data-m="kali"]{--mc:var(--cyan);--mcs:rgba(67,217,212,.12)}
+  .machine[data-m="suse"]{--mc:var(--violet);--mcs:rgba(181,140,255,.14)}
+  .machine[data-m="win"]{--mc:#4b89ff;--mcs:rgba(75,137,255,.14)}
+  .machine[data-m="android"]{--mc:var(--accent);--mcs:var(--accent-soft)}
+  .machine[data-m="target"]{--mc:var(--amber);--mcs:rgba(240,180,41,.14)}
+  .machine[data-m="onion"]{--mc:#b06cf0;--mcs:rgba(176,108,240,.14)}
+  .machine[data-m="pfsense"]{--mc:var(--danger);--mcs:rgba(255,107,107,.12)}
 </style>
 </head>
 <body>
@@ -640,6 +653,5 @@
   })();
 })();
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>
