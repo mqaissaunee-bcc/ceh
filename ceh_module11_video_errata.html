@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Errata: CEH v13 Session Hijacking video</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2F4F6; --sheet:#FFFFFF; --ink:#16233A; --ink-2:#4A5568; --rule:#D5DBE3;
+  --red:#B3122B; --red-wash:#FBE9EC; --amber:#8A5A00; --amber-wash:#FFF3D6;
+  --teal:#1F6F6B; --teal-wash:#E2F2F0; --ins:#0B6B3A; --focus:#2457C5;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1520; --sheet:#172030; --ink:#E6EBF2; --ink-2:#A9B4C4; --rule:#2B3647;
+    --red:#FF7A8C; --red-wash:#3A1820; --amber:#F2C063; --amber-wash:#33270C;
+    --teal:#6FD1C8; --teal-wash:#12302E; --ins:#6EDC9E; --focus:#8DB0FF;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1520; --sheet:#172030; --ink:#E6EBF2; --ink-2:#A9B4C4; --rule:#2B3647;
+  --red:#FF7A8C; --red-wash:#3A1820; --amber:#F2C063; --amber-wash:#33270C;
+  --teal:#6FD1C8; --teal-wash:#12302E; --ins:#6EDC9E; --focus:#8DB0FF;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1rem/1.6 "Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+a{color:inherit;text-decoration-color:var(--rule);text-underline-offset:3px}
+a:hover{text-decoration-color:currentColor}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:3px}
+.wrap{max-width:52rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+
+header h1{font-size:clamp(1.9rem,4.5vw,2.75rem);line-height:1.12;font-weight:700;letter-spacing:-.015em;margin:0 0 .9rem}
+header h1 .struck{color:var(--ink-2);text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:3px;font-weight:500}
+header h1 .caret{display:inline-block;color:var(--red);font-family:"Newsreader",Georgia,serif;font-style:italic;font-weight:500}
+.lede{font-size:1.075rem;color:var(--ink-2);max-width:40rem;margin:0 0 1.25rem}
+.lede a{color:var(--ink)}
+.meta{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;font-size:.9rem;color:var(--ink-2);margin:0 0 1.5rem;padding:0;list-style:none}
+.meta strong{color:var(--ink);font-weight:600}
+
+.key{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:1rem 1.15rem;margin:0 0 2.5rem;font-size:.95rem}
+.key p{margin:0 0 .5rem}
+.key p:last-child{margin:0}
+del{color:var(--red);text-decoration-thickness:2px;background:var(--red-wash);padding:0 .15em;border-radius:2px}
+ins{color:var(--ins);text-decoration:none;font-style:normal;font-family:"Public Sans",system-ui,sans-serif;font-weight:600;font-size:.92em}
+ins::before{content:"\2038";color:var(--red);font-weight:700;margin-right:.1em}
+
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:0 0 1.25rem}
+.tools .lbl{font-size:.875rem;color:var(--ink-2);margin-right:.25rem}
+.chip{font:inherit;font-size:.875rem;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:.35rem .85rem;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.spacer{flex:1}
+.plain{font:inherit;font-size:.875rem;background:none;border:none;color:var(--ink-2);cursor:pointer;padding:.35rem .4rem;text-decoration:underline;text-underline-offset:3px}
+
+h2{font-size:1.5rem;line-height:1.25;margin:3rem 0 .4rem;letter-spacing:-.01em}
+h2 + .sub{color:var(--ink-2);margin:0 0 1.5rem;max-width:40rem}
+
+/* Errata timeline */
+.errata{list-style:none;margin:0;padding:0;border-left:2px solid var(--rule)}
+.entry{position:relative;margin:0 0 1.25rem;padding:0 0 0 1.4rem}
+.entry::before{content:"";position:absolute;left:-7px;top:.55rem;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--ink-2)}
+.entry[data-sev="high"]::before{background:var(--red);border-color:var(--red)}
+.entry[hidden]{display:none}
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:1rem 1.15rem 1.05rem}
+.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem .75rem;margin:0 0 .6rem}
+.ts{font-weight:700;font-variant-numeric:tabular-nums;font-size:1.05rem}
+.tag{font-size:.8rem;font-weight:600;padding:.12rem .55rem;border-radius:4px}
+.tag.content{background:var(--red-wash);color:var(--red)}
+.tag.visual{background:var(--teal-wash);color:var(--teal)}
+.sev{font-size:.8rem;color:var(--ink-2)}
+.sev.high{color:var(--red);font-weight:600}
+blockquote{margin:0 0 .75rem;font-family:"Newsreader",Georgia,serif;font-style:italic;font-size:1.13rem;line-height:1.55;color:var(--ink)}
+blockquote.screen{font-style:normal;font-family:"Public Sans",system-ui,sans-serif;font-size:.95rem;color:var(--ink-2);border-left:3px solid var(--teal);padding-left:.75rem}
+.fix{margin:0 0 .6rem;max-width:44rem}
+.fix strong{font-weight:600}
+.src{font-size:.85rem;color:var(--ink-2);margin:0}
+.src a{color:var(--ink-2)}
+
+/* Omissions */
+.sect{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;margin:0 0 1rem;overflow:hidden}
+.sect h3{font-size:1.05rem;margin:0;padding:.85rem 1.15rem;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.25rem 1rem;align-items:baseline}
+.sect h3 a{font-size:.85rem;font-weight:500;color:var(--ink-2)}
+.sect ul{list-style:none;margin:0;padding:0}
+.sect li{display:grid;grid-template-columns:7.5rem 1fr;gap:.25rem 1rem;padding:.8rem 1.15rem;border-bottom:1px solid var(--rule)}
+.sect li:last-child{border-bottom:none}
+.sect li[hidden]{display:none}
+.pri{font-size:.8rem;font-weight:600;align-self:start;padding:.12rem .5rem;border-radius:4px;justify-self:start}
+.pri.p1{background:var(--red-wash);color:var(--red)}
+.pri.p2{background:var(--amber-wash);color:var(--amber)}
+.pri.p3{background:transparent;color:var(--ink-2);border:1px solid var(--rule)}
+.om p{margin:0}
+.om .where{font-size:.85rem;color:var(--ink-2);margin-top:.2rem}
+
+.right{background:var(--teal-wash);border-radius:10px;padding:1rem 1.15rem;margin:2.5rem 0 0}
+.right h2{margin:0 0 .4rem;font-size:1.15rem}
+.right p{margin:0}
+
+footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--rule);font-size:.85rem;color:var(--ink-2)}
+footer p{margin:0 0 .4rem}
+
+@media (max-width:560px){
+  .wrap{padding:1.75rem 1rem 3rem}
+  .sect li{grid-template-columns:1fr}
+  .entry{padding-left:1.1rem}
+}
+@media print{
+  :root{--paper:#fff;--sheet:#fff}
+  .tools,.plain{display:none!important}
+  .entry[hidden],.sect li[hidden]{display:block!important}
+  .sect li[hidden]{display:grid!important}
+  .card,.sect,.key{break-inside:avoid}
+  body{font-size:10.5pt}
+  a{text-decoration:none}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Session Hijacking video: <span class="struck">as narrated</span> <span class="caret">as corrected</span></h1>
+  <p class="lede">An errata sheet for the CEH v13 Session Hijacking explainer video (11:17). Every entry is checked against <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html">Module 11: Session Hijacking</a>, which is the authoritative source. When the two disagree, go with the module.</p>
+  <ul class="meta">
+    <li><strong id="n-err">14</strong> corrections</li>
+    <li><strong id="n-om">31</strong> omissions</li>
+    <li><strong>1</strong> change to the core concept</li>
+  </ul>
+</header>
+
+<div class="key">
+  <p>Quotes come from the narration unless marked as on-screen. Wrong wording is <del>struck through</del> and the fix is inserted <ins>like this</ins>.</p>
+  <p>Timestamps are approximate to within a few seconds.</p>
+</div>
+
+<section aria-labelledby="h-corr">
+  <h2 id="h-corr">Corrections</h2>
+  <p class="sub">Places where the narration or the slides say something the module doesn’t, or say it wrong. In video order.</p>
+
+  <div class="tools" role="group" aria-label="Filter corrections">
+    <span class="lbl">Show</span>
+    <button class="chip" data-f="all" aria-pressed="true">All</button>
+    <button class="chip" data-f="content" aria-pressed="false">Narration</button>
+    <button class="chip" data-f="visual" aria-pressed="false">On-screen</button>
+    <button class="chip" data-f="high" aria-pressed="false">Concept-changing only</button>
+    <span class="spacer"></span>
+    <button class="plain" onclick="window.print()">Print this sheet</button>
+  </div>
+
+  <ol class="errata" id="errata">
+
+    <li class="entry" data-type="content" data-sev="med">
+      <div class="card">
+        <div class="top"><span class="ts">0:35</span><span class="tag content">Narration</span><span class="sev">Imprecise</span></div>
+        <blockquote>“Modern attackers, they <del>rarely try to break through that front door by brute forcing or guessing passwords anymore. It’s just too loud and too difficult.</del>”</blockquote>
+        <p class="fix">The module makes no such claim. Its point is narrower: as MFA adoption has made stolen credentials <em>less useful</em>, attackers have shifted toward stealing session tokens. Password attacks such as spraying and credential stuffing are still common and are covered in <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module6.html">Module 6</a>.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#overview">Overview, “Why this is the attack that bypasses MFA”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">0:51</span><span class="tag content">Narration</span><span class="sev">Imprecise</span></div>
+        <blockquote>“Every single <ins>authentication</ins> defense you deploy … only protect<ins>s</ins> the login phase.”</blockquote>
+        <p class="fix">The module scopes this to <strong>authentication</strong> defenses (passwords, policies, MFA). Plenty of defenses protect the session itself: TLS, cookie flags, session binding, and anomaly detection, all of which the video covers later.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#overview">Overview, “Stealing the session, not the password”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="visual" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">1:00</span><span class="tag visual">On-screen</span><span class="sev">Cosmetic</span></div>
+        <blockquote class="screen">Roadmap card 5 reads “Countermeasur / es”, with the word broken across two lines without a hyphen.</blockquote>
+        <p class="fix">Should read <strong>Countermeasures</strong>. Note that the roadmap shows five topics; the module also has an Overview and a graded Assessment, which the video doesn’t mention.</p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="visual" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">3:24</span><span class="tag visual">On-screen</span><span class="sev">Cosmetic</span></div>
+        <blockquote class="screen">The “Token Theft Vectors” bullet list shows three items: XSS, infostealer malware, adversary-in-the-middle.</blockquote>
+        <p class="fix">The diagram on the same slide and the narration both give <strong>four</strong> vectors. The bullet list is missing <strong>network sniffing (sidejacking)</strong>.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#application-level">Application-Level, “How tokens get stolen”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">3:43</span><span class="tag content">Narration</span><span class="sev">Spelling check</span></div>
+        <blockquote>“A malware family like <ins>LummaC2</ins> or <ins>RedLine</ins> …” and at 7:37, “<ins>Ettercap</ins> for establishing that man-in-the-middle position, and packet crafters like <ins>Scapy</ins> …”</blockquote>
+        <p class="fix">The narration’s pronunciation makes these hard to catch by ear. The correct spellings are shown above, so you can look them up or recognize them on the exam.</p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="high">
+      <div class="card">
+        <div class="top"><span class="ts">4:29</span><span class="tag content">Narration</span><span class="sev high">Changes the concept</span></div>
+        <blockquote>“They trick the victim into authenticating with a <del>predictable</del> <ins>known</ins> token that the attacker already controls … The victim logs in, the server <del>validates the ID</del> <ins>keeps the same ID instead of issuing a new one</ins>, and boom …”</blockquote>
+        <p class="fix">Session fixation does not rely on a <em>predictable</em> token. The attacker obtains or sets a valid session ID, then forces that known ID onto the victim before login. <strong>Predictable tokens</strong> are a separate flaw in the module, where weak ID generation lets an attacker guess someone else’s session. Mixing the two up is an easy way to miss an exam question.</p>
+        <p class="fix">The attack works because the server fails to regenerate the session ID at login, not because it “validates” the ID. The video does name the fix, session regeneration, later at 8:31.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#application-level">Application-Level, “Manipulating the session, not just stealing it”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="visual" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">7:00</span><span class="tag visual">On-screen</span><span class="sev">Cosmetic</span></div>
+        <blockquote class="screen">The tools table has three rows: App / Burp Suite, Network / Wireshark, Modern / Infostealers. The Wireshark row is drawn with a dolphin.</blockquote>
+        <p class="fix">The narration names Ettercap and Scapy, but neither appears in the table. “Modern” isn’t a layer, and infostealers are malware rather than a testing tool; the module treats them as “the modern reality of tooling”, separate from the two layers. Wireshark’s logo is a shark fin, not a dolphin.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#tools">Tools</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">7:44</span><span class="tag content">Narration</span><span class="sev">Imprecise</span></div>
+        <blockquote>“FireSheep for open Wi-Fi sniffing, which was a huge deal <del>a decade ago</del> <ins>in 2010</ins>.”</blockquote>
+        <p class="fix">The module dates FireSheep to 2010, more than fifteen years ago. Its significance, which the video leaves out, is that it shocked the industry into adopting HTTPS everywhere.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#tools">Tools, “FireSheep (historical)”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="visual" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">7:57</span><span class="tag visual">On-screen</span><span class="sev">Cosmetic</span></div>
+        <blockquote class="screen">The section 5 title card shows a firewall labeled “FirewaLL”.</blockquote>
+        <p class="fix">Aside from the capitalization, firewalls aren’t one of the module’s session-hijacking countermeasures. A firewall doesn’t stop a stolen cookie from being replayed over an allowed HTTPS connection.</p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="visual" data-sev="med">
+      <div class="card">
+        <div class="top"><span class="ts">8:01–8:46</span><span class="tag visual">On-screen</span><span class="sev">Imprecise</span></div>
+        <blockquote class="screen">A single shield icon stays on screen for 45 seconds while the narration lists HttpOnly, Secure, SameSite, session regeneration, and short timeouts.</blockquote>
+        <p class="fix">This is the most exam-relevant list in the video and there is no text on screen to support it. Use the module’s “Harden the session token” cards. They also include a fifth control the video skips: <strong>strong, random tokens</strong>.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#countermeasures">Countermeasures, “Harden the session token”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="visual" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">9:12</span><span class="tag visual">On-screen</span><span class="sev">Cosmetic</span></div>
+        <blockquote class="screen">The session binding diagram draws an arrow from “Infostealer’s hook” to “AiTM Phishing” and labels the attacker’s address “IP 129. X 99.”</blockquote>
+        <p class="fix">Infostealers and AiTM phishing are two <strong>independent</strong> theft vectors; one doesn’t lead to the other. The IP label is garbled and isn’t a valid address.</p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">9:35</span><span class="tag content">Narration</span><span class="sev">Imprecise</span></div>
+        <blockquote>“The server <del>instantly detects</del> <ins>can detect</ins> the environment mismatch and <del>rejects</del> <ins>can reject</ins> the session.”</blockquote>
+        <p class="fix">The module says the mismatch is <em>detectable</em> and the session <em>can</em> be rejected. Binding raises the bar but isn’t a guarantee, because legitimate users change networks and NAT hides devices. The narration also lists only device fingerprint and browser signature; the module adds <strong>IP address (allowing for NAT)</strong>.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#countermeasures">Countermeasures, “Bind the session, and detect the anomalies”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="med">
+      <div class="card">
+        <div class="top"><span class="ts">9:57 &amp; 10:50</span><span class="tag content">Narration</span><span class="sev">Imprecise</span></div>
+        <blockquote>Anomaly detection is “our final and <del>frankly most vital</del> <ins>essential</ins> line of defense” … “As the defensive perimeter shifts <del>entirely</del> away from the network … is continuous behavioral anomaly detection <del>the only true defense we have left</del>?”</blockquote>
+        <p class="fix">The closing question cuts against the module’s conclusion: <strong>“No single control suffices.”</strong> The module calls anomaly detection the last, essential line in a layered defense, alongside TLS and HSTS, strong tokens, regeneration, cookie flags, timeouts, binding, and endpoint security. Treat the video’s ending as a discussion prompt, not as the answer.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#countermeasures">Countermeasures, “Defense in depth — and the endpoint”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">10:55</span><span class="tag content">Narration</span><span class="sev">Unsupported</span></div>
+        <blockquote>“As info-stealer malware explodes into a <del>multi-million dollar</del> underground economy …”</blockquote>
+        <p class="fix">The module doesn’t put a dollar figure on it, so this number has no source here. What the module does say is that stolen cookies show up on dark-web markets and Telegram channels within a day or two of being stolen.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#application-level">Application-Level, “Why stolen tokens are so dangerous”</a></p>
+      </div>
+    </li>
+
+  </ol>
+</section>
+
+<section aria-labelledby="h-om">
+  <h2 id="h-om">Not covered in the video</h2>
+  <p class="sub">Module content the video skips or only gestures at, grouped by module section. Use this list to decide what to review on the module page itself.</p>
+
+  <div class="tools" role="group" aria-label="Filter omissions">
+    <span class="lbl">Show</span>
+    <button class="chip" data-o="all" aria-pressed="true">All</button>
+    <button class="chip" data-o="p1" aria-pressed="false">Exam-critical</button>
+    <button class="chip" data-o="p2" aria-pressed="false">Worth reviewing</button>
+  </div>
+
+  <div class="sect">
+    <h3>Overview <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#overview">Open in module</a></h3>
+    <ul>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p><strong>Growth of the threat.</strong> Industry reporting of year-over-year increases well into the triple digits, driven by attackers working around MFA.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p><strong>Links to other modules:</strong> sniffing (Module 8) for capturing tokens, malware (Module 7) for infostealers, and social engineering (Module 9) for AiTM phishing.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>Session Fundamentals <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#session-fundamentals">Open in module</a></h3>
+    <ul>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>OAuth and refresh tokens as the “crown jewels.”</strong> Refresh tokens are bearer tokens that can mint fresh access tokens indefinitely, extending access long after the original session should have expired.</p><p class="where">The video names OAuth tokens once at 2:03 without explaining why they matter.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>The TCP three-way handshake</strong> (SYN → SYN-ACK → ACK) and its purpose of synchronizing sequence numbers. This is the foundation the sequence-prediction attack builds on.</p><p class="where">Missing before the 4-tuple slide at 5:00.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p>How the browser <strong>automatically attaches the session cookie</strong> to every request, and that JWTs and opaque tokens follow the same principle.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>Application-Level Hijacking <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#application-level">Open in module</a></h3>
+    <ul>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>Predictable tokens.</strong> Sequential or weakly generated session IDs let an attacker guess or brute-force another user’s session with no theft at all. This is one of the module’s two session-manipulation attacks, and the video skips it.</p><p class="where">Gap at about 4:51, between session fixation and the network-level section.</p></div></li>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>The term “sidejacking”</strong> for capturing session cookies off an unencrypted connection, along with FireSheep as the tool that made it trivial.</p><p class="where">At 4:07 the video calls it “classic network sniffing” without the term.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Theft is invisible and delayed.</strong> A harvested token may be replayed days or weeks later and looks completely valid. Stolen cookies reach dark-web markets and Telegram channels within a day or two.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Lateral movement across SaaS.</strong> One stolen SSO or cloud token can open many connected applications. A hijacked session is a foothold, not an endpoint.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>XSS is defeated by HttpOnly.</strong> The module ties the attack to its defense on the spot. The video makes the link only in the countermeasures section.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p>Additional infostealer families, <strong>Raccoon</strong> and <strong>Vidar</strong>, and what they target: corporate SSO, cloud consoles, SaaS, and email sessions.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p>AiTM <strong>accounts for a large share of modern phishing</strong>, and it is the technique that specifically defeats MFA.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>Network-Level Hijacking <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#network-level">Open in module</a></h3>
+    <ul>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>IP spoofing as a named concept.</strong> Forging the source address is what makes injected packets acceptable to the target, and both blind and non-blind hijacking depend on it. The video shows “spoof” as a step but never names or explains IP spoofing.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>MITM bridges the two families.</strong> From the middle, an attacker can hijack the TCP session <em>and</em> harvest application tokens from unencrypted traffic.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Why sequence numbers are randomized.</strong> Modern operating systems use strong randomization, while older systems had predictable sequence numbers that made this attack much easier.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p>Under TLS, injected packets also <strong>fail integrity checks</strong>, which is a second reason network-level hijacking has declined, alongside sniffing producing only ciphertext.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p>The module notes network-level hijacking is <strong>tested heavily on the CEH exam</strong>, even though it’s less common in real attacks today.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>Tools <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#tools">Open in module</a></h3>
+    <ul>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>What Burp Suite actually checks:</strong> whether the Secure, HttpOnly, and SameSite flags are set; whether tokens are regenerated after login; and how random the tokens are. The video mentions only randomness.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Bettercap</strong> alongside Ettercap, and <strong>hping3</strong> alongside Scapy, as the MITM frameworks and packet crafters.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p><strong>Browser developer tools</strong> as the first-pass check of cookie flags before deeper testing with Burp.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p><strong>Phishing kits (AiTM proxies)</strong> as the second modern “tool” behind real-world session theft, next to infostealers.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p>Legal practice environments: <strong>TryHackMe</strong> and <strong>Hack The Box</strong>, including the classic steal-a-cookie-via-XSS lab.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>Countermeasures <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#countermeasures">Open in module</a></h3>
+    <ul>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>Strong, random session tokens.</strong> Long, cryptographically unpredictable IDs close the predictable-token attack completely. It’s one of the module’s four token-hardening controls, and it’s missing from the video’s list at 8:10.</p></div></li>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>HSTS (HTTP Strict Transport Security).</strong> Tells browsers to connect only over HTTPS, defeating downgrade attacks. The video says encryption should be used but not that it should be <em>enforced</em>.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Mutual TLS (mTLS).</strong> In high-security environments the client also presents a certificate, so a stolen token alone isn’t enough.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Re-authentication for high-privilege actions</strong>, regardless of session age. The video mentions short timeouts only.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Endpoint security.</strong> Because infostealers are now the leading theft method, detecting credential-dumping behavior before cookies are exfiltrated is central to defense. This ties back to Module 7.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>The two goals framing:</strong> prevention (make tokens hard to steal) and containment and detection (make stolen tokens hard to use). The video’s “assume breach” point covers only the second half.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p><strong>SameSite’s purpose:</strong> limiting cross-site sending reduces CSRF-driven attacks. The video describes what it does but not why.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p><strong>Activity from a data-center IP</strong> as an anomaly signal, alongside impossible travel and new devices.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>Assessment <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html#quiz">Open in module</a></h3>
+    <ul>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p>The video doesn’t point viewers to the module’s <strong>knowledge check</strong>. Take it after watching, especially after reviewing the exam-critical items above.</p></div></li>
+    </ul>
+  </div>
+</section>
+
+<div class="right">
+  <h2>What the video gets right</h2>
+  <p>Everything not listed above matches the module, including the definition of session hijacking, why a stolen token bypasses MFA, HTTP’s statelessness, the four app-level theft vectors, the TCP 4-tuple, the four-step observe-predict-spoof-desynchronize sequence, MITM versus blind hijacking, ARP poisoning as the route to MITM, the HttpOnly/Secure/SameSite flags, session regeneration as the fix for fixation, and why TLS pushed attackers toward endpoint token theft.</p>
+</div>
+
+<footer>
+  <p>Reviewed against <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module11.html">CEH v13 Module 11: Session Hijacking</a>. Companion pages: <a href="https://mqaissaunee-bcc.github.io/ceh/cheatsheet-session-hijacking.html">cheat sheet</a> and <a href="https://mqaissaunee-bcc.github.io/ceh/glossary.html">glossary</a>.</p>
+  <p>CEH v13 Course Series · Brookdale Community College</p>
+</footer>
+
+</div>
+<script>
+(function(){
+  var entries=[].slice.call(document.querySelectorAll('#errata .entry'));
+  var oms=[].slice.call(document.querySelectorAll('.sect li'));
+  document.getElementById('n-err').textContent=entries.length;
+  document.getElementById('n-om').textContent=oms.length;
+
+  function wire(attr,apply){
+    var chips=[].slice.call(document.querySelectorAll('.chip['+attr+']'));
+    chips.forEach(function(c){
+      c.addEventListener('click',function(){
+        chips.forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false')});
+        apply(c.getAttribute(attr));
+      });
+    });
+  }
+  wire('data-f',function(f){
+    entries.forEach(function(e){
+      var show=f==='all'||(f==='high'?e.dataset.sev==='high':e.dataset.type===f);
+      e.hidden=!show;
+    });
+  });
+  wire('data-o',function(f){
+    oms.forEach(function(li){li.hidden=!(f==='all'||li.dataset.p===f)});
+    document.querySelectorAll('.sect').forEach(function(s){
+      var any=[].some.call(s.querySelectorAll('li'),function(li){return !li.hidden});
+      s.hidden=!any;
+    });
+  });
+})();
+</script>
+</body>
+</html>
