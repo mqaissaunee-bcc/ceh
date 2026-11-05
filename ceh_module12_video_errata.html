@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Errata: CEH v13 Evading Defenses video</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2F4F6; --sheet:#FFFFFF; --ink:#16233A; --ink-2:#4A5568; --rule:#D5DBE3;
+  --red:#B3122B; --red-wash:#FBE9EC; --amber:#8A5A00; --amber-wash:#FFF3D6;
+  --teal:#1F6F6B; --teal-wash:#E2F2F0; --ins:#0B6B3A; --focus:#2457C5;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1520; --sheet:#172030; --ink:#E6EBF2; --ink-2:#A9B4C4; --rule:#2B3647;
+    --red:#FF7A8C; --red-wash:#3A1820; --amber:#F2C063; --amber-wash:#33270C;
+    --teal:#6FD1C8; --teal-wash:#12302E; --ins:#6EDC9E; --focus:#8DB0FF;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1520; --sheet:#172030; --ink:#E6EBF2; --ink-2:#A9B4C4; --rule:#2B3647;
+  --red:#FF7A8C; --red-wash:#3A1820; --amber:#F2C063; --amber-wash:#33270C;
+  --teal:#6FD1C8; --teal-wash:#12302E; --ins:#6EDC9E; --focus:#8DB0FF;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1rem/1.6 "Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+a{color:inherit;text-decoration-color:var(--rule);text-underline-offset:3px}
+a:hover{text-decoration-color:currentColor}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:3px}
+.wrap{max-width:52rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+
+header h1{font-size:clamp(1.9rem,4.5vw,2.75rem);line-height:1.12;font-weight:700;letter-spacing:-.015em;margin:0 0 .9rem}
+header h1 .struck{color:var(--ink-2);text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:3px;font-weight:500}
+header h1 .caret{display:inline-block;color:var(--red);font-family:"Newsreader",Georgia,serif;font-style:italic;font-weight:500}
+.lede{font-size:1.075rem;color:var(--ink-2);max-width:40rem;margin:0 0 1.25rem}
+.lede a{color:var(--ink)}
+.meta{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;font-size:.9rem;color:var(--ink-2);margin:0 0 1.5rem;padding:0;list-style:none}
+.meta strong{color:var(--ink);font-weight:600}
+
+.key{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:1rem 1.15rem;margin:0 0 2.5rem;font-size:.95rem}
+.key p{margin:0 0 .5rem}
+.key p:last-child{margin:0}
+del{color:var(--red);text-decoration-thickness:2px;background:var(--red-wash);padding:0 .15em;border-radius:2px}
+ins{color:var(--ins);text-decoration:none;font-style:normal;font-family:"Public Sans",system-ui,sans-serif;font-weight:600;font-size:.92em}
+ins::before{content:"\2038";color:var(--red);font-weight:700;margin-right:.1em}
+
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:0 0 1.25rem}
+.tools .lbl{font-size:.875rem;color:var(--ink-2);margin-right:.25rem}
+.chip{font:inherit;font-size:.875rem;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:.35rem .85rem;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.spacer{flex:1}
+.plain{font:inherit;font-size:.875rem;background:none;border:none;color:var(--ink-2);cursor:pointer;padding:.35rem .4rem;text-decoration:underline;text-underline-offset:3px}
+
+h2{font-size:1.5rem;line-height:1.25;margin:3rem 0 .4rem;letter-spacing:-.01em}
+h2 + .sub{color:var(--ink-2);margin:0 0 1.5rem;max-width:40rem}
+
+/* Errata timeline */
+.errata{list-style:none;margin:0;padding:0;border-left:2px solid var(--rule)}
+.entry{position:relative;margin:0 0 1.25rem;padding:0 0 0 1.4rem}
+.entry::before{content:"";position:absolute;left:-7px;top:.55rem;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--ink-2)}
+.entry[data-sev="high"]::before{background:var(--red);border-color:var(--red)}
+.entry[hidden]{display:none}
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:1rem 1.15rem 1.05rem}
+.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem .75rem;margin:0 0 .6rem}
+.ts{font-weight:700;font-variant-numeric:tabular-nums;font-size:1.05rem}
+.tag{font-size:.8rem;font-weight:600;padding:.12rem .55rem;border-radius:4px}
+.tag.content{background:var(--red-wash);color:var(--red)}
+.tag.visual{background:var(--teal-wash);color:var(--teal)}
+.sev{font-size:.8rem;color:var(--ink-2)}
+.sev.high{color:var(--red);font-weight:600}
+blockquote{margin:0 0 .75rem;font-family:"Newsreader",Georgia,serif;font-style:italic;font-size:1.13rem;line-height:1.55;color:var(--ink)}
+blockquote.screen{font-style:normal;font-family:"Public Sans",system-ui,sans-serif;font-size:.95rem;color:var(--ink-2);border-left:3px solid var(--teal);padding-left:.75rem}
+.fix{margin:0 0 .6rem;max-width:44rem}
+.fix strong{font-weight:600}
+.src{font-size:.85rem;color:var(--ink-2);margin:0}
+.src a{color:var(--ink-2)}
+
+/* Omissions */
+.sect{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;margin:0 0 1rem;overflow:hidden}
+.sect h3{font-size:1.05rem;margin:0;padding:.85rem 1.15rem;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.25rem 1rem;align-items:baseline}
+.sect h3 a{font-size:.85rem;font-weight:500;color:var(--ink-2)}
+.sect ul{list-style:none;margin:0;padding:0}
+.sect li{display:grid;grid-template-columns:7.5rem 1fr;gap:.25rem 1rem;padding:.8rem 1.15rem;border-bottom:1px solid var(--rule)}
+.sect li:last-child{border-bottom:none}
+.sect li[hidden]{display:none}
+.pri{font-size:.8rem;font-weight:600;align-self:start;padding:.12rem .5rem;border-radius:4px;justify-self:start}
+.pri.p1{background:var(--red-wash);color:var(--red)}
+.pri.p2{background:var(--amber-wash);color:var(--amber)}
+.pri.p3{background:transparent;color:var(--ink-2);border:1px solid var(--rule)}
+.om p{margin:0}
+.om .where{font-size:.85rem;color:var(--ink-2);margin-top:.2rem}
+
+.right{background:var(--teal-wash);border-radius:10px;padding:1rem 1.15rem;margin:2.5rem 0 0}
+.right h2{margin:0 0 .4rem;font-size:1.15rem}
+.right p{margin:0}
+
+footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--rule);font-size:.85rem;color:var(--ink-2)}
+footer p{margin:0 0 .4rem}
+
+@media (max-width:560px){
+  .wrap{padding:1.75rem 1rem 3rem}
+  .sect li{grid-template-columns:1fr}
+  .entry{padding-left:1.1rem}
+}
+@media print{
+  :root{--paper:#fff;--sheet:#fff}
+  .tools,.plain{display:none!important}
+  .entry[hidden],.sect li[hidden]{display:block!important}
+  .sect li[hidden]{display:grid!important}
+  .card,.sect,.key{break-inside:avoid}
+  body{font-size:10.5pt}
+  a{text-decoration:none}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Evading Defenses video: <span class="struck">as narrated</span> <span class="caret">as corrected</span></h1>
+  <p class="lede">An errata sheet for the CEH v13 Evading Defenses explainer video (12:57). Every entry is checked against <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html">Module 12: Evading IDS, Firewalls, and Honeypots</a>, which is the authoritative source. When the two disagree, go with the module.</p>
+  <ul class="meta">
+    <li><strong id="n-err">12</strong> corrections</li>
+    <li><strong id="n-om">31</strong> omissions</li>
+    <li><strong>2</strong> changes to the core concept</li>
+  </ul>
+</header>
+
+<div class="key">
+  <p>Quotes come from the narration unless marked as on-screen. Wrong wording is <del>struck through</del> and the fix is inserted <ins>like this</ins>.</p>
+  <p>Timestamps are approximate to within a few seconds.</p>
+</div>
+
+<section aria-labelledby="h-corr">
+  <h2 id="h-corr">Corrections</h2>
+  <p class="sub">Places where the narration or the slides say something the module doesn’t, or say it wrong. In video order.</p>
+
+  <div class="tools" role="group" aria-label="Filter corrections">
+    <span class="lbl">Show</span>
+    <button class="chip" data-f="all" aria-pressed="true">All</button>
+    <button class="chip" data-f="content" aria-pressed="false">Narration</button>
+    <button class="chip" data-f="visual" aria-pressed="false">On-screen</button>
+    <button class="chip" data-f="high" aria-pressed="false">Concept-changing only</button>
+    <span class="spacer"></span>
+    <button class="plain" onclick="window.print()">Print this sheet</button>
+  </div>
+
+  <ol class="errata" id="errata">
+
+    <li class="entry" data-type="visual" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">0:36</span><span class="tag visual">On-screen</span><span class="sev">Cosmetic</span></div>
+        <blockquote class="screen">Roadmap card 4 reads “Countermeasur / es”, with the word broken across two lines without a hyphen.</blockquote>
+        <p class="fix">Should read <strong>Countermeasures</strong>. The roadmap also folds the module’s separate IDS &amp; IPS and Firewalls tabs into one “Watchers &amp; Gatekeepers” section.</p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="visual" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">0:48</span><span class="tag visual">On-screen</span><span class="sev">Cosmetic</span></div>
+        <blockquote class="screen">Two cards: “Passive burglar alarm. Watches a copy of traffic from the side.” and “Active lock. Sits in-line to actively block malicious traffic.”</blockquote>
+        <p class="fix">Neither card is labeled. Add <strong>IDS</strong> to the burglar-alarm card and <strong>IPS</strong> to the lock card; this passive-versus-active distinction is, per the module, the single most tested concept about these systems.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#ids-ips">IDS &amp; IPS, “The watchers: detection vs. prevention”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="high">
+      <div class="card">
+        <div class="top"><span class="ts">3:03</span><span class="tag content">Narration</span><span class="sev high">Changes the concept</span></div>
+        <blockquote>“This is exactly what defeats techniques like ACK scans, which attackers use to map out <del>stateless</del> <ins>stateful</ins> defenses.”</blockquote>
+        <p class="fix">Backwards. The module says the ACK scan exists specifically to map whether a <strong>stateful</strong> firewall sits in front of a port. A stateful firewall recognizes that an unsolicited ACK doesn’t belong to any real connection and drops it, while a stateless packet filter may let it through. The scan reads that difference to tell the two apart.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#firewalls">Firewalls, “Stateful inspection firewall” and “The attacker’s mental model”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">4:20</span><span class="tag content">Narration</span><span class="sev">Imprecise</span></div>
+        <blockquote>“An attacker takes a malicious payload … and splits it across multiple <del>tiny</del> <ins>small</ins> IP fragments.”</blockquote>
+        <p class="fix">In the module, <strong>tiny fragments</strong> is a separate, named technique: pushing crucial TCP header data into later fragments to beat firewalls that check only the first fragment. Ordinary fragmentation defeats IDS signature matching. Keep the two terms apart for the exam.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#evasion">Evasion Techniques, “Fragmentation and splitting”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">5:02</span><span class="tag content">Narration</span><span class="sev">Imprecise</span></div>
+        <blockquote>“<del>What happens when an attacker can’t just fragment the traffic? Well, they turn to obfuscation.</del>”</blockquote>
+        <p class="fix">The module doesn’t present obfuscation as a fallback. It’s a separate family that defeats signature matching <em>even when the defense sees the whole payload</em>. Fragmentation splits the attack; obfuscation disguises it. Real intrusions often layer both.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#evasion">Evasion Techniques, “Obfuscation and encoding”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="visual" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">5:00</span><span class="tag visual">On-screen</span><span class="sev">Cosmetic</span></div>
+        <blockquote class="screen">The “Obfuscation Methods” slide lists three items: encoding, polymorphic code, protocol obfuscation.</blockquote>
+        <p class="fix">The narration and the module both give four. The slide is missing <strong>timing (slow and low)</strong>.</p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="med">
+      <div class="card">
+        <div class="top"><span class="ts">8:17</span><span class="tag content">Narration</span><span class="sev">Imprecise</span></div>
+        <blockquote>High-interaction honeypots “are fantastic for <del>safely</del> capturing complex, multi-stage malware behavior. But they carry high risk.”</blockquote>
+        <p class="fix">“Safely” contradicts the next sentence. The module calls high-interaction honeypots the <strong>riskiest</strong> type, because a real OS can actually be compromised and turned against the network. They are the most realistic and informative, not the safest.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#honeypots">Honeypots, “Types by interaction level”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">7:54 &amp; 8:31</span><span class="tag content">Narration</span><span class="sev">Spelling check</span></div>
+        <blockquote>“The classic tool, <ins>Honeyd</ins> …” and “Modern platforms like <ins>T-Pot</ins> …”</blockquote>
+        <p class="fix">The narration pronounces these as “honey D” and “teapot.” The correct spellings are shown above so students can look them up.</p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="visual" data-sev="med">
+      <div class="card">
+        <div class="top"><span class="ts">9:24–10:10</span><span class="tag visual">On-screen</span><span class="sev">Imprecise</span></div>
+        <blockquote class="screen">The “Defensive Tactics” slide shows four bullets that each end in a colon with nothing after: “Inspect the whole:”, “Decrypt and inspect:”, “Layered detection:”, “Normalize and monitor:”.</blockquote>
+        <p class="fix">The slide text is truncated. Completed from the module: <strong>inspect the whole</strong>, reassembling fragments and sessions before inspection; <strong>decrypt and inspect</strong>, using TLS/SSL inspection at the perimeter; <strong>layered detection</strong>, combining signature, anomaly, and stateful protocol analysis; <strong>normalize and monitor</strong>, stripping traffic ambiguities and watching outbound traffic.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#countermeasures">Countermeasures, “Inspect the whole” and “Layered, defense-in-depth detection”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="high">
+      <div class="card">
+        <div class="top"><span class="ts">11:03</span><span class="tag content">Narration</span><span class="sev high">Changes the concept</span></div>
+        <blockquote>“These modern AI-driven platforms now achieve over an 85% detection rate against <del>the classic evasion techniques we’ve discussed today</del> <ins>classic endpoint techniques such as standard credential dumping, common injection methods, and familiar tooling</ins>.”</blockquote>
+        <p class="fix">The statistic is misapplied. The module ties the 85%-plus figure to <strong>EDR/XDR detecting classic endpoint techniques</strong>, not to the network evasion covered in the video (fragmentation, encoding, tunneling). Students shouldn’t take away that 85% of fragmentation or DNS tunneling attempts are caught.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#countermeasures">Countermeasures, “Deception and the AI frontier”</a></p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="visual" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">10:48–11:20</span><span class="tag visual">On-screen</span><span class="sev">Cosmetic</span></div>
+        <blockquote class="screen">A large “85%” is shown alone, with no label saying what it measures.</blockquote>
+        <p class="fix">Without a caption the number is easy to misremember. It should read something like “85%+ detection of classic endpoint techniques by modern EDR/XDR.”</p>
+      </div>
+    </li>
+
+    <li class="entry" data-type="content" data-sev="low">
+      <div class="card">
+        <div class="top"><span class="ts">12:20</span><span class="tag content">Narration</span><span class="sev">Imprecise</span></div>
+        <blockquote>“Defenders are using that same AI to generate <del>perfectly realistic</del> <ins>more realistic</ins> honeypot decoys …”</blockquote>
+        <p class="fix">The module describes AI-adaptive honeypots that change their behavior to appear <em>more</em> realistic and resist fingerprinting, and calls the fidelity contest ongoing. No decoy is perfect, which is why attackers still look for the seams the video described at 8:42.</p>
+        <p class="src">Module: <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#honeypots">Honeypots, “The modern, AI-driven arms race”</a></p>
+      </div>
+    </li>
+
+  </ol>
+</section>
+
+<section aria-labelledby="h-om">
+  <h2 id="h-om">Not covered in the video</h2>
+  <p class="sub">Module content the video skips or only gestures at, grouped by module section. Use this list to decide what to review on the module page itself.</p>
+
+  <div class="tools" role="group" aria-label="Filter omissions">
+    <span class="lbl">Show</span>
+    <button class="chip" data-o="all" aria-pressed="true">All</button>
+    <button class="chip" data-o="p1" aria-pressed="false">Exam-critical</button>
+    <button class="chip" data-o="p2" aria-pressed="false">Worth reviewing</button>
+  </div>
+
+  <div class="sect">
+    <h3>Overview <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#overview">Open in module</a></h3>
+    <ul>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>The link to Module 3.</strong> This module extends scan-level evasion (decoys, timing templates T0/T1, Nmap’s <code>-f</code> fragmentation) from evading a port scan to evading a full intrusion.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>IDS &amp; IPS <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#ids-ips">Open in module</a></h3>
+    <ul>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>Network-based vs. host-based (NIDS/NIPS vs. HIDS/HIPS).</strong> Network sensors watch traffic across many hosts; host sensors watch one machine’s files, processes, logs, and local traffic. Mature defenses use both.</p><p class="where">The video covers only where an IDS or IPS sits (out-of-band vs. in-line), not what it monitors.</p></div></li>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>Stateful protocol analysis</strong>, the third detection method. It compares traffic against known-good profiles of how protocols should behave, catching misuse that signatures miss.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Evading anomaly detection.</strong> A patient attacker can stay within the bounds of “normal” or slowly shift the baseline. The video covers only the false-positive weakness.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Detection without response is little better than none.</strong> A passive IDS only alerts; if no one acts quickly, the attack proceeds.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p>Signature detection’s strength is described as accuracy with <strong>low false positives</strong>. The video says “fast,” which the module doesn’t emphasize.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>Firewalls <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#firewalls">Open in module</a></h3>
+    <ul>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Common misconfigurations</strong>: overly permissive rules, forgotten exceptions, and management interfaces exposed to the internet. The module calls misconfiguration one of the most common real-world weaknesses.</p><p class="where">The video raises misconfiguration only in countermeasures, at 10:16.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>The attacker’s mental model:</strong> “What will this let through, and can I disguise my traffic as that?” Reconnaissance (Modules 2–3) answers which ports are open and whether the firewall tracks state.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p><strong>Proxy firewall trade-offs:</strong> deep visibility comes at a performance cost and only for the protocols the proxy understands.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p>NGFWs also add <strong>threat intelligence</strong> and often <strong>TLS inspection</strong>, and identify applications regardless of port.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>Evasion Techniques <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#evasion">Open in module</a></h3>
+    <ul>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>Tiny fragments</strong> as a firewall-evasion technique: the crucial data goes into later fragments that firewalls checking only the first fragment never scrutinize.</p></div></li>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>ACK tunneling</strong>, which abuses ACK packets that stateless firewalls don’t inspect. It’s the fifth tunneling channel in the module and missing from both the narration and the slide at 6:00.</p></div></li>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>Other firewall tricks:</strong> port hopping (moving across ports to evade port-based rules), proxy chaining (obscuring the origin), and IP/MAC spoofing (masquerading as a trusted source).</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>How the families fit together.</strong> Real intrusions layer techniques: fragment the packets, encode the payload, tunnel it through HTTPS, and spread it out over time, with each layer defeating a different defense.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Polymorphic code connects to Module 7</strong>, where the same idea makes polymorphic malware hard to detect.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p><strong>URL-encoding</strong> as a fourth encoding format, alongside Unicode, hex, and Base64.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p>The ICMP standard that leaves the data field loose is <strong>RFC 792</strong>.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>Honeypots <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#honeypots">Open in module</a></h3>
+    <ul>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>The “honey-” family:</strong> honeynets (whole decoy networks), honeytokens (fake credentials or files that alert when used), and honeypot-as-a-service.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Two more purposes beyond detection:</strong> studying attackers’ tools, techniques, and targets, and wasting their time on a fake system while the real ones stay safe.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>The 2026 landscape:</strong> AI-adaptive honeypots, cloud-managed deployments, distributed honeynets that share attack data, and LLM-generated honeytokens and intelligent-interaction honeypots.</p><p class="where">The video only alludes to this in its closing thought.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p><strong>More system tells:</strong> timing inconsistencies in file metadata, and internet-scale scans that fingerprint whole classes of off-the-shelf honeypots.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p>High-interaction honeypots are especially useful for observing <strong>ransomware</strong>, and they are complex to maintain.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>Countermeasures <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#countermeasures">Open in module</a></h3>
+    <ul>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>Timely response through a SIEM.</strong> Detection must be paired with correlation and analysts or automation acting on alerts, since detection without response stops nothing.</p></div></li>
+      <li data-p="p1"><span class="pri p1">Exam-critical</span><div class="om"><p><strong>Stateful protocol analysis</strong> as part of combined detection. The video’s “combine detection methods” at 10:00 lists only signatures and anomalies.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Deception as a countermeasure.</strong> Honeypots and honeytokens sidestep the recognition problem entirely and catch attackers who evaded every other control.</p><p class="where">The video mentions honeypots in defense in depth only as a last stumble, at 12:08.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Modernize the firewall:</strong> NGFW application awareness identifies tunneled and port-hopping traffic by what it actually is, not by its port.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Keep signatures and detection engines current</strong>, alongside least-privilege rules and regular rule audits.</p></div></li>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p><strong>Specific egress signals:</strong> unusual DNS volumes, unexpected ICMP payloads, and connections to strange destinations.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p><strong>Tuning against evasion</strong> means more than adjusting thresholds: reassemble fragments, flag improbable protocol behavior, and correlate slow-and-low patterns over long time windows.</p></div></li>
+      <li data-p="p3"><span class="pri p3">Nice to know</span><div class="om"><p>Fragmentation is far less effective against a <strong>well-configured NGFW</strong> than against a simple packet filter, precisely because modern systems reassemble.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="sect">
+    <h3>Assessment <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html#quiz">Open in module</a></h3>
+    <ul>
+      <li data-p="p2"><span class="pri p2">Worth reviewing</span><div class="om"><p>The video doesn’t point viewers to the module’s <strong>knowledge check</strong>. Take it after watching, especially after reviewing the exam-critical items above.</p></div></li>
+    </ul>
+  </div>
+</section>
+
+<div class="right">
+  <h2>What the video gets right</h2>
+  <p>Everything not listed above matches the module, including IDS as passive and out-of-band versus IPS as active and in-line, signature versus anomaly detection and their trade-offs, the four firewall types in order of sophistication, the “defenses can only stop what they can recognize” thesis, fragmentation reassembling at the target host, session splicing, encoding and polymorphic code, slow-and-low timing, HTTP/HTTPS, DNS, ICMP, and SSH tunneling, why encryption blinds signature detection, honeypots as high-signal detection, the three interaction levels, behavioral and system tells, traffic reassembly, TLS inspection, egress monitoring, least-privilege configuration, and defense in depth.</p>
+</div>
+
+<footer>
+  <p>Reviewed against <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module12.html">CEH v13 Module 12: Evading IDS, Firewalls, and Honeypots</a>. See also the <a href="https://mqaissaunee-bcc.github.io/ceh/glossary.html">course glossary</a>.</p>
+  <p>CEH v13 Course Series · Brookdale Community College</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var entries=[].slice.call(document.querySelectorAll('#errata .entry'));
+  var oms=[].slice.call(document.querySelectorAll('.sect li'));
+  document.getElementById('n-err').textContent=entries.length;
+  document.getElementById('n-om').textContent=oms.length;
+
+  function wire(attr,apply){
+    var chips=[].slice.call(document.querySelectorAll('.chip['+attr+']'));
+    chips.forEach(function(c){
+      c.addEventListener('click',function(){
+        chips.forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false')});
+        apply(c.getAttribute(attr));
+      });
+    });
+  }
+  wire('data-f',function(f){
+    entries.forEach(function(e){
+      var show=f==='all'||(f==='high'?e.dataset.sev==='high':e.dataset.type===f);
+      e.hidden=!show;
+    });
+  });
+  wire('data-o',function(f){
+    oms.forEach(function(li){li.hidden=!(f==='all'||li.dataset.p===f)});
+    document.querySelectorAll('.sect').forEach(function(s){
+      var any=[].some.call(s.querySelectorAll('li'),function(li){return !li.hidden});
+      s.hidden=!any;
+    });
+  });
+})();
+</script>
+</body>
+</html>
