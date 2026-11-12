@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Video errata: CEH v13 Module 13, Hacking Web Servers</title>
-<meta name="description" content="Corrections and omissions in the Hacking Web Servers explainer video, checked against CEH v13 Module 13, the authoritative source.">
+<title>Video corrections: CEH v13 Module 13, Hacking Web Servers</title>
+<meta name="description" content="What to correct and what to add after watching the Hacking Web Servers video, based on CEH v13 Module 13.">
 <style>
 /* Tokens follow the CEH v13 course chassis so this page sits beside the modules. */
 :root {
@@ -221,688 +221,147 @@ tbody th { font-family: var(--font-mono); font-weight: 400; color: var(--text-mu
   body { font-size: 10.5pt; }
 }
 
+.card { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--amber);
+  border-radius: var(--radius); padding: var(--sp-4); margin-top: var(--sp-3); }
+.card--missing { border-left-color: var(--cyan); }
+.card__meta { margin: 0 0 var(--sp-1); }
+.card h3 { margin-bottom: var(--sp-3); }
+.card dl { margin: 0; display: grid; gap: var(--sp-3); }
+.card dt { font-size: var(--fs-sm); font-weight: 700; color: var(--text-muted); margin-bottom: .15rem; }
+.card dd { margin: 0; max-width: 72ch; }
+.card dd ul, .card dd ol { margin: 0; padding-left: 1.2rem; }
+.card dd li + li { margin-top: var(--sp-1); }
+.card .right dt { color: var(--accent); }
+.card p { max-width: 72ch; }
+.card p:last-child { margin-bottom: 0; }
+.read { font-size: var(--fs-sm); color: var(--text-muted); margin-top: var(--sp-3); }
+@media (min-width: 760px) {
+  .card dl > div { display: grid; grid-template-columns: 8.5rem 1fr; gap: var(--sp-3); }
+  .card dt { margin: 0; padding-top: .1rem; }
+}
+@media print { .card { break-inside: avoid; } }
+
 </style>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
-
 <header class="top">
   <div class="wrap top__row">
-    <p class="crumb"><a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module13.html">CEH v13 Module 13</a> <span aria-hidden="true">/</span> Video errata</p>
+    <p class="crumb"><a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module13.html">CEH v13 Module 13</a> <span aria-hidden="true">/</span> Video corrections</p>
     <button type="button" class="btn" id="themeBtn" aria-pressed="false">Switch theme</button>
   </div>
 </header>
-
 <main id="main" class="wrap">
-
   <section class="hero" aria-labelledby="title">
-    <h1 id="title">Errata for the “Hacking Web Servers” video</h1>
-    <p class="lede">The 12:37 explainer video was checked line by line against <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module13.html">Module 13</a>, which is the authoritative source. Where the two disagree, the module is right. This page lists 31 items: 3 errors, 12 imprecise or unsupported statements, 14 omissions and 2 slide defects.</p>
-
-    <div class="timeline" aria-label="Video timeline by section">
-      <div class="timeline__ticks" aria-hidden="true"><span class="tick tick--error" style="--pos:0.00%"></span><span class="tick tick--omission" style="--pos:4.76%"></span><span class="tick tick--omission" style="--pos:6.21%"></span><span class="tick tick--omission" style="--pos:13.08%"></span><span class="tick tick--imprecise" style="--pos:14.13%"></span><span class="tick tick--omission" style="--pos:16.78%"></span><span class="tick tick--imprecise" style="--pos:18.89%"></span><span class="tick tick--slide" style="--pos:19.82%"></span><span class="tick tick--imprecise" style="--pos:20.74%"></span><span class="tick tick--slide" style="--pos:25.76%"></span><span class="tick tick--omission" style="--pos:28.14%"></span><span class="tick tick--omission" style="--pos:32.10%"></span><span class="tick tick--imprecise" style="--pos:37.78%"></span><span class="tick tick--error" style="--pos:42.54%"></span><span class="tick tick--imprecise" style="--pos:45.31%"></span><span class="tick tick--imprecise" style="--pos:46.63%"></span><span class="tick tick--error" style="--pos:48.08%"></span><span class="tick tick--omission" style="--pos:50.07%"></span><span class="tick tick--omission" style="--pos:53.37%"></span><span class="tick tick--omission" style="--pos:58.65%"></span><span class="tick tick--omission" style="--pos:63.28%"></span><span class="tick tick--omission" style="--pos:65.39%"></span><span class="tick tick--imprecise" style="--pos:65.52%"></span><span class="tick tick--omission" style="--pos:70.41%"></span><span class="tick tick--imprecise" style="--pos:70.94%"></span><span class="tick tick--imprecise" style="--pos:76.62%"></span><span class="tick tick--imprecise" style="--pos:81.51%"></span><span class="tick tick--omission" style="--pos:85.34%"></span><span class="tick tick--imprecise" style="--pos:87.71%"></span><span class="tick tick--omission" style="--pos:91.02%"></span></div>
-      <nav class="timeline__segs" aria-label="Jump to a section of the video">
-        <a class="seg" style="--grow:36" href="#ch-intro" aria-label="Introduction and roadmap, 0:00 to 0:36, 1 item"><span class="seg__name">Intro</span><span class="seg__count">1 item</span></a><a class="seg" style="--grow:156" href="#ch-s1" aria-label="Section 1: Anatomy of a server, 0:36 to 3:12, 8 items"><span class="seg__name">1 Anatomy</span><span class="seg__count">8 items</span></a><a class="seg" style="--grow:65" href="#ch-s2" aria-label="Section 2: Attack methodology, 3:12 to 4:17, 3 items"><span class="seg__name">2 Methodology</span><span class="seg__count">3 items</span></a><a class="seg" style="--grow:123" href="#ch-s3" aria-label="Section 3: Software flaws, 4:17 to 6:20, 6 items"><span class="seg__name">3 Software flaws</span><span class="seg__count">6 items</span></a><a class="seg" style="--grow:99" href="#ch-s4" aria-label="Section 4: Misconfigurations and protocol attacks, 6:20 to 7:59, 3 items"><span class="seg__name">4 Misconfigurations</span><span class="seg__count">3 items</span></a><a class="seg" style="--grow:84" href="#ch-s5" aria-label="Section 5: Assessment toolkit, 7:59 to 9:23, 4 items"><span class="seg__name">5 Toolkit</span><span class="seg__count">4 items</span></a><a class="seg" style="--grow:152" href="#ch-s6" aria-label="Section 6: Defending servers, 9:23 to 11:55, 5 items"><span class="seg__name">6 Defending</span><span class="seg__count">5 items</span></a><span class="seg seg--empty" style="--grow:42"><span class="seg__name">Recap</span><span class="seg__count">0 items</span></span>
-      </nav>
-      <div class="timeline__ends" aria-hidden="true"><span>0:00</span><span>12:37</span></div>
-    </div>
+    <h1 id="title">Corrections for the “Hacking Web Servers” video</h1>
+    <p class="lede">Read this after you watch the video. The video gets the big ideas right, but a few details are wrong and some topics are missing. Where the video and <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module13.html">Module 13</a> disagree, go with the module.</p>
   </section>
 
-  <section class="verdict" aria-labelledby="h-verdict">
-    <h2 id="h-verdict">What to know before assigning the video</h2>
-    <p>The video follows the module’s structure and states its main ideas correctly: the server/application distinction, the two root causes, the four-step methodology, and patching plus hardening as the core defenses. Four things need attention.</p>
-    <ol class="verdict__list">
-      <li><a href="#e17">Item 17</a>: the video invents a credential-theft story for the 2021 Apache traversal flaw and never gives its ID, CVE-2021-41773. No CVE number is spoken anywhere in the video, and the knowledge check relies on two of them.</li>
-      <li><a href="#e14">Item 14</a>: the encoding-bypass explanation blames a WAF and the operating system. The module attributes the historical bypass to IIS’s own path validation.</li>
-      <li><a href="#e1">Item 1</a>: the title graphic shows SQL injection, XSS and broken access control, which belong to Modules 14 and 15.</li>
-      <li><a href="#e21">Item 21</a>: credential attacks, DoS/DDoS, website defacement and man-in-the-middle are absent. Defacement is a knowledge check question.</li>
-    </ol>
-  </section>
-
-  <section aria-labelledby="h-key">
-    <h2 id="h-key">How items are classified</h2>
-    <dl class="legend"><div><dt><span class="badge badge--error"><span aria-hidden="true">✕</span> Error</span></dt><dd>Contradicts the module or is factually wrong</dd></div><div><dt><span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span></dt><dd>Misleading wording, or a claim the module does not make</dd></div><div><dt><span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span></dt><dd>Module content the video leaves out</dd></div><div><dt><span class="badge badge--slide"><span aria-hidden="true">▣</span> Slide defect</span></dt><dd>A problem in the on-screen graphics</dd></div></dl>
-    <p class="note">Timestamps are approximate, within about five seconds. Quoted narration comes from an automated transcript of the audio; slides were reviewed from frames sampled every five seconds. Two corrections draw on facts outside the module and are marked “Beyond the module text.”</p>
-  </section>
-
-  <section aria-labelledby="h-list">
-    <h2 id="h-list">All items, in video order</h2>
-    <div class="filters" role="group" aria-label="Filter items by type">
-      <button type="button" class="chip" data-filter="all" aria-pressed="true">All <span class="chip__n">31</span></button><button type="button" class="chip chip--error" data-filter="error" aria-pressed="false"><span aria-hidden="true">✕</span> Errors <span class="chip__n">3</span></button><button type="button" class="chip chip--imprecise" data-filter="imprecise" aria-pressed="false"><span aria-hidden="true">≈</span> Imprecise <span class="chip__n">12</span></button><button type="button" class="chip chip--omission" data-filter="omission" aria-pressed="false"><span aria-hidden="true">∅</span> Omissions <span class="chip__n">14</span></button><button type="button" class="chip chip--slide" data-filter="slide" aria-pressed="false"><span aria-hidden="true">▣</span> Slide defects <span class="chip__n">2</span></button>
-    </div>
-    <p class="status" id="status" role="status" aria-live="polite">Showing all 31 items.</p>
+  <section aria-labelledby="h-fix">
+    <h2 id="h-fix">Corrections</h2>
+    <p>These points in the video are wrong or misleading.</p>
     
-    <section class="group" id="ch-intro" aria-labelledby="h-intro">
-      <h2 id="h-intro">Introduction and roadmap <span class="time">0:00–0:36</span></h2>
-      
-      <article class="erratum erratum--error" id="e1" data-type="error">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e1" aria-label="Permalink to item 1">#1</a>
-            <span class="time">0:00–0:21</span>
-            <span class="badge badge--error"><span aria-hidden="true">✕</span> Error</span>
-            <span class="where">Slide</span>
-          </p>
-          <h3>Title graphic shows application-layer attacks</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>The opening illustration surrounds the server with <b>SQL injection</b>, <b>Cross-Site Scripting</b> (twice) and <b>Broken Access Control</b>. One cloud is labelled “Intewall”, which is not a real term.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Overview and Architecture: the module “stays deliberately at the server layer.” It names XSS as “a Module 14 problem” and SQL injection as Module 15.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Replace the graphic, or tell students to ignore it. The narration at 0:47 draws the server/application line correctly, so the picture contradicts the voice-over on the module’s first key idea.</p></dd></div>
-        </dl>
-      </article>
-    </section>
-    <section class="group" id="ch-s1" aria-labelledby="h-s1">
-      <h2 id="h-s1">Section 1: Anatomy of a server <span class="time">0:36–3:12</span></h2>
-      
-      <article class="erratum erratum--omission" id="e2" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e2" aria-label="Permalink to item 2">#2</a>
-            <span class="time">0:36–1:39</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>The “anatomy” section never lists the anatomy</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>The section is titled “Anatomy of a Server” but only contrasts server and application, using a house-foundation analogy.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Architecture → “What a web server actually does” names six components, each part of the attack surface: core server software, modules and extensions, configuration, document root, TLS/SSL components, and the connection to backend application and database servers.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add the six components. They are what the later attacks map onto (modules, configuration, document root, TLS keys).</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--omission" id="e3" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e3" aria-label="Permalink to item 3">#3</a>
-            <span class="time">0:47–1:28</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Two tiers described; the module has three</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>Only the server tier and the application tier are mentioned.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Architecture → “Where the server meets the application”: web server, application and <b>database</b> are three distinct tiers, mapped to Module 13, Module 14 and Module 15 (SQL Injection). The module also stresses the server’s bridging role into the internal tiers.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add the database tier and the Module 13 / 14 / 15 mapping.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--omission" id="e4" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e4" aria-label="Permalink to item 4">#4</a>
-            <span class="time">1:39–2:37</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Apache Tomcat and Caddy never mentioned</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>The video presents exactly three servers.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>“Others appear regularly too”: Apache Tomcat (the target of Log4Shell exploitation) and Caddy. The module also states the point of the survey: fingerprinting the exact server and version is what unlocks the relevant vulnerabilities.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add one sentence on Tomcat. Without it, the later Log4Shell reference (9:40) has no server attached to it.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--imprecise" id="e5" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e5" aria-label="Permalink to item 5">#5</a>
-            <span class="time">1:47</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Apache configuration reduced to .htaccess</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>Apache “relies a lot on text-based configs, specifically .htaccess files.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Apache is configured via <code>httpd.conf</code> <b>and</b> <code>.htaccess</code>. Its common weaknesses are enabled-but-unneeded modules as well as misconfigured <code>.htaccess</code> rules, and the card names CVE-2021-41773.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Name <code>httpd.conf</code> as the main configuration file (it appears only as a scribble in the slide art) and mention unneeded modules.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--omission" id="e6" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e6" aria-label="Permalink to item 6">#6</a>
-            <span class="time">2:07</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration and slide</span>
-          </p>
-          <h3>Nginx details missing; “Cross-platform” is not from the module</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>Nginx is described as high-performance, a reverse proxy or load balancer, with a small core and impactful bugs. The table lists its platform as “Cross-platform.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>The Nginx card also covers its role as a <b>TLS terminator</b>, gives examples of the impactful bugs (resolver overflows, HTTP/3 parsing bugs, mp4-module overflows), and warns against experimental modules in production. The knowledge check says Apache and Nginx run “predominantly on Linux.”</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add the examples and the experimental-module warning. Change the table cell to match the module’s wording.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--imprecise" id="e7" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e7" aria-label="Permalink to item 7">#7</a>
-            <span class="time">2:23</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>IIS “blast radius” claim replaces what the module says</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>A compromised IIS server “can act as a direct bridge right into your entire corporate domain, massively expanding the blast radius.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>The IIS card says only that IIS is “tightly integrated with the Windows ecosystem and Active Directory.” What it does teach is left out of the narration: ASP.NET authentication bypasses, HTTP.sys remote crashes, and that fixes arrive via Patch Tuesday, so OS auto-updates must stay on.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Keep the Active Directory point if you like it, but present it as an inference and add the three items the module lists.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--slide" id="e8" data-type="slide">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e8" aria-label="Permalink to item 8">#8</a>
-            <span class="time">1:40–2:35</span>
-            <span class="badge badge--slide"><span aria-hidden="true">▣</span> Slide defect</span>
-            <span class="where">Slide</span>
-          </p>
-          <h3>Server comparison table is missing a name and a header</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>The third row has no server name: an icon sits where “IIS” should be. The right-hand column (Flexibility / Reverse proxy / OS patching) has no heading, and “OS patching” is never explained aloud.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>The three products are Apache HTTP Server, Nginx and Microsoft IIS.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Label the row “IIS” and give the last column a heading.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--imprecise" id="e9" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e9" aria-label="Permalink to item 9">#9</a>
-            <span class="time">2:37</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>“Rule of two” is not the module’s term</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>“What we call the rule of two.” The phrase returns at 10:36.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>The module calls these “the two root causes of web server compromise”: software vulnerabilities and misconfiguration. “Rule of two” appears nowhere in the module or its knowledge check.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Tell students the term is the video’s own shorthand. The content of the two causes is stated correctly.</p></dd></div>
-        </dl>
-      </article>
-    </section>
-    <section class="group" id="ch-s2" aria-labelledby="h-s2">
-      <h2 id="h-s2">Section 2: Attack methodology <span class="time">3:12–4:17</span></h2>
-      
-      <article class="erratum erratum--slide" id="e10" data-type="slide">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e10" aria-label="Permalink to item 10">#10</a>
-            <span class="time">3:15</span>
-            <span class="badge badge--slide"><span aria-hidden="true">▣</span> Slide defect</span>
-            <span class="where">Slide</span>
-          </p>
-          <h3>Section title art does not match the four steps</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>The title card’s labels read Reconnaissance, Vulnerability Analysis, Vulnerability Analysis (repeated) and Exploitation.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Attack Methodology: fingerprinting, mapping, vulnerability discovery, exploitation. The next slide shows these four correctly.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Cosmetic. Fix the duplicate label if the video is regenerated.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--omission" id="e11" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e11" aria-label="Permalink to item 11">#11</a>
-            <span class="time">3:33</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Fingerprinting explained without banner grabbing</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>Step 1 is described as identifying “the exact server software and version,” with no mention of how.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Step 1: fingerprinting is also called <b>banner grabbing</b>. The HTTP <code>Server</code> response header often names software and version outright; error pages, response quirks and header ordering give it away when the banner is suppressed. The worked example is going from “there’s a web server here” to “this is Apache 2.4.49 on Linux.” The techniques come from Modules 2–3.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add the term “banner grabbing” and the <code>Server</code> header. The knowledge check explanation for question 5 uses both.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--omission" id="e12" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e12" aria-label="Permalink to item 12">#12</a>
-            <span class="time">4:03–4:12</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Exploitation step has no examples</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>Step 4 is “actually gaining access” by turning weaknesses “into a real breach.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Step 4 gives concrete cases: a Metasploit module for Log4Shell (CVE-2021-44228) against a vulnerable Apache Tomcat; the Apache path-traversal RCE (CVE-2021-41773); simply requesting an exposed file or browsing a listable directory; brute-forcing SSH, FTP or a management login with Hydra.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add at least the two CVE examples, with their IDs.</p></dd></div>
-        </dl>
-      </article>
-    </section>
-    <section class="group" id="ch-s3" aria-labelledby="h-s3">
-      <h2 id="h-s3">Section 3: Software flaws <span class="time">4:17–6:20</span></h2>
-      
-      <article class="erratum erratum--imprecise" id="e13" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e13" aria-label="Permalink to item 13">#13</a>
-            <span class="time">4:46</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Traversal described as the OS “executing a command”</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>“The underlying operating system simply executes that command, walking right up the directory tree.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Common Attacks → Directory traversal: the server “improperly handles a path,” and the <code>../</code> sequences escape the web root.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p><code>../</code> is a path component that gets resolved, not a command that gets executed. The flaw is that the server builds a file path from the request without canonicalizing and validating it. The video’s wording invites confusion with command injection.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--error" id="e14" data-type="error">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e14" aria-label="Permalink to item 14">#14</a>
-            <span class="time">5:22–5:38</span>
-            <span class="badge badge--error"><span aria-hidden="true">✕</span> Error</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Encoding bypass attributed to a WAF and to the operating system</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>With overlong UTF-8 such as <code>%c0%af</code>, “the web application firewall looks at the payload, sees what it thinks is totally safe text and just lets it right through,” then “the underlying operating system decodes that overlong string back into a dangerous slash.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Encodings “slip traversal sequences past naive filters, a trick that historically defeated <b>IIS’s path validation</b>.” In Countermeasures the WAF is the control that <em>blocks</em> traversal sequences, which the video itself says at 11:29.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>The web server software does the decoding, not the operating system: the server checked the path, then decoded it afterwards. Describe the filter as a naive filter or the server’s own path check, and say the overlong UTF-8 case is a historical IIS flaw. Also add <code>%2e</code> (an encoded dot), which the module lists beside <code>%2f</code>.</p><p class="beyond"><strong>Beyond the module text.</strong> Which component decodes the request is general knowledge about the historical IIS bug; the module says only that the trick “defeated IIS’s path validation.”</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--imprecise" id="e15" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e15" aria-label="Permalink to item 15">#15</a>
-            <span class="time">5:43</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Payoff of traversal overstated as “total host compromise”</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>“The ultimate prize here isn’t just taking a peek at hidden files. We’re talking about total host compromise.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>“The payoff is access to configuration files, credentials, source code, or the password file.”</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Directory traversal on its own is file disclosure. Host compromise needs a further step, as in the one CVE where traversal also gave code execution (next item).</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--imprecise" id="e16" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e16" aria-label="Permalink to item 16">#16</a>
-            <span class="time">5:53</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>File name spoken as “/etc/password”</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>The narrator appears to say “slash etc slash password.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>The module’s example request is <code>GET /../../../../etc/passwd</code>.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>The file is <code>/etc/passwd</code>. This finding comes from the automated transcript, so confirm it by ear before acting on it.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--error" id="e17" data-type="error">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e17" aria-label="Permalink to item 17">#17</a>
-            <span class="time">6:04–6:18</span>
-            <span class="badge badge--error"><span aria-hidden="true">✕</span> Error</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Wrong mechanism for the 2021 Apache traversal RCE, and no CVE ID</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>In “the infamous 2021 Apache traversal flaw,” attackers accessed “the right configuration file” and “were able to extract credentials that led straight to achieving complete remote code execution.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p><b>Apache CVE-2021-41773</b> is “a path-traversal flaw that also enabled remote code execution and was exploited within a day of disclosure.” The module does not describe credential theft.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Remove the credential story. Name the flaw as CVE-2021-41773 in Apache 2.4.49, and add that it was exploited within a day. The knowledge check cites the CVE ID in questions 4 and 7, and the video never says it.</p><p class="beyond"><strong>Beyond the module text.</strong> Per the Apache advisory, code execution was possible when CGI was enabled: the traversal could reach a program such as <code>/bin/sh</code> and the server would run it. No credentials were involved.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--omission" id="e18" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e18" aria-label="Permalink to item 18">#18</a>
-            <span class="time">4:25–6:20</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>No defense given for directory traversal</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>The segment ends at “That is game over.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>“The defense is rigorous input validation that rejects traversal sequences and canonicalizes paths before use.”</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add the one-sentence defense. The knowledge check explanation for question 4 includes it.</p></dd></div>
-        </dl>
-      </article>
-    </section>
-    <section class="group" id="ch-s4" aria-labelledby="h-s4">
-      <h2 id="h-s4">Section 4: Misconfigurations and protocol attacks <span class="time">6:20–7:59</span></h2>
-      
-      <article class="erratum erratum--omission" id="e19" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e19" aria-label="Permalink to item 19">#19</a>
-            <span class="time">6:44</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Default certificates and other misconfiguration details dropped</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>Four mistakes are listed: default credentials, directory listing, unnecessary services and modules, verbose errors.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>The first card is “Default credentials <b>&amp; certificates</b>.” The unnecessary-services card names sample applications and debugging features. The section closes by explaining why misconfiguration is pervasive (servers often ship insecure by default) and that the CIS Benchmarks exist to close that gap.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add default certificates, which the knowledge check lists in question 6, and the insecure-by-default point.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--omission" id="e20" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e20" aria-label="Permalink to item 20">#20</a>
-            <span class="time">7:24</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>HTTP response splitting named but never explained</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>Response splitting is named as one of “two big ones,” then only cache poisoning is walked through. Both sit inside the Misconfigurations section.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Protocol and caching attacks: response splitting injects header data through unvalidated input reflected into a response header, so the server splits one response into two and the attacker controls the second, to poison a cache or redirect a user. Apache’s <b>CVE-2023-38709</b> is cited as a recent instance. Both attacks are defended by strict input validation and careful cache configuration.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add a short explanation, the CVE, and the defenses. Note for students that response splitting has a software-flaw example, so it does not belong purely under misconfiguration.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--omission" id="e21" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e21" aria-label="Permalink to item 21">#21</a>
-            <span class="time">after 7:59</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Not in the video</span>
-          </p>
-          <h3>The “Access, denial, and defacement” topic is missing</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>The video goes from cache poisoning straight to the toolkit. The only trace is a “DDoS” label in the title graphic.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Common Attacks → Access, denial, and defacement covers four attacks: <b>credential attacks</b> on SSH, FTP and admin logins; <b>DoS/DDoS</b>, including the HTTP/2 resource-exhaustion CVEs that hit Apache, Nginx and IIS; <b>website defacement</b>, the visible sign that an attacker gained write access; and <b>man-in-the-middle</b> interception, the reason TLS everywhere matters.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>This is the largest gap. Knowledge check question 8 asks “What is website defacement?” and the video cannot answer it. Send students to this part of the module.</p></dd></div>
-        </dl>
-      </article>
-    </section>
-    <section class="group" id="ch-s5" aria-labelledby="h-s5">
-      <h2 id="h-s5">Section 5: Assessment toolkit <span class="time">7:59–9:23</span></h2>
-      
-      <article class="erratum erratum--omission" id="e22" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e22" aria-label="Permalink to item 22">#22</a>
-            <span class="time">8:15–8:48</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration and slide</span>
-          </p>
-          <h3>Several tools are missing</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>Narrated: Nmap, curl, Gobuster, Nikto, Nessus, Metasploit, Hydra. The slide table omits Hydra.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Also covered: browser developer tools; <b>Netcraft and Wappalyzer</b> for passive fingerprinting; dirb and dirbuster; <b>OpenVAS</b>. Nikto is identified as “the classic dedicated web-server scanner.” The tools are tied back to Modules 3, 5 and 6.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add the passive tools and OpenVAS, and add Hydra to the table.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--imprecise" id="e23" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e23" aria-label="Permalink to item 23">#23</a>
-            <span class="time">8:16</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Fingerprinting tools described without the banner, flags or scripts</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>Nmap and curl identify the server “by analyzing the subtle behavioral quirks in how the server responds.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Tools → Fingerprinting and discovery: Nmap <code>-sV</code> identifies software and version, and the NSE scripts <code>http-server-header</code>, <code>http-enum</code> and <code>http-methods</code> extract headers, enumerate paths and check configuration. <code>curl -I</code> reads the <code>Server</code> banner and the security headers.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>The primary method is reading the banner. Behavioral quirks are the fallback when the banner is suppressed. Add the flags and script names; no command appears anywhere in the video.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--omission" id="e24" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e24" aria-label="Permalink to item 24">#24</a>
-            <span class="time">8:53</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Legal practice targets not named</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>The authorization warning is given correctly.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>The module pairs that warning with where to practice: DVWA, OWASP-provided VMs, and the web-server labs on TryHackMe and Hack The Box.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Minor. Add the list so students know where they can try the tools.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--imprecise" id="e25" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e25" aria-label="Permalink to item 25">#25</a>
-            <span class="time">8:57–9:23</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>AI framed as an attacker’s advantage only</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>With ShellGPT, “even less sophisticated threat actors can generate perfectly formatted, highly complex attack commands … in literally seconds.” It is “a total game changer.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>ShellGPT appears because <b>CEH v13 labs</b> use it, for example to craft a directory-traversal attack with Gobuster from a natural-language prompt. AI accelerates each step “for attacker and defender alike,” and it is “an accelerant on top of the fundamentals”: understanding what each tool does “remains the core skill.”</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Reframe as the module does: a CEH v13 lab technique that helps both sides and does not replace knowing the tools. “Perfectly formatted” is the video’s claim, not the module’s.</p></dd></div>
-        </dl>
-      </article>
-    </section>
-    <section class="group" id="ch-s6" aria-labelledby="h-s6">
-      <h2 id="h-s6">Section 6: Defending servers <span class="time">9:23–11:55</span></h2>
-      
-      <article class="erratum erratum--imprecise" id="e26" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e26" aria-label="Permalink to item 26">#26</a>
-            <span class="time">9:40</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>24-hour window generalized, with no CVE IDs</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>“24 hours is all it typically takes for a major web server vulnerability like Log4Shell” to reach mass exploitation.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Two named cases: “Apache Path Traversal (<b>CVE-2021-41773</b>) and Log4Shell (<b>CVE-2021-44228</b>) crossed from public disclosure to active mass-exploitation within about 24 hours.” The module ties Log4Shell to Apache Tomcat.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Give both examples with their IDs, and say these are the headline cases rather than the typical one. Knowledge check question 7 uses both IDs.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--imprecise" id="e27" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e27" aria-label="Permalink to item 27">#27</a>
-            <span class="time">10:17–10:36</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>KEV presented as the only triage signal; EPSS and mitigations missing</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>The KEV list “is the definitive triage tool.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Patch management: same-day, out-of-band patching is warranted for a remote-code-execution flaw, <b>or</b> one that is KEV-flagged, <b>or</b> one with a high <b>EPSS</b> score. Prioritize “by exploitation risk, not just CVSS score.” Where patching must wait, mitigations buy time: disable the vulnerable module, add a WAF rule, or front the server with a proxy that blocks the exploit. Track the CVEs for your specific servers and versions.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add EPSS, the RCE criterion, and the three interim mitigations.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--omission" id="e28" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e28" aria-label="Permalink to item 28">#28</a>
-            <span class="time">10:46</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration and slide</span>
-          </p>
-          <h3>Hardening checklist covers about half of the module’s list</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>Narrated: strip default credentials, configure generic error pages, follow the CIS Benchmarks, enforce least privilege. The slide adds “banners.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Also in the four hardening cards: remove default <b>certificates</b>; delete sample applications, default content and test pages; disable unnecessary modules and services; <b>turn off directory listing</b>; suppress the <code>Server</code> banner; add security response headers (<b>HSTS, Content-Security-Policy, X-Content-Type-Options</b>); restrict filesystem permissions on the document root and configuration; isolate the server; and <b>NIST SP 800-44</b> alongside the CIS Benchmarks.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Add the missing items. Directory listing stands out, since the video spent time on it as an attack at 6:48. NIST SP 800-44 appears in the knowledge check explanation for question 10.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--imprecise" id="e29" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e29" aria-label="Permalink to item 29">#29</a>
-            <span class="time">11:04</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>A low-privilege account called a “sandbox”</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>Running as a restricted service account “trap[s] the attacker in a low-level sandbox.”</p></dd></div>
-          <div><dt>In the module</dt><dd><p>Least privilege: run as a low-privileged service account, “never as root beyond the initial bind.” Isolation is listed as a separate measure. The Overview notes that Apache and Nginx often start as root and then drop to a service user.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>A service account limits what an attacker can touch; it is not a sandbox. Keep the two controls separate, and add the start-as-root-then-drop detail.</p></dd></div>
-        </dl>
-      </article>
-      <article class="erratum erratum--omission" id="e30" data-type="omission">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e30" aria-label="Permalink to item 30">#30</a>
-            <span class="time">11:29–11:50</span>
-            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>WAF and TLS described without their qualifiers</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><p>A WAF “acts as a virtual patch.” TLS is listed as “strict TLS encryption” with no reason given.</p></dd></div>
-          <div><dt>In the module</dt><dd><p>A WAF provides virtual patching “<b>while a real fix is deployed</b>,” and blocks known exploit patterns and injection attempts as well as traversal. TLS everywhere, “with the private keys tightly protected,” defends against interception and man-in-the-middle attacks.</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>Say that virtual patching is temporary, and connect TLS to the man-in-the-middle attack (which the video also omits; see the Section 4 entries).</p></dd></div>
-        </dl>
-      </article>
-    </section>
-    <section class="group" id="ch-all" aria-labelledby="h-all">
-      <h2 id="h-all">Across the whole video </h2>
-      
-      <article class="erratum erratum--imprecise" id="e31" data-type="imprecise">
-        <header class="erratum__head">
-          <p class="erratum__meta">
-            <a class="erratum__num" href="#e31" aria-label="Permalink to item 31">#31</a>
-            <span class="time">throughout</span>
-            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
-            <span class="where">Narration</span>
-          </p>
-          <h3>Claims and figures the module does not make</h3>
-        </header>
-        <dl class="erratum__body">
-          <div><dt>In the video</dt><dd><ul><li>1:00, the server as “the concrete foundation of a house.” The module’s image is the <em>front door</em>, which the video also uses.</li><li>8:26, Gobuster guesses “thousands of hidden directory names per minute.”</li><li>9:51, “automated botnets … constantly scan the entire IPv4 internet” and weaponize a CVE “within hours.”</li></ul></dd></div>
-          <div><dt>In the module</dt><dd><p>None of these statements or figures appear in the module. The closest is the Overview’s line that internet-exposed servers “are attacked within hours of a flaw becoming public.”</p></dd></div>
-          <div class="fix"><dt>Correction</dt><dd><p>These are reasonable additions and nothing here contradicts the module. Students should know they are not assessed.</p></dd></div>
-        </dl>
-      </article>
-    </section>
+    <article class="card">
+      <p class="card__meta"><span class="time">0:00</span></p>
+      <h3>The opening picture shows the wrong attacks</h3>
+      <dl>
+        <div><dt>The video says</dt><dd><p>The title graphic surrounds the server with SQL injection, cross-site scripting and broken access control.</p></dd></div>
+        <div class="right"><dt>What’s correct</dt><dd><p>Those attack the <em>application</em>, and you will study them in Modules 14 and 15. This module is about the <em>server</em>: Apache, Nginx, IIS and their configuration. The narration gets this right at 0:47.</p></dd></div>
+      </dl><p class="read">Read more: Overview → “Attacking the platform, not the app”</p>
+    </article>
+    <article class="card">
+      <p class="card__meta"><span class="time">5:22</span></p>
+      <h3>How encoded traversal slips past a filter</h3>
+      <dl>
+        <div><dt>The video says</dt><dd><p>A web application firewall lets the encoded payload (such as <code>%c0%af</code>) through, and then the operating system decodes it into a slash.</p></dd></div>
+        <div class="right"><dt>What’s correct</dt><dd><p>The filter that was fooled was the web server’s own path check. The module says this trick “historically defeated IIS’s path validation.” A WAF is a defense that <em>blocks</em> traversal sequences. Also know <code>%2e</code> (an encoded dot) alongside <code>%2f</code> (an encoded slash).</p></dd></div>
+      </dl><p class="read">Read more: Common Attacks → “Directory traversal”</p>
+    </article>
+    <article class="card">
+      <p class="card__meta"><span class="time">6:04</span></p>
+      <h3>The 2021 Apache traversal flaw</h3>
+      <dl>
+        <div><dt>The video says</dt><dd><p>Attackers read a configuration file, pulled out credentials, and used those to get remote code execution. The video does not give the flaw’s ID.</p></dd></div>
+        <div class="right"><dt>What’s correct</dt><dd><p>The flaw is <b>CVE-2021-41773</b>, in Apache 2.4.49. The traversal bug itself also allowed remote code execution, with no stolen credentials involved, and it was exploited within a day of disclosure. Learn the CVE number.</p></dd></div>
+      </dl><p class="read">Read more: Common Attacks → “Directory traversal”</p>
+    </article>
+    <article class="card">
+      <p class="card__meta"><span class="time">9:40 and 10:17</span></p>
+      <h3>Patching: the 24-hour window and how to prioritize</h3>
+      <dl>
+        <div><dt>The video says</dt><dd><p>Major flaws “like Log4Shell” reach mass exploitation in 24 hours, and CISA’s KEV list is “the definitive triage tool.”</p></dd></div>
+        <div class="right"><dt>What’s correct</dt><dd><p>The module’s two examples are the Apache path traversal (<b>CVE-2021-41773</b>) and Log4Shell (<b>CVE-2021-44228</b>, exploited against Apache Tomcat). Patch the same day if a flaw allows remote code execution, <em>or</em> is on the KEV list, <em>or</em> has a high <b>EPSS</b> score. If you cannot patch yet, buy time: disable the vulnerable module, add a WAF rule, or put a proxy in front.</p></dd></div>
+      </dl><p class="read">Read more: Countermeasures → “Patch management”</p>
+    </article>
+    <article class="card">
+      <p class="card__meta"><span class="time">various</span></p>
+      <h3>Three small things</h3>
+      <dl>
+        <div><dt>The video says</dt><dd><ul><li>2:37, “the rule of two.”</li><li>2:30, the third row of the server table has no name.</li><li>5:53, the file sounds like “/etc/password.”</li></ul></dd></div>
+        <div class="right"><dt>What’s correct</dt><dd><ul><li>The module calls these “the two root causes”: software vulnerabilities and misconfiguration. “Rule of two” is the video’s own phrase.</li><li>The third server is Microsoft IIS.</li><li>The file is <code>/etc/passwd</code>.</li></ul></dd></div>
+      </dl>
+    </article>
   </section>
 
-  <section aria-labelledby="h-quiz">
-    <h2 id="h-quiz">Does the video prepare students for the knowledge check?</h2>
-    <p>Each of the module’s ten questions, and whether a student who only watched the video could answer it and follow its explanation.</p>
-    <div class="table-scroll" role="region" aria-labelledby="h-quiz" tabindex="0">
-      <table>
-        <thead><tr><th scope="col">#</th><th scope="col">Question</th><th scope="col">Video</th><th scope="col">Note</th></tr></thead>
-        <tbody><tr><th scope="row">1</th><td>What is the key distinction between hacking a web server and hacking a web application?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 0:47.</td></tr><tr><th scope="row">2</th><td>Why is a vulnerability in the web server itself especially dangerous?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 1:28: untrusted input, privileges, TLS private keys.</td></tr><tr><th scope="row">3</th><td>What are the three most common web server software products?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 1:39. The slide omits the name “IIS.”</td></tr><tr><th scope="row">4</th><td>What is a directory traversal (path traversal) attack?</td><td><span class="cov cov--part"><span aria-hidden="true">◐</span> Partly</span></td><td>Definition covered. The explanation cites CVE-2021-41773 and the input-validation defense, and the video gives neither.</td></tr><tr><th scope="row">5</th><td>What is the first phase of the web server attack methodology?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 3:33, without the term “banner grabbing.”</td></tr><tr><th scope="row">6</th><td>What is web server misconfiguration, and why is it such a common attack vector?</td><td><span class="cov cov--part"><span aria-hidden="true">◐</span> Partly</span></td><td>Four examples covered. Default certificates and the insecure-by-default explanation are missing.</td></tr><tr><th scope="row">7</th><td>Why do web server CVEs need to be patched exceptionally fast?</td><td><span class="cov cov--part"><span aria-hidden="true">◐</span> Partly</span></td><td>24-hour window and KEV covered. No CVE IDs and no EPSS.</td></tr><tr><th scope="row">8</th><td>What is website defacement?</td><td><span class="cov cov--no"><span aria-hidden="true">✕</span> Not covered</span></td><td>Defacement is never mentioned.</td></tr><tr><th scope="row">9</th><td>Which tool is commonly used to brute-force directories and files on a web server?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Gobuster covered at 8:26. dirb and dirbuster are not.</td></tr><tr><th scope="row">10</th><td>What is the single most important countermeasure against web server attacks?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Patching plus hardening covered. NIST SP 800-44 is missing.</td></tr></tbody>
-      </table>
-    </div>
+  <section aria-labelledby="h-miss">
+    <h2 id="h-miss">Not in the video</h2>
+    <p>The module covers these topics and the video skips them. Read them in the module before the knowledge check.</p>
+    
+    <article class="card card--missing">
+      <h3>Access, denial and defacement attacks</h3>
+      <p>Four server attacks never come up in the video:</p><ul><li><b>Credential attacks</b>: brute-forcing SSH, FTP or admin logins, for example with Hydra.</li><li><b>DoS/DDoS</b>: flooding the server, including HTTP/2 resource-exhaustion flaws.</li><li><b>Website defacement</b>: changing the site’s content, which shows the attacker gained write access.</li><li><b>Man-in-the-middle</b>: intercepting traffic, the reason TLS everywhere matters.</li></ul>
+      <p class="read">Read: Common Attacks → “Access, denial, and defacement”</p>
+    </article>
+    <article class="card card--missing">
+      <h3>HTTP response splitting</h3>
+      <p>The video names it but only explains cache poisoning. In response splitting, unvalidated input is reflected into a response header, so the server splits one response into two and the attacker controls the second. Example: Apache <b>CVE-2023-38709</b>. Both attacks are stopped by strict input validation and careful cache configuration.</p>
+      <p class="read">Read: Common Attacks → “Protocol and caching attacks”</p>
+    </article>
+    <article class="card card--missing">
+      <h3>The parts of a web server, and the three tiers</h3>
+      <p>A web server has six parts, and each can be attacked: core server software, modules and extensions, configuration, document root, TLS/SSL components, and the connection to backend servers. A site has three tiers: web server (this module), application (Module 14) and database (Module 15).</p>
+      <p class="read">Read: Architecture → “What a web server actually does” and “Where the server meets the application”</p>
+    </article>
+    <article class="card card--missing">
+      <h3>How fingerprinting is actually done</h3>
+      <p>Fingerprinting is also called <b>banner grabbing</b>: the HTTP <code>Server</code> header often names the software and version. Know <code>nmap -sV</code>, the Nmap scripts <code>http-server-header</code>, <code>http-enum</code> and <code>http-methods</code>, and <code>curl -I</code>. Tools the video skips: Netcraft and Wappalyzer (passive fingerprinting), dirb and dirbuster, and OpenVAS.</p>
+      <p class="read">Read: Attack Methodology → “Step 1” and Tools → “Fingerprinting and discovery”</p>
+    </article>
+    <article class="card card--missing">
+      <h3>The rest of the hardening checklist</h3>
+      <p>Beyond what the video lists: remove default certificates, sample applications and test pages; turn off directory listing; hide the <code>Server</code> banner; add security headers (HSTS, Content-Security-Policy, X-Content-Type-Options); and restrict file permissions. NIST SP 800-44 is a second standard alongside the CIS Benchmarks. For directory traversal, the defense is input validation that rejects traversal sequences and canonicalizes paths.</p>
+      <p class="read">Read: Countermeasures → “Hardening”</p>
+    </article>
   </section>
-
 </main>
-
 <footer class="foot">
   <div class="wrap">
     <p>Built for <span class="program">CEH v13 Module 13: Hacking Web Servers</span> · Brookdale Community College · <span class="year">2026</span></p>
-    <p>Video reviewed 12 November 2026 against the module as published that day. <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module13.html">Open Module 13</a></p>
+    <p>Video length 12:37. Times are approximate. <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module13.html">Open Module 13</a></p>
   </div>
 </footer>
-
 <script>
+
 (function () {
   'use strict';
-  var root = document.documentElement;
-  var THEME_KEY = 'ceh-m13-errata-theme';
-
-  /* theme */
-  var themeBtn = document.getElementById('themeBtn');
-  function systemDark() {
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var root = document.documentElement, KEY = 'ceh-m13-errata-theme', btn = document.getElementById('themeBtn');
+  function sysDark() { return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function cur() { return root.getAttribute('data-theme') || (sysDark() ? 'dark' : 'light'); }
+  function label() {
+    var d = cur() === 'dark';
+    btn.textContent = d ? 'Use light theme' : 'Use dark theme';
+    btn.setAttribute('aria-pressed', d ? 'true' : 'false');
   }
-  function currentTheme() {
-    return root.getAttribute('data-theme') || (systemDark() ? 'dark' : 'light');
-  }
-  function labelTheme() {
-    var dark = currentTheme() === 'dark';
-    themeBtn.textContent = dark ? 'Use light theme' : 'Use dark theme';
-    themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
-  }
-  try {
-    var saved = localStorage.getItem(THEME_KEY);
-    if (saved === 'dark' || saved === 'light') { root.setAttribute('data-theme', saved); }
-  } catch (e) { /* storage unavailable */ }
-  labelTheme();
-  themeBtn.addEventListener('click', function () {
-    var next = currentTheme() === 'dark' ? 'light' : 'dark';
-    root.setAttribute('data-theme', next);
-    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* storage unavailable */ }
-    labelTheme();
-  });
-
-  /* filter */
-  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
-  var items = Array.prototype.slice.call(document.querySelectorAll('.erratum'));
-  var groups = Array.prototype.slice.call(document.querySelectorAll('.group'));
-  var status = document.getElementById('status');
-  var names = { error: 'errors', imprecise: 'imprecise statements', omission: 'omissions', slide: 'slide defects' };
-
-  function applyFilter(type) {
-    var shown = 0;
-    items.forEach(function (el) {
-      var show = type === 'all' || el.getAttribute('data-type') === type;
-      el.hidden = !show;
-      if (show) { shown++; }
-    });
-    groups.forEach(function (g) {
-      g.hidden = !g.querySelector('.erratum:not([hidden])');
-    });
-    chips.forEach(function (c) {
-      c.setAttribute('aria-pressed', c.getAttribute('data-filter') === type ? 'true' : 'false');
-    });
-    status.textContent = type === 'all'
-      ? 'Showing all ' + shown + ' items.'
-      : 'Showing ' + shown + ' ' + names[type] + '.';
-  }
-  chips.forEach(function (c) {
-    c.addEventListener('click', function () { applyFilter(c.getAttribute('data-filter')); });
-  });
-
-  /* a link to a hidden item clears the filter first */
-  function revealTarget() {
-    var id = (window.location.hash || '').slice(1);
-    if (!id) { return; }
-    var el = document.getElementById(id);
-    if (el && (el.hidden || (el.closest('.group') && el.closest('.group').hidden))) {
-      applyFilter('all');
-      el.scrollIntoView();
-    }
-  }
-  window.addEventListener('hashchange', revealTarget);
-  document.addEventListener('click', function (ev) {
-    var a = ev.target.closest ? ev.target.closest('a[href^="#e"], a[href^="#ch-"]') : null;
-    if (!a) { return; }
-    var el = document.getElementById(a.getAttribute('href').slice(1));
-    if (el && (el.hidden || (el.closest('.group') && el.closest('.group').hidden) || (el.classList.contains('group') && el.hidden))) {
-      applyFilter('all');
-    }
+  try { var s = localStorage.getItem(KEY); if (s === 'dark' || s === 'light') { root.setAttribute('data-theme', s); } } catch (e) {}
+  label();
+  btn.addEventListener('click', function () {
+    var n = cur() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    try { localStorage.setItem(KEY, n); } catch (e) {}
+    label();
   });
 })();
 
 </script>
-<script src="assistant.js" defer></script>
 </body>
 </html>
