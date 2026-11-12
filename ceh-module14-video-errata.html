@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video errata: CEH v13 Module 14, Hacking Web Applications</title>
+<meta name="description" content="Corrections and omissions in the Hacking Web Apps explainer video, checked against CEH v13 Module 14, the authoritative source.">
+<style>
+/* Tokens follow the CEH v13 course chassis so this page sits beside the modules. */
+:root {
+  --accent: #0f7a34; --accent-strong: #0a5c26;
+  --accent-dim: rgba(15,122,52,.10); --accent-line: rgba(15,122,52,.30);
+  --cyan: #0b6d78; --amber: #8a5a00; --danger: #b3261e; --violet: #5b4bb5;
+  --cyan-dim: rgba(11,109,120,.10); --amber-dim: rgba(138,90,0,.11);
+  --danger-dim: rgba(179,38,30,.09); --violet-dim: rgba(91,75,181,.10);
+  --bg: #f4f6f8; --surface: #ffffff; --surface-2: #eef2f5;
+  --border: #d3dbe2; --border-strong: #b4c0ca;
+  --text: #10181f; --text-muted: #48586a; --text-on-accent: #ffffff;
+  --code-bg: #e7ecf0; --code-text: #0a5c26;
+  --ring: 0 0 0 3px rgba(15,122,52,.38);
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --fs-xs: .8rem; --fs-sm: .9rem; --fs-base: 1rem;
+  --fs-h1: clamp(1.7rem, 1.15rem + 2.4vw, 2.7rem);
+  --fs-h2: clamp(1.25rem, 1.05rem + .9vw, 1.6rem);
+  --fs-h3: clamp(1.05rem, .98rem + .35vw, 1.2rem);
+  --sp-1: .35rem; --sp-2: .6rem; --sp-3: .9rem; --sp-4: 1.3rem; --sp-5: 1.9rem; --sp-6: 2.8rem;
+  --radius: 10px; --maxw: 1040px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --accent: #35e05f; --accent-strong: #6dff96;
+    --accent-dim: rgba(53,224,95,.14); --accent-line: rgba(53,224,95,.34);
+    --cyan: #43d9d4; --amber: #f0b429; --danger: #ff6b6b; --violet: #a99bff;
+    --cyan-dim: rgba(67,217,212,.12); --amber-dim: rgba(240,180,41,.12);
+    --danger-dim: rgba(255,107,107,.12); --violet-dim: rgba(169,155,255,.13);
+    --bg: #07090b; --surface: #141a20; --surface-2: #1b232b;
+    --border: #26313b; --border-strong: #37444f;
+    --text: #e8eef2; --text-muted: #9fb0bd; --text-on-accent: #04120a;
+    --code-bg: #05070a; --code-text: #8ef0a8;
+    --ring: 0 0 0 3px rgba(53,224,95,.45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --accent: #35e05f; --accent-strong: #6dff96;
+  --accent-dim: rgba(53,224,95,.14); --accent-line: rgba(53,224,95,.34);
+  --cyan: #43d9d4; --amber: #f0b429; --danger: #ff6b6b; --violet: #a99bff;
+  --cyan-dim: rgba(67,217,212,.12); --amber-dim: rgba(240,180,41,.12);
+  --danger-dim: rgba(255,107,107,.12); --violet-dim: rgba(169,155,255,.13);
+  --bg: #07090b; --surface: #141a20; --surface-2: #1b232b;
+  --border: #26313b; --border-strong: #37444f;
+  --text: #e8eef2; --text-muted: #9fb0bd; --text-on-accent: #04120a;
+  --code-bg: #05070a; --code-text: #8ef0a8;
+  --ring: 0 0 0 3px rgba(53,224,95,.45);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: var(--sp-4); }
+body {
+  margin: 0; font-family: var(--font-body); font-size: var(--fs-base); line-height: 1.6;
+  color: var(--text); background: var(--bg); overflow-x: hidden;
+}
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--sp-4); }
+a { color: var(--accent); text-underline-offset: .18em; }
+a:hover { color: var(--accent-strong); }
+:focus-visible { outline: none; box-shadow: var(--ring); border-radius: 4px; }
+code {
+  font-family: var(--font-mono); font-size: .92em; color: var(--code-text);
+  background: var(--code-bg); padding: .08em .35em; border-radius: 4px; overflow-wrap: anywhere;
+}
+h1, h2, h3 { line-height: 1.2; margin: 0; text-wrap: balance; }
+h1 { font-size: var(--fs-h1); letter-spacing: -.015em; max-width: 22ch; }
+h2 { font-size: var(--fs-h2); margin-bottom: var(--sp-3); }
+h3 { font-size: var(--fs-h3); }
+p { margin: 0 0 var(--sp-3); }
+main > section { margin-top: var(--sp-6); }
+main > section > p { max-width: 72ch; }
+.time { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.skip-link {
+  position: absolute; left: var(--sp-3); top: -4rem; z-index: 10;
+  background: var(--accent); color: var(--text-on-accent); padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius); font-weight: 700;
+}
+.skip-link:focus { top: var(--sp-3); color: var(--text-on-accent); }
+
+/* top bar */
+.top { border-bottom: 1px solid var(--border); background: var(--surface); }
+.top__row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); min-height: 60px; flex-wrap: wrap; padding-block: var(--sp-2); }
+.crumb { margin: 0; font-size: var(--fs-sm); color: var(--text-muted); }
+.btn {
+  min-height: 44px; min-width: 44px; padding: 0 var(--sp-3); font: inherit; font-size: var(--fs-sm);
+  color: var(--text); background: var(--surface-2); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); cursor: pointer;
+}
+.btn:hover { border-color: var(--accent); }
+
+/* hero + timeline */
+.hero { margin-top: var(--sp-5); }
+.lede { margin-top: var(--sp-3); max-width: 68ch; color: var(--text-muted); font-size: 1.06rem; }
+.timeline { margin-top: var(--sp-5); }
+.timeline__ticks { position: relative; height: 26px; display: none; }
+.tick { position: absolute; left: var(--pos); bottom: 0; width: 3px; height: 16px; border-radius: 2px 2px 0 0; background: var(--text-muted); }
+.tick--error { background: var(--danger); height: 26px; width: 4px; }
+.tick--imprecise { background: var(--amber); height: 19px; }
+.tick--omission { background: var(--cyan); height: 13px; }
+.tick--slide { background: var(--violet); height: 13px; }
+.timeline__segs { display: flex; flex-direction: column; gap: 4px; }
+.seg {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
+  min-height: 44px; padding: var(--sp-2) var(--sp-3);
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px;
+  color: var(--text); text-decoration: none; font-size: var(--fs-sm);
+}
+a.seg:hover { border-color: var(--accent); background: var(--accent-dim); color: var(--text); }
+.seg--empty { color: var(--text-muted); border-style: dashed; }
+.seg__name { font-weight: 650; }
+.seg__count { color: var(--text-muted); font-size: var(--fs-xs); white-space: nowrap; }
+.timeline__ends { display: none; justify-content: space-between; font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-muted); margin-top: var(--sp-1); }
+@media (min-width: 860px) {
+  .timeline__ticks, .timeline__ends { display: flex; }
+  .timeline__ticks { display: block; }
+  .timeline__segs { flex-direction: row; gap: 3px; }
+  .seg {
+    flex: var(--grow) 1 0; min-width: 62px; flex-direction: column; align-items: flex-start; justify-content: center;
+    gap: 0; padding: var(--sp-2); overflow: hidden; border-radius: 0;
+  }
+  .seg:first-child { border-radius: 6px 0 0 6px; }
+  .seg:last-child { border-radius: 0 6px 6px 0; }
+  .seg__name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+
+/* verdict */
+.verdict { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: var(--sp-4); }
+.verdict__list { margin: 0; padding-left: 1.3rem; max-width: 76ch; }
+.verdict__list li { margin-bottom: var(--sp-2); }
+.verdict__list li:last-child { margin-bottom: 0; }
+
+/* legend */
+.legend { display: grid; gap: var(--sp-2); margin: 0 0 var(--sp-3); }
+.legend > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3); }
+.legend dt { flex: 0 0 9.5rem; }
+.legend dd { margin: 0; color: var(--text-muted); }
+.note { font-size: var(--fs-sm); color: var(--text-muted); }
+
+/* badges */
+.badge {
+  display: inline-flex; align-items: center; gap: .35em; padding: .12em .6em; border-radius: 999px;
+  font-size: var(--fs-xs); font-weight: 700; border: 1px solid currentColor; white-space: nowrap;
+}
+.badge--error { color: var(--danger); background: var(--danger-dim); }
+.badge--imprecise { color: var(--amber); background: var(--amber-dim); }
+.badge--omission { color: var(--cyan); background: var(--cyan-dim); }
+.badge--slide { color: var(--violet); background: var(--violet-dim); }
+
+/* filters */
+.filters { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.chip {
+  min-height: 44px; padding: 0 var(--sp-3); font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  color: var(--text); background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: .4em;
+}
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--text-on-accent); }
+.chip__n { font-family: var(--font-mono); font-weight: 400; opacity: .85; }
+.status { margin: var(--sp-2) 0 0; font-size: var(--fs-sm); color: var(--text-muted); }
+
+/* groups + entries */
+.group { margin-top: var(--sp-5); }
+.group > h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3); padding-bottom: var(--sp-2); border-bottom: 1px solid var(--border-strong); }
+.erratum {
+  background: var(--surface); border: 1px solid var(--border); border-left-width: 4px;
+  border-radius: var(--radius); padding: var(--sp-4); margin-top: var(--sp-3); scroll-margin-top: var(--sp-4);
+}
+.erratum--error { border-left-color: var(--danger); }
+.erratum--imprecise { border-left-color: var(--amber); }
+.erratum--omission { border-left-color: var(--cyan); }
+.erratum--slide { border-left-color: var(--violet); }
+.erratum:target { box-shadow: var(--ring); }
+.erratum__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-3); margin: 0 0 var(--sp-2); }
+.erratum__num { font-family: var(--font-mono); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+.where { font-size: var(--fs-xs); color: var(--text-muted); }
+.erratum__body { margin: var(--sp-3) 0 0; display: grid; gap: var(--sp-3); }
+.erratum__body dt { font-size: var(--fs-sm); font-weight: 700; color: var(--text-muted); margin-bottom: .15rem; }
+.erratum__body dd { margin: 0; max-width: 74ch; }
+.erratum__body dd p:last-child, .erratum__body dd ul { margin-bottom: 0; }
+.erratum__body dd ul { margin-top: 0; padding-left: 1.2rem; }
+.erratum__body dd li + li { margin-top: var(--sp-1); }
+.erratum__body .fix { padding-top: var(--sp-3); border-top: 1px dashed var(--border-strong); }
+.erratum__body .fix dt { color: var(--accent); }
+.beyond { margin-top: var(--sp-2); padding: var(--sp-2) var(--sp-3); background: var(--surface-2); border-radius: 6px; font-size: var(--fs-sm); }
+@media (min-width: 760px) {
+  .erratum__body > div { display: grid; grid-template-columns: 8.5rem 1fr; gap: var(--sp-3); }
+  .erratum__body dt { margin: 0; padding-top: .1rem; }
+}
+[hidden] { display: none !important; }
+
+/* table */
+.table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: var(--fs-sm); }
+th, td { text-align: left; vertical-align: top; padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--border); }
+thead th { background: var(--surface-2); }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+tbody th { font-family: var(--font-mono); font-weight: 400; color: var(--text-muted); }
+.cov { font-weight: 700; white-space: nowrap; }
+.cov--yes { color: var(--accent); }
+.cov--part { color: var(--amber); }
+.cov--no { color: var(--danger); }
+
+.foot { margin-top: var(--sp-6); border-top: 1px solid var(--border); padding: var(--sp-4) 0 var(--sp-5); font-size: var(--fs-sm); color: var(--text-muted); }
+.foot p { margin-bottom: var(--sp-1); }
+
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media print {
+  .top .btn, .filters, .status, .timeline, .skip-link { display: none !important; }
+  .erratum[hidden], .group[hidden] { display: block !important; }
+  .erratum { break-inside: avoid; }
+  body { font-size: 10.5pt; }
+}
+
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<header class="top">
+  <div class="wrap top__row">
+    <p class="crumb"><a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module14.html">CEH v13 Module 14</a> <span aria-hidden="true">/</span> Video errata</p>
+    <button type="button" class="btn" id="themeBtn" aria-pressed="false">Switch theme</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="hero" aria-labelledby="title">
+    <h1 id="title">Errata for the “Hacking Web Apps” video</h1>
+    <p class="lede">The 13:13 explainer video was checked line by line against <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module14.html">Module 14</a>, which is the authoritative source. Where the two disagree, the module is right. No outright factual errors were found. This page lists 27 items: 7 imprecise or unsupported statements, 18 omissions and 2 slide defects.</p>
+
+    <div class="timeline" aria-label="Video timeline by section">
+      <div class="timeline__ticks" aria-hidden="true"><span class="tick tick--omission" style="--pos:1.26%"></span><span class="tick tick--imprecise" style="--pos:8.45%"></span><span class="tick tick--omission" style="--pos:9.71%"></span><span class="tick tick--omission" style="--pos:20.68%"></span><span class="tick tick--omission" style="--pos:24.97%"></span><span class="tick tick--omission" style="--pos:25.85%"></span><span class="tick tick--omission" style="--pos:27.74%"></span><span class="tick tick--imprecise" style="--pos:31.40%"></span><span class="tick tick--omission" style="--pos:41.49%"></span><span class="tick tick--omission" style="--pos:48.30%"></span><span class="tick tick--slide" style="--pos:48.55%"></span><span class="tick tick--imprecise" style="--pos:50.82%"></span><span class="tick tick--slide" style="--pos:54.98%"></span><span class="tick tick--omission" style="--pos:57.76%"></span><span class="tick tick--imprecise" style="--pos:63.81%"></span><span class="tick tick--omission" style="--pos:64.31%"></span><span class="tick tick--omission" style="--pos:67.34%"></span><span class="tick tick--omission" style="--pos:69.23%"></span><span class="tick tick--omission" style="--pos:73.27%"></span><span class="tick tick--omission" style="--pos:77.30%"></span><span class="tick tick--omission" style="--pos:81.59%"></span><span class="tick tick--omission" style="--pos:82.98%"></span><span class="tick tick--imprecise" style="--pos:85.37%"></span><span class="tick tick--omission" style="--pos:88.52%"></span><span class="tick tick--imprecise" style="--pos:89.66%"></span><span class="tick tick--omission" style="--pos:95.46%"></span></div>
+      <nav class="timeline__segs" aria-label="Jump to a section of the video">
+        <a class="seg" style="--grow:53" href="#ch-intro" aria-label="Introduction and roadmap, 0:00 to 0:53, 1 item"><span class="seg__name">Intro</span><span class="seg__count">1 item</span></a><a class="seg" style="--grow:145" href="#ch-s1" aria-label="Section 1: Architecture and methodology, 0:53 to 3:18, 3 items"><span class="seg__name">1 Architecture</span><span class="seg__count">3 items</span></a><a class="seg" style="--grow:85" href="#ch-s2" aria-label="Section 2: The OWASP Top 10, 3:18 to 4:43, 4 items"><span class="seg__name">2 OWASP</span><span class="seg__count">4 items</span></a><a class="seg" style="--grow:153" href="#ch-s3" aria-label="Section 3: Injection and XSS, 4:43 to 7:16, 4 items"><span class="seg__name">3 Injection & XSS</span><span class="seg__count">4 items</span></a><a class="seg" style="--grow:114" href="#ch-s4" aria-label="Section 4: Access and authentication, 7:16 to 9:10, 6 items"><span class="seg__name">4 Access & auth</span><span class="seg__count">6 items</span></a><a class="seg" style="--grow:98" href="#ch-s5" aria-label="Section 5: Tools, 9:10 to 10:48, 3 items"><span class="seg__name">5 Tools</span><span class="seg__count">3 items</span></a><a class="seg" style="--grow:93" href="#ch-s6" aria-label="Section 6: Countermeasures and review, 10:48 to 12:21, 4 items"><span class="seg__name">6 Countermeasures</span><span class="seg__count">4 items</span></a><a class="seg" style="--grow:52" href="#ch-close" aria-label="Closing thought on AI, 12:21 to 13:13, 1 item"><span class="seg__name">Closing</span><span class="seg__count">1 item</span></a>
+      </nav>
+      <div class="timeline__ends" aria-hidden="true"><span>0:00</span><span>13:13</span></div>
+    </div>
+  </section>
+
+  <section class="verdict" aria-labelledby="h-verdict">
+    <h2 id="h-verdict">What to know before assigning the video</h2>
+    <p>The video is accurate. It follows the module’s structure and explains the architecture, the “never trust the client” principle, the four-step methodology, XSS, command injection, IDOR and the intercepting proxy correctly. Its weakness is what it leaves out. Four things need attention.</p>
+    <ol class="verdict__list">
+      <li><a href="#e5">Item 5</a>: the OWASP Top 10 is never listed. Only four of the ten categories are named, and the numbers A05 and A07 are never spoken, although the video has a section on each.</li>
+      <li><a href="#e18">Item 18</a>: API weaknesses, including BOLA and BFLA, are absent.</li>
+      <li><a href="#e24">Item 24</a> and <a href="#e16">item 16</a>: the video never mentions a WAF, security response headers, logging and alerting, or MFA.</li>
+      <li><a href="#e25">Item 25</a>: the closing review reduces the module’s five unifying ideas to “two fundamental root causes.”</li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="h-key">
+    <h2 id="h-key">How items are classified</h2>
+    <dl class="legend"><div><dt><span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span></dt><dd>Misleading wording, or a claim the module does not make</dd></div><div><dt><span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span></dt><dd>Module content the video leaves out</dd></div><div><dt><span class="badge badge--slide"><span aria-hidden="true">▣</span> Slide defect</span></dt><dd>A problem in the on-screen graphics</dd></div></dl>
+    <p class="note">Timestamps are approximate, within about five seconds. Quoted narration comes from an automated transcript of the audio; slides were reviewed from frames sampled every five seconds. One correction draws on facts outside the module and is marked “Beyond the module text.”</p>
+  </section>
+
+  <section aria-labelledby="h-list">
+    <h2 id="h-list">All items, in video order</h2>
+    <div class="filters" role="group" aria-label="Filter items by type">
+      <button type="button" class="chip" data-filter="all" aria-pressed="true">All <span class="chip__n">27</span></button><button type="button" class="chip chip--imprecise" data-filter="imprecise" aria-pressed="false"><span aria-hidden="true">≈</span> Imprecise <span class="chip__n">7</span></button><button type="button" class="chip chip--omission" data-filter="omission" aria-pressed="false"><span aria-hidden="true">∅</span> Omissions <span class="chip__n">18</span></button><button type="button" class="chip chip--slide" data-filter="slide" aria-pressed="false"><span aria-hidden="true">▣</span> Slide defects <span class="chip__n">2</span></button>
+    </div>
+    <p class="status" id="status" role="status" aria-live="polite">Showing all 27 items.</p>
+    
+    <section class="group" id="ch-intro" aria-labelledby="h-intro">
+      <h2 id="h-intro">Introduction and roadmap <span class="time">0:00–0:53</span></h2>
+      
+      <article class="erratum erratum--omission" id="e1" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e1" aria-label="Permalink to item 1">#1</a>
+            <span class="time">0:10–0:33</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>Module map and legal warning are cut short</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>The introduction contrasts the server platform with the application layer. The only authorization reminder is the sign-off at 13:06: “keep practicing on authorized targets.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Overview → “Keeping the layers straight”: Module 13 is the server, Module 14 the application, and Module 15 gives SQL injection its own treatment. The Overview also warns that testing an application you don’t own, without written permission, is illegal, and names the practice targets: DVWA, OWASP Juice Shop, WebGoat, and the labs on TryHackMe and Hack The Box.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add the three-module map and the written-permission warning near the start, and name the practice targets. The video never mentions any of them.</p></dd></div>
+        </dl>
+      </article>
+    </section>
+    <section class="group" id="ch-s1" aria-labelledby="h-s1">
+      <h2 id="h-s1">Section 1: Architecture and methodology <span class="time">0:53–3:18</span></h2>
+      
+      <article class="erratum erratum--imprecise" id="e2" data-type="imprecise">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e2" aria-label="Permalink to item 2">#2</a>
+            <span class="time">1:07–1:17</span>
+            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>Fixing a web server made to sound trivial</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>For a web server, “if a vulnerability is discovered there, you just look up a patch and apply it. Boom, done.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>The Overview says a web server is “a known product with known vulnerabilities you can look up.” It does not say fixing one is effortless, and Module 13 teaches that half of web server compromise is misconfiguration, which is fixed by hardening rather than patching.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Keep the contrast (known product versus bespoke code) but drop “boom, done.” It undercuts what students just learned in Module 13.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e3" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e3" aria-label="Permalink to item 3">#3</a>
+            <span class="time">1:17–1:46</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>APIs mentioned in passing, not as an attack surface</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>The three tiers are named, “communicating via HTTP requests and structured APIs.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Architecture → “How a web application is built”: the client is increasingly a single-page application; APIs are often REST or GraphQL; and “every tier and boundary is an attack surface.” APIs are called “one of the most attacked surfaces of all,” because API parameter inputs are frequently under-tested.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add the point that APIs are a heavily attacked, under-tested surface. It sets up the API weaknesses topic that the video also leaves out (see Section 4).</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e4" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e4" aria-label="Permalink to item 4">#4</a>
+            <span class="time">2:44</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration and slide</span>
+          </p>
+          <h3>Form fields missing from the list of inputs</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>Entry points listed: URL parameters, headers, cookies, file uploads, APIs. The slide shows the same five.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>The testing methodology lists six: URL parameters, <b>form fields</b>, headers, cookies, file uploads and API endpoints. The testing step probes them “for the vulnerability classes in the OWASP Top 10.”</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Minor. Add form fields to the narration and the slide.</p></dd></div>
+        </dl>
+      </article>
+    </section>
+    <section class="group" id="ch-s2" aria-labelledby="h-s2">
+      <h2 id="h-s2">Section 2: The OWASP Top 10 <span class="time">3:18–4:43</span></h2>
+      
+      <article class="erratum erratum--omission" id="e5" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e5" aria-label="Permalink to item 5">#5</a>
+            <span class="time">3:18–4:43</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration and slide</span>
+          </p>
+          <h3>The Top 10 list is never shown or read out</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>Four of the ten categories are named: Broken Access Control (the only one given its number, A01), Security Misconfiguration, Software Supply Chain Failures and Mishandling of Exceptional Conditions. No slide lists the ten.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>The OWASP Top 10 (2025), in ranked order: A01 Broken Access Control; A02 Security Misconfiguration; A03 Software Supply Chain Failures; <b>A04 Cryptographic Failures</b>; <b>A05 Injection</b>; <b>A06 Insecure Design</b>; <b>A07 Authentication Failures</b>; <b>A08 Software or Data Integrity Failures</b>; <b>A09 Security Logging &amp; Alerting Failures</b>; A10 Mishandling of Exceptional Conditions. The module also notes that Injection fell from #3, that A09 was renamed, and that the trend is “away from symptoms and toward root causes,” with Injection the last symptom category.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>This is the largest gap. Add a slide with all ten. The video’s own sections on injection and authentication never say “A05” or “A07,” and knowledge check question 5 asks which category SQL injection, XSS and command injection belong to.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e6" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e6" aria-label="Permalink to item 6">#6</a>
+            <span class="time">3:25</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>What the Top 10 is, and is not</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>The list is “the security industry’s most widely cited standard,” ranking risks “based on massive amounts of real world data.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>It is compiled from real-world testing data, reported CVEs and community input. It is “not a checklist of every possible bug, nor a compliance standard.” The 2025 edition was unveiled at OWASP’s Global AppSec conference in November 2025, and an assessment framed around an outdated list misses the shifts.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add that it is not a compliance standard, and give the release date.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e7" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e7" aria-label="Permalink to item 7">#7</a>
+            <span class="time">3:40–4:00</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>A01’s 2025 expansion not mentioned</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>Broken Access Control “firmly holds the number one spot” because it is contextual.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>A01 “now absorbs SSRF and explicitly covers API authorization failures (BOLA/BFLA).” The knowledge check explanation for question 2 repeats this.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add one sentence. The video does list SSRF under broken access control at 8:07, but never says that placement is new in 2025.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--imprecise" id="e8" data-type="imprecise">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e8" aria-label="Permalink to item 8">#8</a>
+            <span class="time">4:09–4:17</span>
+            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>Different reason given for misconfiguration’s rise</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>Misconfiguration rose because teams deploy continuously “but sometimes they’re failing to maintain secure default settings.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>“Teams deploy continuously but <b>scan intermittently</b>, leaving exposure windows.” The module also says it is up from #5 and that essentially all tested applications show some form of it.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Use the module’s explanation: the gap is between continuous deployment and intermittent scanning. Add that it moved up from #5.</p></dd></div>
+        </dl>
+      </article>
+    </section>
+    <section class="group" id="ch-s3" aria-labelledby="h-s3">
+      <h2 id="h-s3">Section 3: Injection and XSS <span class="time">4:43–7:16</span></h2>
+      
+      <article class="erratum erratum--omission" id="e9" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e9" aria-label="Permalink to item 9">#9</a>
+            <span class="time">5:29–6:23</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>XSS has no example, no category and no defense at this point</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>XSS is defined and its three forms are described accurately.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>The XSS section gives a reflected example, <code>&lt;script&gt;alert(document.cookie)&lt;/script&gt;</code>, and states the defense: context-appropriate output encoding, “reinforced by a <b>Content-Security-Policy</b> and the HttpOnly cookie flag from Module 11.” XSS sits inside Injection (A05). The injected script can also “take actions as the victim,” and DOM-based XSS is increasingly common in single-page apps. The injection family also includes LDAP and NoSQL injection.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add the example payload and say XSS is part of A05. Output encoding appears later (11:26) and HttpOnly at 8:43, but Content-Security-Policy is never mentioned in the video.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e10" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e10" aria-label="Permalink to item 10">#10</a>
+            <span class="time">6:23–7:07</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>No defense given for command injection</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>The ping example is explained well, ending with a web shell and “full system compromise.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>“Never pass untrusted input to an interpreter; use <b>safe APIs that don’t invoke a shell</b>; and validate input strictly.”</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add the defense. “Safe APIs” is never said anywhere in the video, and the knowledge check explanations for questions 6 and 10 both use it.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--slide" id="e11" data-type="slide">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e11" aria-label="Permalink to item 11">#11</a>
+            <span class="time">6:25–7:10</span>
+            <span class="badge badge--slide"><span aria-hidden="true">▣</span> Slide defect</span>
+            <span class="where">Slide</span>
+          </p>
+          <h3>Terminal output on the command injection slide is garbled</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>The injected command <code>8.8.8.8; cat /etc/passwd</code> is shown correctly, but the output beneath it is invented text: malformed ping lines and near-identical “daemon” rows that do not resemble a real <code>/etc/passwd</code>.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>The module gives the input and says the attacker “may get both the ping and the contents of the password file.”</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Cosmetic. Tell students not to read the output as a real example.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--imprecise" id="e12" data-type="imprecise">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e12" aria-label="Permalink to item 12">#12</a>
+            <span class="time">6:43</span>
+            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>File name spoken as “/etc/password”</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>The narrator appears to say “cat slash etc slash password.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>The module’s example is <code>8.8.8.8; cat /etc/passwd</code>, which the slide shows correctly.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>The file is <code>/etc/passwd</code>. This finding comes from the automated transcript, so confirm it by ear.</p></dd></div>
+        </dl>
+      </article>
+    </section>
+    <section class="group" id="ch-s4" aria-labelledby="h-s4">
+      <h2 id="h-s4">Section 4: Access and authentication <span class="time">7:16–9:10</span></h2>
+      
+      <article class="erratum erratum--slide" id="e13" data-type="slide">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e13" aria-label="Permalink to item 13">#13</a>
+            <span class="time">7:16</span>
+            <span class="badge badge--slide"><span aria-hidden="true">▣</span> Slide defect</span>
+            <span class="where">Slide</span>
+          </p>
+          <h3>Section title card asks only “Who are you?”</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>The card for “Access &amp; Auth” carries the subtitle “Who are you?” The faint background art on the definition slides (0:55 and 9:15) also reads “Broken Authentication,” the older category name.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Access &amp; Authentication poses two questions: <em>who are you?</em> (authentication) and <em>what are you allowed to do?</em> (authorization). The second is the #1 risk. The 2025 category is named “Authentication Failures.”</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Cosmetic. The narration at 7:29 asks both questions correctly.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e14" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e14" aria-label="Permalink to item 14">#14</a>
+            <span class="time">7:38–8:21</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration and slide</span>
+          </p>
+          <h3>Forced browsing is on the slide but never explained; “deny by default” is missing</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>IDOR, privilege escalation and SSRF are narrated. “Forced Browsing: Accessing hidden URLs” appears on the slide only.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Forced browsing is reaching restricted pages directly by URL when the app “only hides them from the interface rather than actually enforcing access on the server.” SSRF targets internal systems “or cloud metadata.” The defense is to enforce authorization on the server for every request, <b>deny by default</b>, and verify ownership and role.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Narrate forced browsing, mention cloud metadata, and add “deny by default,” which the video never says.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--imprecise" id="e15" data-type="imprecise">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e15" aria-label="Permalink to item 15">#15</a>
+            <span class="time">8:26</span>
+            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>Credential stuffing tied to weak password policies</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>“If you have weak password policies, you’re wide open to credential stuffing, where attackers just reuse passwords leaked from other breaches.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Authentication failures “include weak password policies, vulnerability to credential stuffing (replaying credentials leaked from other breaches) and brute force, flawed or missing MFA.” These are listed as separate failures.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Present them as separate problems. The definition of credential stuffing is correct; the cause-and-effect link is the video’s own.</p><p class="beyond"><strong>Beyond the module text.</strong> Credential stuffing replays passwords that are already valid, so a strict password policy does not stop it. Password reuse and missing MFA are what expose an application.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e16" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e16" aria-label="Permalink to item 16">#16</a>
+            <span class="time">8:26–8:50</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>MFA, brute force and session fixation left out</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>Covered: credential stuffing, predictable tokens, sessions that never expire, and the HttpOnly and SameSite flags.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Also listed: brute force; <b>flawed or missing MFA</b>; tokens not regenerated after login (<b>session fixation</b>); and the <b>Secure</b> flag alongside HttpOnly and SameSite. The section ties all of this to Module 11 (session hijacking). The defenses are strong password handling, MFA, and token generation, regeneration and expiry.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add MFA at minimum. Multi-factor authentication is not mentioned anywhere in the video, as an attack target or as a defense.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e17" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e17" aria-label="Permalink to item 17">#17</a>
+            <span class="time">8:54–9:09</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>File upload defenses mostly missing</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>The video says to validate a file’s actual content, “not just looking at the file extension.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>The upload is dangerous if the server “stores it in a web-accessible place and executes it.” Four defenses: validate file type and actual content, <b>rename uploaded files</b>, <b>store them outside the web root</b>, and <b>never execute them</b>.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add the other three defenses. The knowledge check explanation for question 8 lists all four.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e18" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e18" aria-label="Permalink to item 18">#18</a>
+            <span class="time">after 9:09</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Not in the video</span>
+          </p>
+          <h3>API weaknesses are missing</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>The video moves from file upload to tools. APIs appear only as passing mentions at 1:32 and 2:08.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Access &amp; Authentication → “File upload and API weaknesses”: APIs are “one of the most critical modern surfaces.” The 2025 Top 10 folds <b>BOLA</b> (broken object-level authorization) and <b>BFLA</b> (broken function-level authorization) into the #1 category. Authenticate and authorize every endpoint, validate every parameter, and never assume a caller is the official client.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add a short segment. BOLA and BFLA are never named in the video, and the knowledge check explanation for question 2 uses both terms.</p></dd></div>
+        </dl>
+      </article>
+    </section>
+    <section class="group" id="ch-s5" aria-labelledby="h-s5">
+      <h2 id="h-s5">Section 5: Tools <span class="time">9:10–10:48</span></h2>
+      
+      <article class="erratum erratum--omission" id="e19" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e19" aria-label="Permalink to item 19">#19</a>
+            <span class="time">9:41–10:01</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>Burp Suite’s components and ZAP’s features not named</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>Burp Suite and OWASP ZAP “intercept, pause, modify, and replay HTTP requests.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Burp Suite: <b>Proxy</b> intercepts and modifies traffic, <b>Repeater</b> replays and tweaks requests, <b>Intruder</b> fuzzes inputs at scale, <b>Scanner</b> automates detection. OWASP ZAP offers an intercepting proxy, automated scanning and spidering, and suits learning and CI/CD integration.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Name the four Burp components. Students will meet them in the labs.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e20" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e20" aria-label="Permalink to item 20">#20</a>
+            <span class="time">10:13–10:46</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration and slide</span>
+          </p>
+          <h3>Testing spectrum is thinner than the module’s</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>DAST “is what Burp Suite does.” SAST example: SonarQube. SCA: no tool is narrated; the slide shows Snyk.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Burp <b>and ZAP</b> are DAST tools, good at injection, XSS, misconfiguration and runtime access-control issues. SAST tools: Semgrep, SonarQube, Checkmarx, catching injection and crypto flaws. SCA tools: Snyk and OWASP Dependency-Check. A mature program runs SAST and SCA in the pipeline, DAST against running builds, and <b>manual penetration testing</b> to validate everything in context.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Say that ZAP is also DAST, and add manual penetration testing as the fourth element. The video also describes supply-chain risk as “climbing up” the Top 10 here, after calling it a new category at 4:21; the module calls it new or expanded.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e21" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e21" aria-label="Permalink to item 21">#21</a>
+            <span class="time">before 10:48</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Not in the video</span>
+          </p>
+          <h3>Supporting tools not covered</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>The tools section ends after SCA.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Tools → “Supporting tools and practice targets”: Gobuster and dirb for directory brute-forcing, Nikto for server-level checks, and specialized scanners for APIs and frameworks. The deliberately vulnerable apps are DVWA, OWASP Juice Shop and WebGoat.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add one sentence on discovery tools. See the first item for the practice targets.</p></dd></div>
+        </dl>
+      </article>
+    </section>
+    <section class="group" id="ch-s6" aria-labelledby="h-s6">
+      <h2 id="h-s6">Section 6: Countermeasures and review <span class="time">10:48–12:21</span></h2>
+      
+      <article class="erratum erratum--omission" id="e22" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e22" aria-label="Permalink to item 22">#22</a>
+            <span class="time">10:58–11:42</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>One of the four secure-coding principles is absent; shift-left is reduced to threat modeling</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>Three principles are covered: validate input on the server, separate code from data, enforce authorization on the server. “Shifting left” is illustrated only by threat modeling during design.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>The fourth principle is <b>robust authentication and sessions</b>: strong password handling, MFA, unpredictable tokens, regeneration after login, expiry and secure cookie flags. Shift left also means SAST in the pipeline at commit, SCA before dependencies ship, and DAST plus manual testing on the running application, because flaws are cheapest to fix early. The module links this to the 2025 list’s Insecure Design and Supply Chain categories.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add the fourth principle and connect the SAST, SCA and DAST tools from Section 5 to the lifecycle.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--imprecise" id="e23" data-type="imprecise">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e23" aria-label="Permalink to item 23">#23</a>
+            <span class="time">11:17–11:26</span>
+            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>Parameterized queries credited with defeating all injection</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>“To defeat injection attacks once and for all, you use parameterized queries.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Parameterized queries and prepared statements “pass user data to the database as data, never as executable SQL.” The defense for the whole family is the principle, separate code from data, applied through parameterized queries, <b>safe APIs</b>, output encoding and input validation.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Parameterized queries stop SQL injection. They do nothing for command injection, which needs safe APIs that avoid the shell, or for XSS, which needs output encoding. The video does give output encoding for XSS in its next sentence.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--omission" id="e24" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e24" aria-label="Permalink to item 24">#24</a>
+            <span class="time">after 11:42</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Not in the video</span>
+          </p>
+          <h3>The reinforcing layers are missing</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>The countermeasures stop at secure coding and go straight to the review.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Countermeasures → “Reinforcing layers”: a <b>Web Application Firewall</b> that blocks known injection and XSS patterns and provides virtual patching, “a layer, never a substitute for fixing the code”; <b>security response headers</b> (Content-Security-Policy, HSTS, X-Content-Type-Options); comprehensive <b>logging and alerting</b>, the concern of A09; and regular <b>penetration testing and code review</b>.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Add all four. The video never mentions a WAF, and the knowledge check explanation for question 10 does.</p></dd></div>
+        </dl>
+      </article>
+      <article class="erratum erratum--imprecise" id="e25" data-type="imprecise">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e25" aria-label="Permalink to item 25">#25</a>
+            <span class="time">11:51–12:18</span>
+            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>Module’s five ideas reduced to “two fundamental root causes”</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>“Almost everything we’ve talked about boils down to two fundamental root causes”: failing to separate code from data, and trusting the client.</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Countermeasures → “The through-line” gives five ideas: don’t trust the client, keep code and data separate, enforce access on the server, <b>handle identity and sessions properly</b>, and <b>build security in throughout the lifecycle</b>. “Every item in the OWASP Top 10 is, at root, a violation of one of these.”</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Present the two causes as the video’s summary of injection and access control only. Authentication and session failures, which the video covered at 8:21, do not fit either one.</p></dd></div>
+        </dl>
+      </article>
+    </section>
+    <section class="group" id="ch-close" aria-labelledby="h-close">
+      <h2 id="h-close">Closing thought on AI <span class="time">12:21–13:13</span></h2>
+      
+      <article class="erratum erratum--omission" id="e26" data-type="omission">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e26" aria-label="Permalink to item 26">#26</a>
+            <span class="time">12:23–13:02</span>
+            <span class="badge badge--omission"><span aria-hidden="true">∅</span> Omission</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>AI’s role in testing narrowed to payload generation</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><p>AI “can help us generate test payloads” and “writes vulnerable code at scale,” producing “cryptographic and injection flaws.”</p></dd></div>
+          <div><dt>In the module</dt><dd><p>Tools → “The AI dimension”: CEH v13 emphasizes AI-assisted testing. AI helps generate payloads, <b>triage scanner output</b> and <b>reason about multi-step exploits</b> that scanners miss. AI coding assistants generate injection patterns, <b>authentication weaknesses</b> and cryptographic mistakes. AI is “a powerful accelerant on both sides.”</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Minor. The video’s conclusion matches the module’s: demand for testers rises. Add the two other uses and authentication weaknesses.</p></dd></div>
+        </dl>
+      </article>
+    </section>
+    <section class="group" id="ch-all" aria-labelledby="h-all">
+      <h2 id="h-all">Across the whole video </h2>
+      
+      <article class="erratum erratum--imprecise" id="e27" data-type="imprecise">
+        <header class="erratum__head">
+          <p class="erratum__meta">
+            <a class="erratum__num" href="#e27" aria-label="Permalink to item 27">#27</a>
+            <span class="time">throughout</span>
+            <span class="badge badge--imprecise"><span aria-hidden="true">≈</span> Imprecise</span>
+            <span class="where">Narration</span>
+          </p>
+          <h3>Details and analogies the module does not contain</h3>
+        </header>
+        <dl class="erratum__body">
+          <div><dt>In the video</dt><dd><ul><li>2:18, a “max length check on a password.” The module says only “a length check.”</li><li>5:57, stored XSS works “like a landmine.”</li><li>8:46, SameSite exists “to stop cross-site request forgery.” The module lists the SameSite flag but does not cover CSRF at all.</li><li>9:49, the proxy acts “like a toll booth.”</li><li>11:20, a parameterized query “pre-compiles the SQL statement.”</li></ul></dd></div>
+          <div><dt>In the module</dt><dd><p>None of these appear in the module.</p></dd></div>
+          <div class="fix"><dt>Correction</dt><dd><p>Nothing here contradicts the module. Students should know that CSRF and query pre-compilation are not part of Module 14 and are not assessed in its knowledge check.</p></dd></div>
+        </dl>
+      </article>
+    </section>
+  </section>
+
+  <section aria-labelledby="h-quiz">
+    <h2 id="h-quiz">Does the video prepare students for the knowledge check?</h2>
+    <p>Each of the module’s ten questions, and whether a student who only watched the video could answer it and follow its explanation.</p>
+    <div class="table-scroll" role="region" aria-labelledby="h-quiz" tabindex="0">
+      <table>
+        <thead><tr><th scope="col">#</th><th scope="col">Question</th><th scope="col">Video</th><th scope="col">Note</th></tr></thead>
+        <tbody><tr><th scope="row">1</th><td>How does web application hacking differ from web server hacking?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 1:07.</td></tr><tr><th scope="row">2</th><td>What is the #1 risk in the OWASP Top 10 2025?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 3:34. The explanation’s point that A01 absorbed SSRF and covers BOLA/BFLA is not.</td></tr><tr><th scope="row">3</th><td>What is the OWASP Top 10?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 3:25, along with the two new 2025 categories.</td></tr><tr><th scope="row">4</th><td>What is Cross-Site Scripting (XSS)?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 5:29 with all three types. The video does not place it under A05.</td></tr><tr><th scope="row">5</th><td>Which OWASP category do SQL injection, XSS, and command injection all belong to?</td><td><span class="cov cov--part"><span aria-hidden="true">◐</span> Partly</span></td><td>The video groups them as one injection family but never names A05 or shows the list.</td></tr><tr><th scope="row">6</th><td>What is command injection?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 6:23. The defense (safe APIs) is missing.</td></tr><tr><th scope="row">7</th><td>What is an Insecure Direct Object Reference (IDOR)?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 7:38 with the same 123 to 124 example.</td></tr><tr><th scope="row">8</th><td>Why are file upload features a common attack vector?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 8:54. Three of the four defenses are missing.</td></tr><tr><th scope="row">9</th><td>Which tool is the industry-standard proxy for intercepting and manipulating web application traffic?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 9:41.</td></tr><tr><th scope="row">10</th><td>What is the most fundamental defense against injection and XSS vulnerabilities?</td><td><span class="cov cov--yes"><span aria-hidden="true">✓</span> Covered</span></td><td>Covered at 11:10. Safe APIs and the WAF, both in the explanation, are missing.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>Built for <span class="program">CEH v13 Module 14: Hacking Web Applications</span> · Brookdale Community College · <span class="year">2026</span></p>
+    <p>Video reviewed 12 November 2026 against the module as published that day. <a href="https://mqaissaunee-bcc.github.io/ceh/ceh_module14.html">Open Module 14</a></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var THEME_KEY = 'ceh-m14-errata-theme';
+
+  /* theme */
+  var themeBtn = document.getElementById('themeBtn');
+  function systemDark() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function currentTheme() {
+    return root.getAttribute('data-theme') || (systemDark() ? 'dark' : 'light');
+  }
+  function labelTheme() {
+    var dark = currentTheme() === 'dark';
+    themeBtn.textContent = dark ? 'Use light theme' : 'Use dark theme';
+    themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+  }
+  try {
+    var saved = localStorage.getItem(THEME_KEY);
+    if (saved === 'dark' || saved === 'light') { root.setAttribute('data-theme', saved); }
+  } catch (e) { /* storage unavailable */ }
+  labelTheme();
+  themeBtn.addEventListener('click', function () {
+    var next = currentTheme() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* storage unavailable */ }
+    labelTheme();
+  });
+
+  /* filter */
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+  var items = Array.prototype.slice.call(document.querySelectorAll('.erratum'));
+  var groups = Array.prototype.slice.call(document.querySelectorAll('.group'));
+  var status = document.getElementById('status');
+  var names = { error: 'errors', imprecise: 'imprecise statements', omission: 'omissions', slide: 'slide defects' };
+
+  function applyFilter(type) {
+    var shown = 0;
+    items.forEach(function (el) {
+      var show = type === 'all' || el.getAttribute('data-type') === type;
+      el.hidden = !show;
+      if (show) { shown++; }
+    });
+    groups.forEach(function (g) {
+      g.hidden = !g.querySelector('.erratum:not([hidden])');
+    });
+    chips.forEach(function (c) {
+      c.setAttribute('aria-pressed', c.getAttribute('data-filter') === type ? 'true' : 'false');
+    });
+    status.textContent = type === 'all'
+      ? 'Showing all ' + shown + ' items.'
+      : 'Showing ' + shown + ' ' + names[type] + '.';
+  }
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () { applyFilter(c.getAttribute('data-filter')); });
+  });
+
+  /* a link to a hidden item clears the filter first */
+  function revealTarget() {
+    var id = (window.location.hash || '').slice(1);
+    if (!id) { return; }
+    var el = document.getElementById(id);
+    if (el && (el.hidden || (el.closest('.group') && el.closest('.group').hidden))) {
+      applyFilter('all');
+      el.scrollIntoView();
+    }
+  }
+  window.addEventListener('hashchange', revealTarget);
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest ? ev.target.closest('a[href^="#e"], a[href^="#ch-"]') : null;
+    if (!a) { return; }
+    var el = document.getElementById(a.getAttribute('href').slice(1));
+    if (el && (el.hidden || (el.closest('.group') && el.closest('.group').hidden) || (el.classList.contains('group') && el.hidden))) {
+      applyFilter('all');
+    }
+  });
+})();
+
+</script>
+</body>
+</html>
